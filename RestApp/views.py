@@ -38,11 +38,14 @@ def authenticate_user(request):
     try:
         email = request.data['email']
         password = request.data['password']
-        user = User.objects.filter(email=email, password=password)
-        if user:
+        user = User.objects.get(email=email, password=password)
+        print(user)
+        if user[0]!='id':
             try:
                 payload = jwt_payload_handler(user[0])
+                print(payload)
                 token = jwt.encode(payload, settings.SECRET_KEY)
+                print(token)
                 user_details = {}
                 user_details['user'] = payload['username']
                 user_details['token'] = token
