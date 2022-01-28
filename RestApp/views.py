@@ -43,12 +43,12 @@ def authenticate_user(request):
        # print(user)
         if bool(user):
             try:
-                payload = jwt_payload_handler(user[0])
+                payload = jwt_payload_handler(user)
                 token = jwt.encode(payload, settings.SECRET_KEY)
                 user_details = {}
                 user_details['user'] = payload['username']
                 user_details['token'] = token
-                print(user_details)
+                
                 return Response(user_details, status=status.HTTP_200_OK)
 
             except Exception as e:
