@@ -39,14 +39,11 @@ def authenticate_user(request):
         email = request.data['email']
         password = request.data['password']
         user = User.objects.get(email=email, password=password)
-<<<<<<< HEAD
-
         #print(user)
         
-        return JsonResponse(user)
-=======
+        #return JsonResponse(user)
+
         print(json.dumps(user))
->>>>>>> 85de7b95978fbae9266619b783ee44a3e2905dd3
         print(user)
         if user:
             try:
