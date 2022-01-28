@@ -38,17 +38,15 @@ def authenticate_user(request):
     try:
         email = request.data['email']
         password = request.data['password']
-        user = User.objects.get(email=email, password=password)
-       # print(json.dumps(user))
-       # print(user)
-        if bool(user):
+        user = User.objects.filter(email=email, password=password)
+        if user:
             try:
-                payload = jwt_payload_handler(user)
+                payload = jwt_payload_handler(user[0])
                 token = jwt.encode(payload, settings.SECRET_KEY)
                 user_details = {}
                 user_details['user'] = payload['username']
                 user_details['token'] = token
-                
+                print(user_details)
                 return Response(user_details, status=status.HTTP_200_OK)
 
             except Exception as e:

@@ -6,3 +6,5 @@ urlpatterns = [
     url('',include('RestApp.urls')),
     url('admin/', admin.site.urls),
 ]
+
+    
