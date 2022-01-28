@@ -39,8 +39,14 @@ def authenticate_user(request):
         email = request.data['email']
         password = request.data['password']
         user = User.objects.get(email=email, password=password)
+<<<<<<< HEAD
         print(user)
         if user[0]!='id':
+=======
+        return JsonResponse(user)
+        print(user)
+        if user:
+>>>>>>> 6aa685fc322e0b48853d009f41aa48bb4653c056
             try:
                 payload = jwt_payload_handler(user[0])
                 print(payload)
