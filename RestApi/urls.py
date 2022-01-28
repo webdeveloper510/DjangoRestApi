@@ -1,8 +1,8 @@
 from django.contrib import admin
-from django.urls import path,include
-from RestApp.urls import path
+from django.conf.urls import url, include
+from RestApp.urls import url
 
 urlpatterns = [
-    path('',include('RestApp.urls')),
-    path('admin/', admin.site.urls),
+    url('',include('RestApp.urls')),
+    url('admin/', admin.site.urls),
 ]
