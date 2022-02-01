@@ -13,7 +13,7 @@ from rest_framework_jwt.settings import api_settings
 from rest_framework.permissions import AllowAny
 import jwt
 from django.conf import settings
-
+from django.core import serializers
 
 class CreateUserAPIView(APIView):
     # Allow any user (authenticated or not) to access this url
@@ -27,34 +27,22 @@ class CreateUserAPIView(APIView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-# https://code.tutsplus.com/tutorials/how-to-authenticate-with-jwt-in-django--cms-30460
-
 
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def authenticate_user(request):
-    SECRET_KEY = settings.SECRET_KEY
-    jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+
     try:
         email = request.data['email']
         password = request.data['password']
-        user = User.objects.get(email=email, password=password)
-        #print(user)
-        
-        #return JsonResponse(user)
+        user = User.objects.filter(email=email, password=password)
 
-        print(json.dumps(user))
-        print(user)
         if user:
             try:
-                payload = jwt_payload_handler(user[0])
-                print(payload)
-                token = jwt.encode(payload, settings.SECRET_KEY)
-                print(token)
+                token = jwt.encode({'username':user[0].username}, settings.SECRET_KEY)
                 user_details = {}
-                user_details['user'] = payload['username']
+                user_details['user'] = user[0].username
                 user_details['token'] = token
-                print(user_details)
                 return Response(user_details, status=status.HTTP_200_OK)
 
             except Exception as e:
@@ -66,3 +54,4 @@ def authenticate_user(request):
     except KeyError:
         res = {'error': 'please provide a email and a password'}
         return Response(res)
+                                                                                     
