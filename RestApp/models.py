@@ -15,3 +15,15 @@ def login_handler(sender, user, request, **kwargs):
     print('logged in')
 
 user_logged_in.connect(login_handler)
+
+
+class CreateProject(models.Model):
+    project_name = models.CharField(max_length=100)
+    project_desc = models.CharField(max_length=200)
+
+
+class LocalLadder(models.Model):
+    position = models.CharField(max_length=100,default='')
+    season  = models.CharField(max_length=100)
+    teamname = models.CharField(max_length=100)
+    shortname = models.CharField(max_length=100)

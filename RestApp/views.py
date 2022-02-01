@@ -5,8 +5,8 @@ from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_MET
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from RestApi.settings import SECRET_KEY
-from .models import User
-from .serializers import UserSerializer
+from .models import User, LocalLadder
+from .serializers import UserSerializer, LocalLaddderSerializer, CreateProjectSerializer
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework_jwt.settings import api_settings
@@ -41,8 +41,6 @@ def authenticate_user(request):
             try:
                 token = jwt.encode(
                     {'username': user[0].username}, settings.SECRET_KEY)
-                token = jwt.encode(
-                    {'username': user[0].username}, settings.SECRET_KEY)
                 user_details = {}
                 user_details['user'] = user[0].username
                 user_details['token'] = token
@@ -58,3 +56,33 @@ def authenticate_user(request):
     except KeyError:
         res = {'error': 'please provide a email and a password'}
         return Response(res)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny, ])
+def ProjNameDescRequest(request):
+    Projectdata = request.data
+    serializer = CreateProjectSerializer(data=Projectdata)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny, ])
+def LocalLadderRequest(request):
+    LocalLadder = request.data
+    serializer = LocalLaddderSerializer(data=LocalLadder)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+# def GetLocalLadderRequest(request):
+
+#     df = pd.DataFrame(list(LocalLadder.objects.filter().values()))
+#     ladder = df.reset_index(drop=True)
+#     context = {
+#         'data':ladder.to_html()
+#     }
+#     return render(request,'RestApi/LocalLadder.html',context)
