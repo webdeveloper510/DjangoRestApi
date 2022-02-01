@@ -13,6 +13,7 @@ from rest_framework_jwt.settings import api_settings
 from rest_framework.permissions import AllowAny
 import jwt
 from django.conf import settings
+from django.core import serializers
 
 
 class CreateUserAPIView(APIView):
@@ -38,6 +39,8 @@ def authenticate_user(request):
         user = User.objects.filter(email=email, password=password)
         if user:
             try:
+                token = jwt.encode(
+                    {'username': user[0].username}, settings.SECRET_KEY)
                 token = jwt.encode(
                     {'username': user[0].username}, settings.SECRET_KEY)
                 user_details = {}
