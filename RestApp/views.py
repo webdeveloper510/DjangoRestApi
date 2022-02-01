@@ -27,33 +27,30 @@ class CreateUserAPIView(APIView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-# https://code.tutsplus.com/tutorials/how-to-authenticate-with-jwt-in-django--cms-30460
-
 
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def authenticate_user(request):
-    SECRET_KEY = settings.SECRET_KEY
-    jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+
     try:
         email = request.data['email']
         password = request.data['password']
         user = User.objects.filter(email=email, password=password)
         if user:
             try:
-                payload = jwt_payload_handler(user[0])
-                token = jwt.encode(payload, settings.SECRET_KEY)
+                token = jwt.encode(
+                    {'username': user[0].username}, settings.SECRET_KEY)
                 user_details = {}
-                user_details['user'] = payload['username']
+                user_details['user'] = user[0].username
                 user_details['token'] = token
-                print(user_details)
                 return Response(user_details, status=status.HTTP_200_OK)
 
             except Exception as e:
                 raise e
         else:
             res = {
-                'error': 'can not authenticate with the given credentials or the account has been deactivated'}
+                'error': 'can not authenticate with the given credentials or the account has been deactivated'
+            }
             return Response(res, status=status.HTTP_403_FORBIDDEN)
     except KeyError:
         res = {'error': 'please provide a email and a password'}
