@@ -29,7 +29,8 @@ DEBUG = True
 
 
 ALLOWED_HOSTS = []
-SECRET_KEY = os.environ.get('SECRET_KEY', 'mmglfamx3n927*93$ks#r)h%*a(@))vb7*=2q$&z(=6@q&*ghj')
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY', 'mmglfamx3n927*93$ks#r)h%*a(@))vb7*=2q$&z(=6@q&*ghj')
 
 # Application definition
 
@@ -45,10 +46,10 @@ INSTALLED_APPS = [
 ]
 
 REST_FRAMEWORK = {
-  'DEFAULT_AUTHENTICATION_CLASSES': (
-    'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-    
-  ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+
+    ),
 }
 JWT_AUTH = {
 
