@@ -28,10 +28,11 @@ class LocalLadder(models.Model):
     teamname = models.CharField(max_length=100)
     shortname = models.CharField(max_length=100)
 
+
 class MasterList(models.Model):
-    Year = models.CharField(max_length=100,default='')
+    Year = models.CharField(max_length=100, default='')
     Transaction_Number = models.IntegerField()
-    Transaction_DateTime = models.DateField()
-    Transaction_Type = models.CharField(max_length=100,default='')
-    Transaction_Details = models.CharField(max_length=100,default='')
-    Transaction_Description = models.CharField(max_length=100,default='')
+    Transaction_DateTime = models.DateTimeField(auto_now_add=True)
+    Transaction_Type = models.CharField(max_length=100, default='')
+    Transaction_Details = models.CharField(max_length=100, default='')
+    Transaction_Description = models.CharField(max_length=100, default='')

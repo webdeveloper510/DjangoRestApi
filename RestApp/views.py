@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from RestApi.settings import SECRET_KEY
 from .models import User, LocalLadder
-from .serializers import UserSerializer, LocalLaddderSerializer, CreateProjectSerializer,MasterLIstSerializer
+from .serializers import UserSerializer, LocalLaddderSerializer, CreateProjectSerializer, MasterLIstSerializer
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework_jwt.settings import api_settings
@@ -15,6 +15,7 @@ from rest_framework.permissions import AllowAny
 import jwt
 from django.conf import settings
 from django.core import serializers
+from .models import MasterList
 
 
 class CreateUserAPIView(APIView):
@@ -78,14 +79,20 @@ def LocalLadderRequest(request):
     serializer.save()
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def CreateMasterListRequest(request):
     MasterList = request.data
-    serializer = MasterLIstSerializer(data = MasterList)
+    serializer = MasterLIstSerializer(data=MasterList)
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    return Response(serializer.data,status=status.HTTP_201_CREATED)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-
+@api_view(['POST'])
+@permission_classes([AllowAny, ])
+def UpdateMasterListRequest(request):
+    data_dict = request.data
+    instance = MasterList.objects.filter().update(**data_dict)
+    return Response(instance, status=status.HTTP_201_CREATED)
