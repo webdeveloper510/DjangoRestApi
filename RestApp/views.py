@@ -1,7 +1,7 @@
 import json
 from logging import raiseExceptions
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -35,8 +35,6 @@ class CreateUserAPIView(APIView):
         return Response({'success': 'User Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
-
-
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def authenticate_user(request):
@@ -46,8 +44,10 @@ def authenticate_user(request):
         password = request.data['password']
         user = User.objects.filter(email=email, password=password)
         if user:
+            request.session['userId'] = user[0].id
             try:
-                token = jwt.encode( {'username': user[0].username}, settings.SECRET_KEY)
+                token = jwt.encode(
+                    {'username': user[0].username}, settings.SECRET_KEY)
                 user_details = {}
                 user_details['user'] = user[0].username
                 user_details['token'] = token
@@ -65,30 +65,38 @@ def authenticate_user(request):
         return Response(res)
 
 
-
+@api_view(['GET'])
+@permission_classes([AllowAny, ])
+def LogoutRequest(request):
+    if request.session['userId']:
+        url = request.build_absolute_uri()
+        request.session['userId'] = 0
+        # return HttpResponseRedirect(redirect_to='')
+        res = "You have been logout !"
+        return Response(res, status=status.HTTP_403_FORBIDDEN)
 
 
 class CustomNCPAuthBackend(object):
     """
     This is custom authentication backend.
     Authenticate against the webservices call.
-
     The method below would override authenticate() of django.contrib.auth    
     """
+
     def authenticate_password(self, username=None, password=None):
-        print ("inside authenticate of username and password with username being : "+username)
+        print(
+            "inside authenticate of username and password with username being : "+username)
         return None
 
-    def authenticate_token(self,token=None):
-        print ("inside authenticate of token with token being : "+token)
+    def authenticate_token(self, token=None):
+        print("inside authenticate of token with token being : "+token)
         return None
 
     def authenticate(self, token=None, username=None, password=None):
         if token is not None:
-             return self.authenticate_token(token)
+            return self.authenticate_token(token)
         else:
-             return self.authenticate_password(username, password)
-
+            return self.authenticate_password(username, password)
 
 
 @api_view(['POST'])

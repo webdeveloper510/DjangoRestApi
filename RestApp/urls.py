@@ -5,7 +5,7 @@
 from unicodedata import name
 from django.conf.urls import url
 from django.contrib.auth import views as auth_views
-from .views import CreateUserAPIView, authenticate_user, LocalLadderRequest, ProjNameDescRequest, CreateMasterListRequest, UpdateMasterListRequest, GETLocalLadderRequest, GETMasterListRequest, GETProjectRequest
+from .views import CreateUserAPIView, authenticate_user, LocalLadderRequest, ProjNameDescRequest, CreateMasterListRequest, UpdateMasterListRequest, GETLocalLadderRequest, GETMasterListRequest, GETProjectRequest, LogoutRequest
 
 
 urlpatterns = [
@@ -18,4 +18,5 @@ urlpatterns = [
     url(r'^ShowLocalLadder/$', GETLocalLadderRequest, name="ShowLocalLadder"),
     url(r'^ShowMasterList/$', GETMasterListRequest, name="ShowMasterList"),
     url(r'^ShowProject/$', GETProjectRequest, name="ShowProject"),
+    url(r'^Logout/$', LogoutRequest, name="Logout"),
 ]
