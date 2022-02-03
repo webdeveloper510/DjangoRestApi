@@ -126,9 +126,7 @@ def UpdateMasterListRequest(request):
 @permission_classes([AllowAny, ])
 def GETProjectRequest(request):
     data_dict = CreateProject.objects.filter().values()
-    data = serialize("json", data_dict)
-    print(data)
-    return Response(data, status=status.HTTP_201_CREATED)
+    return Response(data_dict, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
