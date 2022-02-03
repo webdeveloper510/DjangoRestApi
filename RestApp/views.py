@@ -143,5 +143,5 @@ def GETLocalLadderRequest(request):
 @api_view(['GET'])
 @permission_classes([AllowAny, ])
 def GETMasterListRequest(request):
-    data_dict = MasterList.objects.filter().valus()
+    data_dict = MasterList.objects.filter().values()
     return Response(data_dict, status=status.HTTP_201_CREATED)
