@@ -15,8 +15,12 @@ from rest_framework.permissions import AllowAny
 import jwt
 from django.conf import settings
 from django.core import serializers
-from .models import MasterList
+from .models import MasterList, LocalLadder, CreateProject
+import json
+from django.core.serializers import serialize
 
+
+#  ########################################  POST Requests ###############################################################
 
 class CreateUserAPIView(APIView):
     # Allow any user (authenticated or not) to access this url
@@ -28,7 +32,9 @@ class CreateUserAPIView(APIView):
         serializer = UserSerializer(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({'success': 'User Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+
+
 
 
 @api_view(['POST'])
@@ -41,8 +47,7 @@ def authenticate_user(request):
         user = User.objects.filter(email=email, password=password)
         if user:
             try:
-                token = jwt.encode(
-                    {'username': user[0].username}, settings.SECRET_KEY)
+                token = jwt.encode( {'username': user[0].username}, settings.SECRET_KEY)
                 user_details = {}
                 user_details['user'] = user[0].username
                 user_details['token'] = token
@@ -60,6 +65,32 @@ def authenticate_user(request):
         return Response(res)
 
 
+
+
+
+class CustomNCPAuthBackend(object):
+    """
+    This is custom authentication backend.
+    Authenticate against the webservices call.
+
+    The method below would override authenticate() of django.contrib.auth    
+    """
+    def authenticate_password(self, username=None, password=None):
+        print ("inside authenticate of username and password with username being : "+username)
+        return None
+
+    def authenticate_token(self,token=None):
+        print ("inside authenticate of token with token being : "+token)
+        return None
+
+    def authenticate(self, token=None, username=None, password=None):
+        if token is not None:
+             return self.authenticate_token(token)
+        else:
+             return self.authenticate_password(username, password)
+
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def ProjNameDescRequest(request):
@@ -67,7 +98,7 @@ def ProjNameDescRequest(request):
     serializer = CreateProjectSerializer(data=Projectdata)
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response({'success': 'Project Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -77,7 +108,7 @@ def LocalLadderRequest(request):
     serializer = LocalLaddderSerializer(data=LocalLadder)
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response({'success': 'LocalLadder Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -87,7 +118,7 @@ def CreateMasterListRequest(request):
     serializer = MasterLIstSerializer(data=MasterList)
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response({'success': 'MasterList Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -95,4 +126,33 @@ def CreateMasterListRequest(request):
 def UpdateMasterListRequest(request):
     data_dict = request.data
     instance = MasterList.objects.filter().update(**data_dict)
-    return Response(instance, status=status.HTTP_201_CREATED)
+    return Response({"Success": "Data Updated Successfully", "data": instance}, status=status.HTTP_201_CREATED)
+
+
+#  ########################################  GET Requests ###############################################################
+
+@api_view(['GET'])
+@permission_classes([AllowAny, ])
+def GETProjectRequest(request):
+    data_dict = CreateProject.objects.filter()
+    data = serialize("json", data_dict)
+    print(data)
+    return Response(data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny, ])
+def GETLocalLadderRequest(request):
+    data_dict = LocalLadder.objects.filter()
+    data = serialize("json", data_dict)
+    print(data)
+    return Response(data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny, ])
+def GETMasterListRequest(request):
+    data_dict = MasterList.objects.filter()
+    data = serialize("json", data_dict)
+    print(data)
+    return Response(data, status=status.HTTP_201_CREATED)

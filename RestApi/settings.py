@@ -41,6 +41,8 @@ CORS_ALLOWED_ORIGINS = [
 SECRET_KEY = os.environ.get('SECRET_KEY', 'mmglfamx3n927*93$ks#r)h%*a(@))vb7*=2q$&z(=6@q&*ghj')
 
 
+WHITENOISE_AUTOREFRESH = True
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -61,6 +63,7 @@ REST_FRAMEWORK = {
 
     ),
 }
+
 
 JWT_AUTH = {
 
@@ -120,6 +123,7 @@ DATABASES = {
 }
 
 
+
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
@@ -165,3 +169,4 @@ MEDIA_ROOT = BASE_DIR / '/media'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+WHITENOISE_AUTOREFRESH = True
