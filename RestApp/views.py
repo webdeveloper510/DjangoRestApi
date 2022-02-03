@@ -1,6 +1,6 @@
 import json
 from logging import raiseExceptions
-from django.shortcuts import render
+from django.shortcuts import render ,redirect
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
@@ -18,7 +18,7 @@ from django.core import serializers
 from .models import MasterList, LocalLadder, CreateProject
 import json
 from django.core.serializers import serialize
-
+from django.views.decorators.csrf import csrf_exempt
 
 #  ########################################  POST Requests ###############################################################
 
@@ -35,6 +35,8 @@ class CreateUserAPIView(APIView):
         return Response({'success': 'User Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def authenticate_user(request):
@@ -48,6 +50,7 @@ def authenticate_user(request):
             try:
                 token = jwt.encode(
                     {'username': user[0].username}, settings.SECRET_KEY)
+                request.session['token'] = token
                 user_details = {}
                 user_details['user'] = user[0].username
                 user_details['token'] = token
@@ -65,38 +68,18 @@ def authenticate_user(request):
         return Response(res)
 
 
+
 @api_view(['GET'])
 @permission_classes([AllowAny, ])
 def LogoutRequest(request):
-    if request.session['userId']:
+    if request.session['userId']:               
         url = request.build_absolute_uri()
         request.session['userId'] = 0
         # return HttpResponseRedirect(redirect_to='')
-        res = "You have been logout !"
+        res = "You have been logged out !"
         return Response(res, status=status.HTTP_403_FORBIDDEN)
 
 
-class CustomNCPAuthBackend(object):
-    """
-    This is custom authentication backend.
-    Authenticate against the webservices call.
-    The method below would override authenticate() of django.contrib.auth    
-    """
-
-    def authenticate_password(self, username=None, password=None):
-        print(
-            "inside authenticate of username and password with username being : "+username)
-        return None
-
-    def authenticate_token(self, token=None):
-        print("inside authenticate of token with token being : "+token)
-        return None
-
-    def authenticate(self, token=None, username=None, password=None):
-        if token is not None:
-            return self.authenticate_token(token)
-        else:
-            return self.authenticate_password(username, password)
 
 
 @api_view(['POST'])
@@ -110,7 +93,7 @@ def ProjNameDescRequest(request):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny, ])
+@csrf_exempt
 def LocalLadderRequest(request):
     LocalLadder = request.data
     serializer = LocalLaddderSerializer(data=LocalLadder)
@@ -142,7 +125,7 @@ def UpdateMasterListRequest(request):
 @api_view(['GET'])
 @permission_classes([AllowAny, ])
 def GETProjectRequest(request):
-    data_dict = CreateProject.objects.filter()
+    data_dict = CreateProject.objects.filter().values()
     data = serialize("json", data_dict)
     print(data)
     return Response(data, status=status.HTTP_201_CREATED)
@@ -151,16 +134,14 @@ def GETProjectRequest(request):
 @api_view(['GET'])
 @permission_classes([AllowAny, ])
 def GETLocalLadderRequest(request):
-    data_dict = LocalLadder.objects.filter()
-    data = serialize("json", data_dict)
-    print(data)
-    return Response(data, status=status.HTTP_201_CREATED)
+    data_dict = LocalLadder.objects.filter().values()
+    # data = serialize("json", data_dict)
+    print(data_dict)
+    return Response(data_dict, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
 @permission_classes([AllowAny, ])
 def GETMasterListRequest(request):
-    data_dict = MasterList.objects.filter()
-    data = serialize("json", data_dict)
-    print(data)
-    return Response(data, status=status.HTTP_201_CREATED)
+    data_dict = MasterList.objects.filter().values()
+    return Response(data_dict, status=status.HTTP_201_CREATED)
