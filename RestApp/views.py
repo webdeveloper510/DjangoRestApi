@@ -144,24 +144,21 @@ def GETMasterListRequest(request):
 
 
 @api_view(["DELETE"])
-@permission_classes([AllowAny, ]) 
-def DeleteMasterListRequest(request, pk):
-    instance = MasterList.objects.filter(pk=pk).delete()
-    return Response({"Success": "Data Deleted Successfully", "data": instance}, status=status.HTTP_201_CREATED)
+@permission_classes([AllowAny, ])
+def DeleteMasterListRequest(request):
+    MasterList.objects.filter(pk=1).delete()
+    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_201_CREATED)
 
 
 @api_view(["DELETE"])
 @permission_classes([AllowAny, ])
-def DeleteLocalLadderRequest(self,pk):
-    instance = self.get_object(pk)
-    instance.delete()
-    return Response(status=status.HTTP_204_NO_CONTENT)
-    # instance = LocalLadder.objects.filter().delete()
-    # return Response({"Success": "Data Deleted Successfully", "data": instance}, status=status.HTTP_201_CREATED)
+def DeleteLocalLadderRequest(self, pk):
+    LocalLadder.objects.get(id=pk).delete()              
+    return Response({"Success": "Data Deleted Successfully"},status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(["DELETE"])
 @permission_classes([AllowAny, ])
-def DeleteProjectRequest(request,pk):
-    instance =CreateProject.objects.filter(id=pk).delete()
-    return Response({"Success": "Data Deleted Successfully", "data": instance}, status=status.HTTP_201_CREATED)
+def DeleteProjectRequest(request, pk):
+    CreateProject.objects.filter(id=pk).delete()
+    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_201_CREATED)
