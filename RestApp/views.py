@@ -1,9 +1,8 @@
+from enum import unique
 import json
 from logging import raiseExceptions
-# from mmap import MADV_AUTOSYNC
 from django.shortcuts import render, redirect
-from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
-from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
+from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from RestApi.settings import SECRET_KEY
@@ -16,12 +15,18 @@ from rest_framework.permissions import AllowAny
 import jwt
 from django.conf import settings
 from django.core import serializers
-from .models import MasterList, LocalLadder, CreateProject
+from .models import MasterList, LocalLadder, CreateProject, User
 import json
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.crypto import get_random_string
 
 #  ########################################  POST Requests ###############################################################
+
+
+unique_id = get_random_string(length=10)
+unique_id
+print("unique id", unique_id)
 
 
 class CreateUserAPIView(APIView):
@@ -34,7 +39,10 @@ class CreateUserAPIView(APIView):
         serializer = UserSerializer(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({'success': 'User Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+        last_inserted_id = serializer.data['id']
+        print(last_inserted_id)
+        User.objects.filter(id=last_inserted_id).update(uui=unique_id)
+        return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -49,10 +57,13 @@ def authenticate_user(request):
             request.session['userId'] = user[0].id
             try:
                 token = jwt.encode(
-                    {'username': user[0].username}, settings.SECRET_KEY)
+                    {'unique_Id': user[0].uui}, settings.SECRET_KEY)
+                payload = jwt.decode(
+                    token, settings.SECRET_KEY, algorithms=['HS256'])
+                print(payload)
                 request.session['token'] = token
                 user_details = {}
-                user_details['user'] = user[0].username
+                user_details['username'] = user[0].username
                 user_details['token'] = token
                 return Response(user_details, status=status.HTTP_200_OK)
 
@@ -153,8 +164,8 @@ def DeleteMasterListRequest(request):
 @api_view(["DELETE"])
 @permission_classes([AllowAny, ])
 def DeleteLocalLadderRequest(self, pk):
-    LocalLadder.objects.get(id=pk).delete()              
-    return Response({"Success": "Data Deleted Successfully"},status=status.HTTP_204_NO_CONTENT)
+    LocalLadder.objects.get(id=pk).delete()
+    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(["DELETE"])
