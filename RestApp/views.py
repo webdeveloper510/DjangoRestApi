@@ -1,6 +1,6 @@
 import json
 from logging import raiseExceptions
-from django.shortcuts import render ,redirect
+from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
 from rest_framework.response import Response
@@ -22,6 +22,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 #  ########################################  POST Requests ###############################################################
 
+
 class CreateUserAPIView(APIView):
     # Allow any user (authenticated or not) to access this url
     def has_permission(self, request, view):
@@ -33,8 +34,6 @@ class CreateUserAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({'success': 'User Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
-
-
 
 
 @api_view(['POST'])
@@ -68,18 +67,15 @@ def authenticate_user(request):
         return Response(res)
 
 
-
 @api_view(['GET'])
 @permission_classes([AllowAny, ])
 def LogoutRequest(request):
-    if request.session['userId']:               
+    if request.session['userId']:
         url = request.build_absolute_uri()
         request.session['userId'] = 0
         # return HttpResponseRedirect(redirect_to='')
         res = "You have been logged out !"
         return Response(res, status=status.HTTP_403_FORBIDDEN)
-
-
 
 
 @api_view(['POST'])
@@ -133,8 +129,6 @@ def GETProjectRequest(request):
 @permission_classes([AllowAny, ])
 def GETLocalLadderRequest(request):
     data_dict = LocalLadder.objects.filter().values()
-    # data = serialize("json", data_dict)
-    print(data_dict)
     return Response(data_dict, status=status.HTTP_201_CREATED)
 
 
@@ -143,3 +137,27 @@ def GETLocalLadderRequest(request):
 def GETMasterListRequest(request):
     data_dict = MasterList.objects.filter().values()
     return Response(data_dict, status=status.HTTP_201_CREATED)
+
+
+# ##########################   Delete Api ##########################
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny, ])
+def DeleteMasterListRequest(request, pk):
+    instance = MasterList.objects.filter().delete(id=pk)
+    return Response({"Success": "Data Deleted Successfully", "data": instance}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny, ])
+def DeleteLocalLadderRequest(request, pk):
+    instance = LocalLadder.objects.filter().delete(id=pk)
+    return Response({"Success": "Data Deleted Successfully", "data": instance}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny, ])
+def DeleteProjectRequest(request):
+    instance = CreateProject.objects.filter().delete()
+    return Response({"Success": "Data Deleted Successfully", "data": instance}, status=status.HTTP_201_CREATED)
