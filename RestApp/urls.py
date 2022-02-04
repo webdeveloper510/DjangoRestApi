@@ -19,8 +19,8 @@ urlpatterns = [
     url(r'^ShowMasterList/$', GETMasterListRequest, name="ShowMasterList"),
     url(r'^ShowProject/$', GETProjectRequest, name="ShowProject"),
     url(r'^Logout/$', LogoutRequest, name="Logout"),
-    url(r'^DeleteMasterList/$<str:pk>', DeleteMasterListRequest, name="DeleteMasterList"),
-    url(r'^DeleteLocalLadder/$<str:pk>', DeleteLocalLadderRequest, name="DeleteLocalLadder"),
-    url(r'^DeleteProject/$<str:pk>', DeleteProjectRequest, name="DeleteProject"),
+    url(r'^DeleteMasterList/$', DeleteMasterListRequest, name="DeleteMasterLixst"),
+    url(r'^DeleteLocalLadder/$<str:pk>/', DeleteLocalLadderRequest, name="DeleteLocalLadder"),
+    url(r'^DeleteProject/$<str:pk>/', DeleteProjectRequest, name="DeleteProject"),
 
 ]
