@@ -1,5 +1,6 @@
 import json
 from logging import raiseExceptions
+# from mmap import MADV_AUTOSYNC
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
@@ -142,22 +143,22 @@ def GETMasterListRequest(request):
 # ##########################   Delete Api ##########################
 
 
-@api_view(['GET'])
+@api_view(["DELETE"])
 @permission_classes([AllowAny, ])
-def DeleteMasterListRequest(request, pk):
-    instance = MasterList.objects.filter().delete(id=pk)
-    return Response({"Success": "Data Deleted Successfully", "data": instance}, status=status.HTTP_201_CREATED)
+def DeleteMasterListRequest(request):
+    MasterList.objects.filter(pk=1).delete()
+    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_201_CREATED)
 
 
-@api_view(['GET'])
+@api_view(["DELETE"])
 @permission_classes([AllowAny, ])
-def DeleteLocalLadderRequest(request, pk):
-    instance = LocalLadder.objects.filter().delete(id=pk)
-    return Response({"Success": "Data Deleted Successfully", "data": instance}, status=status.HTTP_201_CREATED)
+def DeleteLocalLadderRequest(self, pk):
+    LocalLadder.objects.get(id=pk).delete()              
+    return Response({"Success": "Data Deleted Successfully"},status=status.HTTP_204_NO_CONTENT)
 
 
-@api_view(['GET'])
+@api_view(["DELETE"])
 @permission_classes([AllowAny, ])
-def DeleteProjectRequest(request):
-    instance = CreateProject.objects.filter().delete()
-    return Response({"Success": "Data Deleted Successfully", "data": instance}, status=status.HTTP_201_CREATED)
+def DeleteProjectRequest(request, pk):
+    CreateProject.objects.filter(id=pk).delete()
+    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_201_CREATED)
