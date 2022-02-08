@@ -1,22 +1,23 @@
-from enum import unique
-import json
 from logging import raiseExceptions
-from django.shortcuts import render, redirect
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from RestApi.settings import SECRET_KEY
-from .models import MakeUser, LocalLadder
-from .serializers import UserSerializer, LocalLaddderSerializer, CreateProjectSerializer, MasterLIstSerializer, MakeCompanySerializer, AddTeamSerializer
+from .serializers import (
+    UserSerializer,
+    LocalLaddderSerializer,
+    CreateProjectSerializer,
+    MasterLIstSerializer,
+    MakeCompanySerializer,
+    AddTeamSerializer,
+    TransactionsSerialzer
+)
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework_jwt.settings import api_settings
 from rest_framework.permissions import AllowAny
 import jwt
 from django.conf import settings
-from django.core import serializers
-from .models import MasterList, LocalLadder, CreateProject, MakeUser, User, MakeCompany
-import json
+from .models import MasterList, LocalLadder, CreateProject, MakeUser, MakeCompany
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.crypto import get_random_string
@@ -132,10 +133,14 @@ def AddTeamRequest(request):
     serializer.is_valid(raise_exception=True)
     return Response({'success': 'Team Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def ActiveInactiveRequest(request):
-    pass
+def TransactionsRequest(request):
+    Tran_data = request.data
+    serializer = TransactionsSerialzer(data=Tran_data)
+    serializer.is_valid(raise_exception=True)
+    return Response({'success': 'Transaction created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
 #  ########################################  GET Requests ###############################################################
@@ -192,7 +197,7 @@ def UserListRequest(request):
 
 @api_view(["DELETE"])
 @permission_classes([AllowAny, ])
-def DeleteMasterListRequest(request,pk):
+def DeleteMasterListRequest(request, pk):
     MasterList.objects.filter(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
 

@@ -8,17 +8,19 @@ class MakeUser(models.Model):
     username = models.CharField(max_length=100, default='')
     email = models.CharField(max_length=100, default='')
     password = models.CharField(max_length=100, default='')
-    Active = models.BooleanField(null=True)
+    Active = models.CharField(max_length=1, choices=(
+        ('A', 'Active'), ('I', 'Inactive')))
 
     def __str__(self):
         return f"{self.username}"
+
 
 class MakeCompany(models.Model):
     Name = models.CharField(max_length=100, default='')
     Contact = models.CharField(max_length=100, default='')
     Email = models.CharField(max_length=100)
-    Active = models.BooleanField(null=True)
-
+    Active = models.CharField(max_length=1, choices=(
+        ('A', 'Active'), ('I', 'Inactive')))
 
     def __str__(self):
         return f"{self.Name}"
@@ -38,6 +40,7 @@ class CreateProject(models.Model):
 
     def __str__(self):
         return f"{self.project_name}"
+
 
 class LocalLadder(models.Model):
     position = models.CharField(max_length=100, default='')
