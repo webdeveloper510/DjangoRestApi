@@ -28,12 +28,12 @@ SECRET_KEY = 'django-insecure-7-q&$pl_l)+s_o!7*q@@(*%lsm_h$)p=mw@e38mdal(@yuvsav
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS=['3.24.216.224']
+ALLOWED_HOSTS=[]
 
 CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOWED_ORIGINS = [
-    "http://3.24.216.224:8000",
+    "http://13.211.79.47:8000",
     "http://localhost:3000",
 ]
 
@@ -117,13 +117,9 @@ WSGI_APPLICATION = 'RestApi.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-<<<<<<< HEAD
-        'NAME': 'Rest_db',
-=======
         'NAME': 'rdb',
->>>>>>> 0d6414b4a2b3f02d779fccedb530a919247edb8f
         'USER': 'root',
-        'PASSWORD': 'Testing@123',
+        'PASSWORD': '',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
         
