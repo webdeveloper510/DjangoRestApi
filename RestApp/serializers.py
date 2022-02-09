@@ -2,7 +2,7 @@ from dataclasses import fields
 from pyexpat import model
 from re import L
 from rest_framework import serializers
-from .models import MakeCompany, MakeUser, LocalLadder, CreateProject, MasterList , AddTeam , Transactions
+from .models import Company, User, LocalLadder, Project, MasterList , AddTeam , Transactions
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
     date_joined = serializers.ReadOnlyField()
 
     class Meta(object):
-        model = MakeUser
+        model = User
         fields = '__all__'
 
 
@@ -22,7 +22,7 @@ class LocalLaddderSerializer(serializers.ModelSerializer):
 
 class CreateProjectSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CreateProject
+        model = Project
         fields = '__all__'
 
 
@@ -34,7 +34,7 @@ class MasterLIstSerializer(serializers.ModelSerializer):
 
 class MakeCompanySerializer(serializers.ModelSerializer):
     class Meta:
-        model = MakeCompany
+        model = Company
         
         fields = '__all__'
 

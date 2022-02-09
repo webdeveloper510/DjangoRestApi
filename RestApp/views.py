@@ -17,10 +17,11 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 import jwt
 from django.conf import settings
-from .models import MasterList, LocalLadder, CreateProject, MakeUser, MakeCompany
+from .models import AddTeam, MasterList, LocalLadder, Project, User, Company
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.crypto import get_random_string
+import pandas as pd
 
 #  ########################################  POST Requests ###############################################################
 
@@ -40,7 +41,7 @@ class CreateUserAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         last_inserted_id = serializer.data['id']
-        MakeUser.objects.filter(id=last_inserted_id).update(uui=unique_id)
+        User.objects.filter(id=last_inserted_id).update(uui=unique_id)
         return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
@@ -51,7 +52,7 @@ def authenticate_user(request):
     try:
         email = request.data['email']
         password = request.data['password']
-        user = MakeUser.objects.filter(email=email, password=password)
+        user = User.objects.filter(email=email, password=password)
         if user:
             request.session['userId'] = user[0].id
             try:
@@ -160,7 +161,7 @@ def LogoutRequest(request):
 @api_view(['GET'])
 @permission_classes([AllowAny, ])
 def GETProjectRequest(request):
-    data_dict = CreateProject.objects.filter().values()
+    data_dict = Project.objects.filter().values()
     return Response(data_dict, status=status.HTTP_200_OKs)
 
 
@@ -181,16 +182,35 @@ def GETMasterListRequest(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def CompanyListRequest(request):
-    data_dict = MakeCompany.objects.filter().values()
+    data_dict = Company.objects.filter().values()
     return Response(data_dict, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def UserListRequest(request):
-    data_dict = MakeUser.objects.filter().values()
+    data_dict = User.objects.filter().values()
     return Response(data_dict, status=status.HTTP_200_OK)
 
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def LadderRequest(request):
+    TeamId = list()
+    TeamName = list()
+    positions = list()
+    Season = list()
+    Ladder = LocalLadder.objects.filter().values()
+    for Ladders in Ladder:
+        positions.append(Ladders['position'])
+        Season.append(Ladders['season'])
+        TeamId.append(Ladders['teamname_id'])
+    TeamDict = AddTeam.objects.filter(id__in=TeamId).values('TeamName')
+    for Team in TeamDict:
+        TeamName.append(Team['TeamName'])
+    df = pd.DataFrame(
+        {'position': positions, 'season': Season, 'teamname': TeamName})
+    return Response(df, status=status.HTTP_200_OK)
 
 # ##########################   Delete Api ##########################
 
@@ -212,5 +232,5 @@ def DeleteLocalLadderRequest(self, pk):
 @api_view(["DELETE"])
 @permission_classes([AllowAny, ])
 def DeleteProjectRequest(request, pk):
-    CreateProject.objects.filter(id=pk).delete()
+    Project.objects.filter(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)

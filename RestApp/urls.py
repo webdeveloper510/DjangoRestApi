@@ -18,7 +18,8 @@ from .views import (
     AddTeamRequest,
     CompanyListRequest,
     UserListRequest,
-    TransactionsRequest
+    TransactionsRequest,
+    LadderRequest
 )
 
 urlpatterns = [
@@ -40,5 +41,6 @@ urlpatterns = [
     url(r'^ListOfCompany/$', CompanyListRequest),
     url(r'^ListOfUsers/$', UserListRequest),
     url(r'^Transactions/$', TransactionsRequest),
+    url(r'^Ladder/$', LadderRequest),
 
 ]
