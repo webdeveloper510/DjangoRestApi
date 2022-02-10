@@ -42,6 +42,7 @@ class CreateUserAPIView(APIView):
         serializer.save()
         last_inserted_id = serializer.data['id']
         User.objects.filter(id=last_inserted_id).update(uui=unique_id)
+        print(serializer.data)
         return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
