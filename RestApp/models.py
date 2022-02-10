@@ -23,6 +23,10 @@ class User(models.Model):
     Active = models.CharField(max_length=1, choices=(
         ('A', 'Active'), ('I', 'Inactive')), default='')
 
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, blank=True)
+    Active = models.CharField(max_length=1, choices=(
+        ('A', 'Active'), ('I', 'Inactive')), default='')
+
     def __str__(self):
         return f"{self.username}"
 
