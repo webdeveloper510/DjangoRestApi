@@ -35,15 +35,16 @@ class CreateUserAPIView(APIView):
     def has_permission(self, request, view):
         return request.method in SAFE_METHODS
 
-    def post(self, request):
-        user = request.data
-        serializer = UserSerializer(data=user)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        last_inserted_id = serializer.data['id']
-        User.objects.filter(id=last_inserted_id).update(uui=unique_id)
-        print(serializer.data)
-        return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
+
+def post(self, request):
+    user = request.data
+    serializer = UserSerializer(data=user)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    last_inserted_id = serializer.data['id']
+    User.objects.filter(id=last_inserted_id).update(uui=unique_id)
+    print(serializer.data)
+    return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -152,7 +153,7 @@ def TransactionsRequest(request):
 @permission_classes([AllowAny, ])
 def LogoutRequest(request):
     if request.session['userId']:
-        url = request.build_absolute_uri()
+        # url = request.build_absolute_uri()
         request.session['userId'] = 0
         # return HttpResponseRedirect(redirect_to='')
         res = "You have been logged out !"
