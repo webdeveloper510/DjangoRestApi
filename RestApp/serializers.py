@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = User
-        fields = '__all__'
+        fields ='__all__'
 
 
 class LocalLaddderSerializer(serializers.ModelSerializer):
