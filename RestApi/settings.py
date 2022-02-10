@@ -117,7 +117,11 @@ WSGI_APPLICATION = 'RestApi.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
+<<<<<<< HEAD
         'NAME': 'Rest_db',
+=======
+        'NAME': 'restdb',
+>>>>>>> ecc188dc21771b973b19c42875f80a4c7a537ef2
         'USER': 'root',
         'PASSWORD': 'Testing@123',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
