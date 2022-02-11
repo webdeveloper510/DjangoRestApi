@@ -36,15 +36,15 @@ class CreateUserAPIView(APIView):
         return request.method in SAFE_METHODS
 
 
-def post(self, request):
-    user = request.data
-    serializer = UserSerializer(data=user)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    last_inserted_id = serializer.data['id']
-    User.objects.filter(id=last_inserted_id).update(uui=unique_id)
-    print(serializer.data)
-    return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
+    def post(self, request):
+        user = request.data
+        serializer = UserSerializer(data=user)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        last_inserted_id = serializer.data['id']
+        User.objects.filter(id=last_inserted_id).update(uui=unique_id)
+        print(serializer.data)
+        return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -164,7 +164,7 @@ def LogoutRequest(request):
 @permission_classes([AllowAny, ])
 def GETProjectRequest(request):
     data_dict = Project.objects.filter().values()
-    return Response(data_dict, status=status.HTTP_200_OKs)
+    return Response(data_dict, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
