@@ -43,7 +43,7 @@ class CreateUserAPIView(APIView):
         serializer.save()
         last_inserted_id = serializer.data['id']
         User.objects.filter(id=last_inserted_id).update(uui=unique_id)
-        C_Name = Company.objects.filter().values('id')
+        C_Name = Company.objects.filter().values('id','Name')
         for CompanyRecords in C_Name:
             ListOfCompanyId.append(CompanyRecords)
         return Response({'success': 'User Created Successfuly', 'companydata': ListOfCompanyId}, status=status.HTTP_201_CREATED)
