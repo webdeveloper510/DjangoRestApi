@@ -1,4 +1,5 @@
 from logging import raiseExceptions
+from django.http import Http404
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -36,23 +37,22 @@ class CreateUserAPIView(APIView):
         return request.method in SAFE_METHODS
 
     def post(self, request):
-        ListOfCompanyId = list()
+        C_Name = Company.objects.filter().values('id','Name')
+
         user = request.data
         serializer = UserSerializer(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         last_inserted_id = serializer.data['id']
         User.objects.filter(id=last_inserted_id).update(uui=unique_id)
-        C_Name = Company.objects.filter().values('id','Name')
-        for CompanyRecords in C_Name:
-            ListOfCompanyId.append(CompanyRecords)
-        return Response({'success': 'User Created Successfuly', 'companydata': ListOfCompanyId}, status=status.HTTP_201_CREATED)
+        return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def authenticate_user(request):
     # superusers_emails = User.objects.filter(is_superuser=True)
+
     try:
         email = request.data['email']
         password = request.data['password']
@@ -60,10 +60,8 @@ def authenticate_user(request):
         if user:
             request.session['userId'] = user[0].id
             try:
-                token = jwt.encode(
-                    {'unique_Id': user[0].uui}, settings.SECRET_KEY)
-                payload = jwt.decode(
-                    token, settings.SECRET_KEY, algorithms=['HS256'])
+                token = jwt.encode({'unique_Id': user[0].uui}, settings.SECRET_KEY)
+                payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
                 request.session['token'] = token
                 user_details = {}
                 user_details['username'] = user[0].username
@@ -215,6 +213,14 @@ def LadderRequest(request):
     df = pd.DataFrame(
         {'position': positions, 'season': Season, 'teamname': TeamName})
     return Response(df, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def ProjetDetailsRequest(request,pk):
+    data = Project.objects.filter(id=pk).values()
+    return Response(data)
+
+
 
 # ##########################   Delete Api ##########################
 
