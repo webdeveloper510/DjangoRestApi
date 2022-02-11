@@ -19,18 +19,9 @@ class User(models.Model):
     username = models.CharField(max_length=100, default='')
     email = models.CharField(max_length=100, default='')
     password = models.CharField(max_length=100, default='')
-<<<<<<< HEAD
-    company = models.ForeignKey(Company, on_delete=models.CASCADE,blank=True)
-    Active = models.CharField(max_length=1, choices=(('A', 'Active'), ('I', 'Inactive')),default='')
-=======
     company = models.ForeignKey(Company, on_delete=models.CASCADE, blank=True)
     Active = models.CharField(max_length=1, choices=(
         ('A', 'Active'), ('I', 'Inactive')), default='')
-
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, blank=True)
-    Active = models.CharField(max_length=1, choices=(
-        ('A', 'Active'), ('I', 'Inactive')), default='')
->>>>>>> 5a52ac34d7cc6aeca0b5a336dfc320c193c65dd0
 
     def __str__(self):
         return f"{self.username}"
