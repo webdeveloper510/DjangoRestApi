@@ -2,7 +2,7 @@ from unicodedata import name
 from django.conf.urls import url
 from django.contrib.auth import views as auth_views
 from .views import (
-    CreateUserAPIView,
+    # CreateUserAPIView,
     authenticate_user,
     LocalLadderRequest,
     ProjNameDescRequest,
@@ -21,11 +21,11 @@ from .views import (
     TransactionsRequest,
     LadderRequest,
     DeleteLadderRequest,
-    ProjetDetailsRequest
+    ProjectDetailsRequest
 )
 
 urlpatterns = [
-    url(r'^create/$', CreateUserAPIView.as_view()),
+    # url(r'^create/$', CreateUserAPIView.as_view()),
     url(r'^Auth/$', authenticate_user),
     url(r'^CreateProject/$', ProjNameDescRequest),
     url(r'^LocalLadder/$', LocalLadderRequest),
@@ -45,6 +45,6 @@ urlpatterns = [
     url(r'^Transactions/$', TransactionsRequest),
     url(r'^Ladder/$', LadderRequest),
     url(r'^DeleteLadder/(?P<pk>[0-9]+)$', DeleteLadderRequest),
-    url(r'^ShowProjectDetails/(?P<pk>[0-9]+)$', ProjetDetailsRequest),
+    url(r'^ShowProjectDetails/(?P<pk>[0-9]+)$', ProjectDetailsRequest),
 
 ]

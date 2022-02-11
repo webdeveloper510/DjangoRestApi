@@ -5,7 +5,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from RestApi.settings import SECRET_KEY
 from .serializers import (
-    UserSerializer,
     LocalLaddderSerializer,
     CreateProjectSerializer,
     MasterLIstSerializer,
@@ -24,7 +23,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.crypto import get_random_string
 import pandas as pd
 
-#  ########################################  POST Requests ###############################################################
+#########################################  POST Requests ###############################################################
 
 
 unique_id = get_random_string(length=10)
@@ -36,16 +35,15 @@ class CreateUserAPIView(APIView):
     def has_permission(self, request, view):
         return request.method in SAFE_METHODS
 
-    def post(self, request):
-        C_Name = Company.objects.filter().values('id','Name')
-
-        user = request.data
-        serializer = UserSerializer(data=user)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        last_inserted_id = serializer.data['id']
-        User.objects.filter(id=last_inserted_id).update(uui=unique_id)
-        return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
+    # def post(self, request):
+    #     C_Name = Company.objects.filter().values('id', 'Name')
+    #     user = request.data
+    #     serializer = UserSerializer(data=user)
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+    #     last_inserted_id = serializer.data['id']
+    #     User.objects.filter(id=last_inserted_id).update(uui=unique_id)
+    #     return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -60,8 +58,10 @@ def authenticate_user(request):
         if user:
             request.session['userId'] = user[0].id
             try:
-                token = jwt.encode({'unique_Id': user[0].uui}, settings.SECRET_KEY)
-                payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+                token = jwt.encode(
+                    {'unique_Id': user[0].uui}, settings.SECRET_KEY)
+                payload = jwt.decode(
+                    token, settings.SECRET_KEY, algorithms=['HS256'])
                 request.session['token'] = token
                 user_details = {}
                 user_details['username'] = user[0].username
@@ -135,7 +135,6 @@ def AddTeamRequest(request):
     serializer = AddTeamSerializer(data=TeamObj)
     serializer.is_valid(raise_exception=True)
     return Response({'success': 'Team Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
-
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -214,12 +213,12 @@ def LadderRequest(request):
         {'position': positions, 'season': Season, 'teamname': TeamName})
     return Response(df, status=status.HTTP_200_OK)
 
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def ProjetDetailsRequest(request,pk):
+def ProjectDetailsRequest(request, pk):
     data = Project.objects.filter(id=pk).values()
     return Response(data)
-
 
 
 # ##########################   Delete Api ##########################

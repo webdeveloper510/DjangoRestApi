@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-7-q&$pl_l)+s_o!7*q@@(*%lsm_h$)p=mw@e38mdal(@yuvsav
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS=['3.24.216.224']
+ALLOWED_HOSTS = []
 
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -38,7 +38,8 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'mmglfamx3n927*93$ks#r)h%*a(@))vb7*=2q$&z(=6@q&*ghj')
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY', 'mmglfamx3n927*93$ks#r)h%*a(@))vb7*=2q$&z(=6@q&*ghj')
 
 
 WHITENOISE_AUTOREFRESH = True
@@ -88,8 +89,6 @@ MIDDLEWARE = [
 ]
 
 
-
-
 ROOT_URLCONF = 'RestApi.urls'
 
 TEMPLATES = [
@@ -119,13 +118,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'restdb',
         'USER': 'root',
-        'PASSWORD': 'Testing@123',
+        'PASSWORD': '',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
-        
+
     }
 }
-
 
 
 # Password validation
