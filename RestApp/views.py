@@ -35,16 +35,18 @@ class CreateUserAPIView(APIView):
     def has_permission(self, request, view):
         return request.method in SAFE_METHODS
 
-
     def post(self, request):
+        ListOfCompanyId = list()
         user = request.data
         serializer = UserSerializer(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         last_inserted_id = serializer.data['id']
         User.objects.filter(id=last_inserted_id).update(uui=unique_id)
-        print(serializer.data)
-        return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
+        C_Name = Company.objects.filter().values('id')
+        for CompanyRecords in C_Name:
+            ListOfCompanyId.append(CompanyRecords)
+        return Response({'success': 'User Created Successfuly', 'companydata': ListOfCompanyId}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -236,6 +238,7 @@ def DeleteLocalLadderRequest(self, pk):
 def DeleteProjectRequest(request, pk):
     Project.objects.filter(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
+
 
 @api_view(["DELETE"])
 @permission_classes([AllowAny, ])
