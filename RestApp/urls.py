@@ -45,6 +45,6 @@ urlpatterns = [
     url(r'^Transactions/$', TransactionsRequest),
     url(r'^Ladder/$', LadderRequest),
     url(r'^DeleteLadder/(?P<pk>[0-9]+)$', DeleteLadderRequest),
-    url(r'^ShowProjectDeatils/(?P<pk>[0-9]+)$', ProjetDetailsRequest),
+    url(r'^ShowProjectDetails/(?P<pk>[0-9]+)$', ProjetDetailsRequest),
 
 ]
