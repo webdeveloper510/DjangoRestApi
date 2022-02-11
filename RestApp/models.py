@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 # Create your models here.
 
+
 class Company(models.Model):
     Name = models.CharField(max_length=100, default='')
     Contact = models.CharField(max_length=100, default='')
@@ -12,16 +13,28 @@ class Company(models.Model):
     def __str__(self):
         return f"{self.Name}"
 
+
 class User(models.Model):
     uui = models.CharField(max_length=100, default='')
     username = models.CharField(max_length=100, default='')
     email = models.CharField(max_length=100, default='')
     password = models.CharField(max_length=100, default='')
+<<<<<<< HEAD
     company = models.ForeignKey(Company, on_delete=models.CASCADE,blank=True)
     Active = models.CharField(max_length=1, choices=(('A', 'Active'), ('I', 'Inactive')),default='')
+=======
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, blank=True)
+    Active = models.CharField(max_length=1, choices=(
+        ('A', 'Active'), ('I', 'Inactive')), default='')
+
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, blank=True)
+    Active = models.CharField(max_length=1, choices=(
+        ('A', 'Active'), ('I', 'Inactive')), default='')
+>>>>>>> 5a52ac34d7cc6aeca0b5a336dfc320c193c65dd0
 
     def __str__(self):
         return f"{self.username}"
+
 
 class AddTeam(models.Model):
 
@@ -31,29 +44,33 @@ class AddTeam(models.Model):
     def __str__(self):
         return f"{self.TeamName}"
 
+
 class Project(models.Model):
     project_name = models.CharField(max_length=100)
     project_desc = models.CharField(max_length=200)
 
     def __str__(self):
-           return f"{self.project_name}"
+        return f"{self.project_name}"
+
 
 class MasterList(models.Model):
     Year = models.CharField(max_length=100, default='')
     PickType = models.CharField(max_length=100, default='')
     Original_Owner = models.ForeignKey(
-        AddTeam, on_delete=models.CASCADE,default='', blank=True)
+        AddTeam, on_delete=models.CASCADE, default='', blank=True)
     Current_Owner = models.ForeignKey(
-        AddTeam, related_name='%(class)s_requests_created', on_delete=models.CASCADE,blank=True)
+        AddTeam, related_name='%(class)s_requests_created', on_delete=models.CASCADE, blank=True)
     Most_Recent_Owner = models.ForeignKey(
-        AddTeam, related_name='Most_Recent_Owner', on_delete=models.CASCADE,blank=True)
+        AddTeam, related_name='Most_Recent_Owner', on_delete=models.CASCADE, blank=True)
     Draft_Round = models.CharField(max_length=100, default='')
     Pick_Group = models.CharField(max_length=100, default='')
 
+
 class LocalLadder(models.Model):
     position = models.CharField(max_length=100, default='')
-    season = models.CharField(max_length=100,default='')
-    teamname = models.ForeignKey(AddTeam, on_delete=models.CASCADE,blank=True)
+    season = models.CharField(max_length=100, default='')
+    teamname = models.ForeignKey(AddTeam, on_delete=models.CASCADE, blank=True)
+
 
 class Transactions(models.Model):
     Transaction_Number = models.IntegerField()

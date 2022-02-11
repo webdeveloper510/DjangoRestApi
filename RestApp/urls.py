@@ -19,7 +19,8 @@ from .views import (
     CompanyListRequest,
     UserListRequest,
     TransactionsRequest,
-    LadderRequest
+    LadderRequest,
+    DeleteLadderRequest
 )
 
 urlpatterns = [
@@ -42,5 +43,6 @@ urlpatterns = [
     url(r'^ListOfUsers/$', UserListRequest),
     url(r'^Transactions/$', TransactionsRequest),
     url(r'^Ladder/$', LadderRequest),
+    url(r'^DeleteLadder/(?P<pk>[0-9]+)$', DeleteLadderRequest),
 
 ]
