@@ -26,9 +26,6 @@ import pandas as pd
 #########################################  POST Requests ###############################################################
 
 
-unique_id = get_random_string(length=10)
-
-
 class CreateUserAPIView(APIView):
     # Allow any user (authenticated or not) to access this url
     def has_permission(self, request, view):
@@ -58,8 +55,9 @@ def authenticate_user(request):
             request.session['userId'] = user[0].id
             try:
                 token = jwt.encode(
-                    {'unique_Id': unique_id}, SECRET_KEY)
+                    {'unique_Id': user[0].uui}, SECRET_KEY)
                 payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+                print(payload)
                 request.session['token'] = token
                 user_details = {}
                 user_details['username'] = user[0].username
