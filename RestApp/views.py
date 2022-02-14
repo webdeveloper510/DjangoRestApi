@@ -27,7 +27,6 @@ import pandas as pd
 
 
 unique_id = get_random_string(length=10)
-unique_id
 
 
 class CreateUserAPIView(APIView):
@@ -59,9 +58,8 @@ def authenticate_user(request):
             request.session['userId'] = user[0].id
             try:
                 token = jwt.encode(
-                    {'unique_Id': user[0].uui}, settings.SECRET_KEY)
-                payload = jwt.decode(
-                    token, settings.SECRET_KEY, algorithms=['HS256'])
+                    {'unique_Id': unique_id}, SECRET_KEY)
+                payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
                 request.session['token'] = token
                 user_details = {}
                 user_details['username'] = user[0].username

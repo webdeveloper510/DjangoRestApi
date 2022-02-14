@@ -1,5 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
+import uuid
+from django.db import models
+
+
 # Create your models here.
 
 
@@ -15,7 +19,7 @@ class Company(models.Model):
 
 
 class User(models.Model):
-    uui = models.CharField(max_length=100, default='')
+    uui = models.CharField(max_length=1, blank=True,unique=True, default=uuid.uuid4)
     username = models.CharField(max_length=100, default='')
     email = models.CharField(max_length=100, default='')
     password = models.CharField(max_length=100, default='')
