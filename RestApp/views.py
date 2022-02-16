@@ -10,7 +10,8 @@ from .serializers import (
     MasterLIstSerializer,
     MakeCompanySerializer,
     AddTeamSerializer,
-    TransactionsSerialzer
+    TransactionsSerialzer,
+    DraftAnalyserSerializer
 )
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -94,6 +95,7 @@ def LocalLadderRequest(request):
     serializer.save()
     return Response({'success': 'LocalLadder Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
+
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def CreateMasterListRequest(request):
@@ -130,6 +132,7 @@ def AddTeamRequest(request):
     serializer.is_valid(raise_exception=True)
     return Response({'success': 'Team Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def TransactionsRequest(request):
@@ -139,11 +142,23 @@ def TransactionsRequest(request):
     return Response({'success': 'Transaction created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def DraftAnalyserRequest(request):
+    try:
+        Draftrequest = request.data
+        serializer = DraftAnalyserSerializer(data=Draftrequest)
+        serializer.valid(raiseExceptions=True)
+        return Response({'success': 'Trade created successfully'}, statu=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        raise e
+
 #  ########################################  GET Requests ###############################################################
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny, ])
+@ api_view(['GET'])
+@ permission_classes([AllowAny, ])
 def LogoutRequest(request):
     if request.session['userId']:
         # url = request.build_absolute_uri()
@@ -153,43 +168,43 @@ def LogoutRequest(request):
         return Response(res, status=status.HTTP_403_FORBIDDEN)
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny, ])
+@ api_view(['GET'])
+@ permission_classes([AllowAny, ])
 def GETProjectRequest(request):
     data_dict = Project.objects.filter().values()
     return Response(data_dict, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny, ])
+@ api_view(['GET'])
+@ permission_classes([AllowAny, ])
 def GETLocalLadderRequest(request):
     data_dict = LocalLadder.objects.filter().values()
     return Response(data_dict, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny, ])
+@ api_view(['GET'])
+@ permission_classes([AllowAny, ])
 def GETMasterListRequest(request):
     data_dict = MasterList.objects.filter().values()
     return Response(data_dict, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
 def CompanyListRequest(request):
     data_dict = Company.objects.filter().values()
     return Response(data_dict, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
 def UserListRequest(request):
     data_dict = User.objects.filter().values()
     return Response(data_dict, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
 def LadderRequest(request):
     TeamId = list()
     TeamName = list()
@@ -208,39 +223,46 @@ def LadderRequest(request):
     return Response(df, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
 def ProjectDetailsRequest(request, pk):
     data = Project.objects.filter(id=pk).values()
+    return Response(data)
+
+
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
+def ShowTeamRequest(request):
+    data = AddTeam.objects.filter().values()
     return Response(data)
 
 
 # ##########################   Delete Api ##########################
 
 
-@api_view(["DELETE"])
-@permission_classes([AllowAny, ])
+@ api_view(["DELETE"])
+@ permission_classes([AllowAny, ])
 def DeleteMasterListRequest(request, pk):
     MasterList.objects.filter(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
 
 
-@api_view(["DELETE"])
-@permission_classes([AllowAny, ])
+@ api_view(["DELETE"])
+@ permission_classes([AllowAny, ])
 def DeleteLocalLadderRequest(self, pk):
     LocalLadder.objects.get(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
 
 
-@api_view(["DELETE"])
-@permission_classes([AllowAny, ])
+@ api_view(["DELETE"])
+@ permission_classes([AllowAny, ])
 def DeleteProjectRequest(request, pk):
     Project.objects.filter(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
 
 
-@api_view(["DELETE"])
-@permission_classes([AllowAny, ])
+@ api_view(["DELETE"])
+@ permission_classes([AllowAny, ])
 def DeleteLadderRequest(request, pk):
     LocalLadder.objects.filter(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)

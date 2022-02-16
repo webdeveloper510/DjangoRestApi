@@ -22,7 +22,9 @@ from .views import (
     LadderRequest,
     DeleteLadderRequest,
     ProjectDetailsRequest,
-    CreateUserAPIView
+    CreateUserAPIView,
+    DraftAnalyserRequest,
+    ShowTeamRequest
 )
 
 urlpatterns = [
@@ -47,5 +49,7 @@ urlpatterns = [
     url(r'^Ladder/$', LadderRequest),
     url(r'^DeleteLadder/(?P<pk>[0-9]+)$', DeleteLadderRequest),
     url(r'^ShowProjectDetails/(?P<pk>[0-9]+)$', ProjectDetailsRequest),
+    url(r'^Draft-Analyser/$', DraftAnalyserRequest),
+    url(r'^Show-Team/$', ShowTeamRequest),
 
 ]

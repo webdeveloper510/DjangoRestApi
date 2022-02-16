@@ -18,7 +18,8 @@ class Company(models.Model):
 
 
 class User(models.Model):
-    uui = models.CharField(max_length=50, blank=True,unique=True, default=uuid.uuid4)
+    uui = models.CharField(max_length=50, blank=True,
+                           unique=True, default=uuid.uuid4)
     username = models.CharField(max_length=100, default='')
     email = models.CharField(max_length=100, default='')
     password = models.CharField(max_length=100, default='')
@@ -51,11 +52,11 @@ class MasterList(models.Model):
     Year = models.CharField(max_length=100, default='')
     PickType = models.CharField(max_length=100, default='')
     Original_Owner = models.ForeignKey(
-        AddTeam, on_delete=models.CASCADE, default='', blank=True)
+        AddTeam, on_delete=models.CASCADE, default='', blank=False)
     Current_Owner = models.ForeignKey(
-        AddTeam, related_name='%(class)s_requests_created', on_delete=models.CASCADE, blank=True)
+        AddTeam, related_name='%(class)s_requests_created', on_delete=models.CASCADE, blank=False)
     Most_Recent_Owner = models.ForeignKey(
-        AddTeam, related_name='Most_Recent_Owner', on_delete=models.CASCADE, blank=True)
+        AddTeam, related_name='Most_Recent_Owner', on_delete=models.CASCADE, blank=False)
     Draft_Round = models.CharField(max_length=100, default='')
     Pick_Group = models.CharField(max_length=100, default='')
 
@@ -63,7 +64,8 @@ class MasterList(models.Model):
 class LocalLadder(models.Model):
     position = models.CharField(max_length=100, default='')
     season = models.CharField(max_length=100, default='')
-    teamname = models.ForeignKey(AddTeam, on_delete=models.CASCADE, blank=True)
+    teamname = models.ForeignKey(
+        AddTeam, on_delete=models.CASCADE, blank=False)
 
 
 class Transactions(models.Model):
@@ -72,3 +74,18 @@ class Transactions(models.Model):
     Transaction_Type = models.CharField(max_length=100, default='')
     Transaction_Details = models.CharField(max_length=100, default='')
     Transaction_Description = models.CharField(max_length=100, default='')
+
+
+class Players(models.Model):
+    pass
+
+
+class DraftAnalyserTrade(models.Model):
+    TradePartner = models.CharField(max_length=100, default="")
+    TotalPicks = models.CharField(max_length=100, default="")
+    TotalPLayers = models.CharField(max_length=100, default="")
+    PlayerName = models.ForeignKey(
+        Players, on_delete=models.CASCADE, blank=False)
+    PickTradingIn = models.CharField(max_length=100, default="")
+    PlayerTradingIn = models.CharField(max_length=100, default="")
+    TradeNotes = models.TextField(max_length=200, default="")

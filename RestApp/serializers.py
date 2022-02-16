@@ -2,7 +2,7 @@ from dataclasses import fields
 from pyexpat import model
 from re import L
 from rest_framework import serializers
-from .models import Company, User, LocalLadder, Project, MasterList, AddTeam, Transactions
+from .models import Company, User, LocalLadder, Project, MasterList, AddTeam, Transactions,DraftAnalyserTrade
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -48,4 +48,10 @@ class AddTeamSerializer(serializers.ModelSerializer):
 class TransactionsSerialzer(serializers.ModelSerializer):
     class Meta:
         model = Transactions
+        fields = '__all__'
+
+
+class DraftAnalyserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DraftAnalyserTrade
         fields = '__all__'
