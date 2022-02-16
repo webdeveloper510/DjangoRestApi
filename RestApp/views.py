@@ -236,7 +236,6 @@ def ShowTeamRequest(request):
     data = AddTeam.objects.filter().values()
     return Response(data)
 
-
 # ##########################   Delete Api ##########################
 
 

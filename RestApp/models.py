@@ -69,7 +69,7 @@ class LocalLadder(models.Model):
 
 
 class Transactions(models.Model):
-    Transaction_Number = models.IntegerField()
+    # Transaction_Number = models.IntegerField()
     Transaction_DateTime = models.DateTimeField(auto_now_add=True)
     Transaction_Type = models.CharField(max_length=100, default='')
     Transaction_Details = models.CharField(max_length=100, default='')
