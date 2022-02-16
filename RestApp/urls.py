@@ -21,11 +21,12 @@ from .views import (
     TransactionsRequest,
     LadderRequest,
     DeleteLadderRequest,
-    ProjectDetailsRequest
+    ProjectDetailsRequest,
+    CreateUserAPIView
 )
 
 urlpatterns = [
-    # url(r'^create/$', CreateUserAPIView.as_view()),
+    url(r'^create/$', CreateUserAPIView.as_view()),
     url(r'^Auth/$', authenticate_user),
     url(r'^CreateProject/$', ProjNameDescRequest),
     url(r'^LocalLadder/$', LocalLadderRequest),
