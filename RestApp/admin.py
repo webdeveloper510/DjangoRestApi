@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Company, MasterList, LocalLadder, Project,AddTeam
+from .models import User, Company, MasterList, LocalLadder, Project,AddTeam,DraftAnalyserTrade
 
 
 # Register your models here.
@@ -21,3 +21,4 @@ admin.site.register(LocalLadder)
 admin.site.register(Project)
 admin.site.register(MasterList)
 admin.site.register(AddTeam)
+admin.site.register(DraftAnalyserTrade)
