@@ -2,6 +2,7 @@ from unicodedata import name
 from django.conf.urls import url
 from django.contrib.auth import views as auth_views
 from .views import (
+    # CreateUserAPIView,
     authenticate_user,
     LocalLadderRequest,
     ProjNameDescRequest,
@@ -19,13 +20,11 @@ from .views import (
     UserListRequest,
     TransactionsRequest,
     LadderRequest,
-    DeleteLadderRequest,
     ProjectDetailsRequest,
     CreateUserAPIView,
-    DraftAnalyserRequest,
-    ShowTeamRequest,
     DeleteTeamRequest,
-    DeleteCompanyRequest
+    DeleteCompanyRequest,
+    DeleteLadderRecordRequest
 )
 
 urlpatterns = [
@@ -39,21 +38,18 @@ urlpatterns = [
     url(r'^ShowMasterList/$', GETMasterListRequest),
     url(r'^ShowProject/$', GETProjectRequest),
     url(r'^Logout/$', LogoutRequest),
-    url(r'^DeleteMasterList/(?P<pk>[0-9]+)$', DeleteMasterListRequest),
-    url(r'^DeleteLocalLadder/(?P<pk>[0-9]+)$', DeleteLocalLadderRequest),
-    url(r'^DeleteProject/(?P<pk>[0-9]+)$', DeleteProjectRequest),
     url(r'^MakeCompany/$', MakeCompanyRequest),
     url(r'^AddTeam/$', AddTeamRequest),
     url(r'^ListOfCompany/$', CompanyListRequest),
     url(r'^ListOfUsers/$', UserListRequest),
     url(r'^Transactions/$', TransactionsRequest),
     url(r'^Ladder/$', LadderRequest),
-    url(r'^DeleteLadder/(?P<pk>[0-9]+)$', DeleteLadderRequest),
     url(r'^ShowProjectDetails/(?P<pk>[0-9]+)$', ProjectDetailsRequest),
-    url(r'^Draft-Analyser/$', DraftAnalyserRequest),
-    url(r'^Show-Team/$', ShowTeamRequest),
     url(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),
-    url(r'^Delete-company/(?P<pk>[0-9]+)$', DeleteCompanyRequest
-),
+    url(r'^Delete-Company/(?P<pk>[0-9]+)$', DeleteCompanyRequest),
+    url(r'^DeleteMasterList/(?P<pk>[0-9]+)$', DeleteMasterListRequest),
+    url(r'^DeleteLocalLadder/(?P<pk>[0-9]+)$', DeleteLocalLadderRequest),
+    url(r'^DeleteProject/(?P<pk>[0-9]+)$', DeleteProjectRequest),
+    url(r'^DeleteLadder/(?P<pk>[0-9]+)$', DeleteLadderRecordRequest),
 
 ]
