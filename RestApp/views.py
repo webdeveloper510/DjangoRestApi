@@ -130,6 +130,7 @@ def AddTeamRequest(request):
     TeamObj = request.data
     serializer = AddTeamSerializer(data=TeamObj)
     serializer.is_valid(raise_exception=True)
+    serializer.save()
     return Response({'success': 'Team Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
@@ -139,6 +140,7 @@ def TransactionsRequest(request):
     Tran_data = request.data
     serializer = TransactionsSerialzer(data=Tran_data)
     serializer.is_valid(raise_exception=True)
+    serializer.save()
     return Response({'success': 'Transaction created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
