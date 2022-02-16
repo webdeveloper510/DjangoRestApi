@@ -54,8 +54,7 @@ def authenticate_user(request):
         if user:
             request.session['userId'] = user[0].id
             try:
-                token = jwt.encode(
-                    {'unique_Id': user[0].uui}, SECRET_KEY)
+                token = jwt.encode({'unique_Id': user[0].uui}, SECRET_KEY)
                 payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
                 print(payload)
                 request.session['token'] = token
