@@ -34,7 +34,7 @@ class User(models.Model):
 class AddTeam(models.Model):
 
     TeamName = models.CharField(max_length=100, default='')
-    ShorName = models.CharField(max_length=100, default='')
+    ShortName = models.CharField(max_length=100, default='')
 
     def __str__(self):
         return f"{self.TeamName}"
