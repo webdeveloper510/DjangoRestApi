@@ -273,3 +273,9 @@ def DeleteLadderRequest(request, pk):
 def DeleteTeamRequest(request, pk):
     AddTeam.objects.filter(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
+
+@ api_view(["DELETE"])
+@ permission_classes([AllowAny, ])
+def DeleteCompanyRequest(request, pk):
+    Company.objects.filter(id=pk).delete()
+    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)

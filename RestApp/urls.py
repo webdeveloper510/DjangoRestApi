@@ -24,7 +24,8 @@ from .views import (
     CreateUserAPIView,
     DraftAnalyserRequest,
     ShowTeamRequest,
-    DeleteTeamRequest
+    DeleteTeamRequest,
+    DeleteCompanyRequest
 )
 
 urlpatterns = [
@@ -52,5 +53,7 @@ urlpatterns = [
     url(r'^Draft-Analyser/$', DraftAnalyserRequest),
     url(r'^Show-Team/$', ShowTeamRequest),
     url(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),
+    url(r'^Delete-company/(?P<pk>[0-9]+)$', DeleteCompanyRequest
+),
 
 ]
