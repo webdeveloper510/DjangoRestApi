@@ -265,3 +265,9 @@ def DeleteProjectRequest(request, pk):
 def DeleteLadderRequest(request, pk):
     LocalLadder.objects.filter(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
+
+@ api_view(["DELETE"])
+@ permission_classes([AllowAny, ])
+def DeleteTeamRequest(request, pk):
+    AddTeam.objects.filter(id=pk).delete()
+    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
