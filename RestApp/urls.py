@@ -8,7 +8,6 @@ from .views import (
     ProjNameDescRequest,
     CreateMasterListRequest,
     UpdateMasterListRequest,
-    GETLocalLadderRequest,
     GETMasterListRequest,
     GETProjectRequest, LogoutRequest,
     DeleteMasterListRequest,
@@ -24,7 +23,12 @@ from .views import (
     CreateUserAPIView,
     DeleteTeamRequest,
     DeleteCompanyRequest,
-    DeleteLadderRecordRequest
+    DeleteLadderRecordRequest,
+    AddTradeRequest,
+    AcademyBidRequest,
+    PriorityPickRequest,
+    ManualTeamRequest,
+    FARequest
 )
 
 urlpatterns = [
@@ -33,8 +37,12 @@ urlpatterns = [
     url(r'^CreateProject/$', ProjNameDescRequest),
     url(r'^LocalLadder/$', LocalLadderRequest),
     url(r'^MasterList/$', CreateMasterListRequest),
+    url(r'^Add-Trade/$', AddTradeRequest),
+    url(r'^Academy-Bid/$', AcademyBidRequest),
+    url(r'^Priority-Pick/$', PriorityPickRequest),
+    url(r'^Manual-Team/$', ManualTeamRequest),
+    url(r'^FA-Compansation/$', FARequest),
     url(r'^UpdateMasterList/$', UpdateMasterListRequest),
-    url(r'^ShowLocalLadder/$', GETLocalLadderRequest),
     url(r'^ShowMasterList/$', GETMasterListRequest),
     url(r'^ShowProject/$', GETProjectRequest),
     url(r'^Logout/$', LogoutRequest),
