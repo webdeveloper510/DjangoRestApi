@@ -32,6 +32,8 @@ from .views import (
 )
 
 urlpatterns = [
+
+    # ############# POST URl"S ##########################
     url(r'^create/$', CreateUserAPIView.as_view()),
     url(r'^Auth/$', authenticate_user),
     url(r'^CreateProject/$', ProjNameDescRequest),
@@ -42,7 +44,13 @@ urlpatterns = [
     url(r'^Priority-Pick/$', PriorityPickRequest),
     url(r'^Manual-Team/$', ManualTeamRequest),
     url(r'^FA-Compansation/$', FARequest),
+
+    # #################### Update URL's #################
+
     url(r'^UpdateMasterList/$', UpdateMasterListRequest),
+
+    # ####################### GET Urls's ################################
+    
     url(r'^ShowMasterList/$', GETMasterListRequest),
     url(r'^ShowProject/$', GETProjectRequest),
     url(r'^Logout/$', LogoutRequest),
@@ -53,6 +61,8 @@ urlpatterns = [
     url(r'^Transactions/$', TransactionsRequest),
     url(r'^Ladder/$', LadderRequest),
     url(r'^ShowProjectDetails/(?P<pk>[0-9]+)$', ProjectDetailsRequest),
+
+    # ################ Delete URL's ##########################
     url(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),
     url(r'^Delete-Company/(?P<pk>[0-9]+)$', DeleteCompanyRequest),
     url(r'^DeleteMasterList/(?P<pk>[0-9]+)$', DeleteMasterListRequest),
