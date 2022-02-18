@@ -1,5 +1,19 @@
 from django.contrib import admin
-from .models import User, Company, MasterList, LocalLadder, Project,AddTeam,DraftAnalyserTrade,Players
+from .models import (
+    User,
+    Company,
+    MasterList,
+    LocalLadder,
+    Project,
+    AddTeam,
+    DraftAnalyserTrade,
+    Players,
+    AddTrade,
+    PriorityPick,
+    AcademyBid,
+    FA_Compansations,
+    ManualTeam
+)
 
 
 # Register your models here.
@@ -23,3 +37,8 @@ admin.site.register(MasterList)
 admin.site.register(AddTeam)
 admin.site.register(DraftAnalyserTrade)
 admin.site.register(Players)
+admin.site.register(AddTrade)
+admin.site.register(PriorityPick)
+admin.site.register(AcademyBid)
+admin.site.register(ManualTeam)
+admin.site.register(FA_Compansations)
