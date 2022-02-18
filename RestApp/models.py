@@ -75,19 +75,16 @@ class Transactions(models.Model):
     Transaction_Details = models.CharField(max_length=100, default='')
     Transaction_Description = models.CharField(max_length=100, default='')
 
-
 class Players(models.Model):
     names = models.CharField(max_length=100,default='')
     ratings = models.CharField(max_length=100,default='')
     notes = models.TextField(max_length=100,default='')
 
-
 class DraftAnalyserTrade(models.Model):
     TradePartner = models.CharField(max_length=100, default="")
     TotalPicks = models.CharField(max_length=100, default="")
     TotalPLayers = models.CharField(max_length=100, default="")
-    PlayerName = models.ForeignKey(
-        Players, on_delete=models.CASCADE, blank=False)
+    PlayerName = models.ForeignKey(Players, on_delete=models.CASCADE, blank=False)
     PickTradingIn = models.CharField(max_length=100, default="")
     PlayerTradingIn = models.CharField(max_length=100, default="")
     TradeNotes = models.TextField(max_length=200, default="")
