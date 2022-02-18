@@ -33,7 +33,7 @@ ALLOWED_HOSTS = ['3.25.101.134']
 CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOWED_ORIGINS = [
-    "https://3.25.101.134/:8000",
+    "https://3.25.101.134:8000",
     "http://localhost:3000",
 ]
 
