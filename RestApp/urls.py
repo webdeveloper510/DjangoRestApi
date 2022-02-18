@@ -25,10 +25,16 @@ from .views import (
     DeleteCompanyRequest,
     DeleteLadderRecordRequest,
     AddTradeRequest,
+    TeamRequest,
     AcademyBidRequest,
     PriorityPickRequest,
     ManualTeamRequest,
-    FARequest
+    FARequest,
+    DeleteAddTradeRequest,
+    DeleteManualTeamRequest,
+    DeleteFARequest,
+    DeletePriorityPickrequest,
+    DeleteAcadmemyrequest
 )
 
 urlpatterns = [
@@ -50,7 +56,7 @@ urlpatterns = [
     url(r'^UpdateMasterList/$', UpdateMasterListRequest),
 
     # ####################### GET Urls's ################################
-    
+
     url(r'^ShowMasterList/$', GETMasterListRequest),
     url(r'^ShowProject/$', GETProjectRequest),
     url(r'^Logout/$', LogoutRequest),
@@ -60,6 +66,7 @@ urlpatterns = [
     url(r'^ListOfUsers/$', UserListRequest),
     url(r'^Transactions/$', TransactionsRequest),
     url(r'^Ladder/$', LadderRequest),
+    url(r'^Show-Team/$', TeamRequest),
     url(r'^ShowProjectDetails/(?P<pk>[0-9]+)$', ProjectDetailsRequest),
 
     # ################ Delete URL's ##########################
@@ -69,5 +76,9 @@ urlpatterns = [
     url(r'^DeleteLocalLadder/(?P<pk>[0-9]+)$', DeleteLocalLadderRequest),
     url(r'^DeleteProject/(?P<pk>[0-9]+)$', DeleteProjectRequest),
     url(r'^DeleteLadder/(?P<pk>[0-9]+)$', DeleteLadderRecordRequest),
-
+    url(r'^DeleteTrade/(?P<pk>[0-9]+)$', DeleteAddTradeRequest),
+    url(r'^DeleteManual-Team/(?P<pk>[0-9]+)$', DeleteManualTeamRequest),
+    url(r'^DeleteFA/(?P<pk>[0-9]+)$', DeleteFARequest),
+    url(r'^DeletePick/(?P<pk>[0-9]+)$', DeletePriorityPickrequest),
+    url(r'^DeleteAcademy-Bid/(?P<pk>[0-9]+)$', DeleteAcadmemyrequest),
 ]

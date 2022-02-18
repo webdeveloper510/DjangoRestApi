@@ -23,7 +23,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 import jwt
 from django.conf import settings
-from .models import AddTeam, MasterList, LocalLadder, Project, User, Company
+from .models import AddTeam, MasterList, LocalLadder, Project, User, Company, AddTrade, ManualTeam, FA_Compansations, AcademyBid, PriorityPick
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.crypto import get_random_string
@@ -178,6 +178,7 @@ def PriorityPickRequest(request):
     serializer.save()
     return Response({'success': 'Priority pick created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def ManualTeamRequest(request):
@@ -186,6 +187,7 @@ def ManualTeamRequest(request):
     serializer.is_valid(raise_exception=True)
     serializer.save()
     return Response({'success': 'Manual Team created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -229,6 +231,7 @@ def GETProjectRequest(request):
     data_dict = Project.objects.filter().values()
     return Response(data_dict, status=status.HTTP_200_OK)
 
+
 @ api_view(['GET'])
 @ permission_classes([AllowAny, ])
 def GETMasterListRequest(request):
@@ -247,6 +250,12 @@ def CompanyListRequest(request):
 @ permission_classes([AllowAny])
 def UserListRequest(request):
     data_dict = User.objects.filter().values()
+    return Response(data_dict, status=status.HTTP_200_OK)
+
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
+def TeamRequest(request):
+    data_dict = AddTeam.objects.filter().values()
     return Response(data_dict, status=status.HTTP_200_OK)
 
 
@@ -327,3 +336,35 @@ def DeleteCompanyRequest(request, pk):
     Company.objects.filter(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
 
+
+@ api_view(["DELETE"])
+@ permission_classes([AllowAny, ])
+def DeleteAddTradeRequest(request, pk):
+    AddTrade.objects.filter(id=pk).delete()
+    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
+
+
+@ api_view(["DELETE"])
+@ permission_classes([AllowAny, ])
+def DeleteManualTeamRequest(request, pk):
+    ManualTeam.objects.filter(id=pk).delete()
+    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
+
+
+@ api_view(["DELETE"])
+@ permission_classes([AllowAny, ])
+def DeleteFARequest(request, pk):
+    FA_Compansations.objects.filter(id=pk).delete()
+    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
+
+@ api_view(["DELETE"])
+@ permission_classes([AllowAny, ])
+def DeletePriorityPickrequest(request, pk):
+    PriorityPick.objects.filter(id=pk).delete()
+    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
+
+@ api_view(["DELETE"])
+@ permission_classes([AllowAny, ])
+def DeleteAcadmemyrequest(request, pk):
+    AcademyBid.objects.filter(id=pk).delete()
+    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)

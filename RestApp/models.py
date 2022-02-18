@@ -108,7 +108,7 @@ class PriorityPick(models.Model):
     PriorityTeam = models.ForeignKey(AddTeam, on_delete=models.CASCADE)
     PriorityPickType = models.CharField(max_length=100)
     PriorityAlignedPick = models.CharField(max_length=100, default='')
-    PriorityPickInstaructions = models.CharField(max_length=100, default='')
+    PriorityPickInstructions = models.CharField(max_length=100, default='')
 
 
 class AcademyBid(models.Model):
