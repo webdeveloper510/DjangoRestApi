@@ -89,3 +89,41 @@ class DraftAnalyserTrade(models.Model):
     PickTradingIn = models.CharField(max_length=100, default="")
     PlayerTradingIn = models.CharField(max_length=100, default="")
     TradeNotes = models.TextField(max_length=200, default="")
+
+
+# ############################################### Transaction API's #####################################################################
+
+
+class AddTrade(models.Model):
+    Team1 = models.ForeignKey(AddTeam, on_delete=models.CASCADE)
+    Team1_Pick1 = models.CharField(max_length=100, default='')
+    Team1_Pick2 = models.CharField(max_length=100, default='')
+    Team1_Pick3 = models.CharField(max_length=100, default='')
+    Team2 = models.ForeignKey(AddTeam,related_name='%(class)s_requests_created', on_delete=models.CASCADE)
+    Team2_Pick1 = models.CharField(max_length=100, default='')
+    Team2_Pick2 = models.CharField(max_length=100, default='')
+    Team2_Pick3 = models.CharField(max_length=100, default='')
+
+class PriorityPick(models.Model):
+    PriorityTeam = models.ForeignKey(AddTeam, on_delete=models.CASCADE)
+    PriorityPickType = models.CharField(max_length=100)
+    PriorityAlignedPick = models.CharField(max_length=100, default='')
+    PriorityPickInstaructions = models.CharField(max_length=100, default='')
+
+
+class AcademyBid(models.Model):
+    AcademyTeam = models.CharField(max_length=100,default='')
+    AcademyPickType = models.CharField(max_length=100,default='')
+    AcademyBid = models.CharField(max_length=100,default='')
+
+
+class FA_Compansations(models.Model):
+    Fa_Team = models.ForeignKey(AddTeam,on_delete=models.CASCADE)
+    Fa_PickType = models.CharField(max_length=100, default='')
+
+
+class ManualTeam(models.Model):
+    ManualTeam = models.CharField(max_length=100, default='')
+    ManualRound = models.CharField(max_length=100, default='')
+    ManualAlignedPick = models.CharField(max_length=100, default='')
+    ManualInstructions = models.CharField(max_length=100, default='')
