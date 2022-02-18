@@ -77,7 +77,9 @@ class Transactions(models.Model):
 
 
 class Players(models.Model):
-    pass
+    names = models.CharField(max_length=100,default='')
+    ratings = models.CharField(max_length=100,default='')
+    notes = models.TextField(max_length=100,default='')
 
 
 class DraftAnalyserTrade(models.Model):
