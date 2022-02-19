@@ -74,10 +74,6 @@ class Transactions(models.Model):
     Transaction_Type = models.CharField(max_length=100, default='')
     Transaction_Details = models.CharField(max_length=100, default='')
     Transaction_Description = models.CharField(max_length=100, default='')
-<<<<<<< HEAD
-=======
-
->>>>>>> 3981b18c8870569606dfa31b609121256ea8fae8
 class Players(models.Model):
         names = models.CharField(max_length=100,default='')
         ratings = models.CharField(max_length=100,default='')

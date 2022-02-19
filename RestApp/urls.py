@@ -50,6 +50,7 @@ urlpatterns = [
     url(r'^Priority-Pick/$', PriorityPickRequest),
     url(r'^Manual-Team/$', ManualTeamRequest),
     url(r'^FA-Compansation/$', FARequest),
+    url(r'^MakeCompany/$', MakeCompanyRequest),
 
     # #################### Update URL's #################
 
@@ -60,7 +61,6 @@ urlpatterns = [
     url(r'^ShowMasterList/$', GETMasterListRequest),
     url(r'^ShowProject/$', GETProjectRequest),
     url(r'^Logout/$', LogoutRequest),
-    url(r'^MakeCompany/$', MakeCompanyRequest),
     url(r'^AddTeam/$', AddTeamRequest),
     url(r'^ListOfCompany/$', CompanyListRequest),
     url(r'^ListOfUsers/$', UserListRequest),
