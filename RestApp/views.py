@@ -1,3 +1,4 @@
+from ast import Add
 from logging import raiseExceptions
 from django.http import Http404
 from rest_framework.permissions import SAFE_METHODS
@@ -98,7 +99,12 @@ def LocalLadderRequest(request):
     serializer = LocalLaddderSerializer(data=LocalLadder)
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    return Response({'success': 'LocalLadder Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+    fk = serializer.data['teamname']
+    TeamNames = AddTeam.objects.filter(id=fk).values('TeamName')
+    NamesDict = {
+        "Names":TeamNames
+    }
+    return Response({'success': 'LocalLadder Created Successfuly', 'data': serializer.data,"NamesDict":NamesDict}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -108,7 +114,18 @@ def CreateMasterListRequest(request):
     serializer = MasterLIstSerializer(data=MasterList)
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    return Response({'success': 'MasterList Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+    Original_OwnerId = serializer.data['Original_Owner']
+    Current_OwnerId = serializer.data['Current_Owner']
+    Most_Recent_OwnerId = serializer.data['Most_Recent_Owner']
+    OriginalOwner = AddTeam.objects.filter(id=Original_OwnerId).values('TeamName')
+    CurrentOwner = AddTeam.objects.filter(id=Current_OwnerId).values('TeamName')
+    RecentOwner = AddTeam.objects.filter(id=Most_Recent_OwnerId).values('TeamName')
+    Names = {
+        'OriginalOwner':OriginalOwner,
+        'CurrentOwner':CurrentOwner,
+        'RecentOwner':RecentOwner
+    }
+    return Response({'success': 'MasterList Created Successfuly', 'data': serializer.data,'Names':Names}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
