@@ -1,3 +1,4 @@
+from pyexpat import model
 from django.db import models
 from django.contrib.auth.models import User
 import uuid
@@ -19,8 +20,9 @@ class Company(models.Model):
     Contact = models.CharField(max_length=100, default='')
     Email = models.CharField(max_length=100)
     Active = models.CharField(max_length=1, choices=(
-        ('A', 'Active'), ('I', 'Inactive')),default='')
-    project_name = models.ForeignKey(Project, on_delete=models.CASCADE,default='')
+        ('A', 'Active'), ('I', 'Inactive')), default='')
+    project_name = models.ForeignKey(
+        Project, on_delete=models.CASCADE, default='')
 
     def __str__(self):
         return f"{self.Name}"
@@ -60,7 +62,8 @@ class MasterList(models.Model):
         AddTeam, related_name='Most_Recent_Owner', on_delete=models.CASCADE, blank=False)
     Draft_Round = models.CharField(max_length=100, default='')
     Pick_Group = models.CharField(max_length=100, default='')
-    project_name = models.ForeignKey(Project, on_delete=models.CASCADE,default='')
+    project_name = models.ForeignKey(
+        Project, on_delete=models.CASCADE, default='')
 
 
 class LocalLadder(models.Model):
@@ -68,7 +71,7 @@ class LocalLadder(models.Model):
     season = models.CharField(max_length=100, default='')
     teamname = models.ForeignKey(
         AddTeam, on_delete=models.CASCADE, blank=False)
-    Project = models.ForeignKey(Project, on_delete=models.CASCADE,default='')
+    Project = models.ForeignKey(Project, on_delete=models.CASCADE, default='')
 
 
 class Transactions(models.Model):
@@ -77,6 +80,7 @@ class Transactions(models.Model):
     Transaction_Type = models.CharField(max_length=100, default='')
     Transaction_Details = models.CharField(max_length=100, default='')
     Transaction_Description = models.CharField(max_length=100, default='')
+
 
 class Players(models.Model):
     names = models.CharField(max_length=100, default='')
@@ -95,11 +99,22 @@ class DraftAnalyserTrade(models.Model):
     TradeNotes = models.TextField(max_length=200, default="")
 
 
+class PicksType(models.Model):
+    pickType = models.CharField(max_length=100,default='')
+
+    def __str__(self):
+        return f"{self.pickType}"
+
 # ############################################### Transaction API's #####################################################################
+class LibraryAFLTeams(models.Model):
+    TeamNames = models.CharField(max_length=100,default='')
+    
+    def __str__(self):
+        return f"{self.TeamNames}"
 
 
 class AddTrade(models.Model):
-    Team1 = models.ForeignKey(AddTeam, on_delete=models.CASCADE)
+    Team1 = models.ForeignKey(LibraryAFLTeams, on_delete=models.CASCADE)
     Team1_Pick1 = models.CharField(max_length=100, default='')
     Team1_Pick2 = models.CharField(max_length=100, default='')
     Team1_Pick3 = models.CharField(max_length=100, default='')
@@ -112,24 +127,24 @@ class AddTrade(models.Model):
 
 class PriorityPick(models.Model):
     PriorityTeam = models.ForeignKey(AddTeam, on_delete=models.CASCADE)
-    PriorityPickType = models.CharField(max_length=100)
+    PriorityPickType = models.ForeignKey(PicksType, on_delete=models.CASCADE)
     PriorityAlignedPick = models.CharField(max_length=100, default='')
     PriorityPickInstructions = models.CharField(max_length=100, default='')
 
 
 class AcademyBid(models.Model):
-    AcademyTeam = models.CharField(max_length=100, default='')
-    AcademyPickType = models.CharField(max_length=100, default='')
+    AcademyTeam = models.ForeignKey(LibraryAFLTeams, on_delete=models.CASCADE)
+    AcademyPickType = models.ForeignKey(PicksType, on_delete=models.CASCADE)
     AcademyBid = models.CharField(max_length=100, default='')
 
 
 class FA_Compansations(models.Model):
-    Fa_Team = models.ForeignKey(AddTeam, on_delete=models.CASCADE)
-    Fa_PickType = models.CharField(max_length=100, default='')
+    Fa_Team = models.ForeignKey(LibraryAFLTeams, on_delete=models.CASCADE)
+    Fa_PickType = models.ForeignKey(PicksType, on_delete=models.CASCADE)
 
 
 class ManualTeam(models.Model):
-    ManualTeam = models.CharField(max_length=100, default='')
+    ManualTeam = models.ForeignKey(LibraryAFLTeams, on_delete=models.CASCADE)
     ManualRound = models.CharField(max_length=100, default='')
     ManualAlignedPick = models.CharField(max_length=100, default='')
     ManualInstructions = models.CharField(max_length=100, default='')
