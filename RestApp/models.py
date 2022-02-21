@@ -74,6 +74,7 @@ class LocalLadder(models.Model):
     Project = models.ForeignKey(Project, on_delete=models.CASCADE, default='')
 
 
+
 class Transactions(models.Model):
     # Transaction_Number = models.IntegerField()
     Transaction_DateTime = models.DateTimeField(auto_now_add=True)
