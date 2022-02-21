@@ -74,7 +74,6 @@ class LocalLadder(models.Model):
     Project = models.ForeignKey(Project, on_delete=models.CASCADE, default='')
 
 
-
 class Transactions(models.Model):
     # Transaction_Number = models.IntegerField()
     Transaction_DateTime = models.DateTimeField(auto_now_add=True)
@@ -84,9 +83,17 @@ class Transactions(models.Model):
 
 
 class Players(models.Model):
-    names = models.CharField(max_length=100, default='')
-    ratings = models.CharField(max_length=100, default='')
-    notes = models.TextField(max_length=100, default='')
+    FirstName = models.CharField(max_length=100, default='')
+    LastName = models.CharField(max_length=100, default='')
+    Height = models.CharField(max_length=100, default='')
+    width = models.CharField(max_length=100, default='')
+    club = models.CharField(max_length=100, default='')
+    State = models.CharField(max_length=100, default='')
+    Position_1 = models.CharField(max_length=100, default='')
+    Position_2 = models.CharField(max_length=100, default='')
+    Rank = models.CharField(max_length=100, default='')
+    Tier = models.CharField(max_length=100, default='')
+    Notes = models.CharField(max_length=100, default='')
 
 
 class DraftAnalyserTrade(models.Model):
@@ -101,15 +108,17 @@ class DraftAnalyserTrade(models.Model):
 
 
 class PicksType(models.Model):
-    pickType = models.CharField(max_length=100,default='')
+    pickType = models.CharField(max_length=100, default='')
 
     def __str__(self):
         return f"{self.pickType}"
 
 # ############################################### Transaction API's #####################################################################
+
+
 class LibraryAFLTeams(models.Model):
-    TeamNames = models.CharField(max_length=100,default='')
-    
+    TeamNames = models.CharField(max_length=100, default='')
+
     def __str__(self):
         return f"{self.TeamNames}"
 
