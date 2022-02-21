@@ -324,7 +324,7 @@ def LadderRequest(request):
                 ProjectNames.append(ProjName['project_name'])
             df = pd.DataFrame( {'position': positions, 'season': Season, 'teamname': TeamName,'Project':ProjectNames})
             df_html = df.to_html()
-            return Response(df, status=status.HTTP_200_OK)
+            return Response(df_html, status=status.HTTP_200_OK)
 
     else:
         res = {
