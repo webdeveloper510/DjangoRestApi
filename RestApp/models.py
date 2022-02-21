@@ -126,7 +126,7 @@ class AddTrade(models.Model):
 
 
 class PriorityPick(models.Model):
-    PriorityTeam = models.ForeignKey(AddTeam, on_delete=models.CASCADE)
+    PriorityTeam = models.ForeignKey(LibraryAFLTeams, on_delete=models.CASCADE)
     PriorityPickType = models.ForeignKey(PicksType, on_delete=models.CASCADE)
     PriorityAlignedPick = models.CharField(max_length=100, default='')
     PriorityPickInstructions = models.CharField(max_length=100, default='')
