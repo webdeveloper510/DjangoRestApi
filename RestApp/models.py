@@ -6,12 +6,21 @@ import uuid
 # Create your models here.
 
 
+class Project(models.Model):
+    project_name = models.CharField(max_length=100)
+    project_desc = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f"{self.project_name}"
+
+
 class Company(models.Model):
     Name = models.CharField(max_length=100, default='')
     Contact = models.CharField(max_length=100, default='')
     Email = models.CharField(max_length=100)
     Active = models.CharField(max_length=1, choices=(
-        ('A', 'Active'), ('I', 'Inactive')))
+        ('A', 'Active'), ('I', 'Inactive')),default='')
+    project_name = models.ForeignKey(Project, on_delete=models.CASCADE,default='')
 
     def __str__(self):
         return f"{self.Name}"
@@ -40,14 +49,6 @@ class AddTeam(models.Model):
         return f"{self.TeamName}"
 
 
-class Project(models.Model):
-    project_name = models.CharField(max_length=100)
-    project_desc = models.CharField(max_length=200)
-
-    def __str__(self):
-        return f"{self.project_name}"
-
-
 class MasterList(models.Model):
     Year = models.CharField(max_length=100, default='')
     PickType = models.CharField(max_length=100, default='')
@@ -59,6 +60,7 @@ class MasterList(models.Model):
         AddTeam, related_name='Most_Recent_Owner', on_delete=models.CASCADE, blank=False)
     Draft_Round = models.CharField(max_length=100, default='')
     Pick_Group = models.CharField(max_length=100, default='')
+    project_name = models.ForeignKey(Project, on_delete=models.CASCADE,default='')
 
 
 class LocalLadder(models.Model):
@@ -66,6 +68,7 @@ class LocalLadder(models.Model):
     season = models.CharField(max_length=100, default='')
     teamname = models.ForeignKey(
         AddTeam, on_delete=models.CASCADE, blank=False)
+    Project = models.ForeignKey(Project, on_delete=models.CASCADE,default='')
 
 
 class Transactions(models.Model):
@@ -74,16 +77,20 @@ class Transactions(models.Model):
     Transaction_Type = models.CharField(max_length=100, default='')
     Transaction_Details = models.CharField(max_length=100, default='')
     Transaction_Description = models.CharField(max_length=100, default='')
+
+
 class Players(models.Model):
-        names = models.CharField(max_length=100,default='')
-        ratings = models.CharField(max_length=100,default='')
-        notes = models.TextField(max_length=100,default='')
+    names = models.CharField(max_length=100, default='')
+    ratings = models.CharField(max_length=100, default='')
+    notes = models.TextField(max_length=100, default='')
+
 
 class DraftAnalyserTrade(models.Model):
     TradePartner = models.CharField(max_length=100, default="")
     TotalPicks = models.CharField(max_length=100, default="")
     TotalPLayers = models.CharField(max_length=100, default="")
-    PlayerName = models.ForeignKey(Players, on_delete=models.CASCADE, blank=False)
+    PlayerName = models.ForeignKey(
+        Players, on_delete=models.CASCADE, blank=False)
     PickTradingIn = models.CharField(max_length=100, default="")
     PlayerTradingIn = models.CharField(max_length=100, default="")
     TradeNotes = models.TextField(max_length=200, default="")
@@ -97,10 +104,12 @@ class AddTrade(models.Model):
     Team1_Pick1 = models.CharField(max_length=100, default='')
     Team1_Pick2 = models.CharField(max_length=100, default='')
     Team1_Pick3 = models.CharField(max_length=100, default='')
-    Team2 = models.ForeignKey(AddTeam,related_name='%(class)s_requests_created', on_delete=models.CASCADE)
+    Team2 = models.ForeignKey(
+        AddTeam, related_name='%(class)s_requests_created', on_delete=models.CASCADE)
     Team2_Pick1 = models.CharField(max_length=100, default='')
     Team2_Pick2 = models.CharField(max_length=100, default='')
     Team2_Pick3 = models.CharField(max_length=100, default='')
+
 
 class PriorityPick(models.Model):
     PriorityTeam = models.ForeignKey(AddTeam, on_delete=models.CASCADE)
@@ -110,13 +119,13 @@ class PriorityPick(models.Model):
 
 
 class AcademyBid(models.Model):
-    AcademyTeam = models.CharField(max_length=100,default='')
-    AcademyPickType = models.CharField(max_length=100,default='')
-    AcademyBid = models.CharField(max_length=100,default='')
+    AcademyTeam = models.CharField(max_length=100, default='')
+    AcademyPickType = models.CharField(max_length=100, default='')
+    AcademyBid = models.CharField(max_length=100, default='')
 
 
 class FA_Compansations(models.Model):
-    Fa_Team = models.ForeignKey(AddTeam,on_delete=models.CASCADE)
+    Fa_Team = models.ForeignKey(AddTeam, on_delete=models.CASCADE)
     Fa_PickType = models.CharField(max_length=100, default='')
 
 
