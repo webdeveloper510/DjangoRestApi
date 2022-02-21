@@ -78,7 +78,6 @@ class Transactions(models.Model):
     Transaction_Details = models.CharField(max_length=100, default='')
     Transaction_Description = models.CharField(max_length=100, default='')
 
-
 class Players(models.Model):
     names = models.CharField(max_length=100, default='')
     ratings = models.CharField(max_length=100, default='')
