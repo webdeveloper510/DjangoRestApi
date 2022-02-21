@@ -102,9 +102,11 @@ def LocalLadderRequest(request):
     fk = serializer.data['teamname']
     TeamNames = AddTeam.objects.filter(id=fk).values('TeamName')
     NamesDict = {
-        "Names":TeamNames
+        "Names": TeamNames
     }
-    return Response({'success': 'LocalLadder Created Successfuly', 'data': serializer.data,"NamesDict":NamesDict}, status=status.HTTP_201_CREATED)
+    fk = serializer.data['Project']
+    ProjectName = Project.objects.filter(id=fk).values('project_name')
+    return Response({'success': 'LocalLadder Created Successfuly', 'data': serializer.data, "NamesDict": NamesDict, 'Project': ProjectName}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -117,15 +119,20 @@ def CreateMasterListRequest(request):
     Original_OwnerId = serializer.data['Original_Owner']
     Current_OwnerId = serializer.data['Current_Owner']
     Most_Recent_OwnerId = serializer.data['Most_Recent_Owner']
-    OriginalOwner = AddTeam.objects.filter(id=Original_OwnerId).values('TeamName')
-    CurrentOwner = AddTeam.objects.filter(id=Current_OwnerId).values('TeamName')
-    RecentOwner = AddTeam.objects.filter(id=Most_Recent_OwnerId).values('TeamName')
+    OriginalOwner = AddTeam.objects.filter(
+        id=Original_OwnerId).values('TeamName')
+    CurrentOwner = AddTeam.objects.filter(
+        id=Current_OwnerId).values('TeamName')
+    RecentOwner = AddTeam.objects.filter(
+        id=Most_Recent_OwnerId).values('TeamName')
     Names = {
-        'OriginalOwner':OriginalOwner,
-        'CurrentOwner':CurrentOwner,
-        'RecentOwner':RecentOwner
+        'OriginalOwner': OriginalOwner,
+        'CurrentOwner': CurrentOwner,
+        'RecentOwner': RecentOwner
     }
-    return Response({'success': 'MasterList Created Successfuly', 'data': serializer.data,'Names':Names}, status=status.HTTP_201_CREATED)
+    fk = serializer.data['project_name']
+    ProjectName = Project.objects.filter(id=fk).values('project_name')
+    return Response({'success': 'MasterList Created Successfuly', 'data': serializer.data, 'Names': Names, 'Project': ProjectName}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -143,7 +150,9 @@ def MakeCompanyRequest(request):
     serializer = MakeCompanySerializer(data=Company_obj)
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    return Response({'success': 'Company Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+    fk = serializer.data['project_name']
+    ProjectName = Project.objects.filter(id=fk).values('project_name')
+    return Response({'success': 'Company Created Successfuly', 'data': serializer.data, 'Project': ProjectName}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -269,6 +278,7 @@ def UserListRequest(request):
     data_dict = User.objects.filter().values()
     return Response(data_dict, status=status.HTTP_200_OK)
 
+
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
 def TeamRequest(request):
@@ -374,11 +384,13 @@ def DeleteFARequest(request, pk):
     FA_Compansations.objects.filter(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
 
+
 @ api_view(["DELETE"])
 @ permission_classes([AllowAny, ])
 def DeletePriorityPickrequest(request, pk):
     PriorityPick.objects.filter(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
+
 
 @ api_view(["DELETE"])
 @ permission_classes([AllowAny, ])
