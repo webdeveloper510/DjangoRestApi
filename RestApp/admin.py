@@ -12,7 +12,9 @@ from .models import (
     PriorityPick,
     AcademyBid,
     FA_Compansations,
-    ManualTeam
+    ManualTeam,
+    PicksType,
+    LibraryAFLTeams
 )
 
 
@@ -42,3 +44,5 @@ admin.site.register(PriorityPick)
 admin.site.register(AcademyBid)
 admin.site.register(ManualTeam)
 admin.site.register(FA_Compansations)
+admin.site.register(PicksType)
+admin.site.register(LibraryAFLTeams)
