@@ -17,14 +17,28 @@ from .serializers import (
     AcademyBidSerializer,
     PriorityPickSerializer,
     ManualTeamSerializer,
-    FA_CompansationsSerializer
+    FA_CompansationsSerializer,
+    LibraryAFLTeamSerializer,
+    PicksTypeSerializer
 )
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 import jwt
 from django.conf import settings
-from .models import AddTeam, MasterList, LocalLadder, Project, User, Company, AddTrade, ManualTeam, FA_Compansations, AcademyBid, PriorityPick
+from .models import (
+    AddTeam, MasterList, LocalLadder,
+    Project,
+    User,
+    Company,
+    AddTrade,
+    ManualTeam,
+    FA_Compansations,
+    AcademyBid,
+    PriorityPick,
+    LibraryAFLTeams,
+    PicksType
+)
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.crypto import get_random_string
@@ -105,7 +119,7 @@ def LocalLadderRequest(request):
         "Names": TeamNames
     }
     fk = serializer.data['Project']
-    ProjectName = Project.objects.filter(id=fk).values('id','project_name')
+    ProjectName = Project.objects.filter(id=fk).values('id', 'project_name')
     return Response({'success': 'LocalLadder Created Successfuly', 'data': serializer.data, "NamesDict": NamesDict, 'Project': ProjectName}, status=status.HTTP_201_CREATED)
 
 
@@ -131,7 +145,7 @@ def CreateMasterListRequest(request):
         'RecentOwner': RecentOwner
     }
     fk = serializer.data['project_name']
-    ProjectName = Project.objects.filter(id=fk).values('id','project_name')
+    ProjectName = Project.objects.filter(id=fk).values('id', 'project_name')
     return Response({'success': 'MasterList Created Successfuly', 'data': serializer.data, 'Names': Names, 'Project': ProjectName}, status=status.HTTP_201_CREATED)
 
 
@@ -151,7 +165,7 @@ def MakeCompanyRequest(request):
     serializer.is_valid(raise_exception=True)
     serializer.save()
     fk = serializer.data['project_name']
-    ProjectName = Project.objects.filter(id=fk).values('id','project_name')
+    ProjectName = Project.objects.filter(id=fk).values('id', 'project_name')
     return Response({'success': 'Company Created Successfuly', 'data': serializer.data, 'Project': ProjectName}, status=status.HTTP_201_CREATED)
 
 
@@ -293,18 +307,31 @@ def LadderRequest(request):
     TeamName = list()
     positions = list()
     Season = list()
+    ProjectId = list()
+    ProjectNames = list()
     Ladder = LocalLadder.objects.filter().values()
-    for Ladders in Ladder:
-        positions.append(Ladders['position'])
-        Season.append(Ladders['season'])
-        TeamId.append(Ladders['teamname_id'])
-    TeamDict = AddTeam.objects.filter(id__in=TeamId).values('TeamName')
-    for Team in TeamDict:
-        TeamName.append(Team['TeamName'])
-    df = pd.DataFrame(
-        {'position': positions, 'season': Season, 'teamname': TeamName})
-    return Response(df, status=status.HTTP_200_OK)
+    if Ladder:
+            for Ladders in Ladder:
+                positions.append(Ladders['position'])
+                Season.append(Ladders['season'])
+                TeamId.append(Ladders['teamname_id'])
+                ProjectId.append(Ladders['Project_id'])
+            TeamDict = AddTeam.objects.filter(id__in=TeamId).values('TeamName')
+            for Team in TeamDict:
+                TeamName.append(Team['TeamName'])
+            ProjectDict = Project.objects.filter( id__in=ProjectId).values()
+            for ProjName in ProjectDict:
+                ProjectNames.append(ProjName['project_name'])
+            df = pd.DataFrame( {'position': positions, 'season': Season, 'teamname': TeamName,'Project':ProjectNames})
+            df_html = df.to_html()
+            return Response(df, status=status.HTTP_200_OK)
 
+    else:
+        res = {
+                'error': 'No Ladder Created Yet ?'
+            }
+        return Response(res, status=status.HTTP_403_FORBIDDEN)
+        
 
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
@@ -318,6 +345,21 @@ def ProjectDetailsRequest(request, pk):
 def ShowTeamRequest(request):
     data = AddTeam.objects.filter().values()
     return Response(data)
+
+
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
+def LibraryAFLTeamsRequest(request):
+    data = LibraryAFLTeams.objects.filter().values()
+    return Response(data)
+
+
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
+def PicksTypeTeamsRequest(request):
+    data = PicksType.objects.filter().values()
+    return Response(data)
+
 
 # ##########################   Delete Api ##########################
 
