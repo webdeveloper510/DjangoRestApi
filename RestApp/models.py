@@ -119,7 +119,7 @@ class AddTrade(models.Model):
     Team1_Pick2 = models.CharField(max_length=100, default='')
     Team1_Pick3 = models.CharField(max_length=100, default='')
     Team2 = models.ForeignKey(
-        AddTeam, related_name='%(class)s_requests_created', on_delete=models.CASCADE)
+        LibraryAFLTeams, related_name='%(class)s_requests_created', on_delete=models.CASCADE)
     Team2_Pick1 = models.CharField(max_length=100, default='')
     Team2_Pick2 = models.CharField(max_length=100, default='')
     Team2_Pick3 = models.CharField(max_length=100, default='')
