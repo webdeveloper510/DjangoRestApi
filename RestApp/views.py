@@ -290,13 +290,13 @@ def GETMasterListRequest(request):
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
 def CompanyListRequest(request):
+    CompanyList = list()
     data_dict = Company.objects.filter().values()
-    data = list(data_dict)
-    PorjectName = Project.objects.filter(
-        id=data_dict[0]['projectId_id']).values('project_name')
-    proj = list(PorjectName)
-    data[0]['projectId_id'] = proj.copy()
-    return Response({'data_dict': data_dict, 'PorjectName': PorjectName}, status=status.HTTP_200_OK)
+    for data in data_dict: 
+        PorjectName = Project.objects.filter( id=data['projectId_id']).values('project_name')
+        data['projectId_id'] = PorjectName[0].copy()
+        CompanyList.append(data)
+    return Response(CompanyList, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
@@ -311,42 +311,6 @@ def UserListRequest(request):
 def TeamRequest(request):
     data_dict = AddTeam.objects.filter().values()
     return Response(data_dict, status=status.HTTP_200_OK)
-
-
-# @ api_view(['GET'])
-# @ permission_classes([AllowAny])
-# def LadderRequest(request):
-#     TeamId = list()
-#     TeamName = list()
-#     positions = list()
-#     Season = list()
-#     ProjectId = list()
-#     ProjectNames = list()
-#     Ladder = LocalLadder.objects.filter().values()
-#     if Ladder:
-#             for Ladders in Ladder:
-
-#                 positions.append(Ladders['position'])
-#                 Season.append(Ladders['season'])
-#                 TeamId.append(Ladders['teamname_id'])
-#                 ProjectId.append(Ladders['projectId_id'])
-#             TeamDict = AddTeam.objects.filter(id__in=TeamId).values('TeamName')
-#             for Team in TeamDict:
-#                 TeamName.append(Team['TeamName'])
-#             ProjectDict = Project.objects.filter( id__in=ProjectId).values()
-#             for ProjName in ProjectDict:
-#                 ProjectNames.append(ProjName['project_name'])
-#             df = pd.DataFrame( {'position': positions, 'season': Season, 'teamname': TeamName,'Project':ProjectNames})
-#             df_html = df.to_html()
-#             Project_name=Project.objects.filter(id=1).values('project_name')
-#             return Response(df_html, status=status.HTTP_200_OK)
-
-#     else:
-#         res = {
-#                 'error': 'No Ladder Created Yet ?'
-#             }
-#         return Response({'response':res}, status=status.HTTP_403_FORBIDDEN)
-
 
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
