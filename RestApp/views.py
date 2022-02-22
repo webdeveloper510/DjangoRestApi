@@ -120,7 +120,7 @@ def LocalLadderRequest(request):
     }
     fk = serializer.data['projectId']
     ProjectId = Project.objects.filter(id=fk).values('id', 'project_name')
-    return Response({'success': 'LocalLadder Created Successfuly', 'data': serializer.data, "NamesDict": NamesDict,'Projectid':ProjectId}, status=status.HTTP_201_CREATED)
+    return Response({'success': 'LocalLadder Created Successfuly', 'data': serializer.data, "NamesDict": NamesDict, 'Projectid': ProjectId}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -276,16 +276,16 @@ def GETProjectRequest(request):
 @ permission_classes([AllowAny, ])
 def GETMasterListRequest(request):
     data_dict = MasterList.objects.filter().values()
-    ProjectName = Project.objects.filter(id=1).values('project_name')
-    return Response({'data':data_dict,'Project':ProjectName}, status=status.HTTP_200_OK)
+    ProjectName = Project.objects.filter(id=1).values('id','project_name')
+    return Response({'data': data_dict, 'Project': ProjectName}, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
-def CompanyListRequest(request):    
+def CompanyListRequest(request):
     data_dict = Company.objects.filter().values()
-    PorjectNames = Project.objects.filter().values()
-    return Response(data_dict, status=status.HTTP_200_OK)
+    PorjectName = Project.objects.filter(id=data_dict[0]['projectId_id']).values('id','project_name')
+    return Response({'data_dict':data_dict,'PorjectName':PorjectName}, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
@@ -341,8 +341,10 @@ def TeamRequest(request):
 @ permission_classes([AllowAny])
 def LadderRequest(request):
     Ladder = LocalLadder.objects.filter().values()
-    Project_name=Project.objects.filter(id=1).values('project_name')
-    return Response({'data':Ladder,'Project':Project_name}, status=status.HTTP_200_OK)
+    Project_name = Project.objects.filter(
+        id=Ladder[0]['projectId_id']).values('id','project_name')
+    return Response({'data': Ladder, 'Project': Project_name}, status=status.HTTP_200_OK)
+
 
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
