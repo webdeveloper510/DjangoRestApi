@@ -21,7 +21,7 @@ class Company(models.Model):
     Email = models.CharField(max_length=100)
     Active = models.CharField(max_length=1, choices=(
         ('A', 'Active'), ('I', 'Inactive')), default='')
-    project_name = models.ForeignKey(
+    projectId = models.ForeignKey(
         Project, on_delete=models.CASCADE, default='')
 
     def __str__(self):
@@ -62,7 +62,7 @@ class MasterList(models.Model):
         AddTeam, related_name='Most_Recent_Owner', on_delete=models.CASCADE, blank=False)
     Draft_Round = models.CharField(max_length=100, default='')
     Pick_Group = models.CharField(max_length=100, default='')
-    project_name = models.ForeignKey(
+    projectId  = models.ForeignKey(
         Project, on_delete=models.CASCADE, default='')
 
 
@@ -71,7 +71,7 @@ class LocalLadder(models.Model):
     season = models.CharField(max_length=100, default='')
     teamname = models.ForeignKey(
         AddTeam, on_delete=models.CASCADE, blank=False)
-    Project = models.ForeignKey(Project, on_delete=models.CASCADE, default='')
+    projectId  = models.ForeignKey(Project, on_delete=models.CASCADE, default='')
 
 
 class Transactions(models.Model):
