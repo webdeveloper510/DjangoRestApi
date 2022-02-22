@@ -119,7 +119,7 @@ def LocalLadderRequest(request):
         "Names": TeamNames
     }
     fk = serializer.data['projectId']
-    # ProjectName = Project.objects.filter(id=fk).values('id', 'projectId')
+    ProjectName = Project.objects.filter(id=fk).values('id', 'project_name')
     return Response({'success': 'LocalLadder Created Successfuly', 'data': serializer.data, "NamesDict": NamesDict}, status=status.HTTP_201_CREATED)
 
 
