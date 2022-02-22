@@ -64,7 +64,7 @@ urlpatterns = [
     url(r'^ShowProject/$', GETProjectRequest),
     url(r'^Logout/$', LogoutRequest),
     url(r'^AddTeam/$', AddTeamRequest),
-    url(r'^ListOfCompany/$', CompanyListRequest),
+    url(r'^ShowCompany/$', CompanyListRequest),
     url(r'^ListOfUsers/$', UserListRequest),
     url(r'^Transactions/$', TransactionsRequest),
     url(r'^Ladder/$', LadderRequest),
