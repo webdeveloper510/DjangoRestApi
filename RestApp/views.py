@@ -164,9 +164,9 @@ def MakeCompanyRequest(request):
     serializer = MakeCompanySerializer(data=Company_obj)
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    fk = serializer.data['project_id']
-    ProjectId = Project.objects.filter(id=fk).values('id', 'project_name')
-    return Response({'success': 'Company Created Successfuly', 'data': serializer.data,'ProjectId':ProjectId}, status=status.HTTP_201_CREATED)
+    # fk = serializer.data['project_id']
+    # ProjectId = Project.objects.filter(id=fk).values('id', 'project_name')
+    return Response({'success': 'Company Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -276,12 +276,13 @@ def GETProjectRequest(request):
 @ permission_classes([AllowAny, ])
 def GETMasterListRequest(request):
     data_dict = MasterList.objects.filter().values()
-    return Response(data_dict, status=status.HTTP_200_OK)
+    ProjectName = Project.objects.filter(id=1).values('project_name')
+    return Response({'data':data_dict,'Project':ProjectName}, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
-def CompanyListRequest(request):
+def CompanyListRequest(request):    
     data_dict = Company.objects.filter().values()
     PorjectNames = Project.objects.filter().values()
     return Response(data_dict, status=status.HTTP_200_OK)
@@ -301,38 +302,47 @@ def TeamRequest(request):
     return Response(data_dict, status=status.HTTP_200_OK)
 
 
+# @ api_view(['GET'])
+# @ permission_classes([AllowAny])
+# def LadderRequest(request):
+#     TeamId = list()
+#     TeamName = list()
+#     positions = list()
+#     Season = list()
+#     ProjectId = list()
+#     ProjectNames = list()
+#     Ladder = LocalLadder.objects.filter().values()
+#     if Ladder:
+#             for Ladders in Ladder:
+
+#                 positions.append(Ladders['position'])
+#                 Season.append(Ladders['season'])
+#                 TeamId.append(Ladders['teamname_id'])
+#                 ProjectId.append(Ladders['projectId_id'])
+#             TeamDict = AddTeam.objects.filter(id__in=TeamId).values('TeamName')
+#             for Team in TeamDict:
+#                 TeamName.append(Team['TeamName'])
+#             ProjectDict = Project.objects.filter( id__in=ProjectId).values()
+#             for ProjName in ProjectDict:
+#                 ProjectNames.append(ProjName['project_name'])
+#             df = pd.DataFrame( {'position': positions, 'season': Season, 'teamname': TeamName,'Project':ProjectNames})
+#             df_html = df.to_html()
+#             Project_name=Project.objects.filter(id=1).values('project_name')
+#             return Response(df_html, status=status.HTTP_200_OK)
+
+#     else:
+#         res = {
+#                 'error': 'No Ladder Created Yet ?'
+#             }
+#         return Response({'response':res}, status=status.HTTP_403_FORBIDDEN)
+
+
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
 def LadderRequest(request):
-    TeamId = list()
-    TeamName = list()
-    positions = list()
-    Season = list()
-    ProjectId = list()
-    ProjectNames = list()
     Ladder = LocalLadder.objects.filter().values()
-    if Ladder:
-            for Ladders in Ladder:
-                positions.append(Ladders['position'])
-                Season.append(Ladders['season'])
-                TeamId.append(Ladders['teamname_id'])
-                ProjectId.append(Ladders['Project_id'])
-            TeamDict = AddTeam.objects.filter(id__in=TeamId).values('TeamName')
-            for Team in TeamDict:
-                TeamName.append(Team['TeamName'])
-            ProjectDict = Project.objects.filter( id__in=ProjectId).values()
-            for ProjName in ProjectDict:
-                ProjectNames.append(ProjName['project_name'])
-            df = pd.DataFrame( {'position': positions, 'season': Season, 'teamname': TeamName,'Project':ProjectNames})
-            df_html = df.to_html()
-            return Response(df_html, status=status.HTTP_200_OK)
-
-    else:
-        res = {
-                'error': 'No Ladder Created Yet ?'
-            }
-        return Response(res, status=status.HTTP_403_FORBIDDEN)
-        
+    Project_name=Project.objects.filter(id=1).values('project_name')
+    return Response({'data':Ladder,'Project':Project_name}, status=status.HTTP_200_OK)
 
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
