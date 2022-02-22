@@ -118,9 +118,9 @@ def LocalLadderRequest(request):
     NamesDict = {
         "Names": TeamNames
     }
-    fk = serializer.data['Project']
-    ProjectName = Project.objects.filter(id=fk).values('id', 'project_name')
-    return Response({'success': 'LocalLadder Created Successfuly', 'data': serializer.data, "NamesDict": NamesDict, 'Project': ProjectName}, status=status.HTTP_201_CREATED)
+    fk = serializer.data['projectId']
+    # ProjectName = Project.objects.filter(id=fk).values('id', 'projectId')
+    return Response({'success': 'LocalLadder Created Successfuly', 'data': serializer.data, "NamesDict": NamesDict}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -144,7 +144,7 @@ def CreateMasterListRequest(request):
         'CurrentOwner': CurrentOwner,
         'RecentOwner': RecentOwner
     }
-    fk = serializer.data['project_name']
+    fk = serializer.data['projectId']
     ProjectName = Project.objects.filter(id=fk).values('id', 'project_name')
     return Response({'success': 'MasterList Created Successfuly', 'data': serializer.data, 'Names': Names, 'Project': ProjectName}, status=status.HTTP_201_CREATED)
 
@@ -164,9 +164,9 @@ def MakeCompanyRequest(request):
     serializer = MakeCompanySerializer(data=Company_obj)
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    fk = serializer.data['project_name']
+    fk = serializer.data['project_id']
     ProjectName = Project.objects.filter(id=fk).values('id', 'project_name')
-    return Response({'success': 'Company Created Successfuly', 'data': serializer.data, 'Project': ProjectName}, status=status.HTTP_201_CREATED)
+    return Response({'success': 'Company Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -283,6 +283,7 @@ def GETMasterListRequest(request):
 @ permission_classes([AllowAny])
 def CompanyListRequest(request):
     data_dict = Company.objects.filter().values()
+    PorjectNames = Project.objects.filter().values()
     return Response(data_dict, status=status.HTTP_200_OK)
 
 
