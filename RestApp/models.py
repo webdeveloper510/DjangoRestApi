@@ -19,10 +19,8 @@ class Company(models.Model):
     Name = models.CharField(max_length=100, default='')
     Contact = models.CharField(max_length=100, default='')
     Email = models.CharField(max_length=100)
-    Active = models.CharField(max_length=1, choices=(
-        ('A', 'Active'), ('I', 'Inactive')), default='')
-    projectId = models.ForeignKey(
-        Project, on_delete=models.CASCADE, default='')
+    Active = models.CharField(max_length=1, choices=(('A', 'Active'), ('I', 'Inactive')), default='')
+    projectId = models.ForeignKey(Project, on_delete=models.CASCADE, default='')
 
     def __str__(self):
         return f"{self.Name}"
