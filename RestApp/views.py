@@ -19,7 +19,8 @@ from .serializers import (
     ManualTeamSerializer,
     FA_CompansationsSerializer,
     LibraryAFLTeamSerializer,
-    PicksTypeSerializer
+    PicksTypeSerializer,
+    UserSerializer
 )
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -43,24 +44,28 @@ from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.crypto import get_random_string
 import pandas as pd
+import uuid
+
 
 #########################################  POST Requests ###############################################################
 
+unique_id=uuid.uuid4().hex[:6].upper()
+print(unique_id)
 
 class CreateUserAPIView(APIView):
     # Allow any user (authenticated or not) to access this url
     def has_permission(self, request, view):
         return request.method in SAFE_METHODS
 
-    # def post(self, request):
-    #     C_Name = Company.objects.filter().values('id', 'Name')
-    #     user = request.data
-    #     serializer = UserSerializer(data=user)
-    #     serializer.is_valid(raise_exception=True)
-    #     serializer.save()
-    #     last_inserted_id = serializer.data['id']
-    #     User.objects.filter(id=last_inserted_id).update(uui=unique_id)
-    #     return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
+    def post(self, request):
+        C_Name = Company.objects.filter().values('id', 'Name')
+        user = request.data
+        serializer = UserSerializer(data=user)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        last_inserted_id = serializer.data['id']
+        User.objects.filter(id=last_inserted_id).update(uui= unique_id)
+        return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -164,8 +169,8 @@ def MakeCompanyRequest(request):
     serializer = MakeCompanySerializer(data=Company_obj)
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    # fk = serializer.data['project_id']
-    # ProjectId = Project.objects.filter(id=fk).values('id', 'project_name')
+    fk = serializer.data['projectId']
+    ProjectId = Project.objects.filter(id=fk).values('id', 'project_name')
     return Response({'success': 'Company Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
