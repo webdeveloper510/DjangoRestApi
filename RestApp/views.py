@@ -119,8 +119,8 @@ def LocalLadderRequest(request):
         "Names": TeamNames
     }
     fk = serializer.data['projectId']
-    ProjectName = Project.objects.filter(id=fk).values('id', 'project_name')
-    return Response({'success': 'LocalLadder Created Successfuly', 'data': serializer.data, "NamesDict": NamesDict}, status=status.HTTP_201_CREATED)
+    ProjectId = Project.objects.filter(id=fk).values('id', 'project_name')
+    return Response({'success': 'LocalLadder Created Successfuly', 'data': serializer.data, "NamesDict": NamesDict,'Projectid':ProjectId}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -145,8 +145,8 @@ def CreateMasterListRequest(request):
         'RecentOwner': RecentOwner
     }
     fk = serializer.data['projectId']
-    ProjectName = Project.objects.filter(id=fk).values('id', 'project_name')
-    return Response({'success': 'MasterList Created Successfuly', 'data': serializer.data, 'Names': Names, 'Project': ProjectName}, status=status.HTTP_201_CREATED)
+    ProjectId = Project.objects.filter(id=fk).values('id', 'project_name')
+    return Response({'success': 'MasterList Created Successfuly', 'data': serializer.data, 'Names': Names, 'Project': ProjectId}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -165,8 +165,8 @@ def MakeCompanyRequest(request):
     serializer.is_valid(raise_exception=True)
     serializer.save()
     fk = serializer.data['project_id']
-    ProjectName = Project.objects.filter(id=fk).values('id', 'project_name')
-    return Response({'success': 'Company Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+    ProjectId = Project.objects.filter(id=fk).values('id', 'project_name')
+    return Response({'success': 'Company Created Successfuly', 'data': serializer.data,'ProjectId':ProjectId}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
