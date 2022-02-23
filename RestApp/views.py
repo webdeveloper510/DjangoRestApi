@@ -1,5 +1,6 @@
 from ast import Add
 from logging import raiseExceptions
+from re import T
 from django.http import Http404
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
@@ -49,8 +50,9 @@ import uuid
 
 #########################################  POST Requests ###############################################################
 
-unique_id=uuid.uuid4().hex[:6].upper()
+unique_id = uuid.uuid4().hex[:6].upper()
 print(unique_id)
+
 
 class CreateUserAPIView(APIView):
     # Allow any user (authenticated or not) to access this url
@@ -64,7 +66,7 @@ class CreateUserAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         last_inserted_id = serializer.data['id']
-        User.objects.filter(id=last_inserted_id).update(uui= unique_id)
+        User.objects.filter(id=last_inserted_id).update(uui=unique_id)
         return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
@@ -281,16 +283,20 @@ def GETProjectRequest(request):
 @ permission_classes([AllowAny, ])
 def GETMasterListRequest(request):
     data_dict = MasterList.objects.filter().values()
-    ProjectName = Project.objects.filter(id=1).values('id','project_name')
+    ProjectName = Project.objects.filter(id=1).values('id', 'project_name')
     return Response({'data': data_dict, 'Project': ProjectName}, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
 def CompanyListRequest(request):
+    CompanyList = list()
     data_dict = Company.objects.filter().values()
-    PorjectName = Project.objects.filter(id=data_dict[0]['projectId_id']).values('id','project_name')
-    return Response({'data_dict':data_dict,'PorjectName':PorjectName}, status=status.HTTP_200_OK)
+    for data in data_dict: 
+        PorjectName = Project.objects.filter( id=data['projectId_id']).values('project_name')
+        data['projectId_id'] = PorjectName[0].copy()
+        CompanyList.append(data)
+    return Response(CompanyList, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
@@ -306,49 +312,18 @@ def TeamRequest(request):
     data_dict = AddTeam.objects.filter().values()
     return Response(data_dict, status=status.HTTP_200_OK)
 
-
-# @ api_view(['GET'])
-# @ permission_classes([AllowAny])
-# def LadderRequest(request):
-#     TeamId = list()
-#     TeamName = list()
-#     positions = list()
-#     Season = list()
-#     ProjectId = list()
-#     ProjectNames = list()
-#     Ladder = LocalLadder.objects.filter().values()
-#     if Ladder:
-#             for Ladders in Ladder:
-
-#                 positions.append(Ladders['position'])
-#                 Season.append(Ladders['season'])
-#                 TeamId.append(Ladders['teamname_id'])
-#                 ProjectId.append(Ladders['projectId_id'])
-#             TeamDict = AddTeam.objects.filter(id__in=TeamId).values('TeamName')
-#             for Team in TeamDict:
-#                 TeamName.append(Team['TeamName'])
-#             ProjectDict = Project.objects.filter( id__in=ProjectId).values()
-#             for ProjName in ProjectDict:
-#                 ProjectNames.append(ProjName['project_name'])
-#             df = pd.DataFrame( {'position': positions, 'season': Season, 'teamname': TeamName,'Project':ProjectNames})
-#             df_html = df.to_html()
-#             Project_name=Project.objects.filter(id=1).values('project_name')
-#             return Response(df_html, status=status.HTTP_200_OK)
-
-#     else:
-#         res = {
-#                 'error': 'No Ladder Created Yet ?'
-#             }
-#         return Response({'response':res}, status=status.HTTP_403_FORBIDDEN)
-
-
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
 def LadderRequest(request):
+    LadderList = list()
     Ladder = LocalLadder.objects.filter().values()
-    Project_name = Project.objects.filter(
-        id=Ladder[0]['projectId_id']).values('id','project_name')
-    return Response({'data': Ladder, 'Project': Project_name}, status=status.HTTP_200_OK)
+    for ladderrr in Ladder:
+        Team = AddTeam.objects.filter(id=ladderrr['teamname_id']).values('TeamName')
+        ladderrr['teamname_id'] = Team[0].copy()
+        Project_name = Project.objects.filter(id=ladderrr['projectId_id']).values('project_name')
+        ladderrr['projectId_id'] = Project_name[0].copy()
+        LadderList.append(ladderrr)
+    return Response(LadderList, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
