@@ -36,7 +36,8 @@ from .views import (
     DeletePriorityPickrequest,
     DeleteAcadmemyrequest,
     TeamsRequest,
-    PicksTypeTeamsRequest
+    PicksTypeTeamsRequest,
+    CheckMasterlistrequest
 )
 
 urlpatterns = [
@@ -72,6 +73,7 @@ urlpatterns = [
     url(r'^ShowProjectDetails/(?P<pk>[0-9]+)$', ProjectDetailsRequest),
     url(r'^Teams/$', TeamsRequest),
     url(r'^PicksTypeTeams/$', PicksTypeTeamsRequest),
+    url(r'^Test-Masterlist/$', CheckMasterlistrequest),
 
     # ################ Delete URL's ##########################
     url(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),

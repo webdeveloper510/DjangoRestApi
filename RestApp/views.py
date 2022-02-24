@@ -432,6 +432,18 @@ def PicksTypeTeamsRequest(request):
     data = PicksType.objects.filter().values()
     return Response(data)
 
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
+def CheckMasterlistrequest(request):
+    MasterlisId = list()
+    MasterList1dict = MasterList.objects.filter().values()
+    for masterdata in MasterList1dict:
+       MasterlisId.append(masterdata['projectId_id'])
+    if len(MasterlisId) > 0:
+        return Response('True')
+    else:
+        return Response('False')
+
 
 # ##########################   Delete Api ##########################
 
