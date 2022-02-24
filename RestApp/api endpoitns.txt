@@ -1,0 +1,92 @@
+{
+ "Team1":"1",
+  "Team1_Pick1":"test Team1_Pick1",
+  "Team1_Pick2":"test Team1_Pick2",
+  "Team1_Pick3":"test Team1_Pick3",
+   "Team2":"1",
+   "Team2_Pick1":"test Team2_Pick1",
+   "Team2_Pick2":"test Team2_Pick2",
+   "Team2_Pick3":"test Team2_Pick3"
+
+}
+
+
+{
+  "AcademyTeam":"test AcademyTeam",
+   "AcademyPickType":"test AcademyPickType",
+   "AcademyBid":"test AcademyBid"
+}
+
+{
+"PriorityTeam":"1",
+ "PriorityPickType":"test PriorityPickType",
+  "PriorityAlignedPick":"test PriorityAlignedPick",
+   "PriorityPickInstructions":"testPriorityPickInstructions"
+
+}
+
+{
+   "Fa_Team":"1",
+  "Fa_PickType":"test Fa_PickType"
+
+}
+
+{
+  "ManualTeam":"1",
+   "ManualRound":"test ManualRound",
+   "ManualAlignedPick":"test ManualAlignedPick",
+   "ManualInstructions":"test ManualInstructions"
+
+}
+
+{
+  
+"project_name":"test",
+ "project_desc":"test desc"
+}
+
+masterist
+
+{
+  "Year":"2021",
+  "TeamName":"1",
+   "ShortName":"1",
+   "PickType":"standard",
+   "Original_Owner":"1",
+   "Current_Owner":"1",
+   "Most_Recent_Owner":"1",
+   "Draft_Round":"aad",
+   "Pick_Group":"asda",
+   "projectId":"1"
+
+}
+
+
+Team
+
+{
+  
+"TeamName":"test",
+ "ShortName":"test desc",
+  "project_name":"1"
+
+}
+
+Company
+
+ {
+        "Name": "test",
+        "Contact": "98552552",
+        "Email": "test@gmail.com",
+        "projectId": 1
+    }
+
+Ladder
+
+{
+   "position":"flat",
+   "season":"2023",
+   "teamname":"1",
+    "projectId":"1"
+ 
+}

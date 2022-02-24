@@ -35,8 +35,9 @@ from .views import (
     DeleteFARequest,
     DeletePriorityPickrequest,
     DeleteAcadmemyrequest,
-    LibraryAFLTeamsRequest,
-    PicksTypeTeamsRequest
+    TeamsRequest,
+    PicksTypeTeamsRequest,
+    CheckMasterlistrequest
 )
 
 urlpatterns = [
@@ -70,8 +71,9 @@ urlpatterns = [
     url(r'^Ladder/$', LadderRequest),
     url(r'^Show-Team/$', TeamRequest),
     url(r'^ShowProjectDetails/(?P<pk>[0-9]+)$', ProjectDetailsRequest),
-    url(r'^LibraryAFLTeams/$', LibraryAFLTeamsRequest),
+    url(r'^Teams/$', TeamsRequest),
     url(r'^PicksTypeTeams/$', PicksTypeTeamsRequest),
+    url(r'^Test-Masterlist/$', CheckMasterlistrequest),
 
     # ################ Delete URL's ##########################
     url(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),

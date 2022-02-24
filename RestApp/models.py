@@ -2,8 +2,8 @@ from pyexpat import model
 from django.db import models
 from django.contrib.auth.models import User
 import uuid
-
-
+import datetime
+import pandas as pd
 # Create your models here.
 
 
@@ -40,35 +40,45 @@ class User(models.Model):
         return f"{self.username}"
 
 
-class AddTeam(models.Model):
 
-    TeamName = models.CharField(max_length=100, default='')
-    ShortName = models.CharField(max_length=100, default='')
+class Teams(models.Model):
+    TeamNames = models.CharField(max_length=100, default='')
+    ShortName = models.CharField(max_length=100,default='')
 
     def __str__(self):
-        return f"{self.TeamName}"
+        return f"{self.TeamNames}"
 
 
 class MasterList(models.Model):
+
     Year = models.CharField(max_length=100, default='')
-    PickType = models.CharField(max_length=100, default='')
-    Original_Owner = models.ForeignKey(
-        AddTeam, on_delete=models.CASCADE, default='', blank=False)
-    Current_Owner = models.ForeignKey(
-        AddTeam, related_name='%(class)s_requests_created', on_delete=models.CASCADE, blank=False)
-    Most_Recent_Owner = models.ForeignKey(
-        AddTeam, related_name='Most_Recent_Owner', on_delete=models.CASCADE, blank=False)
+    PickType = models.CharField(max_length=100, default='standard')
+    TeamName = models.ForeignKey(Teams,on_delete=models.CASCADE)
+    Position = models.CharField(max_length=100,default='')
+    Original_Owner = models.ForeignKey(Teams, related_name='TeamName', on_delete=models.CASCADE, default='', blank=False)
+    Current_Owner = models.ForeignKey( Teams, related_name='Current_Owner', on_delete=models.CASCADE,default='', blank=False)
+    Previous_Owner = models.ForeignKey(Teams, related_name='Previous_Owner', on_delete=models.CASCADE,default=None, blank=True,null=True)
     Draft_Round = models.CharField(max_length=100, default='')
     Pick_Group = models.CharField(max_length=100, default='')
-    projectId  = models.ForeignKey(
-        Project, on_delete=models.CASCADE, default='')
+    System_Note = models.CharField(max_length=100, default='')
+    User_Note = models.CharField(max_length=100, default='')
+    Reason = models.CharField(max_length=100, default='')
+    projectId  = models.ForeignKey(Project, on_delete=models.CASCADE, default='')
 
+    # @classmethod
+    # def putframe(cls, dataframe):
+    #     storeddataframe = cls(data=dataframe.to_json(orient='split'))
+    #     storeddataframe.save()
+    #     return storeddataframe
+
+    # def loadframe(self):
+    #     return pd.read_json(self.data, orient='split')
 
 class LocalLadder(models.Model):
     position = models.CharField(max_length=100, default='')
     season = models.CharField(max_length=100, default='')
     teamname = models.ForeignKey(
-        AddTeam, on_delete=models.CASCADE, blank=False)
+        Teams, on_delete=models.CASCADE, blank=False)
     projectId  = models.ForeignKey(Project, on_delete=models.CASCADE, default='')
 
 
@@ -111,48 +121,46 @@ class PicksType(models.Model):
     def __str__(self):
         return f"{self.pickType}"
 
+
+
 # ############################################### Transaction API's #####################################################################
 
 
-class LibraryAFLTeams(models.Model):
-    TeamNames = models.CharField(max_length=100, default='')
 
-    def __str__(self):
-        return f"{self.TeamNames}"
 
 
 class AddTrade(models.Model):
-    Team1 = models.ForeignKey(LibraryAFLTeams, on_delete=models.CASCADE)
+    Team1 = models.ForeignKey(Teams, on_delete=models.CASCADE)
     Team1_Pick1 = models.CharField(max_length=100, default='')
     Team1_Pick2 = models.CharField(max_length=100, default='')
     Team1_Pick3 = models.CharField(max_length=100, default='')
     Team2 = models.ForeignKey(
-        LibraryAFLTeams, related_name='%(class)s_requests_created', on_delete=models.CASCADE)
+        Teams, related_name='%(class)s_requests_created', on_delete=models.CASCADE)
     Team2_Pick1 = models.CharField(max_length=100, default='')
     Team2_Pick2 = models.CharField(max_length=100, default='')
     Team2_Pick3 = models.CharField(max_length=100, default='')
 
 
 class PriorityPick(models.Model):
-    PriorityTeam = models.ForeignKey(LibraryAFLTeams, on_delete=models.CASCADE)
+    PriorityTeam = models.ForeignKey(Teams, on_delete=models.CASCADE)
     PriorityPickType = models.ForeignKey(PicksType, on_delete=models.CASCADE)
     PriorityAlignedPick = models.CharField(max_length=100, default='')
     PriorityPickInstructions = models.CharField(max_length=100, default='')
 
 
 class AcademyBid(models.Model):
-    AcademyTeam = models.ForeignKey(LibraryAFLTeams, on_delete=models.CASCADE)
+    AcademyTeam = models.ForeignKey(Teams, on_delete=models.CASCADE)
     AcademyPickType = models.ForeignKey(PicksType, on_delete=models.CASCADE)
     AcademyBid = models.CharField(max_length=100, default='')
 
 
 class FA_Compansations(models.Model):
-    Fa_Team = models.ForeignKey(LibraryAFLTeams, on_delete=models.CASCADE)
+    Fa_Team = models.ForeignKey(Teams, on_delete=models.CASCADE)
     Fa_PickType = models.ForeignKey(PicksType, on_delete=models.CASCADE)
 
 
 class ManualTeam(models.Model):
-    ManualTeam = models.ForeignKey(LibraryAFLTeams, on_delete=models.CASCADE)
+    ManualTeam = models.ForeignKey(Teams, on_delete=models.CASCADE)
     ManualRound = models.CharField(max_length=100, default='')
     ManualAlignedPick = models.CharField(max_length=100, default='')
     ManualInstructions = models.CharField(max_length=100, default='')
