@@ -3,9 +3,9 @@ from pyexpat import model
 from re import L
 from rest_framework import serializers
 from .models import (
-    Company, User, LocalLadder, Project, MasterList, AddTeam, Transactions, DraftAnalyserTrade,
+    Company, User, LocalLadder, Project, MasterList, Transactions, DraftAnalyserTrade,
     AddTrade, AcademyBid, PriorityPick, FA_Compansations, ManualTeam,
-    LibraryAFLTeams,PicksType
+    Teams,PicksType
 )
 
 
@@ -40,12 +40,6 @@ class MakeCompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
 
-        fields = '__all__'
-
-
-class AddTeamSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AddTeam
         fields = '__all__'
 
 
@@ -95,9 +89,9 @@ class FA_CompansationsSerializer(serializers.ModelSerializer):
         model = FA_Compansations
         fields = '__all__'
 
-class LibraryAFLTeamSerializer(serializers.ModelSerializer):
+class TeamSerializer(serializers.ModelSerializer):
     class Meta:
-        model = LibraryAFLTeams
+        model = Teams
         fields = '__all__'
 
 class PicksTypeSerializer(serializers.ModelSerializer):
