@@ -38,7 +38,6 @@ from .views import (
     TeamsRequest,
     PicksTypeTeamsRequest,
     CheckMasterlistrequest,
-    GetProjectidRequest
 )
 
 urlpatterns = [
@@ -48,7 +47,7 @@ urlpatterns = [
     url(r'^Auth/$', authenticate_user),
     url(r'^CreateProject/$', ProjNameDescRequest),
     url(r'^LocalLadder/$', LocalLadderRequest),
-    url(r'^MasterList/$', CreateMasterListRequest),
+    url(r'^MasterList/(?P<pk>[0-9]+)$', CreateMasterListRequest),
     url(r'^Add-Trade/$', AddTradeRequest),
     url(r'^Academy-Bid/$', AcademyBidRequest),
     url(r'^Priority-Pick/$', PriorityPickRequest),
@@ -75,7 +74,6 @@ urlpatterns = [
     url(r'^Teams/$', TeamsRequest),
     url(r'^PicksTypeTeams/$', PicksTypeTeamsRequest),
     url(r'^Test-Masterlist/$', CheckMasterlistrequest),
-    url(r'^Get-ProjectId/(?P<pk>[0-9]+)$', GetProjectidRequest),
 
     # ################ Delete URL's ##########################
     url(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),

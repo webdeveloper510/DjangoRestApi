@@ -157,23 +157,13 @@ def import_ladder_dragdrop(library_team_dropdown_list, library_AFL_Team_Names, v
 
     return ladder_current_year, ladder_current_year_plus1
 
-
-
-def GetProjectidRequest(pk):
-
-    proj = Project.objects.filter(id=pk).values('id')
-    print(proj)
-    return proj
-
-
 @api_view(['GET'])
 @permission_classes([AllowAny, ])
-def CreateMasterListRequest(request):
+def CreateMasterListRequest(request,pk):
 
     current_date = date.today() 
     v_current_year = current_date.year
     v_current_year_plus1 = current_date.year+1
-
     Teamlist = list()
     Shortteamlist=dict()
     Team = Teams.objects.filter().values('id','TeamNames','ShortName')
@@ -195,16 +185,12 @@ def CreateMasterListRequest(request):
     df = pd.concat([masterlistthisyear, masterlistnextyear],
                 ignore_index=True, axis=0)
     ProjectInMasterlist = list()
-    MasterListdict = MasterList.objects.filter().values()
+    MasterListdict = MasterList.objects.filter(projectId=pk).values()
+
     for MasterProjdata in MasterListdict:
         ProjectInMasterlist.append(MasterProjdata['projectId_id'])
-    Id = list()
-    proj = GetProjectidRequest(id)
-    # print('id',proj)
-    for project_id in proj:
-        Id.append(project_id['id'])
-    print('id',Id[0])
-    if len(ProjectInMasterlist) == 0 :
+
+    if ProjectInMasterlist == [] :
         try:
             df['PickType'] = 'Standard'
             df['Original_Owner'] = df['TeamName']
@@ -218,10 +204,11 @@ def CreateMasterListRequest(request):
             df['System_Note'] = ''
             df['User_Note'] = ''
             df['Reason'] = ''
-            df['projectId'] = Id[0]
+            df['projectId'] = pk
         
             for index, row in df.iterrows():
                 row1 = dict(row)
+                
                 team = Teams.objects.get(id=row.TeamName)
                 Original_Owner = Teams.objects.get(id=row.Original_Owner)
                 Current_Owner = Teams.objects.get(id=row.Current_Owner)
@@ -424,8 +411,6 @@ def LadderRequest(request):
 def GETMasterListRequest(request):
     Masterrecord  = []
     data_dict = MasterList.objects.filter().values()
-    projectID = ProjectDetailsRequest(request,id)
-    print(projectID)
     for masterlistdata in data_dict:
         Masterrecord.append(masterlistdata)
         Teamsquery = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames')
