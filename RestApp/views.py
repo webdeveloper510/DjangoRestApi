@@ -399,7 +399,6 @@ def LadderRequest(request):
     for ladderrr in Ladder:
         Team = Teams.objects.filter(id=ladderrr['teamname_id']).values('id','TeamNames')
         ladderrr['teamname_id'] = Team[0].copy()
-        print(LadderList)
         Project_name = Project.objects.filter(id=ladderrr['projectId_id']).values('id','project_name')
         ladderrr['projectId_id'] = Project_name[0].copy()
         LadderList.append(ladderrr)
@@ -414,6 +413,7 @@ def GETMasterListRequest(request):
     for masterlistdata in data_dict:
         Masterrecord.append(masterlistdata)
         Teamsquery = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames')
+        print(Teamsquery)
         masterlistdata['TeamName_id'] = Teamsquery[0].copy()
         masterlistdata['Original_Owner_id'] = Teamsquery[0].copy()
         masterlistdata['Current_Owner_id'] = Teamsquery[0].copy()
