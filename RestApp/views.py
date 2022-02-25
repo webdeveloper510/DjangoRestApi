@@ -157,9 +157,15 @@ def import_ladder_dragdrop(library_team_dropdown_list, library_AFL_Team_Names, v
 
     return ladder_current_year, ladder_current_year_plus1
 
-def GetProjectidRequest(pk):
+
+@api_view(['GET'])
+@permission_classes([AllowAny, ])
+def GetProjectidRequest(request,pk):
+
     proj = Project.objects.filter(id=1).values('id')
+    print(proj)
     return proj
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny, ])
@@ -347,9 +353,9 @@ def DraftAnalyserRequest(request):
 
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
-def ProjectDetailsRequest(pk):
+def ProjectDetailsRequest(request,pk):
     projectID = Project.objects.filter(id=pk).values()
-    return projectID
+    return Response(projectID, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
