@@ -61,7 +61,7 @@ urlpatterns = [
 
     # ####################### GET Urls's ################################
 
-    url(r'^ShowMasterList/$', GETMasterListRequest),
+    url(r'^ShowMasterList/(?P<pk>[0-9]+)$', GETMasterListRequest),
     url(r'^ShowProject/$', GETProjectRequest),
     url(r'^Logout/$', LogoutRequest),
     url(r'^AddTeam/$', AddTeamRequest),
