@@ -157,6 +157,9 @@ def import_ladder_dragdrop(library_team_dropdown_list, library_AFL_Team_Names, v
 
     return ladder_current_year, ladder_current_year_plus1
 
+def GetProjectidRequest(pk):
+    proj = Project.objects.filter(id=1).values('id')
+    return proj
 
 @api_view(['GET'])
 @permission_classes([AllowAny, ])
@@ -168,10 +171,13 @@ def CreateMasterListRequest(request):
 
     Teamlist = list()
     Shortteamlist=dict()
-
     Team = Teams.objects.filter().values('id','TeamNames','ShortName')
     for teamdata  in Team:
         Teamlist.append(teamdata['id'])
+<<<<<<< HEAD
+=======
+
+>>>>>>> aff759fdf184d87ae6d85ec48d3adfb62ebcf64e
     ladder_current_year,ladder_current_year_plus1 = import_ladder_dragdrop(Teamlist,Shortteamlist,v_current_year,v_current_year_plus1)
 
     masterlistthisyearimport = ladder_current_year
@@ -181,54 +187,69 @@ def CreateMasterListRequest(request):
 
     masterlistthisyear = masterlistthisyearimport.copy()
     masterlistnextyear = masterlistnextyearimport.copy()
-    print(masterlistthisyear)
 
     for i in range(9):
         masterlistthisyear = pd.concat([masterlistthisyear, masterlistthisyearimport])
         masterlistnextyear = pd.concat([masterlistnextyear,masterlistnextyearimport])
     df = pd.concat([masterlistthisyear, masterlistnextyear],
                 ignore_index=True, axis=0)
+    ProjectInMasterlist = list()
+    MasterListdict = MasterList.objects.filter().values()
+    for MasterProjdata in MasterListdict:
+        ProjectInMasterlist.append(MasterProjdata['projectId_id'])
+    Id = list()
+    proj = GetProjectidRequest(id)
+    # print('id',proj)
+    for project_id in proj:
+        Id.append(project_id['id'])
+    print('id',Id[0])
+    if len(ProjectInMasterlist) == 0 :
+        try:
+            df['PickType'] = 'Standard'
+            df['Original_Owner'] = df['TeamName']
+            df['Current_Owner'] = df['TeamName']
+            df['Previous_Owner'] = None
+            df['Draft_Round'] = 'RD' + \
+                (df.groupby(['Year', 'Current_Owner']).cumcount() + 1).astype(str)
 
-    df['PickType'] = 'Standard'
-    df['Original_Owner'] = df['TeamName']
-    df['Current_Owner'] = df['TeamName']
-    df['Previous_Owner'] = None
-    df['Draft_Round'] = 'RD' + \
-        (df.groupby(['Year', 'Current_Owner']).cumcount() + 1).astype(str)
+            df['Pick_Group'] = df['Year'].astype(
+                str) + '-' + df['Draft_Round'].astype(str) + '-' + df['PickType'].astype(str)
+            df['System_Note'] = ''
+            df['User_Note'] = ''
+            df['Reason'] = ''
+            df['projectId'] = Id[0]
+        
+            for index, row in df.iterrows():
+                row1 = dict(row)
+                team = Teams.objects.get(id=row.TeamName)
+                Original_Owner = Teams.objects.get(id=row.Original_Owner)
+                Current_Owner = Teams.objects.get(id=row.Current_Owner)
 
-    df['Pick_Group'] = df['Year'].astype(
-        str) + '-' + df['Draft_Round'].astype(str) + '-' + df['PickType'].astype(str)
-    df['System_Note'] = ''
-    df['User_Note'] = ''
-    df['Reason'] = ''
-    df['projectId'] = 1
-    #print(df)
-    list123 = []
-    for index, row in df.iterrows():
-        row1 = dict(row)
-        team = Teams.objects.get(id=row.TeamName)
-        Original_Owner = Teams.objects.get(id=row.Original_Owner)
-        Current_Owner = Teams.objects.get(id=row.Current_Owner)
-        #print(row.projectId)
-        Project1 = Project.objects.get(id=row.projectId)
-        #print(Project)
-        team = Teams.objects.get(id=row.TeamName)
-        row1['TeamName'] = team
-        row1['Original_Owner'] = Original_Owner
-        row1['Current_Owner'] = Current_Owner
-        row1['projectId'] = Project1
+                Project1 = Project.objects.get(id=row.projectId)
+            
+                team = Teams.objects.get(id=row.TeamName)
+                row1['TeamName'] = team
+                row1['Original_Owner'] = Original_Owner
+                row1['Current_Owner'] = Current_Owner
+                row1['projectId'] = Project1 
 
-        MasterList(**row1).save()
-  
-    return Response({'success': 'MasterList Created Successfuly', 'data': df}, status=status.HTTP_201_CREATED)
+                MasterList(**row1).save()
+        
+            return Response({'success': 'MasterList Created Successfuly', 'data': df}, status=status.HTTP_201_CREATED)
 
+        except Exception as e:
+
+            raise e
+
+    else:
+        return Response({'success': 'Masterlist with same project is already exist'}, status=status.HTTP_208_ALREADY_REPORTED)
 
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def UpdateMasterListRequest(request):
     data_dict = request.data
     instance = MasterList.objects.filter().update(**data_dict)
-    return Response({"Success": "Data Updated Successfully", "data": instance}, status=status.HTTP_201_CREATED)
+    return Response({"error": "Data Updated Successfully", "data": instance}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -327,6 +348,12 @@ def DraftAnalyserRequest(request):
 
 #  ########################################  GET Requests ###############################################################
 
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
+def ProjectDetailsRequest(pk):
+    projectID = Project.objects.filter(id=pk).values()
+    return projectID
+
 
 @ api_view(['GET'])
 @ permission_classes([AllowAny, ])
@@ -379,9 +406,10 @@ def LadderRequest(request):
     LadderList = list()
     Ladder = LocalLadder.objects.filter().values()
     for ladderrr in Ladder:
-        Team = Teams.objects.filter(id=ladderrr['teamname_id']).values('TeamName')
+        Team = Teams.objects.filter(id=ladderrr['teamname_id']).values('id','TeamNames')
         ladderrr['teamname_id'] = Team[0].copy()
-        Project_name = Project.objects.filter(id=ladderrr['projectId_id']).values('project_name')
+        print(LadderList)
+        Project_name = Project.objects.filter(id=ladderrr['projectId_id']).values('id','project_name')
         ladderrr['projectId_id'] = Project_name[0].copy()
         LadderList.append(ladderrr)
     return Response(LadderList, status=status.HTTP_200_OK)
@@ -403,12 +431,6 @@ def GETMasterListRequest(request):
         Masterrecord.append(masterlistdata)
  
     return Response({'data': Masterrecord}, status=status.HTTP_200_OK)
-
-@ api_view(['GET'])
-@ permission_classes([AllowAny])
-def ProjectDetailsRequest(request, pk):
-    data = Project.objects.filter(id=pk).values()
-    return Response(data)
 
 
 @ api_view(['GET'])
