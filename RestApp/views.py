@@ -172,7 +172,6 @@ def CreateMasterListRequest(request):
     Team = Teams.objects.filter().values('id','TeamNames','ShortName')
     for teamdata  in Team:
         Teamlist.append(teamdata['id'])
-    print(Shortteamlist)
     ladder_current_year,ladder_current_year_plus1 = import_ladder_dragdrop(Teamlist,Shortteamlist,v_current_year,v_current_year_plus1)
 
     masterlistthisyearimport = ladder_current_year
