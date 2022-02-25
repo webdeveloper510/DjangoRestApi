@@ -158,8 +158,7 @@ def import_ladder_dragdrop(library_team_dropdown_list, library_AFL_Team_Names, v
     return ladder_current_year, ladder_current_year_plus1
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny, ])
+
 def GetProjectidRequest(request,pk):
 
     proj = Project.objects.filter(id=1).values('id')
@@ -353,8 +352,11 @@ def DraftAnalyserRequest(request):
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
 def ProjectDetailsRequest(request,pk):
-    projectID = Project.objects.filter(id=pk).values()
-    return Response(projectID, status=status.HTTP_200_OK)
+    project = Project.objects.filter(id=pk).values()
+    masterlist = MasterList.objects.filter(projectId = pk).count()
+    print("masterlist",masterlist)
+
+    return Response({'ProjectDetails':project,'MasterlistCount':masterlist}, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
@@ -422,6 +424,8 @@ def LadderRequest(request):
 def GETMasterListRequest(request):
     Masterrecord  = []
     data_dict = MasterList.objects.filter().values()
+    projectID = ProjectDetailsRequest(request,id)
+    print(projectID)
     for masterlistdata in data_dict:
         Masterrecord.append(masterlistdata)
         Teamsquery = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames')
