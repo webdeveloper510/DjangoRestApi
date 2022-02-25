@@ -159,9 +159,9 @@ def import_ladder_dragdrop(library_team_dropdown_list, library_AFL_Team_Names, v
 
 
 
-def GetProjectidRequest(request,pk):
+def GetProjectidRequest(pk):
 
-    proj = Project.objects.filter(id=1).values('id')
+    proj = Project.objects.filter(id=pk).values('id')
     print(proj)
     return proj
 
@@ -179,10 +179,6 @@ def CreateMasterListRequest(request):
     Team = Teams.objects.filter().values('id','TeamNames','ShortName')
     for teamdata  in Team:
         Teamlist.append(teamdata['id'])
-<<<<<<< HEAD
-
-=======
->>>>>>> 35d0e4896c6a191834586b23f75146cc7f377428
     ladder_current_year,ladder_current_year_plus1 = import_ladder_dragdrop(Teamlist,Shortteamlist,v_current_year,v_current_year_plus1)
 
     masterlistthisyearimport = ladder_current_year
