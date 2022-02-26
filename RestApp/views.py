@@ -422,7 +422,6 @@ def GETMasterListRequest(request,pk):
     for masterlistdata in data_dict:
         Masterrecord.append(masterlistdata)
         Teamsquery = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames')
-        print(Teamsquery)
         masterlistdata['TeamName_id'] = Teamsquery[0].copy()
         masterlistdata['Original_Owner_id'] = Teamsquery[0].copy()
         masterlistdata['Current_Owner_id'] = Teamsquery[0].copy()
