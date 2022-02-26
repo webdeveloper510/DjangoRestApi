@@ -414,7 +414,7 @@ def LadderRequest(request):
     return Response(LadderList, status=status.HTTP_200_OK)
 
 
-@ api_view(['GET'])
+@ api_view(['POST'])
 @ permission_classes([AllowAny, ])
 def GETMasterListRequest(request,pk):
     Masterrecord  = []
