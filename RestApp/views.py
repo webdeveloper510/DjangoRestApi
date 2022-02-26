@@ -414,15 +414,15 @@ def LadderRequest(request):
     return Response(LadderList, status=status.HTTP_200_OK)
 
 
-@ api_view(['GET'])
+@ api_view(['POST'])
 @ permission_classes([AllowAny, ])
 def GETMasterListRequest(request,pk):
     Masterrecord  = []
     data_dict = MasterList.objects.filter(projectId=pk).values()
+    print(data_dict)
     for masterlistdata in data_dict:
         Masterrecord.append(masterlistdata)
         Teamsquery = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames')
-        print(Teamsquery)
         masterlistdata['TeamName_id'] = Teamsquery[0].copy()
         masterlistdata['Original_Owner_id'] = Teamsquery[0].copy()
         masterlistdata['Current_Owner_id'] = Teamsquery[0].copy()
