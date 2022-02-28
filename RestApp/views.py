@@ -419,12 +419,12 @@ def LadderRequest(request):
 @ permission_classes([AllowAny, ])
 def GETMasterListRequest(request,pk):
     Masterrecord  = []
-    data_dict = MasterList.objects.filter(projectId=pk).values().order_by("id")[:0]
+    data_dict = MasterList.objects.filter(projectId=pk).values().order_by("id")[:20]
     data_count = MasterList.objects.filter(projectId=pk).values().count()
     PagesCount = data_count/20
     # print(math.ceil(PagesCount))
     Count = math.ceil(PagesCount)
-    print(Count)
+    print(Masterrecord)
     for masterlistdata in data_dict:
         TeamsList = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames','ShortName')
         TeamNamesList = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames')
