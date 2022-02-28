@@ -418,19 +418,18 @@ def LadderRequest(request):
 @ permission_classes([AllowAny, ])
 def GETMasterListRequest(request,pk):
     Masterrecord  = []
-    Pages = 10
     data_dict = MasterList.objects.filter(projectId=pk).values().order_by("id")[:10]
     data_count = MasterList.objects.filter(projectId=pk).values().count()
     PagesCount = data_count/10
     for masterlistdata in data_dict:
-        Teamsquery = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames')
-        masterlistdata['TeamName_id'] = Teamsquery[0].copy()
-        masterlistdata['Original_Owner_id'] = Teamsquery[0].copy()
-        masterlistdata['Current_Owner_id'] = Teamsquery[0].copy()
+        TeamsList = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames','ShortName')
+        TeamNamesList = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames')
+        masterlistdata['TeamName_id'] = TeamsList[0].copy()
+        masterlistdata['Original_Owner_id'] = TeamNamesList[0].copy()
+        masterlistdata['Current_Owner_id'] = TeamNamesList[0].copy()
         ProjectQuery = Project.objects.filter(id=masterlistdata['projectId_id']).values('id','project_name')
         masterlistdata['projectId_id'] = ProjectQuery[0].copy()
         Masterrecord.append(masterlistdata)
-        print(Masterrecord)
     return Response({'data': Masterrecord,'PagesCount':PagesCount}, status=status.HTTP_200_OK)
 
 
