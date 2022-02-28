@@ -420,12 +420,9 @@ def GETMasterListRequest(request,pk):
     Masterrecord  = []
     Pages = 10
     data_dict = MasterList.objects.filter(projectId=pk).values().order_by("id")[:10]
-    # data_dict = MasterList.objects.filter(projectId=pk).values()
     data_count = MasterList.objects.filter(projectId=pk).values().count()
-    # print(data_dict.count)
     PagesCount = data_count/10
     for masterlistdata in data_dict:
-        Masterrecord.append(masterlistdata)
         Teamsquery = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames')
         masterlistdata['TeamName_id'] = Teamsquery[0].copy()
         masterlistdata['Original_Owner_id'] = Teamsquery[0].copy()
@@ -433,9 +430,8 @@ def GETMasterListRequest(request,pk):
         ProjectQuery = Project.objects.filter(id=masterlistdata['projectId_id']).values('id','project_name')
         masterlistdata['projectId_id'] = ProjectQuery[0].copy()
         Masterrecord.append(masterlistdata)
-        MasterListt  = Masterrecord
         print(Masterrecord)
-    return Response({'data': MasterListt,'PagesCount':PagesCount}, status=status.HTTP_200_OK)
+    return Response({'data': Masterrecord,'PagesCount':PagesCount}, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
