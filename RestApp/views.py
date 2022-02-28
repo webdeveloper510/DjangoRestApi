@@ -418,13 +418,16 @@ def LadderRequest(request):
 @ api_view(['POST'])
 @ permission_classes([AllowAny, ])
 def GETMasterListRequest(request,pk):
+    reposne = request.data
+    offset  = int(reposne['offset'])
+    limit = int(reposne['limit'])
+    print(offset)
+    print(limit)
     Masterrecord  = []
-    data_dict = MasterList.objects.filter(projectId=pk).values()[:20]
+    data_dict = MasterList.objects.filter(projectId=pk).values()[offset:limit]
     data_count = MasterList.objects.filter(projectId=pk).values().count()
     PagesCount = data_count/20
-    # print(math.ceil(PagesCount))
     Count = math.ceil(PagesCount)
-    print(Masterrecord)
     for masterlistdata in data_dict:
         TeamsList = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames','ShortName')
         TeamNamesList = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames')
@@ -434,6 +437,7 @@ def GETMasterListRequest(request,pk):
         ProjectQuery = Project.objects.filter(id=masterlistdata['projectId_id']).values('id','project_name')
         masterlistdata['projectId_id'] = ProjectQuery[0].copy()
         Masterrecord.append(masterlistdata)
+        print(Masterrecord)
     return Response({'data': Masterrecord,'PagesCount':Count}, status=status.HTTP_200_OK)
 
 
