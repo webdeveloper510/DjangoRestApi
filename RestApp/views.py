@@ -414,11 +414,11 @@ def LadderRequest(request):
     return Response(LadderList, status=status.HTTP_200_OK)
 
 
-@ api_view(['GET'])
+@ api_view(['POST'])
 @ permission_classes([AllowAny, ])
 def GETMasterListRequest(request,pk):
     Masterrecord  = []
-    data_dict = MasterList.objects.filter(projectId=pk).values().order_by("id")[:20]
+    data_dict = MasterList.objects.filter(projectId=pk).values().order_by("id")[:0]
     data_count = MasterList.objects.filter(projectId=pk).values().count()
     PagesCount = data_count/10
     for masterlistdata in data_dict:
