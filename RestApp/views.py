@@ -53,6 +53,7 @@ from pandas.io import sql
 # from sqlalchemy import create_engine
 from datetime import date
 import numpy as np
+import math
 pd.set_option('display.max_rows', None) 
 
 # pd.set_option('display.max_columns', None)
@@ -414,13 +415,16 @@ def LadderRequest(request):
     return Response(LadderList, status=status.HTTP_200_OK)
 
 
-@ api_view(['POST'])
+@ api_view(['GET'])
 @ permission_classes([AllowAny, ])
 def GETMasterListRequest(request,pk):
     Masterrecord  = []
     data_dict = MasterList.objects.filter(projectId=pk).values().order_by("id")[:0]
     data_count = MasterList.objects.filter(projectId=pk).values().count()
-    PagesCount = data_count/10
+    PagesCount = data_count/20
+    # print(math.ceil(PagesCount))
+    Count = math.ceil(PagesCount)
+    print(Count)
     for masterlistdata in data_dict:
         TeamsList = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames','ShortName')
         TeamNamesList = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames')
@@ -430,7 +434,7 @@ def GETMasterListRequest(request,pk):
         ProjectQuery = Project.objects.filter(id=masterlistdata['projectId_id']).values('id','project_name')
         masterlistdata['projectId_id'] = ProjectQuery[0].copy()
         Masterrecord.append(masterlistdata)
-    return Response({'data': Masterrecord,'PagesCount':PagesCount}, status=status.HTTP_200_OK)
+    return Response({'data': Masterrecord,'PagesCount':Count}, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
