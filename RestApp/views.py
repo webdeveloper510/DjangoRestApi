@@ -420,11 +420,9 @@ def LadderRequest(request):
 def GETMasterListRequest(request,pk):
     reposne = request.data
     offset  = int(reposne['offset'])
-    limit = int(reposne['limit'])
-    print(offset)
-    print(limit)
+    limit = 20
     Masterrecord  = []
-    data_dict = MasterList.objects.filter(projectId=pk).values()[offset:limit]
+    data_dict = MasterList.objects.filter(projectId=pk).values()[offset:offset+limit]
     data_count = MasterList.objects.filter(projectId=pk).values().count()
     PagesCount = data_count/20
     Count = math.ceil(PagesCount)
@@ -437,7 +435,6 @@ def GETMasterListRequest(request,pk):
         ProjectQuery = Project.objects.filter(id=masterlistdata['projectId_id']).values('id','project_name')
         masterlistdata['projectId_id'] = ProjectQuery[0].copy()
         Masterrecord.append(masterlistdata)
-        print(Masterrecord)
     return Response({'data': Masterrecord,'PagesCount':Count}, status=status.HTTP_200_OK)
 
 
