@@ -216,8 +216,8 @@ def CreateMasterListRequest(request,pk):
             df['projectId'] = pk
         
             for index, row in df.iterrows():
+                print(row.count)
                 row1 = dict(row)
-                
                 team = Teams.objects.get(id=row.TeamName)
                 Original_Owner = Teams.objects.get(id=row.Original_Owner)
                 Current_Owner = Teams.objects.get(id=row.Current_Owner)
@@ -419,9 +419,10 @@ def LadderRequest(request):
 def GETMasterListRequest(request,pk):
     Masterrecord  = []
     Pages = 10
-    # data_dict = MasterList.objects.filter(projectId=pk).values().order_by("id")[:10]
-    data_dict = MasterList.objects.filter(projectId=pk).values()
+    data_dict = MasterList.objects.filter(projectId=pk).values().order_by("id")[:10]
+    # data_dict = MasterList.objects.filter(projectId=pk).values()
     data_count = MasterList.objects.filter(projectId=pk).values().count()
+    # print(data_dict.count)
     PagesCount = data_count/10
     for masterlistdata in data_dict:
         Masterrecord.append(masterlistdata)
@@ -432,9 +433,9 @@ def GETMasterListRequest(request,pk):
         ProjectQuery = Project.objects.filter(id=masterlistdata['projectId_id']).values('id','project_name')
         masterlistdata['projectId_id'] = ProjectQuery[0].copy()
         Masterrecord.append(masterlistdata)
-        divide  = Masterrecord
-
-    return Response({'data': divide,'PagesCount':PagesCount}, status=status.HTTP_200_OK)
+        MasterListt  = Masterrecord
+        print(Masterrecord)
+    return Response({'data': MasterListt,'PagesCount':PagesCount}, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
