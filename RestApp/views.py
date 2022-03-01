@@ -2,6 +2,7 @@ from ast import Add
 from doctest import master
 from logging import raiseExceptions
 from re import T
+from urllib import response
 from django.http import Http404
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
@@ -217,7 +218,6 @@ def CreateMasterListRequest(request,pk):
             df['projectId'] = pk
         
             for index, row in df.iterrows():
-                print(row.count)
                 row1 = dict(row)
                 team = Teams.objects.get(id=row.TeamName)
                 Original_Owner = Teams.objects.get(id=row.Original_Owner)
@@ -418,8 +418,8 @@ def LadderRequest(request):
 @ api_view(['POST'])
 @ permission_classes([AllowAny, ])
 def GETMasterListRequest(request,pk):
-    reposne = request.data
-    offset  = int(reposne['offset'])
+    response = request.data
+    offset  = int(response['offset'])
     limit = 20
     Masterrecord  = []
     data_dict = MasterList.objects.filter(projectId=pk).values()[offset:offset+limit]
@@ -427,11 +427,11 @@ def GETMasterListRequest(request,pk):
     PagesCount = data_count/20
     Count = math.ceil(PagesCount)
     for masterlistdata in data_dict:
-        TeamsList = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames','ShortName')
-        TeamNamesList = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames')
-        masterlistdata['TeamName_id'] = TeamsList[0].copy()
-        masterlistdata['Original_Owner_id'] = TeamNamesList[0].copy()
-        masterlistdata['Current_Owner_id'] = TeamNamesList[0].copy()
+        TeamNamesList = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames','ShortName')
+        NamesWithShortNames = Teams.objects.filter(id=masterlistdata['TeamName_id']).values('id','TeamNames')
+        masterlistdata['TeamName_id'] = TeamNamesList[0].copy()
+        masterlistdata['Original_Owner_id'] = NamesWithShortNames[0].copy()
+        masterlistdata['Current_Owner_id'] = NamesWithShortNames[0].copy()
         ProjectQuery = Project.objects.filter(id=masterlistdata['projectId_id']).values('id','project_name')
         masterlistdata['projectId_id'] = ProjectQuery[0].copy()
         Masterrecord.append(masterlistdata)
