@@ -3,7 +3,6 @@ from doctest import master
 from logging import raiseExceptions
 from re import T
 from urllib import response
-from cv2 import DFT_ROWS
 from django.http import Http404, HttpResponse
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
