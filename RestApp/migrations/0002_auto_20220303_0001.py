@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterField(
             model_name='masterlist',
-            name='Unique_Pick_ID'
+            name='Unique_Pick_ID',
             field=models.CharField(default='', max_length=100),
         ),
     ]
