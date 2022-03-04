@@ -11,16 +11,10 @@ from RestApi.settings import SECRET_KEY
 from .serializers import (
     LocalLaddderSerializer,
     CreateProjectSerializer,
-    MasterLIstSerializer,
     MakeCompanySerializer,
     TransactionsSerialzer,
     DraftAnalyserSerializer,
     AddTraderSerializer,
-    AcademyBidSerializer,
-    PriorityPickSerializer,
-    ManualTeamSerializer,
-    FA_CompansationsSerializer,
-    PicksTypeSerializer,
     UserSerializer,
     TeamSerializer
 )
@@ -36,10 +30,6 @@ from .models import (
     User,
     Company,
     AddTrade,
-    ManualTeam,
-    FA_Compansations,
-    AcademyBid,
-    PriorityPick,
     Teams,
     PicksType,
     library_AFL_Draft_Points
@@ -326,44 +316,6 @@ def AddTradeRequest(request):
     return Response({'success': 'Trade created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def AcademyBidRequest(request):
-    Tran_data = request.data
-    serializer = AcademyBidSerializer(data=Tran_data)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response({'success': 'Academy Bid created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def PriorityPickRequest(request):
-    Tran_data = request.data
-    serializer = PriorityPickSerializer(data=Tran_data)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response({'success': 'Priority pick created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def ManualTeamRequest(request):
-    Tran_data = request.data
-    serializer = ManualTeamSerializer(data=Tran_data)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response({'success': 'Manual Team created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def FARequest(request):
-    Tran_data = request.data
-    serializer = FA_CompansationsSerializer(data=Tran_data)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response({'success': 'created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -562,32 +514,4 @@ def DeleteCompanyRequest(request, pk):
 @ permission_classes([AllowAny, ])
 def DeleteAddTradeRequest(request, pk):
     AddTrade.objects.filter(id=pk).delete()
-    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
-
-
-@ api_view(["DELETE"])
-@ permission_classes([AllowAny, ])
-def DeleteManualTeamRequest(request, pk):
-    ManualTeam.objects.filter(id=pk).delete()
-    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
-
-
-@ api_view(["DELETE"])
-@ permission_classes([AllowAny, ])
-def DeleteFARequest(request, pk):
-    FA_Compansations.objects.filter(id=pk).delete()
-    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
-
-
-@ api_view(["DELETE"])
-@ permission_classes([AllowAny, ])
-def DeletePriorityPickrequest(request, pk):
-    PriorityPick.objects.filter(id=pk).delete()
-    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
-
-
-@ api_view(["DELETE"])
-@ permission_classes([AllowAny, ])
-def DeleteAcadmemyrequest(request, pk):
-    AcademyBid.objects.filter(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)

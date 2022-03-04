@@ -128,10 +128,6 @@ class PicksType(models.Model):
 
 # ############################################### Transaction API's #####################################################################
 
-
-
-
-
 class AddTrade(models.Model):
     Team1 = models.ForeignKey(Teams, on_delete=models.CASCADE)
     Team1_Pick1 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='%(class)s_requests_created')
