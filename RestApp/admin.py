@@ -13,7 +13,8 @@ from .models import (
     FA_Compansations,
     ManualTeam,
     PicksType,
-    Teams
+    Teams,
+    library_AFL_Draft_Points
 )
 
 
@@ -44,3 +45,4 @@ admin.site.register(ManualTeam)
 admin.site.register(FA_Compansations)
 admin.site.register(PicksType)
 admin.site.register(Teams)
+admin.site.register(library_AFL_Draft_Points)

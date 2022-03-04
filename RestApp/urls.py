@@ -7,7 +7,7 @@ from .views import (
     LocalLadderRequest,
     ProjNameDescRequest,
     CreateMasterListRequest,
-    UpdateMasterListRequest,
+    update_masterlist,
     GETMasterListRequest,
     GETProjectRequest, LogoutRequest,
     DeleteMasterListRequest,
@@ -57,7 +57,7 @@ urlpatterns = [
 
     # #################### Update URL's #################
 
-    url(r'^UpdateMasterList/$', UpdateMasterListRequest),
+    url(r'^UpdateMasterList/(?P<pk>[0-9]+)$', update_masterlist),
 
     # ####################### GET Urls's ################################
 

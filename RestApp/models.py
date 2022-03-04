@@ -63,16 +63,19 @@ class MasterList(models.Model):
     System_Note = models.CharField(max_length=100, default='')
     User_Note = models.CharField(max_length=100, default='')
     Reason = models.CharField(max_length=100, default='')
+    Overall_Pick = models.CharField(max_length=100, default='')
+    AFL_Points_Value = models.CharField(max_length=100, default='')
+    Unique_Pick_ID = models.CharField(max_length=100, default='')
+    Club_Pick_Number = models.CharField(max_length=100, default='')
+    Display_Name = models.CharField(max_length=100,default='')
+    Display_Name_Detailed = models.CharField(max_length=100,default='')
     projectId  = models.ForeignKey(Project, on_delete=models.CASCADE, default='')
 
-    # @classmethod
-    # def putframe(cls, dataframe):
-    #     storeddataframe = cls(data=dataframe.to_json(orient='split'))
-    #     storeddataframe.save()
-    #     return storeddataframe
+class library_AFL_Draft_Points(models.Model):
+    points = models.CharField(max_length=100,default='')
 
-    # def loadframe(self):
-    #     return pd.read_json(self.data, orient='split')
+    def __str__(self):
+        return f"{self.points}"
 
 class LocalLadder(models.Model):
     position = models.CharField(max_length=100, default='')
@@ -131,14 +134,13 @@ class PicksType(models.Model):
 
 class AddTrade(models.Model):
     Team1 = models.ForeignKey(Teams, on_delete=models.CASCADE)
-    Team1_Pick1 = models.CharField(max_length=100, default='')
-    Team1_Pick2 = models.CharField(max_length=100, default='')
-    Team1_Pick3 = models.CharField(max_length=100, default='')
-    Team2 = models.ForeignKey(
-        Teams, related_name='%(class)s_requests_created', on_delete=models.CASCADE)
-    Team2_Pick1 = models.CharField(max_length=100, default='')
-    Team2_Pick2 = models.CharField(max_length=100, default='')
-    Team2_Pick3 = models.CharField(max_length=100, default='')
+    Team1_Pick1 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='%(class)s_requests_created')
+    Team1_Pick2 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team1_Pick1')
+    Team1_Pick3 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team1_Pick2')
+    Team2 = models.ForeignKey(Teams, related_name='%(class)s_requests_created', on_delete=models.CASCADE)
+    Team2_Pick1 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team1_Pick3')
+    Team2_Pick2 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team2_Pick1')
+    Team2_Pick3 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team2_Pick2')
 
 
 class PriorityPick(models.Model):
