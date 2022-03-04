@@ -143,26 +143,3 @@ class AddTrade(models.Model):
     Team2_Pick3 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team2_Pick2')
 
 
-class PriorityPick(models.Model):
-    PriorityTeam = models.ForeignKey(Teams, on_delete=models.CASCADE)
-    PriorityPickType = models.ForeignKey(PicksType, on_delete=models.CASCADE)
-    PriorityAlignedPick = models.CharField(max_length=100, default='')
-    PriorityPickInstructions = models.CharField(max_length=100, default='')
-
-
-class AcademyBid(models.Model):
-    AcademyTeam = models.ForeignKey(Teams, on_delete=models.CASCADE)
-    AcademyPickType = models.ForeignKey(PicksType, on_delete=models.CASCADE)
-    AcademyBid = models.CharField(max_length=100, default='')
-
-
-class FA_Compansations(models.Model):
-    Fa_Team = models.ForeignKey(Teams, on_delete=models.CASCADE)
-    Fa_PickType = models.ForeignKey(PicksType, on_delete=models.CASCADE)
-
-
-class ManualTeam(models.Model):
-    ManualTeam = models.ForeignKey(Teams, on_delete=models.CASCADE)
-    ManualRound = models.CharField(max_length=100, default='')
-    ManualAlignedPick = models.CharField(max_length=100, default='')
-    ManualInstructions = models.CharField(max_length=100, default='')
