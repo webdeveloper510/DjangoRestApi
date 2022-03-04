@@ -8,10 +8,6 @@ from .models import (
     DraftAnalyserTrade,
     Players,
     AddTrade,
-    PriorityPick,
-    AcademyBid,
-    FA_Compansations,
-    ManualTeam,
     PicksType,
     Teams,
     library_AFL_Draft_Points
@@ -39,10 +35,6 @@ admin.site.register(MasterList)
 admin.site.register(DraftAnalyserTrade)
 admin.site.register(Players)
 admin.site.register(AddTrade)
-admin.site.register(PriorityPick)
-admin.site.register(AcademyBid)
-admin.site.register(ManualTeam)
-admin.site.register(FA_Compansations)
 admin.site.register(PicksType)
 admin.site.register(Teams)
 admin.site.register(library_AFL_Draft_Points)

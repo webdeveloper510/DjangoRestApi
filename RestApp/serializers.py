@@ -4,7 +4,7 @@ from re import L
 from rest_framework import serializers
 from .models import (
     Company, User, LocalLadder, Project, MasterList, Transactions, DraftAnalyserTrade,
-    AddTrade, AcademyBid, PriorityPick, FA_Compansations, ManualTeam,
+    AddTrade,
     Teams,PicksType
 )
 
@@ -66,28 +66,6 @@ class AddTraderSerializer(serializers.ModelSerializer):
         model = AddTrade
         fields = '__all__'
 
-
-class AcademyBidSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AcademyBid
-        fields = '__all__'
-
-
-class PriorityPickSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PriorityPick
-        fields = '__all__'
-
-
-class ManualTeamSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ManualTeam
-        fields = '__all__'
-
-class FA_CompansationsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FA_Compansations
-        fields = '__all__'
 
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
