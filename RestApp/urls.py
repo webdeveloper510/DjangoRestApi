@@ -24,9 +24,9 @@ from .views import (
     DeleteTeamRequest,
     DeleteCompanyRequest,
     DeleteLadderRecordRequest,
-    # AddTradeRequest,
+    AddTradeRequest,
     TeamRequest,
-    # DeleteAddTradeRequest,
+    DeleteAddTradeRequest,
     TeamsRequest,
     PicksTypeTeamsRequest,
     CheckMasterlistrequest,
@@ -40,7 +40,7 @@ urlpatterns = [
     url(r'^CreateProject/$', ProjNameDescRequest),
     url(r'^LocalLadder/$', LocalLadderRequest),
     url(r'^MasterList/(?P<pk>[0-9]+)$', CreateMasterListRequest),
-    # url(r'^Add-Trade/$', AddTradeRequest),
+    url(r'^Add-Trade/$', AddTradeRequest),
     url(r'^MakeCompany/$', MakeCompanyRequest),
 
     # #################### Update URL's #################
@@ -70,5 +70,5 @@ urlpatterns = [
     url(r'^DeleteLocalLadder/(?P<pk>[0-9]+)$', DeleteLocalLadderRequest),
     url(r'^DeleteProject/(?P<pk>[0-9]+)$', DeleteProjectRequest),
     url(r'^DeleteLadder/(?P<pk>[0-9]+)$', DeleteLadderRecordRequest),
-    # url(r'^DeleteTrade/(?P<pk>[0-9]+)$', DeleteAddTradeRequest),
+    url(r'^DeleteTrade/(?P<pk>[0-9]+)$', DeleteAddTradeRequest),
 ]
