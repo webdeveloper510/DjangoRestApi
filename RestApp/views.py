@@ -14,7 +14,7 @@ from .serializers import (
     MakeCompanySerializer,
     TransactionsSerialzer,
     DraftAnalyserSerializer,
-    AddTraderSerializer,
+    # AddTraderSerializer,
     UserSerializer,
     TeamSerializer
 )
@@ -29,7 +29,7 @@ from .models import (
     Project,
     User,
     Company,
-    AddTrade,
+    # AddTrade,
     Teams,
     PicksType,
     library_AFL_Draft_Points
@@ -306,14 +306,14 @@ def TransactionsRequest(request):
     return Response({'success': 'Transaction created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def AddTradeRequest(request):
-    Tran_data = request.data
-    serializer = AddTraderSerializer(data=Tran_data)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response({'success': 'Trade created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def AddTradeRequest(request):
+#     Tran_data = request.data
+#     serializer = AddTraderSerializer(data=Tran_data)
+#     serializer.is_valid(raise_exception=True)
+#     serializer.save()
+#     return Response({'success': 'Trade created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
 
@@ -510,8 +510,8 @@ def DeleteCompanyRequest(request, pk):
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
 
 
-@ api_view(["DELETE"])
-@ permission_classes([AllowAny, ])
-def DeleteAddTradeRequest(request, pk):
-    AddTrade.objects.filter(id=pk).delete()
-    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
+# @ api_view(["DELETE"])
+# @ permission_classes([AllowAny, ])
+# def DeleteAddTradeRequest(request, pk):
+#     AddTrade.objects.filter(id=pk).delete()
+#     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)

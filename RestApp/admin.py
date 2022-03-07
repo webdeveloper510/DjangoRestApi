@@ -7,7 +7,7 @@ from .models import (
     Project,
     DraftAnalyserTrade,
     Players,
-    AddTrade,
+    # AddTrade,
     PicksType,
     Teams,
     library_AFL_Draft_Points
@@ -34,7 +34,7 @@ admin.site.register(Project)
 admin.site.register(MasterList)
 admin.site.register(DraftAnalyserTrade)
 admin.site.register(Players)
-admin.site.register(AddTrade)
+# admin.site.register(AddTrade)
 admin.site.register(PicksType)
 admin.site.register(Teams)
 admin.site.register(library_AFL_Draft_Points)
