@@ -1,9 +1,7 @@
 from pyexpat import model
 from django.db import models
-from django.contrib.auth.models import User
 import uuid
-import datetime
-import pandas as pd
+from django.utils import timezone
 # Create your models here.
 
 
@@ -86,11 +84,11 @@ class LocalLadder(models.Model):
 
 
 class Transactions(models.Model):
-    Transaction_Number = models.CharField(max_length=100, default=1)
-    Transaction_DateTime = models.DateTimeField(max_length=100,default='')
-    Transaction_Type = models.CharField(max_length=100, default='')
-    Transaction_Details = models.CharField(max_length=100, default='')
-    Transaction_Description = models.CharField(max_length=100, default='')
+    Transaction_Number = models.CharField(max_length=100,default='')
+    Transaction_DateTime = models.CharField(max_length=100,default='')
+    Transaction_Type = models.CharField(max_length=500, default='')
+    Transaction_Details = models.CharField(max_length=500, default='')
+    Transaction_Description = models.CharField(max_length=500, default='')
     projectId = models.IntegerField()
 
 
@@ -129,14 +127,14 @@ class PicksType(models.Model):
 
 # ############################################### Transaction API's #####################################################################
 
-# class AddTrade(models.Model):
-#     Team1 = models.ForeignKey(Teams, on_delete=models.CASCADE)
-#     Team1_Pick1 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='%(class)s_requests_created')
-#     Team1_Pick2 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team1_Pick1')
-#     Team1_Pick3 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team1_Pick2')
-#     Team2 = models.ForeignKey(Teams, related_name='%(class)s_requests_created', on_delete=models.CASCADE)
-#     Team2_Pick1 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team1_Pick3')
-#     Team2_Pick2 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team2_Pick1')
-#     Team2_Pick3 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team2_Pick2')
+class AddTrade(models.Model):
+    Team1 = models.ForeignKey(Teams, on_delete=models.CASCADE)
+    Team1_Pick1 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='%(class)s_requests_created')
+    Team1_Pick2 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team1_Pick1')
+    Team1_Pick3 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team1_Pick2')
+    Team2 = models.ForeignKey(Teams, related_name='%(class)s_requests_created', on_delete=models.CASCADE)
+    Team2_Pick1 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team1_Pick3')
+    Team2_Pick2 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team2_Pick1')
+    Team2_Pick3 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team2_Pick2')
 
 

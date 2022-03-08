@@ -24,6 +24,7 @@ from rest_framework.permissions import AllowAny
 import jwt
 from django.conf import settings
 from .models import (
+    AddTrade,
     MasterList,
     LocalLadder,
     Project,
@@ -45,6 +46,7 @@ import numpy as np
 import math
 import pytz
 import datetime
+from django.db import connection
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', 500)
 
@@ -153,114 +155,105 @@ def AddTradeRequest(request):
 
     team1_trades = []
     team2_trades = []
-    picklist1=[]
-    picklist2=[]
-
-    teams = Teams.objects.filter().values('id','TeamNames')
-
 
     data = request.data
-
 
     Teamobj = Teams.objects.filter(id=data['TeamNames']).values('id','TeamNames')
     team1 = Teamobj[0]['id']
     teamNames = Teamobj[0]['TeamNames']
 
-    Pickobj = MasterList.objects.filter(Display_Name=team1).values('Display_Name_Detailed')
-    for picksName in Pickobj:
-        picklist1.append(picksName['Display_Name_Detailed'])
       
     team1_pick1_obj =  MasterList.objects.filter(id=data['team1_pick1']).values('Display_Name_Detailed')
     team1_pick1 = team1_pick1_obj[0]['Display_Name_Detailed']
     team1_trades.append(team1_pick1)
 
+
+
     team1_pick2_obj =  MasterList.objects.filter(id=data['team1_pick2']).values('id','Display_Name_Detailed')
     team1_pick2 = team1_pick2_obj[0]['Display_Name_Detailed']
+    team1pick2Id = team1_pick2_obj[0]['id']
 
     team1_pick3_obj = MasterList.objects.filter(id=data['team1_pick2']).values('id','Display_Name_Detailed')
     team1_pick3 = team1_pick3_obj[0]['Display_Name_Detailed']
-    
+    team1_pick3Id = team1_pick3_obj[0]['id']
+
     Team2obj = Teams.objects.filter(id=data['TeamNames']).values('id','TeamNames')
 
     team2 = Team2obj[0]['id']
     team2name = Team2obj[0]['TeamNames']
 
-    Pickobj2 = MasterList.objects.filter(Display_Name=team2).values('Display_Name_Detailed')
-
-
-    for picksName1 in Pickobj2:
-        picklist2.append(picksName1['Display_Name_Detailed'])
-
 
     team2_pick1_obj = MasterList.objects.filter(id=data['team2_pick1']).values('id','Display_Name_Detailed','Current_Owner')
     team2_pick1 = team2_pick1_obj[0]['Display_Name_Detailed']
     team2_trades.append(team2_pick1)
+    team2pick1Id = team2_pick1_obj[0]['id']  
 
     team2_pick2_obj = MasterList.objects.filter(id=data['team2_pick2']).values('id','Display_Name_Detailed')
     team2_pick2 = team2_pick2_obj[0]['Display_Name_Detailed']
-
+    team2pick2Id = team2_pick2_obj[0]['id']
 
     team2_pick3_obj = MasterList.objects.filter(id=data['team2_pick3']).values('id','Display_Name_Detailed')
-    team2_pick3 = team2_pick3_obj[0]['id']
+    team2_pick3 = team2_pick3_obj[0]['Display_Name_Detailed']
+    team2_pick3Id = team2_pick3_obj[0]['id']
 
+    MasterList.objects.filter(id=team2pick1Id).update(Previous_Owner=team2pick1Id)
+    MasterList.objects.filter(id=team2pick1Id).update(Previous_Owner=team1)
 
-
-    MasterList.objects.filter(id=team2_pick1_obj[0]['id']).update(Previous_Owner=team2_pick1_obj[0]['id'])
-    MasterList.objects.filter(id=team2_pick1_obj[0]['id']).update(Previous_Owner=team1)
     if len(team2_pick2)>2:
         team1_trades.append(team1_pick2)
-        MasterList.objects.filter(pk=team2_pick2_obj[0]['id']).update(Previous_Owner=team2_pick2_obj[0]['id'])
-        MasterList.objects.filter(pk=team2_pick2_obj[0]['id']).update(Current_Owner=team1)
+        MasterList.objects.filter(pk=team2pick2Id).update(Previous_Owner=team2pick2Id)
+        MasterList.objects.filter(pk=team2pick2Id).update(Current_Owner=team1)
 
     else :
         pass
-
      
-    if team2_pick3 > 2 :
+    if team2_pick3Id > 2 :
         team1_trades.append(team2_pick3)
-        MasterList.objects.filter(pk=team2_pick3_obj[0]['id']).update(Previous_Owner=team2_pick3_obj[0]['id'])
-        MasterList.objects.filter(pk=team2_pick3).update(Current_Owner=team1)
+        MasterList.objects.filter(pk=team2_pick3Id).update(Previous_Owner=team2_pick3Id)
+        MasterList.objects.filter(pk=team2_pick3Id).update(Current_Owner=team1)
 
     else :
         pass
-
     
-    MasterList.objects.filter(pk=team2_pick3_obj[0]['id']).update(Previous_Owner=team2_pick3_obj[0]['id'])
-    MasterList.objects.filter(pk=team2_pick3_obj[0]['id']).update(Current_Owner=team2)
+    MasterList.objects.filter(pk=team2_pick3Id).update(Previous_Owner=team2_pick3Id)
+    MasterList.objects.filter(pk=team2_pick3Id).update(Current_Owner=team2)
 
     if len(team1_pick2) > 2 :
         team2_trades.append(team2_pick2)
-        MasterList.objects.filter(pk=team1_pick2_obj[0]['id']).update(Previous_Owner=team1_pick2_obj[0]['id'])
-        MasterList.objects.filter(pk=team1_pick2_obj[0]['id']).update(Current_Owner=team2)
+        MasterList.objects.filter(pk=team1pick2Id).update(Previous_Owner=team1pick2Id)
+        MasterList.objects.filter(pk=team1pick2Id).update(Current_Owner=team2)
     else :
         pass
 
     if len(team1_pick3) > 2:
         team2_trades.append(team1_pick3)
-        MasterList.objects.filter(pk=team1_pick3_obj[0]['id']).update(Previous_Owner=team1_pick3_obj[0]['id'])
-        MasterList.objects.filter(pk=team1_pick3_obj[0]['id']).update(Current_Owner=team2)
+        MasterList.objects.filter(pk=team1_pick3Id).update(Previous_Owner=team1_pick3Id)
+        MasterList.objects.filter(pk=team1_pick3Id).update(Current_Owner=team2)
     
     else :
         pass
 
-    projectId = MasterList.objects.filter().values()
+    projectIdd = MasterList.objects.filter(id__in=[team1,team2]).values('projectId')
+    pId  =projectIdd[0]['projectId']
     trade_dict = {team1: team1_trades, team2: team2_trades}
+    ListinList = list(trade_dict.values())
+    TradePicks = ''.join(ListinList[0])
     trade_description = teamNames + ' traded ' + ','.join(str(e) for e in team1_trades) + ' & ' + team2name + ' traded ' + ','.join(str(e) for e in team2_trades)
+    current_time = datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
 
-    current_time = list(datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M'))
-    transactions = Transactions()
-    Transactions.Transaction_Number= 1,
-    Transactions.Transaction_DateTime=current_time,
-    Transactions.Transaction_Type='Trade',
-    Transactions.Transaction_Details=trade_dict,
-    Transactions.Transaction_Description=trade_description,
-    Transactions.projectId=projectId
+    Transactions.objects.create(
+        Transaction_Number= '',
+        Transaction_DateTime=current_time,
+        Transaction_Type='Trade',
+        Transaction_Details=TradePicks,
+        Transaction_Description=trade_description,
+        projectId= pId
+        )
+    pk = Transactions.objects.latest('id')
+    message_count = Transactions.objects.filter().count()
+    Transactions.objects.filter(id=pk.id).update(Transaction_Number = message_count)
 
-    transactions.save()
-
-    # return Response({'TeamList': team1, 'PickList': picklist}, status=status.HTTP_201_CREATED)
-
-
+    return Response({'success':'Trade and Trasactions Created'}, status=status.HTTP_201_CREATED)
 
 
 def update_masterlist(df):
@@ -333,8 +326,7 @@ def CreateMasterListRequest(request, pk):
             df['Current_Owner'] = df['TeamName']
             df['Previous_Owner'] = None
             df['Draft_Round'] = 'RD' + \
-                (df.groupby(['Year', 'Current_Owner']
-                            ).cumcount() + 1).astype(str)
+                (df.groupby(['Year', 'Current_Owner']).cumcount() + 1).astype(str)
 
             df['Pick_Group'] = df['Year'].astype(
                 str) + '-' + df['Draft_Round'].astype(str) + '-' + df['PickType'].astype(str)
@@ -342,24 +334,9 @@ def CreateMasterListRequest(request, pk):
             df['User_Note'] = ''
             df['Reason'] = ''
             df['projectId'] = pk
-            # for index, row in df.iterrows():
-            #     row1 = dict(row)
-            #     team = Teams.objects.get(id=row.TeamName)
-            #     Original_Owner = Teams.objects.get(id=row.Original_Owner)
-            #     Current_Owner = Teams.objects.get(id=row.Current_Owner)
-
-            #     Project1 = Project.objects.get(id=row.projectId)
-
-            #     team = Teams.objects.get(id=row.TeamName)
-            #     row1['TeamName'] = team
-            #     row1['Original_Owner'] = Original_Owner
-            #     row1['Current_Owner'] = Current_Owner
-            #     row1['projectId'] = Project1
-            #     MasterList(**row1).save()
-            #     MasterList.objects.filter(projectId=pk).delete()
 
             udpatedf = update_masterlist(df)
-            for index, updaterow in udpatedf.iterrows():
+            for updaterow in udpatedf.iterrows():
                 row1 = dict(updaterow)
                 team = Teams.objects.get(id=updaterow.TeamName)
                 Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
@@ -410,16 +387,6 @@ def AddTeamRequest(request):
     serializer.is_valid(raise_exception=True)
     serializer.save()
     return Response({'success': 'Team Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def TransactionsRequest(request):
-    Tran_data = request.data
-    serializer = TransactionsSerialzer(data=Tran_data)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response({'success': 'Transaction created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -566,6 +533,30 @@ def CheckMasterlistrequest(request):
         return Response('True')
     else:
         return Response('False')
+
+
+@ api_view(['POST']) 
+@ permission_classes([AllowAny])
+def GetTradeRequest(request):
+
+    Pick1List = list()
+    Pick2List = list()
+    Team1Id = request.data['team1']
+    Team2Id = request.data['team2']
+    team1Dict = Teams.objects.filter(id=Team1Id).values('id','TeamNames')
+    TeamName = team1Dict[0]['TeamNames']
+    team2Dict = Teams.objects.filter(id=Team2Id).values('id','TeamNames')
+    TeamName2 = team2Dict[0]['TeamNames']
+    Pick1dict = MasterList.objects.filter(Display_Name = TeamName).values('id','Display_Name_Detailed')
+    Pick2dict= MasterList.objects.filter(Display_Name = TeamName2).values('id','Display_Name_Detailed')
+
+    for pick1data in Pick1dict:
+        Pick1List.append(pick1data['Display_Name_Detailed'])
+    
+    for pick2data in Pick2dict:
+        Pick2List.append(pick2data['Display_Name_Detailed'])
+
+    return Response({'TeamList1':TeamName,'PicksList':Pick1List,'TeamList2':TeamName2,'Pick2List':Pick2List}, status=status.HTTP_200_OK)
 
 
 # ##########################   Delete Api ##########################

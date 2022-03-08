@@ -17,7 +17,7 @@ from .views import (
     AddTeamRequest,
     CompanyListRequest,
     UserListRequest,
-    TransactionsRequest,
+    # TransactionsRequest,
     LadderRequest,
     ProjectDetailsRequest,
     CreateUserAPIView,
@@ -30,6 +30,7 @@ from .views import (
     TeamsRequest,
     PicksTypeTeamsRequest,
     CheckMasterlistrequest,
+    GetTradeRequest
 )
 
 urlpatterns = [
@@ -55,13 +56,14 @@ urlpatterns = [
     url(r'^AddTeam/$', AddTeamRequest),
     url(r'^ShowCompany/$', CompanyListRequest),
     url(r'^ListOfUsers/$', UserListRequest),
-    url(r'^Transactions/$', TransactionsRequest),
+    # url(r'^Transactions/$', TransactionsRequest),
     url(r'^Ladder/$', LadderRequest),
     url(r'^Show-Team/$', TeamRequest),
     url(r'^ShowProjectDetails/(?P<pk>[0-9]+)$', ProjectDetailsRequest),
     url(r'^Teams/$', TeamsRequest),
     url(r'^PicksTypeTeams/$', PicksTypeTeamsRequest),
     url(r'^Test-Masterlist/$', CheckMasterlistrequest),
+    url(r'^Get-Trade/$', GetTradeRequest),
 
     # ################ Delete URL's ##########################
     url(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),
