@@ -14,7 +14,7 @@ from .serializers import (
     MakeCompanySerializer,
     TransactionsSerialzer,
     DraftAnalyserSerializer,
-    AddTraderSerializer,
+    # AddTraderSerializer,
     UserSerializer,
     TeamSerializer
 )
@@ -29,24 +29,22 @@ from .models import (
     Project,
     User,
     Company,
-    AddTrade,
+    # AddTrade,
     Teams,
     PicksType,
-    library_AFL_Draft_Points
+    library_AFL_Draft_Points,
+    Transactions
 )
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.crypto import get_random_string
 import pandas as pd
 import uuid
-from pandas.io import sql
-# import MySQLdb
-# import pymysql
-# from sqlalchemy import create_engine
 from datetime import date
 import numpy as np
 import math
-from rest_framework.parsers import JSONParser
+import pytz
+import datetime
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', 500)
 
@@ -147,8 +145,125 @@ def import_ladder_dragdrop(library_team_dropdown_list, library_AFL_Team_Names, v
     return ladder_current_year, ladder_current_year_plus1
 
 
-def update_masterlist(df):
 
+@api_view(['POST'])
+@permission_classes([AllowAny, ])
+
+def AddTradeRequest(request):
+
+    team1_trades = []
+    team2_trades = []
+    picklist1=[]
+    picklist2=[]
+
+    teams = Teams.objects.filter().values('id','TeamNames')
+
+
+    data = request.data
+
+
+    Teamobj = Teams.objects.filter(id=data['TeamNames']).values('id','TeamNames')
+    team1 = Teamobj[0]['id']
+    teamNames = Teamobj[0]['TeamNames']
+
+    Pickobj = MasterList.objects.filter(Display_Name=team1).values('Display_Name_Detailed')
+    for picksName in Pickobj:
+        picklist1.append(picksName['Display_Name_Detailed'])
+      
+    team1_pick1_obj =  MasterList.objects.filter(id=data['team1_pick1']).values('Display_Name_Detailed')
+    team1_pick1 = team1_pick1_obj[0]['Display_Name_Detailed']
+    team1_trades.append(team1_pick1)
+
+    team1_pick2_obj =  MasterList.objects.filter(id=data['team1_pick2']).values('id','Display_Name_Detailed')
+    team1_pick2 = team1_pick2_obj[0]['Display_Name_Detailed']
+
+    team1_pick3_obj = MasterList.objects.filter(id=data['team1_pick2']).values('id','Display_Name_Detailed')
+    team1_pick3 = team1_pick3_obj[0]['Display_Name_Detailed']
+    
+    Team2obj = Teams.objects.filter(id=data['TeamNames']).values('id','TeamNames')
+
+    team2 = Team2obj[0]['id']
+    team2name = Team2obj[0]['TeamNames']
+
+    Pickobj2 = MasterList.objects.filter(Display_Name=team2).values('Display_Name_Detailed')
+
+
+    for picksName1 in Pickobj2:
+        picklist2.append(picksName1['Display_Name_Detailed'])
+
+
+    team2_pick1_obj = MasterList.objects.filter(id=data['team2_pick1']).values('id','Display_Name_Detailed','Current_Owner')
+    team2_pick1 = team2_pick1_obj[0]['Display_Name_Detailed']
+    team2_trades.append(team2_pick1)
+
+    team2_pick2_obj = MasterList.objects.filter(id=data['team2_pick2']).values('id','Display_Name_Detailed')
+    team2_pick2 = team2_pick2_obj[0]['Display_Name_Detailed']
+
+
+    team2_pick3_obj = MasterList.objects.filter(id=data['team2_pick3']).values('id','Display_Name_Detailed')
+    team2_pick3 = team2_pick3_obj[0]['id']
+
+
+
+    MasterList.objects.filter(id=team2_pick1_obj[0]['id']).update(Previous_Owner=team2_pick1_obj[0]['id'])
+    MasterList.objects.filter(id=team2_pick1_obj[0]['id']).update(Previous_Owner=team1)
+    if len(team2_pick2)>2:
+        team1_trades.append(team1_pick2)
+        MasterList.objects.filter(pk=team2_pick2_obj[0]['id']).update(Previous_Owner=team2_pick2_obj[0]['id'])
+        MasterList.objects.filter(pk=team2_pick2_obj[0]['id']).update(Current_Owner=team1)
+
+    else :
+        pass
+
+     
+    if team2_pick3 > 2 :
+        team1_trades.append(team2_pick3)
+        MasterList.objects.filter(pk=team2_pick3_obj[0]['id']).update(Previous_Owner=team2_pick3_obj[0]['id'])
+        MasterList.objects.filter(pk=team2_pick3).update(Current_Owner=team1)
+
+    else :
+        pass
+
+    
+    MasterList.objects.filter(pk=team2_pick3_obj[0]['id']).update(Previous_Owner=team2_pick3_obj[0]['id'])
+    MasterList.objects.filter(pk=team2_pick3_obj[0]['id']).update(Current_Owner=team2)
+
+    if len(team1_pick2) > 2 :
+        team2_trades.append(team2_pick2)
+        MasterList.objects.filter(pk=team1_pick2_obj[0]['id']).update(Previous_Owner=team1_pick2_obj[0]['id'])
+        MasterList.objects.filter(pk=team1_pick2_obj[0]['id']).update(Current_Owner=team2)
+    else :
+        pass
+
+    if len(team1_pick3) > 2:
+        team2_trades.append(team1_pick3)
+        MasterList.objects.filter(pk=team1_pick3_obj[0]['id']).update(Previous_Owner=team1_pick3_obj[0]['id'])
+        MasterList.objects.filter(pk=team1_pick3_obj[0]['id']).update(Current_Owner=team2)
+    
+    else :
+        pass
+
+    projectId = MasterList.objects.filter().values()
+    trade_dict = {team1: team1_trades, team2: team2_trades}
+    trade_description = teamNames + ' traded ' + ','.join(str(e) for e in team1_trades) + ' & ' + team2name + ' traded ' + ','.join(str(e) for e in team2_trades)
+
+    current_time = list(datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M'))
+    transactions = Transactions()
+    Transactions.Transaction_Number= 1,
+    Transactions.Transaction_DateTime=current_time,
+    Transactions.Transaction_Type='Trade',
+    Transactions.Transaction_Details=trade_dict,
+    Transactions.Transaction_Description=trade_description,
+    Transactions.projectId=projectId
+
+    transactions.save()
+
+    # return Response({'TeamList': team1, 'PickList': picklist}, status=status.HTTP_201_CREATED)
+
+
+
+
+def update_masterlist(df):
     library_AFL_Draft_Pointss = []
 
     PointsQueryset = library_AFL_Draft_Points.objects.filter().values('points')
@@ -244,7 +359,6 @@ def CreateMasterListRequest(request, pk):
             #     MasterList.objects.filter(projectId=pk).delete()
 
             udpatedf = update_masterlist(df)
-
             for index, updaterow in udpatedf.iterrows():
                 row1 = dict(updaterow)
                 team = Teams.objects.get(id=updaterow.TeamName)
@@ -254,15 +368,15 @@ def CreateMasterListRequest(request, pk):
                 Project1 = Project.objects.get(id=updaterow.projectId)
 
                 team = Teams.objects.get(id=updaterow.TeamName)
-                print(team.TeamNames)
                 row1['TeamName'] = team
                 row1['Original_Owner'] = Original_Owner
                 row1['Current_Owner'] = Current_Owner
                 row1['projectId'] = Project1
                 row1['Display_Name'] = str(Current_Owner)+' (Origin: '+team.TeamNames+', Via: ' + \
                     None + ')' if Original_Owner != Current_Owner else Current_Owner.TeamNames
-                row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
-                    updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
+
+                row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str( updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
+
                 MasterList(**row1).save()
             return Response({'success': 'MasterList Created Successfuly', 'data': df}, status=status.HTTP_201_CREATED)
 
@@ -272,6 +386,8 @@ def CreateMasterListRequest(request, pk):
 
     else:
         return Response({'error': 'Masterlist with same project is already exist'}, status=status.HTTP_208_ALREADY_REPORTED)
+
+
 
 
 @api_view(['POST'])
@@ -304,19 +420,6 @@ def TransactionsRequest(request):
     serializer.is_valid(raise_exception=True)
     serializer.save()
     return Response({'success': 'Transaction created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def AddTradeRequest(request):
-    Tran_data = request.data
-    serializer = AddTraderSerializer(data=Tran_data)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response({'success': 'Trade created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
-
-
-
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
