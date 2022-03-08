@@ -336,8 +336,11 @@ def CreateMasterListRequest(request, pk):
             df['projectId'] = pk
 
             udpatedf = update_masterlist(df)
-            for updaterow in udpatedf.iterrows():
+
+            for index,updaterow in udpatedf.iterrows():
+
                 row1 = dict(updaterow)
+                
                 team = Teams.objects.get(id=updaterow.TeamName)
                 Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
                 Current_Owner = Teams.objects.get(id=updaterow.Current_Owner)
