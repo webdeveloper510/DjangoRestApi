@@ -58,7 +58,9 @@ class MasterList(models.Model):
         AddTeam, related_name='Most_Recent_Owner', on_delete=models.CASCADE, blank=True)
     Draft_Round = models.CharField(max_length=100, default='')
     Pick_Group = models.CharField(max_length=100, default='')
-
+    
+    def __str__(self):
+        return f"Masterlist"
 
 class LocalLadder(models.Model):
     position = models.CharField(max_length=100, default='')
