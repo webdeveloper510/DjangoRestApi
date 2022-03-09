@@ -158,7 +158,7 @@ def AddTradeRequest(request):
 
     data = request.data
 
-    Teamobj = Teams.objects.filter(id=data['TeamNames']).values('id','TeamNames')
+    Teamobj = Teams.objects.filter(id=data['Team1']).values('id','TeamNames')
     team1 = Teamobj[0]['id']
     teamNames = Teamobj[0]['TeamNames']
 
@@ -177,7 +177,7 @@ def AddTradeRequest(request):
     team1_pick3 = team1_pick3_obj[0]['Display_Name_Detailed']
     team1_pick3Id = team1_pick3_obj[0]['id']
 
-    Team2obj = Teams.objects.filter(id=data['TeamNames']).values('id','TeamNames')
+    Team2obj = Teams.objects.filter(id=data['Team2']).values('id','TeamNames')
 
     team2 = Team2obj[0]['id']
     team2name = Team2obj[0]['TeamNames']

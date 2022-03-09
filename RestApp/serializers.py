@@ -3,7 +3,7 @@ from pyexpat import model
 from re import L
 from rest_framework import serializers
 from .models import (
-    Company, User, LocalLadder, Project, MasterList, Transactions, DraftAnalyserTrade,
+    Company, User, LocalLadder,Transactions, Project, MasterList,  DraftAnalyserTrade,
     AddTrade,
     Teams,PicksType
 )
