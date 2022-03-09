@@ -174,7 +174,7 @@ def AddTradeRequest(request):
     team1_pick2 = team1_pick2_obj[0]['Display_Name_Detailed']
     team1pick2Id = team1_pick2_obj[0]['id']
 
-    team1_pick3_obj = MasterList.objects.filter(id=data['team1_pick2']).values('id','Display_Name_Detailed')
+    team1_pick3_obj = MasterList.objects.filter(id=data['team1_pick3']).values('id','Display_Name_Detailed')
     team1_pick3 = team1_pick3_obj[0]['Display_Name_Detailed']
     team1_pick3Id = team1_pick3_obj[0]['id']
 
@@ -551,28 +551,28 @@ def CheckMasterlistrequest(request):
         return Response('False')
 
 
-@ api_view(['POST']) 
+@ api_view(['GET']) 
 @ permission_classes([AllowAny])
-def GetTradeRequest(request):
+def GetTradeRequest(request,pk):
 
     Pick1List = list()
-    Pick2List = list()
-    Team1Id = request.data['team1']
-    Team2Id = request.data['team2']
-    team1Dict = Teams.objects.filter(id=Team1Id).values('id','TeamNames')
+    
+    # Team1Id = request.data['team1']
+    # Team2Id = request.data['team2']
+    team1Dict = Teams.objects.filter(id=pk).values('id','TeamNames')
     TeamName = team1Dict[0]['TeamNames']
-    team2Dict = Teams.objects.filter(id=Team2Id).values('id','TeamNames')
-    TeamName2 = team2Dict[0]['TeamNames']
+    # team2Dict = Teams.objects.filter(id=Team2Id).values('id','TeamNames')
+    # TeamName2 = team2Dict[0]['TeamNames']
     Pick1dict = MasterList.objects.filter(Display_Name = TeamName).values('id','Display_Name_Detailed')
-    Pick2dict= MasterList.objects.filter(Display_Name = TeamName2).values('id','Display_Name_Detailed')
+    # Pick2dict= MasterList.objects.filter(Display_Name = TeamName2).values('id','Display_Name_Detailed')
 
     for pick1data in Pick1dict:
         Pick1List.append(pick1data['Display_Name_Detailed'])
     
-    for pick2data in Pick2dict:
-        Pick2List.append(pick2data['Display_Name_Detailed'])
+    # for pick2data in Pick2dict:
+    #     Pick2List.append(pick2data['Display_Name_Detailed'])
 
-    return Response({'TeamList1':TeamName,'PicksList':Pick1List,'TeamList2':TeamName2,'Pick2List':Pick2List}, status=status.HTTP_200_OK)
+    return Response({'TeamList1':TeamName,'PicksList':Pick1List}, status=status.HTTP_200_OK)
 
 
 # ##########################   Delete Api ##########################

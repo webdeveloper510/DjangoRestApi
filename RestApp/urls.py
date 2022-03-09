@@ -36,7 +36,7 @@ from .views import (
 urlpatterns = [
 
     # ############# POST URl"S ##########################
-    url(r'^create/$', CreateUserAPIView.as_view()),
+    url(r'^create-User/$', CreateUserAPIView.as_view()),
     url(r'^Auth/$', authenticate_user),
     url(r'^CreateProject/$', ProjNameDescRequest),
     url(r'^LocalLadder/$', LocalLadderRequest),
@@ -63,7 +63,7 @@ urlpatterns = [
     url(r'^Teams/$', TeamsRequest),
     url(r'^PicksTypeTeams/$', PicksTypeTeamsRequest),
     url(r'^Test-Masterlist/$', CheckMasterlistrequest),
-    url(r'^Get-Trade/$', GetTradeRequest),
+    url(r'^Get-Trade/(?P<pk>[0-9]+)$', GetTradeRequest),
 
     # ################ Delete URL's ##########################
     url(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),
