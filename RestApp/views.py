@@ -1,5 +1,9 @@
+from ast import Add
+from doctest import master
 from logging import raiseExceptions
-from django.http import Http404
+from re import T
+from urllib import response
+from django.http import Http404, HttpResponse
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -7,23 +11,48 @@ from RestApi.settings import SECRET_KEY
 from .serializers import (
     LocalLaddderSerializer,
     CreateProjectSerializer,
-    MasterLIstSerializer,
     MakeCompanySerializer,
-    AddTeamSerializer,
-    TransactionsSerialzer
+    TransactionsSerialzer,
+    DraftAnalyserSerializer,
+    # AddTraderSerializer,
+    UserSerializer,
+    TeamSerializer
 )
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 import jwt
 from django.conf import settings
-from .models import AddTeam, MasterList, LocalLadder, Project, User, Company
+from .models import (
+    AddTrade,
+    MasterList,
+    LocalLadder,
+    Project,
+    User,
+    Company,
+    # AddTrade,
+    Teams,
+    PicksType,
+    library_AFL_Draft_Points,
+    Transactions
+)
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.crypto import get_random_string
 import pandas as pd
+import uuid
+from datetime import date
+import numpy as np
+import math
+import pytz
+import datetime
+from django.db import connection
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', 500)
 
 #########################################  POST Requests ###############################################################
+
+unique_id = uuid.uuid4().hex[:6].upper()
 
 
 class CreateUserAPIView(APIView):
@@ -31,15 +60,15 @@ class CreateUserAPIView(APIView):
     def has_permission(self, request, view):
         return request.method in SAFE_METHODS
 
-    # def post(self, request):
-    #     C_Name = Company.objects.filter().values('id', 'Name')
-    #     user = request.data
-    #     serializer = UserSerializer(data=user)
-    #     serializer.is_valid(raise_exception=True)
-    #     serializer.save()
-    #     last_inserted_id = serializer.data['id']
-    #     User.objects.filter(id=last_inserted_id).update(uui=unique_id)
-    #     return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
+    def post(self, request):
+        C_Name = Company.objects.filter().values('id', 'Name')
+        user = request.data
+        serializer = UserSerializer(data=user)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        last_inserted_id = serializer.data['id']
+        User.objects.filter(id=last_inserted_id).update(uui=unique_id)
+        return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -54,8 +83,7 @@ def authenticate_user(request):
         if user:
             request.session['userId'] = user[0].id
             try:
-                token = jwt.encode(
-                    {'unique_Id': user[0].uui}, SECRET_KEY)
+                token = jwt.encode({'unique_Id': user[0].uui}, SECRET_KEY)
                 payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
                 print(payload)
                 request.session['token'] = token
@@ -93,24 +121,253 @@ def LocalLadderRequest(request):
     serializer = LocalLaddderSerializer(data=LocalLadder)
     serializer.is_valid(raise_exception=True)
     serializer.save()
-    return Response({'success': 'LocalLadder Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+    fk = serializer.data['teamname']
+    TeamNames = Teams.objects.filter(id=fk).values('TeamNames')
+    NamesDict = {
+        "Names": TeamNames
+    }
+    fk = serializer.data['projectId']
+    ProjectId = Project.objects.filter(id=fk).values('id', 'project_name')
+    return Response({'success': 'LocalLadder Created Successfuly', 'data': serializer.data, "NamesDict": NamesDict, 'Projectid': ProjectId}, status=status.HTTP_201_CREATED)
+
+
+def import_ladder_dragdrop(library_team_dropdown_list, library_AFL_Team_Names, v_current_year, v_current_year_plus1):
+
+    ladder_current_year = pd.DataFrame(
+        library_team_dropdown_list, columns=['TeamName'])
+
+    ladder_current_year['Position'] = np.arange(len(ladder_current_year)) + 1
+
+    ladder_current_year['Year'] = v_current_year
+
+    ladder_current_year = ladder_current_year[['TeamName', 'Year', 'Position']]
+
+    ladder_current_year_plus1 = ladder_current_year.copy()
+
+    return ladder_current_year, ladder_current_year_plus1
+
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
-def CreateMasterListRequest(request):
-    MasterList = request.data
-    serializer = MasterLIstSerializer(data=MasterList)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    return Response({'success': 'MasterList Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+
+def AddTradeRequest(request):
+
+    team1_trades = []
+    team2_trades = []
+
+    data = request.data
+
+    Teamobj = Teams.objects.filter(id=data['Team1']).values('id','TeamNames')
+    team1 = Teamobj[0]['id']
+    teamNames = Teamobj[0]['TeamNames']
+
+      
+    team1_pick1_obj =  MasterList.objects.filter(id=data['team1_pick1']).values('Display_Name_Detailed')
+    team1_pick1 = team1_pick1_obj[0]['Display_Name_Detailed']
+    team1_trades.append(team1_pick1)
 
 
-@api_view(['POST'])
+
+    team1_pick2_obj =  MasterList.objects.filter(id=data['team1_pick2']).values('id','Display_Name_Detailed')
+    team1_pick2 = team1_pick2_obj[0]['Display_Name_Detailed']
+    team1pick2Id = team1_pick2_obj[0]['id']
+
+    team1_pick3_obj = MasterList.objects.filter(id=data['team1_pick2']).values('id','Display_Name_Detailed')
+    team1_pick3 = team1_pick3_obj[0]['Display_Name_Detailed']
+    team1_pick3Id = team1_pick3_obj[0]['id']
+
+    Team2obj = Teams.objects.filter(id=data['Team2']).values('id','TeamNames')
+
+    team2 = Team2obj[0]['id']
+    team2name = Team2obj[0]['TeamNames']
+
+
+    team2_pick1_obj = MasterList.objects.filter(id=data['team2_pick1']).values('id','Display_Name_Detailed','Current_Owner')
+    team2_pick1 = team2_pick1_obj[0]['Display_Name_Detailed']
+    team2_trades.append(team2_pick1)
+    team2pick1Id = team2_pick1_obj[0]['id']  
+
+    team2_pick2_obj = MasterList.objects.filter(id=data['team2_pick2']).values('id','Display_Name_Detailed')
+    team2_pick2 = team2_pick2_obj[0]['Display_Name_Detailed']
+    team2pick2Id = team2_pick2_obj[0]['id']
+
+    team2_pick3_obj = MasterList.objects.filter(id=data['team2_pick3']).values('id','Display_Name_Detailed')
+    team2_pick3 = team2_pick3_obj[0]['Display_Name_Detailed']
+    team2_pick3Id = team2_pick3_obj[0]['id']
+
+    MasterList.objects.filter(id=team2pick1Id).update(Previous_Owner=team2pick1Id)
+    MasterList.objects.filter(id=team2pick1Id).update(Previous_Owner=team1)
+
+    if len(team2_pick2)>2:
+        team1_trades.append(team1_pick2)
+        MasterList.objects.filter(pk=team2pick2Id).update(Previous_Owner=team2pick2Id)
+        MasterList.objects.filter(pk=team2pick2Id).update(Current_Owner=team1)
+
+    else :
+        pass
+     
+    if team2_pick3Id > 2 :
+        team1_trades.append(team2_pick3)
+        MasterList.objects.filter(pk=team2_pick3Id).update(Previous_Owner=team2_pick3Id)
+        MasterList.objects.filter(pk=team2_pick3Id).update(Current_Owner=team1)
+
+    else :
+        pass
+    
+    MasterList.objects.filter(pk=team2_pick3Id).update(Previous_Owner=team2_pick3Id)
+    MasterList.objects.filter(pk=team2_pick3Id).update(Current_Owner=team2)
+
+    if len(team1_pick2) > 2 :
+        team2_trades.append(team2_pick2)
+        MasterList.objects.filter(pk=team1pick2Id).update(Previous_Owner=team1pick2Id)
+        MasterList.objects.filter(pk=team1pick2Id).update(Current_Owner=team2)
+    else :
+        pass
+
+    if len(team1_pick3) > 2:
+        team2_trades.append(team1_pick3)
+        MasterList.objects.filter(pk=team1_pick3Id).update(Previous_Owner=team1_pick3Id)
+        MasterList.objects.filter(pk=team1_pick3Id).update(Current_Owner=team2)
+    
+    else :
+        pass
+
+    projectIdd = MasterList.objects.filter(id__in=[team1,team2]).values('projectId')
+    pId  =projectIdd[0]['projectId']
+    trade_dict = {team1: team1_trades, team2: team2_trades}
+    ListinList = list(trade_dict.values())
+    TradePicks = ''.join(ListinList[0])
+    trade_description = teamNames + ' traded ' + ','.join(str(e) for e in team1_trades) + ' & ' + team2name + ' traded ' + ','.join(str(e) for e in team2_trades)
+    current_time = datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
+
+    Transactions.objects.create(
+        Transaction_Number= '',
+        Transaction_DateTime=current_time,
+        Transaction_Type='Trade',
+        Transaction_Details=TradePicks,
+        Transaction_Description=trade_description,
+        projectId= pId
+        )
+    pk = Transactions.objects.latest('id')
+    message_count = Transactions.objects.filter().count()
+    Transactions.objects.filter(id=pk.id).update(Transaction_Number = message_count)
+
+    return Response({'success':'Trade and Trasactions Created'}, status=status.HTTP_201_CREATED)
+
+
+def update_masterlist(df):
+    library_AFL_Draft_Pointss = []
+
+    PointsQueryset = library_AFL_Draft_Points.objects.filter().values('points')
+
+    for pointss in list(PointsQueryset):
+
+        library_AFL_Draft_Pointss.append(pointss['points'])
+
+
+    overalllist = df.groupby(['Year'])
+    df['Overall_Pick'] = len(list(overalllist['Year']))+1
+
+    ss = enumerate(library_AFL_Draft_Pointss)
+    library_AFL_Draf = dict(ss)
+    df['AFL_Points_Value'] = df['Overall_Pick'].map(library_AFL_Draf).fillna(0)
+
+    df['Unique_Pick_ID'] = df['Year'].astype(str) + '-' + df['Draft_Round'].astype(
+        str) + '-' + df['PickType'].astype(str) + '-' + df['Original_Owner'].astype(str)
+
+    df['Club_Pick_Number'] = df.groupby( ['Year', 'Current_Owner']).cumcount() + 1
+    df['Display_Name'] = df['Current_Owner']
+    df['Display_Name_Detailed'] = df['Current_Owner']
+
+    return df
+
+
+@api_view(['GET'])
 @permission_classes([AllowAny, ])
-def UpdateMasterListRequest(request):
-    data_dict = request.data
-    instance = MasterList.objects.filter().update(**data_dict)
-    return Response({"Success": "Data Updated Successfully", "data": instance}, status=status.HTTP_201_CREATED)
+def CreateMasterListRequest(request, pk):
+
+    current_date = date.today()
+    v_current_year = current_date.year
+    v_current_year_plus1 = current_date.year+1
+    Teamlist = list()
+    Shortteamlist = dict()
+    Team = Teams.objects.filter().values('id', 'TeamNames', 'ShortName')
+    for teamdata in Team:
+        Teamlist.append(teamdata['id'])
+    ladder_current_year, ladder_current_year_plus1 = import_ladder_dragdrop(
+        Teamlist, Shortteamlist, v_current_year, v_current_year_plus1)
+
+    masterlistthisyearimport = ladder_current_year
+    masterlistthisyearimport['Year'] = v_current_year
+    masterlistnextyearimport = ladder_current_year_plus1
+    masterlistnextyearimport['Year'] = v_current_year_plus1
+
+    masterlistthisyear = masterlistthisyearimport.copy()
+    masterlistnextyear = masterlistnextyearimport.copy()
+
+    for i in range(9):
+        masterlistthisyear = pd.concat(
+            [masterlistthisyear, masterlistthisyearimport])
+        masterlistnextyear = pd.concat(
+            [masterlistnextyear, masterlistnextyearimport])
+    df = pd.concat([masterlistthisyear, masterlistnextyear],
+                   ignore_index=True, axis=0)
+    ProjectInMasterlist = list()
+    MasterListdict = MasterList.objects.filter(projectId=pk).values()
+
+    for MasterProjdata in MasterListdict:
+        ProjectInMasterlist.append(MasterProjdata['projectId_id'])
+
+    if ProjectInMasterlist == []:
+        try:
+            df['PickType'] = 'Standard'
+            df['Original_Owner'] = df['TeamName']
+            df['Current_Owner'] = df['TeamName']
+            df['Previous_Owner'] = None
+            df['Draft_Round'] = 'RD' + \
+                (df.groupby(['Year', 'Current_Owner']).cumcount() + 1).astype(str)
+
+            df['Pick_Group'] = df['Year'].astype(
+                str) + '-' + df['Draft_Round'].astype(str) + '-' + df['PickType'].astype(str)
+            df['System_Note'] = ''
+            df['User_Note'] = ''
+            df['Reason'] = ''
+            df['projectId'] = pk
+
+            udpatedf = update_masterlist(df)
+
+            for index,updaterow in udpatedf.iterrows():
+
+                row1 = dict(updaterow)
+                
+                team = Teams.objects.get(id=updaterow.TeamName)
+                Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
+                Current_Owner = Teams.objects.get(id=updaterow.Current_Owner)
+
+                Project1 = Project.objects.get(id=updaterow.projectId)
+
+                team = Teams.objects.get(id=updaterow.TeamName)
+                row1['TeamName'] = team
+                row1['Original_Owner'] = Original_Owner
+                row1['Current_Owner'] = Current_Owner
+                row1['projectId'] = Project1
+                row1['Display_Name'] = str(Current_Owner)+' (Origin: '+team.TeamNames+', Via: ' + \
+                    None + ')' if Original_Owner != Current_Owner else Current_Owner.TeamNames
+
+                row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str( updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
+
+                MasterList(**row1).save()
+            return Response({'success': 'MasterList Created Successfuly', 'data': df}, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+
+            raise e
+
+    else:
+        return Response({'error': 'Masterlist with same project is already exist'}, status=status.HTTP_208_ALREADY_REPORTED)
+
+
 
 
 @api_view(['POST'])
@@ -120,6 +377,8 @@ def MakeCompanyRequest(request):
     serializer = MakeCompanySerializer(data=Company_obj)
     serializer.is_valid(raise_exception=True)
     serializer.save()
+    fk = serializer.data['projectId']
+    ProjectId = Project.objects.filter(id=fk).values('id', 'project_name')
     return Response({'success': 'Company Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
@@ -127,24 +386,38 @@ def MakeCompanyRequest(request):
 @permission_classes([AllowAny])
 def AddTeamRequest(request):
     TeamObj = request.data
-    serializer = AddTeamSerializer(data=TeamObj)
+    serializer = TeamSerializer(data=TeamObj)
     serializer.is_valid(raise_exception=True)
+    serializer.save()
     return Response({'success': 'Team Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def TransactionsRequest(request):
-    Tran_data = request.data
-    serializer = TransactionsSerialzer(data=Tran_data)
-    serializer.is_valid(raise_exception=True)
-    return Response({'success': 'Transaction created successfully', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+def DraftAnalyserRequest(request):
+    try:
+        Draftrequest = request.data
+        serializer = DraftAnalyserSerializer(data=Draftrequest)
+        serializer.valid(raiseExceptions=True)
+        return Response({'success': 'Trade created successfully'}, statu=status.HTTP_201_CREATED)
 
+    except Exception as e:
+        raise e
 
 #  ########################################  GET Requests ###############################################################
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny, ])
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
+def ProjectDetailsRequest(request, pk):
+    project = Project.objects.filter(id=pk).values()
+    masterlist = MasterList.objects.filter(projectId=pk).count()
+    print("masterlist", masterlist)
+
+    return Response({'ProjectDetails': project, 'MasterlistCount': masterlist}, status=status.HTTP_200_OK)
+
+
+@ api_view(['GET'])
+@ permission_classes([AllowAny, ])
 def LogoutRequest(request):
     if request.session['userId']:
         # url = request.build_absolute_uri()
@@ -154,94 +427,188 @@ def LogoutRequest(request):
         return Response(res, status=status.HTTP_403_FORBIDDEN)
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny, ])
+@ api_view(['GET'])
+@ permission_classes([AllowAny, ])
 def GETProjectRequest(request):
     data_dict = Project.objects.filter().values()
     return Response(data_dict, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny, ])
-def GETLocalLadderRequest(request):
-    data_dict = LocalLadder.objects.filter().values()
-    return Response(data_dict, status=status.HTTP_200_OK)
-
-
-@api_view(['GET'])
-@permission_classes([AllowAny, ])
-def GETMasterListRequest(request):
-    data_dict = MasterList.objects.filter().values()
-    return Response(data_dict, status=status.HTTP_200_OK)
-
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
 def CompanyListRequest(request):
+    CompanyList = list()
     data_dict = Company.objects.filter().values()
-    return Response(data_dict, status=status.HTTP_200_OK)
+    for data in data_dict:
+        PorjectName = Project.objects.filter(
+            id=data['projectId_id']).values('project_name')
+        data['projectId_id'] = PorjectName[0].copy()
+        CompanyList.append(data)
+    return Response(CompanyList, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
 def UserListRequest(request):
     data_dict = User.objects.filter().values()
     return Response(data_dict, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
+def TeamRequest(request):
+    data_dict = Teams.objects.filter().values()
+    return Response(data_dict, status=status.HTTP_200_OK)
+
+
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
 def LadderRequest(request):
-    TeamId = list()
-    TeamName = list()
-    positions = list()
-    Season = list()
+    LadderList = list()
     Ladder = LocalLadder.objects.filter().values()
-    for Ladders in Ladder:
-        positions.append(Ladders['position'])
-        Season.append(Ladders['season'])
-        TeamId.append(Ladders['teamname_id'])
-    TeamDict = AddTeam.objects.filter(id__in=TeamId).values('TeamName')
-    for Team in TeamDict:
-        TeamName.append(Team['TeamName'])
-    df = pd.DataFrame(
-        {'position': positions, 'season': Season, 'teamname': TeamName})
-    return Response(df, status=status.HTTP_200_OK)
+    for ladderrr in Ladder:
+        Team = Teams.objects.filter(
+            id=ladderrr['teamname_id']).values('id', 'TeamNames')
+        ladderrr['teamname_id'] = Team[0].copy()
+        Project_name = Project.objects.filter(
+            id=ladderrr['projectId_id']).values('id', 'project_name')
+        ladderrr['projectId_id'] = Project_name[0].copy()
+        LadderList.append(ladderrr)
+    return Response(LadderList, status=status.HTTP_200_OK)
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def ProjectDetailsRequest(request, pk):
-    data = Project.objects.filter(id=pk).values()
+@ api_view(['POST'])
+@ permission_classes([AllowAny, ])
+def GETMasterListRequest(request, pk):
+    response = request.data
+    offset = int(response['offset'])
+    limit = 20
+    Masterrecord = []
+    data_dict = MasterList.objects.filter(projectId=pk).values()[
+        offset:offset+limit]
+    data_count = MasterList.objects.filter(projectId=pk).values().count()
+    PagesCount = data_count/20
+    Count = math.ceil(PagesCount)
+    for masterlistdata in data_dict:
+        TeamNamesList = Teams.objects.filter(
+            id=masterlistdata['TeamName_id']).values('id', 'TeamNames', 'ShortName')
+        NamesWithShortNames = Teams.objects.filter(
+            id=masterlistdata['TeamName_id']).values('id', 'TeamNames')
+        masterlistdata['TeamName_id'] = TeamNamesList[0].copy()
+        masterlistdata['Original_Owner_id'] = NamesWithShortNames[0].copy()
+        masterlistdata['Current_Owner_id'] = NamesWithShortNames[0].copy()
+        ProjectQuery = Project.objects.filter(
+            id=masterlistdata['projectId_id']).values('id', 'project_name')
+        masterlistdata['projectId_id'] = ProjectQuery[0].copy()
+        Masterrecord.append(masterlistdata)
+    return Response({'data': Masterrecord, 'PagesCount': Count}, status=status.HTTP_200_OK)
+
+
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
+def ShowTeamRequest(request):
+    data = Teams.objects.filter().values()
     return Response(data)
+
+
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
+def TeamsRequest(request):
+    data = Teams.objects.filter().values()
+    return Response(data)
+
+
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
+def PicksTypeTeamsRequest(request):
+    data = PicksType.objects.filter().values()
+    return Response(data)
+
+
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
+def CheckMasterlistrequest(request):
+    MasterlisId = list()
+    MasterList1dict = MasterList.objects.filter().values()
+    for masterdata in MasterList1dict:
+        MasterlisId.append(masterdata['projectId_id'])
+    if len(MasterlisId) > 0:
+        return Response('True')
+    else:
+        return Response('False')
+
+
+@ api_view(['POST']) 
+@ permission_classes([AllowAny])
+def GetTradeRequest(request):
+
+    Pick1List = list()
+    Pick2List = list()
+    Team1Id = request.data['team1']
+    Team2Id = request.data['team2']
+    team1Dict = Teams.objects.filter(id=Team1Id).values('id','TeamNames')
+    TeamName = team1Dict[0]['TeamNames']
+    team2Dict = Teams.objects.filter(id=Team2Id).values('id','TeamNames')
+    TeamName2 = team2Dict[0]['TeamNames']
+    Pick1dict = MasterList.objects.filter(Display_Name = TeamName).values('id','Display_Name_Detailed')
+    Pick2dict= MasterList.objects.filter(Display_Name = TeamName2).values('id','Display_Name_Detailed')
+
+    for pick1data in Pick1dict:
+        Pick1List.append(pick1data['Display_Name_Detailed'])
+    
+    for pick2data in Pick2dict:
+        Pick2List.append(pick2data['Display_Name_Detailed'])
+
+    return Response({'TeamList1':TeamName,'PicksList':Pick1List,'TeamList2':TeamName2,'Pick2List':Pick2List}, status=status.HTTP_200_OK)
 
 
 # ##########################   Delete Api ##########################
 
 
-@api_view(["DELETE"])
-@permission_classes([AllowAny, ])
+@ api_view(["DELETE"])
+@ permission_classes([AllowAny, ])
 def DeleteMasterListRequest(request, pk):
     MasterList.objects.filter(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
 
 
-@api_view(["DELETE"])
-@permission_classes([AllowAny, ])
+@ api_view(["DELETE"])
+@ permission_classes([AllowAny, ])
 def DeleteLocalLadderRequest(self, pk):
     LocalLadder.objects.get(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
 
 
-@api_view(["DELETE"])
-@permission_classes([AllowAny, ])
+@ api_view(["DELETE"])
+@ permission_classes([AllowAny, ])
 def DeleteProjectRequest(request, pk):
     Project.objects.filter(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
 
 
-@api_view(["DELETE"])
-@permission_classes([AllowAny, ])
-def DeleteLadderRequest(request, pk):
+@ api_view(["DELETE"])
+@ permission_classes([AllowAny, ])
+def DeleteLadderRecordRequest(request, pk):
     LocalLadder.objects.filter(id=pk).delete()
+    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
+
+
+@ api_view(["DELETE"])
+@ permission_classes([AllowAny, ])
+def DeleteTeamRequest(request, pk):
+    Teams.objects.filter(id=pk).delete()
+    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
+
+
+@ api_view(["DELETE"])
+@ permission_classes([AllowAny, ])
+def DeleteCompanyRequest(request, pk):
+    Company.objects.filter(id=pk).delete()
+    return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
+
+
+@ api_view(["DELETE"])
+@ permission_classes([AllowAny, ])
+def DeleteAddTradeRequest(request, pk):
+    AddTrade.objects.filter(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)

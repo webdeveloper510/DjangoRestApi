@@ -7,8 +7,7 @@ from .views import (
     LocalLadderRequest,
     ProjNameDescRequest,
     CreateMasterListRequest,
-    UpdateMasterListRequest,
-    GETLocalLadderRequest,
+    update_masterlist,
     GETMasterListRequest,
     GETProjectRequest, LogoutRequest,
     DeleteMasterListRequest,
@@ -18,34 +17,60 @@ from .views import (
     AddTeamRequest,
     CompanyListRequest,
     UserListRequest,
-    TransactionsRequest,
+    # TransactionsRequest,
     LadderRequest,
-    DeleteLadderRequest,
     ProjectDetailsRequest,
-    CreateUserAPIView
+    CreateUserAPIView,
+    DeleteTeamRequest,
+    DeleteCompanyRequest,
+    DeleteLadderRecordRequest,
+    AddTradeRequest,
+    TeamRequest,
+    DeleteAddTradeRequest,
+    TeamsRequest,
+    PicksTypeTeamsRequest,
+    CheckMasterlistrequest,
+    GetTradeRequest
 )
 
 urlpatterns = [
+
+    # ############# POST URl"S ##########################
     url(r'^create/$', CreateUserAPIView.as_view()),
     url(r'^Auth/$', authenticate_user),
     url(r'^CreateProject/$', ProjNameDescRequest),
     url(r'^LocalLadder/$', LocalLadderRequest),
-    url(r'^MasterList/$', CreateMasterListRequest),
-    url(r'^UpdateMasterList/$', UpdateMasterListRequest),
-    url(r'^ShowLocalLadder/$', GETLocalLadderRequest),
-    url(r'^ShowMasterList/$', GETMasterListRequest),
+    url(r'^MasterList/(?P<pk>[0-9]+)$', CreateMasterListRequest),
+    url(r'^Add-Trade/$', AddTradeRequest),
+    url(r'^MakeCompany/$', MakeCompanyRequest),
+
+    # #################### Update URL's #################
+
+    url(r'^UpdateMasterList/(?P<pk>[0-9]+)$', update_masterlist),
+
+    # ####################### GET Urls's ################################
+
+    url(r'^ShowMasterList/(?P<pk>[0-9]+)$', GETMasterListRequest),
     url(r'^ShowProject/$', GETProjectRequest),
     url(r'^Logout/$', LogoutRequest),
+    url(r'^AddTeam/$', AddTeamRequest),
+    url(r'^ShowCompany/$', CompanyListRequest),
+    url(r'^ListOfUsers/$', UserListRequest),
+    # url(r'^Transactions/$', TransactionsRequest),
+    url(r'^Ladder/$', LadderRequest),
+    url(r'^Show-Team/$', TeamRequest),
+    url(r'^ShowProjectDetails/(?P<pk>[0-9]+)$', ProjectDetailsRequest),
+    url(r'^Teams/$', TeamsRequest),
+    url(r'^PicksTypeTeams/$', PicksTypeTeamsRequest),
+    url(r'^Test-Masterlist/$', CheckMasterlistrequest),
+    url(r'^Get-Trade/$', GetTradeRequest),
+
+    # ################ Delete URL's ##########################
+    url(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),
+    url(r'^Delete-Company/(?P<pk>[0-9]+)$', DeleteCompanyRequest),
     url(r'^DeleteMasterList/(?P<pk>[0-9]+)$', DeleteMasterListRequest),
     url(r'^DeleteLocalLadder/(?P<pk>[0-9]+)$', DeleteLocalLadderRequest),
     url(r'^DeleteProject/(?P<pk>[0-9]+)$', DeleteProjectRequest),
-    url(r'^MakeCompany/$', MakeCompanyRequest),
-    url(r'^AddTeam/$', AddTeamRequest),
-    url(r'^ListOfCompany/$', CompanyListRequest),
-    url(r'^ListOfUsers/$', UserListRequest),
-    url(r'^Transactions/$', TransactionsRequest),
-    url(r'^Ladder/$', LadderRequest),
-    url(r'^DeleteLadder/(?P<pk>[0-9]+)$', DeleteLadderRequest),
-    url(r'^ShowProjectDetails/(?P<pk>[0-9]+)$', ProjectDetailsRequest),
-
+    url(r'^DeleteLadder/(?P<pk>[0-9]+)$', DeleteLadderRecordRequest),
+    url(r'^DeleteTrade/(?P<pk>[0-9]+)$', DeleteAddTradeRequest),
 ]
