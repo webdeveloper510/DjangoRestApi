@@ -165,6 +165,7 @@ def AddTradeRequest(request):
       
     team1_pick1_obj =  MasterList.objects.filter(id=data['team1_pick1']).values('Display_Name_Detailed')
     team1_pick1 = team1_pick1_obj[0]['Display_Name_Detailed']
+    team1_pick1Id = team1_pick1_obj[0]['Display_Name_Detailed']
     team1_trades.append(team1_pick1)
 
 
@@ -240,6 +241,18 @@ def AddTradeRequest(request):
     TradePicks = ''.join(ListinList[0])
     trade_description = teamNames + ' traded ' + ','.join(str(e) for e in team1_trades) + ' & ' + team2name + ' traded ' + ','.join(str(e) for e in team2_trades)
     current_time = datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
+
+    AddTrade.objects.create(
+        Team1 = team1,
+        Team1_Pick1 = team1_pick1Id,
+        Team1_Pick2 = team1pick2Id,
+        Team1_Pick3 = team1_pick3Id,
+        Team2 = team2,
+        Team2_Pick1 = team2pick1Id,
+        Team2_Pick2=team2pick2Id,
+        Team2_Pick3 = team2_pick3Id
+    )
+
 
     Transactions.objects.create(
         Transaction_Number= '',
