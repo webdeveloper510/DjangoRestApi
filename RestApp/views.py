@@ -24,13 +24,12 @@ from rest_framework.permissions import AllowAny
 import jwt
 from django.conf import settings
 from .models import (
-    AddTrade,
+    AddTradeV2,
     MasterList,
     LocalLadder,
     Project,
     User,
     Company,
-    # AddTrade,
     Teams,
     PicksType,
     library_AFL_Draft_Points,
@@ -242,7 +241,7 @@ def AddTradeRequest(request):
     trade_description = teamNames + ' traded ' + ','.join(str(e) for e in team1_trades) + ' & ' + team2name + ' traded ' + ','.join(str(e) for e in team2_trades)
     current_time = datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
 
-    AddTrade.objects.create(
+    AddTradeV2.objects.create(
         Team1 = team1,
         Team1_Pick1 = team1_pick1Id,
         Team1_Pick2 = team1pick2Id,
@@ -261,6 +260,7 @@ def AddTradeRequest(request):
         Transaction_Details=TradePicks,
         Transaction_Description=trade_description,
         projectId= pId
+
         )
     pk = Transactions.objects.latest('id')
     message_count = Transactions.objects.filter().count()
@@ -268,6 +268,148 @@ def AddTradeRequest(request):
 
     return Response({'success':'Trade and Trasactions Created'}, status=status.HTTP_201_CREATED)
 
+
+@api_view(['POST'])
+@permission_classes([AllowAny, ])
+def add_trade_v2_request(request):
+
+    # define lists of picks and players traded out:
+    #team1 trading out
+    team1_trades_picks = []
+    team1_trades_players = []
+    team1picksid = []
+    team2picksid = []
+
+    # team2 trading out:
+
+    team2_trades_picks = []
+    team2_trades_players = []
+    team1picks = []
+    team2picks = []
+    team2currentowner=[]
+
+    ############# TEAM 1 TRADING OUT ######################## = []
+
+    data = request.data
+    Teamid1 = data['Team1']
+    Teamid2 = data['Team2']
+    picks_trading_out_team1_no = data['pickstradingout1']
+    players_trading_out_team1_no = data['playerstradingout1']
+    picks_trading_out_team2_no = data['pickstradingout2']
+    players_trading_out_team2_no = data['playerstradingout2']
+
+    picksid = data['picks1']
+    playerid = data['player1']
+
+    picksid2 = data['picks2']
+    playerid2 = data['player2']
+
+    teamobj = Teams.objects.filter(id = Teamid1).values('id','TeamNames')
+    team1id = teamobj[0]['id']
+    picks_trading_out_team1 = int(picks_trading_out_team1_no)
+    
+    players_trading_out_team1 =  int(players_trading_out_team1_no)
+    
+    if picks_trading_out_team1 > 0 :
+
+        team1picksobj = MasterList.objects.filter(Current_Owner=team1id).values('id','Display_Name_Detailed','Current_Owner')
+        team1currentowner = team1picksobj[0]['Current_Owner']
+        for teamspicks in team1picksobj:
+            team1picks.append(teamspicks['Display_Name_Detailed'])
+            team1picksid.append(teamspicks['Display_Name_Detailed'])
+
+        for i in range(picks_trading_out_team1):
+            pick_trading_out_obj = MasterList.objects.filter(id__in = picksid).values('Display_Name_Detailed')
+            for pick_trading_out_team1 in pick_trading_out_obj:
+                team1_trades_picks.append(pick_trading_out_team1['Display_Name_Detailed'])
+    else:
+        pass
+
+    if players_trading_out_team1 > 0:
+        for i in range(players_trading_out_team1):
+            player_trading_out_team1 = MasterList.objects.filter(id__in = playerid).values('Display_Name_Detailed')
+            for playerdata in player_trading_out_team1:
+
+                team1_trades_players.append(playerdata['Display_Name_Detailed'])
+    else:
+        pass
+    team2obj = Teams.objects.filter(id = Teamid2).values('id','TeamNames')
+    team2id = team2obj[0]['id']
+    picks_trading_out_team2 = int(picks_trading_out_team2_no)
+    players_trading_out_team2 = int(players_trading_out_team2_no)
+
+    if picks_trading_out_team2 > 0 : 
+        team2picksobj = MasterList.objects.filter(Current_Owner=team2id).values('id','Display_Name_Detailed','Current_Owner')
+        team2currentowner = team2picksobj[0]['Current_Owner']
+        for team2pickss in team1picksobj:
+            team2picks.append(team2pickss['Display_Name_Detailed'])
+        for i in range(picks_trading_out_team2):
+            pick_trading_out_team2_obj = MasterList.objects.filter(id__in = picksid2).values('Display_Name_Detailed')
+            for pick_trading_out_team2 in pick_trading_out_team2_obj:
+                team2_trades_picks.append(pick_trading_out_team2['Display_Name_Detailed'])
+    if players_trading_out_team2 > 0:
+
+        for i in range(players_trading_out_team2):
+            player_trading_out_team2_obj = MasterList.objects.filter(id__in = playerid2).values('Display_Name_Detailed')
+            for player_trading_out_team2 in player_trading_out_team2_obj:
+                team2_trades_players.append(player_trading_out_team2['Display_Name_Detailed'])
+    else:
+        pass
+
+  # Trade facilitation - Swapping current owner names & Applying Most Recent Owner First:
+
+    ##### Team 1 receiving from Team 2 #####
+    #Loop for each pick that team 2 is trading out to team 1:
+
+    for team2pickout in team2_trades_picks:
+        if team2pickout is not None:
+            MasterList.objects.filter(Display_Name_Detailed=team2pickout).update(Previous_Owner=team2currentowner)
+            MasterList.objects.filter(Display_Name_Detailed=team2pickout).update(Current_Owner=team1id)  
+ 
+
+    for team1pickout in team1_trades_picks:
+        if team1pickout is not None:
+            MasterList.objects.filter(Display_Name_Detailed=team2pickout).update(Previous_Owner=team1currentowner)
+            MasterList.objects.filter(Display_Name_Detailed=team2pickout).update(Current_Owner=team2id) 
+    # playerout = list(team1_trades_players[0])
+    team1_out = team1_trades_players +  team1_trades_picks
+    team2_out = team2_trades_players +  team2_trades_picks 
+
+    current_time = datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
+
+    trade_dict = {Teamid1: team1_out , Teamid2: team2_out}
+    listinlist = list(trade_dict.values())
+
+    TradePicks = ''.join(listinlist[0])
+    
+    trade_description = Teamid1 + ' traded ' + ','.join(str(e) for e in team1_out) + ' & ' + Teamid2 + ' traded ' + ','.join(str(e) for e in team2_out)
+    projectIdd = MasterList.objects.filter(id__in=[Teamid1,Teamid2]).values('projectId')
+    pId  =projectIdd[0]['projectId']
+   
+    AddTradeV2.objects.create(
+        Team1 = Teamid1,
+        Team1_Pick1_no = team1picksid,
+        Team1_player_no = playerid,
+        Team2 = Teamid2,
+        Team2_Pick1_no = team2picksid,
+        Team2_player_no=playerid2,
+    )
+
+    Transactions.objects.create(
+        Transaction_Number= '',
+        Transaction_DateTime=current_time,
+        Transaction_Type='Trade',
+        Transaction_Details=TradePicks,
+        Transaction_Description=trade_description,
+        projectId= pId
+
+        )
+
+    pk = Transactions.objects.latest('id')
+    row_count = Transactions.objects.filter().count()
+    Transactions.objects.filter(id=pk.id).update(Transaction_Number = row_count)
+
+    return Response({'success':'Trade and Trasactions Created'}, status=status.HTTP_201_CREATED)
 
 def update_masterlist(df):
     library_AFL_Draft_Pointss = []

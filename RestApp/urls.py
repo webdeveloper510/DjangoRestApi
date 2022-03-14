@@ -30,7 +30,8 @@ from .views import (
     TeamsRequest,
     PicksTypeTeamsRequest,
     CheckMasterlistrequest,
-    GetTradeRequest
+    GetTradeRequest,
+    add_trade_v2_request
 )
 
 urlpatterns = [
@@ -43,6 +44,7 @@ urlpatterns = [
     url(r'^MasterList/(?P<pk>[0-9]+)$', CreateMasterListRequest),
     url(r'^Add-Trade/$', AddTradeRequest),
     url(r'^MakeCompany/$', MakeCompanyRequest),
+    url(r'^add_trade_v2/$', add_trade_v2_request),
 
     # #################### Update URL's #################
 
