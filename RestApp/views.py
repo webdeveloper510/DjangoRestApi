@@ -24,7 +24,7 @@ from rest_framework.permissions import AllowAny
 import jwt
 from django.conf import settings
 from .models import (
-    AddTradeV2,
+    AddTradev2,
     MasterList,
     LocalLadder,
     Project,
@@ -241,7 +241,7 @@ def AddTradeRequest(request):
     trade_description = teamNames + ' traded ' + ','.join(str(e) for e in team1_trades) + ' & ' + team2name + ' traded ' + ','.join(str(e) for e in team2_trades)
     current_time = datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
 
-    AddTradeV2.objects.create(
+    AddTradev2.objects.create(
         Team1 = team1,
         Team1_Pick1 = team1_pick1Id,
         Team1_Pick2 = team1pick2Id,
@@ -386,7 +386,7 @@ def add_trade_v2_request(request):
     projectIdd = MasterList.objects.filter(id__in=[Teamid1,Teamid2]).values('projectId')
     pId  =projectIdd[0]['projectId']
    
-    AddTradeV2.objects.create(
+    AddTradev2.objects.create(
         Team1 = Teamid1,
         Team1_Pick1_no = team1picksid,
         Team1_player_no = playerid,
