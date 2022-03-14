@@ -385,14 +385,18 @@ def add_trade_v2_request(request):
     trade_description = Teamid1 + ' traded ' + ','.join(str(e) for e in team1_out) + ' & ' + Teamid2 + ' traded ' + ','.join(str(e) for e in team2_out)
     projectIdd = MasterList.objects.filter(id__in=[Teamid1,Teamid2]).values('projectId')
     pId  =projectIdd[0]['projectId']
-   
+    print(pId)
+    Teamid = Teams.objects.get(id=Teamid1)
+    masterid = MasterList.objects.get(id=picksid)
+    print(Teamid)
     AddTradev2.objects.create(
-        Team1 = Teamid1,
-        Team1_Pick1_no = team1picksid,
-        Team1_player_no = playerid,
-        Team2 = Teamid2,
-        Team2_Pick1_no = team2picksid,
-        Team2_player_no=playerid2,
+        Team1 = Teamid,
+        Team1_Pick1_no = masterid,
+        Team1_player_no = masterid,
+        Team2 = Teamid,
+        Team2_Pick1_no = masterid,
+        Team2_player_no=masterid,
+        projectid= pId
     )
 
     Transactions.objects.create(
