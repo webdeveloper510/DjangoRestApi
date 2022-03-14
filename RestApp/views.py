@@ -27,6 +27,7 @@ from .models import (
     AddTradev2,
     MasterList,
     LocalLadder,
+    Players,
     Project,
     User,
     Company,
@@ -385,17 +386,21 @@ def add_trade_v2_request(request):
     trade_description = Teamid1 + ' traded ' + ','.join(str(e) for e in team1_out) + ' & ' + Teamid2 + ' traded ' + ','.join(str(e) for e in team2_out)
     projectIdd = MasterList.objects.filter(id__in=[Teamid1,Teamid2]).values('projectId')
     pId  =projectIdd[0]['projectId']
-    print(pId)
+
     Teamid = Teams.objects.get(id=Teamid1)
-    masterid = MasterList.objects.get(id=picksid)
-    print(Teamid)
+    masterpick1 = MasterList.objects.get(id=picksid[0])
+    masterpick2 = MasterList.objects.get(id=picksid2[0])
+    player = Players.objects.get(id=playerid)
+    player2 = Players.objects.get(id=playerid)
+
+ 
     AddTradev2.objects.create(
         Team1 = Teamid,
-        Team1_Pick1_no = masterid,
-        Team1_player_no = masterid,
+        Team1_Pick1_no = masterpick1,
+        Team1_player_no = masterpick1,
         Team2 = Teamid,
-        Team2_Pick1_no = masterid,
-        Team2_player_no=masterid,
+        Team2_Pick1_no = masterpick2,
+        Team2_player_no=masterpick2,
         projectid= pId
     )
 
