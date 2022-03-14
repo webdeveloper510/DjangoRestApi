@@ -136,6 +136,7 @@ class AddTrade(models.Model):
     Team1_Pick2 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team1_Pick1')
     Team1_Pick3 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team1_Pick2')
     Team2 = models.ForeignKey(Teams, related_name='%(class)s_requests_created', on_delete=models.CASCADE)
+<<<<<<< HEAD
     Team2_Pick1 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team1_Pick3')
     Team2_Pick2 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team2_Pick1')
     Team2_Pick3 = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team2_Pick2')
@@ -151,3 +152,8 @@ class AddTradev2(models.Model):
     Team2_Pick1_no = models.ForeignKey(MasterList,related_name='%(class)s_requests_created',on_delete=models.CASCADE)
     Team2_player_no = models.ForeignKey(MasterList,related_name='Team2_Pick1_no',on_delete=models.CASCADE)
     projectid = models.IntegerField()
+=======
+    Team2_Pick1_no = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team1_Pick3')
+    Team2_player_no = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team2_Pick1')
+    
+>>>>>>> 3ca9dbce3d5dff7166e84454aa4caf391cafc393
