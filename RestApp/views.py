@@ -47,6 +47,9 @@ import math
 import pytz
 import datetime
 from django.db import connection
+from collections import defaultdict
+
+
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', 500)
 
@@ -294,10 +297,10 @@ def add_trade_v2_request(request):
     data = request.data
     Teamid1 = data['Team1']
     Teamid2 = data['Team2']
-    picks_trading_out_team1_no = data['pickstradingout1']
-    players_trading_out_team1_no = data['playerstradingout1']
-    picks_trading_out_team2_no = data['pickstradingout2']
-    players_trading_out_team2_no = data['playerstradingout2']
+    picks_trading_out_team1_no = data['Team1_Pick1_no']
+    players_trading_out_team1_no = data['Team1_player_no']
+    picks_trading_out_team2_no = data['Team2_Pick1_no']
+    players_trading_out_team2_no = data['Team2_player_no']
 
     picksid = data['picks1']
     playerid = data['player1']
@@ -635,7 +638,7 @@ def LadderRequest(request):
             id=ladderrr['projectId_id']).values('id', 'project_name')
         ladderrr['projectId_id'] = Project_name[0].copy()
         LadderList.append(ladderrr)
-    return Response(LadderList, status=status.HTTP_200_OK)
+    return Response({"data":LadderList,"TeamName":ladderrr['teamname_id']}, status=status.HTTP_200_OK)
 
 
 @ api_view(['POST'])
@@ -702,9 +705,9 @@ def CheckMasterlistrequest(request):
 @ api_view(['GET']) 
 @ permission_classes([AllowAny])
 def GetTradeRequest(request,pk):
-
+    mydict = {}
     Pick1List = list()
-    
+    mydict['key'] = Pick1List.copy()
     # Team1Id = request.data['team1']
     # Team2Id = request.data['team2']
     team1Dict = Teams.objects.filter(id=pk).values('id','TeamNames')
@@ -715,8 +718,8 @@ def GetTradeRequest(request,pk):
     # Pick2dict= MasterList.objects.filter(Display_Name = TeamName2).values('id','Display_Name_Detailed')
 
     for pick1data in Pick1dict:
-        Pick1List.append(pick1data['Display_Name_Detailed'])
-    
+        Pick1List.append(pick1data)
+
     # for pick2data in Pick2dict:
     #     Pick2List.append(pick2data['Display_Name_Detailed'])
 
