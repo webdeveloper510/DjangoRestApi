@@ -150,10 +150,11 @@ class AddTrade(models.Model):
 class AddTradev2(models.Model):
     Team1 = models.ForeignKey(Teams, on_delete=models.CASCADE)
     Team1_Pick1_no = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team1')
-    Team1_player_no = models.ForeignKey(MasterList,related_name='Team1_Pick1_no',on_delete=models.CASCADE)
+    Team1_player_no = models.CharField(max_length=250,default='')
+    Player_Name = models.ForeignKey(Players,on_delete=models.CASCADE,null=True)
     Team2 = models.ForeignKey(Teams, related_name='%(class)s_requests_created', on_delete=models.CASCADE)
     Team2_Pick1_no = models.ForeignKey(MasterList,related_name='%(class)s_requests_created',on_delete=models.CASCADE)
-    Team2_player_no = models.ForeignKey(MasterList,related_name='Team2_Pick1_no',on_delete=models.CASCADE)
+    Team2_player_no = models.CharField(max_length=250,default='')
     projectid = models.IntegerField()
 
 

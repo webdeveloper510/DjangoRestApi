@@ -31,7 +31,8 @@ from .views import (
     CheckMasterlistrequest,
     GetTradeRequest,
     add_trade_v2_request,
-    PriorityPickrRequest
+    PriorityPickrRequest,
+    GetPlayer,
 )
 
 urlpatterns = [
@@ -66,6 +67,7 @@ urlpatterns = [
     url(r'^Teams/$', TeamsRequest),
     url(r'^Test-Masterlist/$', CheckMasterlistrequest),
     url(r'^Get-Trade/(?P<pk>[0-9]+)$', GetTradeRequest),
+    url(r'^Get-Players/$', GetPlayer),
 
     # ################ Delete URL's ##########################
     url(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),

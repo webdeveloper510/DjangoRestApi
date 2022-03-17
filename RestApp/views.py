@@ -1,3 +1,4 @@
+from array import array
 from ast import Add
 from doctest import master
 from logging import raiseExceptions
@@ -51,8 +52,8 @@ from django.db import connection
 from collections import defaultdict
 
 
-pd.set_option('display.max_rows', None)
-pd.set_option('display.max_columns', 500)
+# pd.set_option('display.max_rows', None)
+# pd.set_option('display.max_columns', 500)
 
 #########################################  POST Requests ###############################################################
 
@@ -309,6 +310,8 @@ def add_trade_v2_request(request):
     picksid2 = data['picks2']
     playerid2 = data['player2']
 
+
+
     teamobj = Teams.objects.filter(id = Teamid1).values('id','TeamNames')
     team1id = teamobj[0]['id']
     picks_trading_out_team1 = int(picks_trading_out_team1_no)
@@ -321,8 +324,7 @@ def add_trade_v2_request(request):
         team1currentowner = team1picksobj[0]['Current_Owner']
         for teamspicks in team1picksobj:
             team1picks.append(teamspicks['Display_Name_Detailed'])
-            team1picksid.append(teamspicks['Display_Name_Detailed'])
-
+   
         for i in range(picks_trading_out_team1):
             pick_trading_out_obj = MasterList.objects.filter(id__in = picksid).values('Display_Name_Detailed')
             for pick_trading_out_team1 in pick_trading_out_obj:
@@ -332,12 +334,12 @@ def add_trade_v2_request(request):
 
     if players_trading_out_team1 > 0:
         for i in range(players_trading_out_team1):
-            player_trading_out_team1 = MasterList.objects.filter(id__in = playerid).values('Display_Name_Detailed')
+            player_trading_out_team1 = Players.objects.filter(id__in = playerid).values('FirstName')
             for playerdata in player_trading_out_team1:
-
-                team1_trades_players.append(playerdata['Display_Name_Detailed'])
+                team1_trades_players.append(playerdata['FirstName'])
     else:
         pass
+
     team2obj = Teams.objects.filter(id = Teamid2).values('id','TeamNames')
     team2id = team2obj[0]['id']
     picks_trading_out_team2 = int(picks_trading_out_team2_no)
@@ -355,9 +357,9 @@ def add_trade_v2_request(request):
     if players_trading_out_team2 > 0:
 
         for i in range(players_trading_out_team2):
-            player_trading_out_team2_obj = MasterList.objects.filter(id__in = playerid2).values('Display_Name_Detailed')
+            player_trading_out_team2_obj = Players.objects.filter(id__in = playerid).values('FirstName')
             for player_trading_out_team2 in player_trading_out_team2_obj:
-                team2_trades_players.append(player_trading_out_team2['Display_Name_Detailed'])
+                team2_trades_players.append(player_trading_out_team2['FirstName'])
     else:
         pass
 
@@ -383,6 +385,7 @@ def add_trade_v2_request(request):
     current_time = datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
 
     trade_dict = {Teamid1: team1_out , Teamid2: team2_out}
+
     listinlist = list(trade_dict.values())
 
     TradePicks = ''.join(listinlist[0])
@@ -567,37 +570,69 @@ def PriorityPickrRequest(request):
     PicksList = []
     pp_team = []
     pp_dict={}
-    pp_pick_type_list = []
+    pp_round1_pp = []
+    arr = []
+
+    Pick_Type = "Priority"
+    pp_round = 'RD1'
+
     data = request.data
     Idd  = data['teamid']
     reason  = data['reason']
+    ppid = data['pp_id'] 
+    p_type = data['pick_type']
 
     pp_insert_instructions  = data['pp_insert_instructions']
 
-    Teamobj = Teams.objects.filter(id=Idd).values('TeamName')
-
+    Teamobj = Teams.objects.filter(TeamName=Idd).values()
+    pp_team_id = Teamobj[0]['id']
     for teamsid in Teamobj:
-        pp_team.append(teamsid['TeamName'])
-    Pickobj = MasterList.objects.filter(id__in=pp_team).values('Display_Name_Detailed')
+        pp_team.append(teamsid['TeamNames'])
+        
+
+    Pickobj = MasterList.objects.filter(id__in=ppid).values()
 
     for picks in Pickobj:
         PicksList.append(picks['Display_Name_Detailed'])
-    pp_pick_type_re = PicksType.objects.filter().values('id','pickType')
+        arr.append(picks)
 
-    for picks_type in pp_pick_type_re:
-        pp_pick_type_list.append(picks_type['pickType'])  
+    pp_pick_type_re = PicksType.objects.filter(id=p_type).values('id','pickType')
+    pp_pick_type = pp_pick_type_re[0]['pickType']
 
-    for pp_pick_type in pp_pick_type_list:
-   
-        if pp_pick_type=='Start of Draft':
-            line = str(v_current_year) + '-' + 'RD1-Priority-' + pp_pick_type
-            MasterList.objects.filter(id=Idd).update(Pick_Group=line)
+    if pp_pick_type=='Start of Draft':
+        line = str(v_current_year) + '-' + 'RD1-Priority-' + pp_pick_type
+        MasterList.objects.filter(TeamName=Idd).update(Pick_Group=line,PickType = Pick_Type)
+    
+    pp_description = str(pp_team) + 'received a ' + str(pp_pick_type) + ' Priority Pick'     
+ 
 
-        print([pp_pick_type])       
-        pp_description = str(pp_team) + 'received a ' + str(pp_pick_type) + ' Priority Pick'     
-        # pp_dict = {pp_team: list(pp_pick_type)}
-        pp_dict['pp_team'] = [pp_pick_type]
-        print(pp_dict)       
+    pp_dict['pp_team'] = [pp_pick_type]
+
+    rowno = pp_team_id
+    df =pd.DataFrame(arr)
+                            
+    if pp_pick_type == 'First Round':
+
+       line2 = pd.DataFrame({'Position': df.loc[df.TeamName_id == pp_team_id, 'Position'].iloc[0], 'Year': v_current_year,
+                             'TeamName_id': pp_team, 'Pick_Type': 'Priority', 'Original_Owner_id': pp_team, 'Current_Owner_id': pp_team,
+                             'Previous_Owner': '', 'Draft_Round': pp_round, 
+                             'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + pp_pick_type},
+                            index=[rowno])
+
+    if pp_insert_instructions == 'Before':
+
+        df = pd.concat([df.iloc[:rowno], line2, df.iloc[rowno:]]).reset_index(drop=True)
+    else:
+        df = pd.concat([df.iloc[:rowno + 1], line2,df.iloc[rowno + 1:]]).reset_index(drop=True)
+        print(df)
+
+        
+            
+
+
+
+
+
 
 
 
@@ -694,6 +729,13 @@ def UserListRequest(request):
 def TeamRequest(request):
     data_dict = Teams.objects.filter().values()
     return Response(data_dict, status=status.HTTP_200_OK)
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
+
+def GetPlayer(request):
+    data_dict = Players.objects.filter().values()
+    return Response(data_dict, status=status.HTTP_200_OK)
+    
 
 
 @ api_view(['GET'])
