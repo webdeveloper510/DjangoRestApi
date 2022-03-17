@@ -66,7 +66,10 @@ class MasterList(models.Model):
     Unique_Pick_ID = models.CharField(max_length=100, default='')
     Club_Pick_Number = models.CharField(max_length=100, default='')
     Display_Name = models.CharField(max_length=100,default='')
+    Display_Name_Short = models.CharField(max_length=100,default='')
     Display_Name_Detailed = models.CharField(max_length=100,default='')
+    Display_Name_Mini = models.CharField(max_length=100,default='')
+    Current_Owner_Short_Name = models.CharField(max_length=100,default='')
     projectId  = models.ForeignKey(Project, on_delete=models.CASCADE, default='')
 
 class library_AFL_Draft_Points(models.Model):
@@ -119,15 +122,18 @@ class DraftAnalyserTrade(models.Model):
     TradeNotes = models.TextField(max_length=200, default="")
 
 
+
+
+
+
+# ############################################### Transaction API's #####################################################################
+
 class PicksType(models.Model):
     pickType = models.CharField(max_length=100, default='')
 
     def __str__(self):
         return f"{self.pickType}"
 
-
-
-# ############################################### Transaction API's #####################################################################
 
 
 class AddTrade(models.Model):
@@ -150,3 +156,9 @@ class AddTradev2(models.Model):
     Team2_player_no = models.ForeignKey(MasterList,related_name='Team2_Pick1_no',on_delete=models.CASCADE)
     projectid = models.IntegerField()
 
+
+
+class PriorityPick(models.Model):
+    Team = models.ForeignKey(Teams,on_delete=models.CASCADE,null=True)
+    reason = models.CharField(max_length=250,default='')
+    pp_insert_instructions = models.CharField(max_length=250,default='')

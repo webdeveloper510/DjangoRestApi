@@ -34,7 +34,8 @@ from .models import (
     Teams,
     PicksType,
     library_AFL_Draft_Points,
-    Transactions
+    Transactions,
+    PriorityPick
 )
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
@@ -420,8 +421,15 @@ def add_trade_v2_request(request):
 
     return Response({'success':'Trade and Trasactions Created'}, status=status.HTTP_201_CREATED)
 
+
+
 def update_masterlist(df):
     library_AFL_Draft_Pointss = []
+    library_AFL_Team_Names = []
+
+    Team = Teams.objects.filter().values('id', 'TeamNames', 'ShortName')
+    for teamdata in Team:
+        library_AFL_Team_Names.append(teamdata['id'])
 
     PointsQueryset = library_AFL_Draft_Points.objects.filter().values('points')
 
@@ -504,24 +512,42 @@ def CreateMasterListRequest(request, pk):
             for index,updaterow in udpatedf.iterrows():
 
                 row1 = dict(updaterow)
-                
                 team = Teams.objects.get(id=updaterow.TeamName)
                 Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
-                Current_Owner = Teams.objects.get(id=updaterow.Current_Owner)
+                Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)   
+                previous_owner = Teams.objects.get(id=updaterow.Current_Owner)   
+                Overall_pickk  = MasterList.objects.get(id=updaterow.Current_Owner)
 
                 Project1 = Project.objects.get(id=updaterow.projectId)
-
+                df['Previous_Owner'] = previous_owner
                 team = Teams.objects.get(id=updaterow.TeamName)
                 row1['TeamName'] = team
                 row1['Original_Owner'] = Original_Owner
-                row1['Current_Owner'] = Current_Owner
+                row1['Current_Owner'] = Current_Ownerr
                 row1['projectId'] = Project1
-                row1['Display_Name'] = str(Current_Owner)+' (Origin: '+team.TeamNames+', Via: ' + \
-                    None + ')' if Original_Owner != Current_Owner else Current_Owner.TeamNames
+                row1['Overall_Pick'] = Overall_pickk
+
+                row1['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+                    None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
 
                 row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str( updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
+                
+                # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
+                #     previous_owner + team.ShortName + \
+                #     ')' if Original_Owner != Current_Ownerr else team.ShortName
+    
+                row1['Display_Name_Mini'] = str(Overall_pickk)+'(o:'+team.ShortNames+' , Via:' + \
+                    None + ')' if Original_Owner != Current_Ownerr else df['Current_Owner'].map(lambda x: team.ShortName)
 
-                MasterList(**row1).save()
+                print(row1['Display_Name_Mini'])
+                row1['Display_Name_Short'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
+                    previous_owner + team.ShortName + \
+                    ')' if Original_Owner != Current_Ownerr else team.ShortName
+                row1['Current_Owner_Short_Name'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
+                    previous_owner + team.ShortName + \
+                    ')' if Original_Owner != Current_Ownerr else team.ShortName
+
+                # MasterList(**row1).save()
             return Response({'success': 'MasterList Created Successfuly', 'data': df}, status=status.HTTP_201_CREATED)
 
         except Exception as e:
@@ -530,6 +556,51 @@ def CreateMasterListRequest(request, pk):
 
     else:
         return Response({'error': 'Masterlist with same project is already exist'}, status=status.HTTP_208_ALREADY_REPORTED)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def PriorityPickrRequest(request):
+
+    current_date = date.today()
+    v_current_year = current_date.year
+    PicksList = []
+    pp_team = []
+    pp_dict={}
+    pp_pick_type_list = []
+    data = request.data
+    Idd  = data['teamid']
+    reason  = data['reason']
+
+    pp_insert_instructions  = data['pp_insert_instructions']
+
+    Teamobj = Teams.objects.filter(id=Idd).values('TeamName')
+
+    for teamsid in Teamobj:
+        pp_team.append(teamsid['TeamName'])
+    Pickobj = MasterList.objects.filter(id__in=pp_team).values('Display_Name_Detailed')
+
+    for picks in Pickobj:
+        PicksList.append(picks['Display_Name_Detailed'])
+    pp_pick_type_re = PicksType.objects.filter().values('id','pickType')
+
+    for picks_type in pp_pick_type_re:
+        pp_pick_type_list.append(picks_type['pickType'])  
+
+    for pp_pick_type in pp_pick_type_list:
+   
+        if pp_pick_type=='Start of Draft':
+            line = str(v_current_year) + '-' + 'RD1-Priority-' + pp_pick_type
+            MasterList.objects.filter(id=Idd).update(Pick_Group=line)
+
+        print([pp_pick_type])       
+        pp_description = str(pp_team) + 'received a ' + str(pp_pick_type) + ' Priority Pick'     
+        # pp_dict = {pp_team: list(pp_pick_type)}
+        pp_dict['pp_team'] = [pp_pick_type]
+        print(pp_dict)       
+
+
+
 
 
 
@@ -684,13 +755,6 @@ def TeamsRequest(request):
 
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
-def PicksTypeTeamsRequest(request):
-    data = PicksType.objects.filter().values()
-    return Response(data)
-
-
-@ api_view(['GET'])
-@ permission_classes([AllowAny])
 def CheckMasterlistrequest(request):
     MasterlisId = list()
     MasterList1dict = MasterList.objects.filter().values()
@@ -774,5 +838,24 @@ def DeleteCompanyRequest(request, pk):
 @ api_view(["DELETE"])
 @ permission_classes([AllowAny, ])
 def DeleteAddTradeRequest(request, pk):
-    AddTrade.objects.filter(id=pk).delete()
+    AddTradev2.objects.filter(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
+
+
+
+# {
+#    "Team1":"2",
+#   "Team2":"5",
+#   "pickstradingout1":"2",
+#   "playerstradingout1":"1",
+#    "pickstradingout2":"2",
+#    "playerstradingout2":"2",
+#    "picks1":"1",
+#    "player1":"1",
+#     "picks2":"1",
+#     "player2":"1"
+
+# }
+
+
+

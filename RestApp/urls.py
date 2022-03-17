@@ -28,10 +28,10 @@ from .views import (
     TeamRequest,
     DeleteAddTradeRequest,
     TeamsRequest,
-    PicksTypeTeamsRequest,
     CheckMasterlistrequest,
     GetTradeRequest,
-    add_trade_v2_request
+    add_trade_v2_request,
+    PriorityPickrRequest
 )
 
 urlpatterns = [
@@ -45,6 +45,7 @@ urlpatterns = [
     url(r'^Add-Trade/$', AddTradeRequest),
     url(r'^MakeCompany/$', MakeCompanyRequest),
     url(r'^add_trade_v2/$', add_trade_v2_request),
+    url(r'^Priority-Pick/$', PriorityPickrRequest),
 
     # #################### Update URL's #################
 
@@ -63,7 +64,6 @@ urlpatterns = [
     url(r'^Show-Team/$', TeamRequest),
     url(r'^ShowProjectDetails/(?P<pk>[0-9]+)$', ProjectDetailsRequest),
     url(r'^Teams/$', TeamsRequest),
-    url(r'^PicksTypeTeams/$', PicksTypeTeamsRequest),
     url(r'^Test-Masterlist/$', CheckMasterlistrequest),
     url(r'^Get-Trade/(?P<pk>[0-9]+)$', GetTradeRequest),
 
