@@ -90,3 +90,38 @@ Ladder
     "projectId":"1"
  
 }
+
+
+
+
+
+Priotity pick
+
+
+
+{
+    "teamid":"2",
+    "reason":"testing",
+    "pp_insert_instructions":"No",
+    "pp_id":"2",
+    "pick_type":"3",   
+    "projectId":"1"
+ 
+ }
+
+
+
+Add trade v2
+ 
+{
+ "Team1":"1",
+ "picks1":"1",
+ "player1":"1",
+ "Team1_Pick1_no":"1",
+  "Team1_player_no":"1",
+  "Team2":"2",
+  "Team2_Pick1_no":"1",
+   "Team2_player_no":"1",
+   "picks2":"1",
+   "player2":"1"
+}
