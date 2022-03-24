@@ -102,12 +102,31 @@ Priotity pick
 {
     "teamid":"2",
     "reason":"testing",
-    "pp_insert_instructions":"No",
+    "pp_insert_instructions":"Before",
     "pp_id":"2",
-    "pick_type":"3",   
+    "pick_type":"2",   
     "projectId":"1"
  
  }
+
+
+
+
+
+
+
+
+{
+    "teamid":"9",
+    "reason":"testing",
+    "pp_insert_instructions":"Before",
+    "pp_id":"9",
+    "pick_type":"8",   
+    "projectId":"1"
+ 
+ }
+
+
 
 
 
