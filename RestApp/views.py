@@ -295,13 +295,14 @@ def add_trade_v2_request(request):
     team2currentowner=[]
 
     ############# TEAM 1 TRADING OUT ######################## = []
-
     data = request.data
     Teamid1 = data['Team1']
     Teamid2 = data['Team2']
-    picks_trading_out_team1 = data['Team1_Pick']
+    picks_trading_out_team1 = data['Team1_Pick1']
+    players_trading_out_team1_no = data['Team1_players_no']
     players_trading_out_team1 = data['Team1_players']
-    picks_trading_out_team2 = data['Team2_Pick1_no']
+    picks_trading_out_team2 = data['Team2_Pick2']
+    players_trading_out_team2_no = data['Team2_players_no']
     players_trading_out_team2 = data['Team2_players']
 
     # picksid = data['picks1']
