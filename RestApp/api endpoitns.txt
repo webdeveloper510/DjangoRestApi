@@ -111,6 +111,16 @@ Priotity pick
 
 
 
+Team1
+Team1_Pick1
+Team1_Players_no
+Team1_players
+
+Team2
+Team2_Pick2
+Team2_Players_no
+Team2_players
+
 
 
 
@@ -120,9 +130,10 @@ Priotity pick
     "teamid":"9",
     "reason":"testing",
     "pp_insert_instructions":"Before",
-    "pp_id":"9",
+    "pp_id":"19",
     "pick_type":"8",   
-    "projectId":"1"
+    "projectId":"1",
+    "round":"RD2"
  
  }
 
@@ -134,13 +145,12 @@ Add trade v2
  
 {
  "Team1":"1",
- "picks1":"1",
- "player1":"1",
- "Team1_Pick1_no":"1",
-  "Team1_player_no":"1",
+ "Team1_Pick1":"11",
+ "Team1_Players_no":"1",
+ "Team1_players":"test",
+
   "Team2":"2",
-  "Team2_Pick1_no":"1",
-   "Team2_player_no":"1",
-   "picks2":"1",
-   "player2":"1"
+  "Team2_Pick2":"12",
+   "Team2_Players_no":"1",
+   "Team2_players":"test"
 }

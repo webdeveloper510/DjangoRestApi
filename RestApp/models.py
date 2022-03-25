@@ -151,10 +151,11 @@ class AddTradev2(models.Model):
     Team1 = models.ForeignKey(Teams, on_delete=models.CASCADE)
     Team1_Pick1_no = models.ForeignKey(MasterList,on_delete=models.CASCADE,related_name='Team1')
     Team1_player_no = models.CharField(max_length=250,default='')
-    Player_Name = models.ForeignKey(Players,on_delete=models.CASCADE,null=True)
+    Team1_Player_Name = models.CharField(max_length=250,default='')
     Team2 = models.ForeignKey(Teams, related_name='%(class)s_requests_created', on_delete=models.CASCADE)
     Team2_Pick1_no = models.ForeignKey(MasterList,related_name='%(class)s_requests_created',on_delete=models.CASCADE)
     Team2_player_no = models.CharField(max_length=250,default='')
+    Team2_Player_Name = models.CharField(max_length=250,default='')
     projectid = models.IntegerField()
 
 
@@ -163,3 +164,10 @@ class PriorityPick(models.Model):
     Team = models.ForeignKey(Teams,on_delete=models.CASCADE,null=True)
     reason = models.CharField(max_length=250,default='')
     pp_insert_instructions = models.CharField(max_length=250,default='')
+
+class DraftRound(models.Model):
+    round = models.CharField(max_length=100,default='')
+
+    def __str__(self):
+        return f"{self.round}"
+

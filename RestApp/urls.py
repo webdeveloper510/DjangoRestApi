@@ -33,6 +33,7 @@ from .views import (
     add_trade_v2_request,
     PriorityPickrRequest,
     GetPlayer,
+    Gettradev2Req
 )
 
 urlpatterns = [
@@ -42,7 +43,7 @@ urlpatterns = [
     url(r'^Auth/$', authenticate_user),
     url(r'^CreateProject/$', ProjNameDescRequest),
     url(r'^LocalLadder/$', LocalLadderRequest),
-    url(r'^MasterList/(?P<pk>[0-9]+)$', CreateMasterListRequest),
+    url(r'^MasterList/$', CreateMasterListRequest),
     url(r'^Add-Trade/$', AddTradeRequest),
     url(r'^MakeCompany/$', MakeCompanyRequest),
     url(r'^add_trade_v2/$', add_trade_v2_request),
@@ -68,6 +69,7 @@ urlpatterns = [
     url(r'^Test-Masterlist/$', CheckMasterlistrequest),
     url(r'^Get-Trade/(?P<pk>[0-9]+)$', GetTradeRequest),
     url(r'^Get-Players/$', GetPlayer),
+    url(r'^Get-Trade-v2/(?P<pk>[0-9]+)$', Gettradev2Req),
 
     # ################ Delete URL's ##########################
     url(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),
