@@ -442,7 +442,7 @@ def update_masterlist(df):
 
 
 def CreateMasterListRequest(request, pk):
-    print(pk)
+
     current_date = date.today()
     v_current_year = current_date.year
     v_current_year_plus1 = current_date.year+1
@@ -469,8 +469,9 @@ def CreateMasterListRequest(request, pk):
             [masterlistnextyear, masterlistnextyearimport])
     df = pd.concat([masterlistthisyear, masterlistnextyear],
                    ignore_index=True, axis=0)
+    pkkkk = MasterList.objects.filter(projectId=pk).first()
 
-    if pk :
+    if pkkkk is  None:
      
         try:
             df['PickType'] = 'Standard'
@@ -516,10 +517,9 @@ def CreateMasterListRequest(request, pk):
                 #     previous_owner + team.ShortName + \
                 #     ')' if Original_Owner != Current_Ownerr else team.ShortName
     
-                row1['Display_Name_Mini'] = str(Overall_pickk)+'(o:'+team.ShortNames+' , Via:' + \
-                    None + ')' if Original_Owner != Current_Ownerr else df['Current_Owner'].map(lambda x: team.ShortName)
+                # row1['Display_Name_Mini'] = str(Overall_pickk)+'(o:'+team.ShortNames+' , Via:' + \
+                #     None + ')' if Original_Owner != Current_Ownerr else df['Current_Owner'].map(lambda x: team.ShortName)
 
-                print(row1['Display_Name_Mini'])
                 row1['Display_Name_Short'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
                     previous_owner + team.ShortName + \
                     ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -549,14 +549,6 @@ def ProjNameDescRequest(request):
     pk = Project.objects.latest('id').id 
     CreateMasterListRequest(request,pk)
     return Response({'success': 'Project Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
-
-
-
-
-
-
-
-
 
 
 
