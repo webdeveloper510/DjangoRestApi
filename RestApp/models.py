@@ -94,6 +94,14 @@ class Transactions(models.Model):
     projectId = models.IntegerField()
 
 
+class PriorityTransactions(models.Model):
+    Transaction_Number = models.CharField(max_length=100,default='')
+    Transaction_DateTime = models.CharField(max_length=100,default='')
+    Transaction_Type = models.CharField(max_length=500, default='')
+    Transaction_Details = models.CharField(max_length=500, default='')
+    Transaction_Description = models.CharField(max_length=500, default='')
+    projectId = models.IntegerField()
+
 
 
 
@@ -164,6 +172,9 @@ class PriorityPick(models.Model):
     Team = models.ForeignKey(Teams,on_delete=models.CASCADE,null=True)
     reason = models.CharField(max_length=250,default='')
     pp_insert_instructions = models.CharField(max_length=250,default='')
+    round = models.CharField(max_length=250,default='')
+    projectid = models.IntegerField()
+    
 
 class DraftRound(models.Model):
     round = models.CharField(max_length=100,default='')
