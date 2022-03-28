@@ -320,7 +320,7 @@ def add_trade_v2_request(request):
         team1currentowner = team1picksobj[0]['Current_Owner']
         for teamspicks in team1picksobj:
             team1picks.append(teamspicks['Display_Name_Detailed'])
-
+        
         for i in range(picks_trading_out_team1_len):
             pick_trading_out_obj = MasterList.objects.filter(
                 id=picks_trading_out_team1).values('Display_Name_Detailed')
@@ -445,7 +445,7 @@ def update_masterlist(df):
 
     overalllist = df.groupby(['Year'])
 
-    df['Overall_Pick'] = len(list(overalllist['Year']))+1
+    df['Overall_Pick'] = df.groupby('Year').cumcount() + 1
 
     ss = enumerate(library_AFL_Draft_Pointss)
     library_AFL_Draf = dict(ss)
@@ -511,7 +511,6 @@ def CreateMasterListRequest(request, pk):
             df['projectid'] = pk
 
             udpatedf = update_masterlist(df)
-            print(udpatedf)
 
             for index, updaterow in udpatedf.iterrows():
 
@@ -536,6 +535,8 @@ def CreateMasterListRequest(request, pk):
 
                 row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
                     updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
+                print(row1['Display_Name_Detailed'])
+
 
                 # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
                 #     previous_owner + team.ShortName + \
@@ -1035,6 +1036,15 @@ def PriorityPickrRequest(request):
  
     return Response({'success': 'Priority Pick Created Successfuly'}, status=status.HTTP_201_CREATED)
 
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def GetPickType(request):
+    Picktypes = []
+    PicksQuery = PicksType.objects.filter().values()
+    for types in PicksQuery:
+        Picktypes.append(types['pickType'])
+    return Response({'Picktype':Picktypes }, status=status.HTTP_201_CREATED)
 
 
 

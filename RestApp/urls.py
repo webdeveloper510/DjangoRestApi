@@ -34,7 +34,8 @@ from .views import (
     PriorityPickrRequest,
     GetPlayer,
     Gettradev2Req,
-    Get_Rounds_Pick
+    Get_Rounds_Pick,
+    GetPickType
 )
 
 urlpatterns = [
@@ -72,6 +73,7 @@ urlpatterns = [
     url(r'^Get-Players/$', GetPlayer),
     url(r'^Get-Trade-v2/(?P<pk>[0-9]+)$', Gettradev2Req),
     url(r'^Rounds-Pick/$', Get_Rounds_Pick),
+    url(r'^PickTypes/$',GetPickType),
 
     # ################ Delete URL's ##########################
     url(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),
