@@ -320,6 +320,7 @@ def add_trade_v2_request(request):
         team1currentowner = team1picksobj[0]['Current_Owner']
         for teamspicks in team1picksobj:
             team1picks.append(teamspicks['Display_Name_Detailed'])
+        team1picks = set(team1picks)
         
         for i in range(picks_trading_out_team1_len):
             pick_trading_out_obj = MasterList.objects.filter(
