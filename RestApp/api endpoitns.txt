@@ -39,11 +39,6 @@
 
 }
 
-{
-  
-"project_name":"test",
- "project_desc":"test desc"
-}
 
 masterist
 
@@ -130,13 +125,18 @@ Team2_players
     "teamid":"9",
     "reason":"testing",
     "pp_insert_instructions":"Before",
-    "pp_id":"19",
-    "pick_type":"8",   
+    "pp_id":19,
+    "pick_type":"2",   
     "projectId":"1",
-    "round":"RD2"
+    "round":"RD1"
  
  }
 
+{
+  
+"project_name":"test1",
+ "project_desc":"test1 desc"
+}
 
 
 

@@ -43,8 +43,7 @@ class Teams(models.Model):
     TeamNames = models.CharField(max_length=100, default='')
     ShortName = models.CharField(max_length=100,default='')
 
-    def __str__(self):
-        return f"{self.TeamNames}"
+  
 
 
 class MasterList(models.Model):
@@ -70,7 +69,7 @@ class MasterList(models.Model):
     Display_Name_Detailed = models.CharField(max_length=100,default='')
     Display_Name_Mini = models.CharField(max_length=100,default='')
     Current_Owner_Short_Name = models.CharField(max_length=100,default='')
-    projectId  = models.ForeignKey(Project, on_delete=models.CASCADE, default='')
+    projectid  = models.ForeignKey(Project, on_delete=models.CASCADE, default='')
 
 class library_AFL_Draft_Points(models.Model):
     points = models.CharField(max_length=100,default='')
