@@ -389,8 +389,8 @@ def add_trade_v2_request(request):
         ','.join(str(e) for e in team1_out) + ' & ' + Teamid2 + \
         ' traded ' + ','.join(str(e) for e in team2_out)
     projectIdd = MasterList.objects.filter(
-        id__in=[Teamid1, Teamid2]).values('projectId')
-    pId = projectIdd[0]['projectId']
+        id__in=[Teamid1, Teamid2]).values('projectid')
+    pId = projectIdd[0]['projectid']
 
     Team_id1 = Teams.objects.get(id=Teamid1)
     Team_id2 = Teams.objects.get(id=Teamid2)
