@@ -72,7 +72,7 @@ urlpatterns = [
     url(r'^Get-Trade/(?P<pk>[0-9]+)$', GetTradeRequest),
     url(r'^Get-Players/$', GetPlayer),
     url(r'^Get-Trade-v2/(?P<pk>[0-9]+)$', Gettradev2Req),
-    url(r'^Rounds-Pick/$', Get_Rounds_Pick),
+    url(r'^Rounds-Pick/(?P<pk>[0-9]+)$', Get_Rounds_Pick),
     url(r'^PickTypes/$',GetPickType),
 
     # ################ Delete URL's ##########################

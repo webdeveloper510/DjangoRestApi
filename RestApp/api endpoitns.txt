@@ -126,7 +126,7 @@ Team2_players
     "reason":"testing",
     "pp_insert_instructions":"Before",
     "pp_id":19,
-    "pick_type":"2",   
+    "pick_type":"7",   
     "projectId":"1",
     "round":"RD1"
  
