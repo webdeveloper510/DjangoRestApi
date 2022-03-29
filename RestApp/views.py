@@ -433,7 +433,6 @@ def add_trade_v2_request(request):
 def update_masterlist(df):
     library_AFL_Draft_Pointss = []
     library_AFL_Team_Names = []
-    current_date = date.today()
 
     Team = Teams.objects.filter().values('id', 'TeamNames', 'ShortName')
     for teamdata in Team:
@@ -1103,6 +1102,24 @@ def Get_Rounds_Pick(request,pk):
 
     data_next_year_rd6 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+
+
+    # Order of Entry Table
+
+    # data_order_of_entry = df[(int(df.Year[0])+1 == v_current_year_plus1)][['TeamName_id','Overall_Pick','Club_Pick_Number']].sort_values(by='Overall_Pick')
+    # data_order_of_entry = pd.crosstab(data_order_of_entry.TeamName_id, data_order_of_entry.Club_Pick_Number, values=data_order_of_entry.Overall_Pick,aggfunc=sum)
+
+    # Draft Assets Graph - Bar Graph
+    data_draft_assets_graph = df.groupby(['Current_Owner_id', 'Year'])['AFL_Points_Value'].sum()
+    
+    ##### Full List of Draft Picks #####
+
+    data_full_masterlist = df[['Year', 'Draft_Round', 'Overall_Pick', 'TeamName_id',
+                                   'PickType', 'Original_Owner_id', 'Current_Owner_id', 'Previous_Owner_id', 'AFL_Points_Value', 'Club_Pick_Number']]
+
+
+
+
     Current_Year_Round = {
         'data_current_year_rd1':data_current_year_rd1,
         'data_current_year_rd2':data_current_year_rd2,
@@ -1120,7 +1137,20 @@ def Get_Rounds_Pick(request,pk):
         'data_next_year_rd5':data_next_year_rd5,
         'data_next_year_rd6':data_next_year_rd6
     }
-    return Response({'Current_Year_Round':Current_Year_Round,'Next_Year_Round':Next_Year_Round}, status=status.HTTP_201_CREATED)
+    return Response({'Current_Year_Round':Current_Year_Round,'Next_Year_Round':Next_Year_Round,'data_draft_assets_graph':data_draft_assets_graph,'data_full_masterlist':data_full_masterlist}, status=status.HTTP_201_CREATED)
+
+
+def AcademyBidRequest(request,pk):
+    df = MasterList.objects.filter(Projectid = pk).values()
+    udpatedf = update_masterlist(df)
+    print(df)
+
+
+
+
+
+
+
 
 
 
@@ -1165,7 +1195,7 @@ def DraftAnalyserRequest(request):
 @ permission_classes([AllowAny])
 def ProjectDetailsRequest(request, pk):
     project = Project.objects.filter(id=pk).values()
-    masterlist = MasterList.objects.filter(projectId=pk).count()
+    masterlist = MasterList.objects.filter(projectid=pk).count()
     print("masterlist", masterlist)
 
     return Response({'ProjectDetails': project, 'MasterlistCount': masterlist}, status=status.HTTP_200_OK)
@@ -1306,8 +1336,6 @@ def GetTradeRequest(request, pk):
     for pick1data in Pick1dict:
         Pick1List.append(pick1data)
 
-
-
     return Response({'TeamList1': TeamName, 'PicksList': Pick1List}, status=status.HTTP_200_OK)
 
 
@@ -1370,17 +1398,3 @@ def DeleteAddTradeRequest(request, pk):
     AddTradev2.objects.filter(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
 
-
-# {
-#    "Team1":"2",
-#   "Team2":"5",
-#   "pickstradingout1":"2",
-#   "playerstradingout1":"1",
-#    "pickstradingout2":"2",
-#    "playerstradingout2":"2",
-#    "picks1":"1",
-#    "player1":"1",
-#     "picks2":"1",
-#     "player2":"1"
-
-# }
