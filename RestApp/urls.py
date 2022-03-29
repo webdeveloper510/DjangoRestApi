@@ -36,7 +36,8 @@ from .views import (
     Gettradev2Req,
     Get_Rounds_Pick,
     GetPickType,
-    AcademyBidRequest
+    AcademyBidRequest,
+    GetRounds
 )
 
 urlpatterns = [
@@ -76,6 +77,7 @@ urlpatterns = [
     url(r'^Rounds-Pick/(?P<pk>[0-9]+)$', Get_Rounds_Pick),
     url(r'^Academy-Bid/(?P<pk>[0-9]+)$', AcademyBidRequest),
     url(r'^PickTypes/$',GetPickType),
+    url(r'^Get-Rounds/$',GetRounds),
 
     # ################ Delete URL's ##########################
     url(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),
