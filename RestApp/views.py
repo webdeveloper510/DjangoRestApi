@@ -54,6 +54,7 @@ import pytz
 import datetime
 from django.db import connection
 from collections import defaultdict
+import json
 
 
 pd.set_option('display.max_rows', None)
@@ -321,7 +322,8 @@ def add_trade_v2_request(request):
         for teamspicks in team1picksobj:
             team1picks.append(teamspicks['Display_Name_Detailed'])
         team1picks = set(team1picks)
-        
+
+
         for i in range(picks_trading_out_team1_len):
             pick_trading_out_obj = MasterList.objects.filter(
                 id=picks_trading_out_team1).values('Display_Name_Detailed')
@@ -432,7 +434,6 @@ def update_masterlist(df):
     library_AFL_Draft_Pointss = []
     library_AFL_Team_Names = []
     current_date = date.today()
-    v_current_year = current_date.year
 
     Team = Teams.objects.filter().values('id', 'TeamNames', 'ShortName')
     for teamdata in Team:
@@ -447,6 +448,7 @@ def update_masterlist(df):
     overalllist = df.groupby(['Year'])
 
     df['Overall_Pick'] = df.groupby('Year').cumcount() + 1
+
 
     ss = enumerate(library_AFL_Draft_Pointss)
     library_AFL_Draf = dict(ss)
@@ -521,7 +523,7 @@ def CreateMasterListRequest(request, pk):
                 Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
                 previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
                 Overall_pickk = row1['Overall_Pick']
-
+    
                 Project1 = Project.objects.get(id=updaterow.projectid)
                 df['Previous_Owner'] = previous_owner
                 team = Teams.objects.get(id=updaterow.TeamName)
@@ -536,8 +538,7 @@ def CreateMasterListRequest(request, pk):
 
                 row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
                     updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
-                print(row1['Display_Name_Detailed'])
-
+                
 
                 # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
                 #     previous_owner + team.ShortName + \
@@ -1051,55 +1052,75 @@ def GetPickType(request):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def Get_Rounds_Pick(pk):
+def Get_Rounds_Pick(request,pk):
 
     df_list = []
-    newdf_data = MasterList.objects.filter(projectId=pk).values()
+    newdf_data = MasterList.objects.filter(projectid=pk).values()
     for new_df in newdf_data:
         df_list.append(new_df)
     df = pd.DataFrame(df_list)
-    Get_Rounds_Pick(df)
-
-
     current_date = date.today()
+
     v_current_year = current_date.year
     v_current_year_plus1 = v_current_year+1
-    data_current_year_rd1 = df[(df['Year'] == v_current_year) & (df['Draft_Round'] == 'RD1')][[
+    data_current_year_rd1 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD1')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    print(data_current_year_rd1)
-    data_current_year_rd2 = df[(df.Year == v_current_year) & (df.Draft_Round == 'RD2')][[
+
+    data_current_year_rd2 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD2')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    data_current_year_rd3 = df[(df.Year == v_current_year) & (df.Draft_Round == 'RD3')][[
+
+    data_current_year_rd3 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD3')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    data_current_year_rd4 = df[(df.Year == v_current_year) & (df.Draft_Round == 'RD4')][[
+
+    data_current_year_rd4 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD4')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    data_current_year_rd5 = df[(df.Year == v_current_year) & (df.Draft_Round == 'RD5')][[
+
+    data_current_year_rd5 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD5')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    data_current_year_rd6 = df[(df.Year == v_current_year) & (df.Draft_Round == 'RD6')][[
+
+    data_current_year_rd6 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD6')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
 
 
     # Next Year Round by Round:
 
-    data_next_year_rd1 = df[(df['Year']+1 == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
+    data_next_year_rd1 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    
+
  
-    data_next_year_rd2 = df[(df['Year']+1 == v_current_year_plus1) & (df.Draft_Round == 'RD2')][[
+    data_next_year_rd2 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD2')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
 
-    data_next_year_rd3 = df[(df['Year']+1 == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
+    data_next_year_rd3 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
 
-    data_next_year_rd4 = df[(df['Year']+1 == v_current_year_plus1) & (df.Draft_Round == 'RD4')][[
+    data_next_year_rd4 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD4')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
 
-    data_next_year_rd5 = df[(df['Year']+1 == v_current_year_plus1) & (df.Draft_Round == 'RD5')][[
+    data_next_year_rd5 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD5')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
 
-    data_next_year_rd6 = df[(df['Year']+1 == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
+    data_next_year_rd6 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    print(df)
+    Current_Year_Round = {
+        'data_current_year_rd1':data_current_year_rd1,
+        'data_current_year_rd2':data_current_year_rd2,
+        'data_current_year_rd3':data_current_year_rd3,
+        'data_current_year_rd4':data_current_year_rd4,
+        'data_current_year_rd5':data_current_year_rd5,
+        'data_current_year_rd6':data_current_year_rd6
+    }
 
+    Next_Year_Round = {
+        'data_next_year_rd1':data_next_year_rd1,
+        'data_next_year_rd2':data_next_year_rd2,
+        'data_next_year_rd3':data_next_year_rd3,
+        'data_next_year_rd4':data_next_year_rd4,
+        'data_next_year_rd5':data_next_year_rd5,
+        'data_next_year_rd6':data_next_year_rd6
+    }
+    return Response({'Current_Year_Round':Current_Year_Round,'Next_Year_Round':Next_Year_Round}, status=status.HTTP_201_CREATED)
 
 
 
@@ -1275,31 +1296,27 @@ def CheckMasterlistrequest(request):
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
 def GetTradeRequest(request, pk):
-    mydict = {}
-    Pick1List = list()
-    mydict['key'] = Pick1List.copy()
-    # Team1Id = request.data['team1']
-    # Team2Id = request.data['team2']
+    
+    Pick1List = []
     team1Dict = Teams.objects.filter(id=pk).values('id', 'TeamNames')
     TeamName = team1Dict[0]['TeamNames']
-    # team2Dict = Teams.objects.filter(id=Team2Id).values('id','TeamNames')
-    # TeamName2 = team2Dict[0]['TeamNames']
-    Pick1dict = MasterList.objects.filter(
-        Display_Name=TeamName).values('id', 'Display_Name_Detailed')
-    # Pick2dict= MasterList.objects.filter(Display_Name = TeamName2).values('id','Display_Name_Detailed')
+
+    Pick1dict = MasterList.objects.filter( Display_Name=TeamName).values('Display_Name_Detailed').distinct()
 
     for pick1data in Pick1dict:
         Pick1List.append(pick1data)
 
-    # for pick2data in Pick2dict:
-    #     Pick2List.append(pick2data['Display_Name_Detailed'])
+
 
     return Response({'TeamList1': TeamName, 'PicksList': Pick1List}, status=status.HTTP_200_OK)
 
 
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
 def Gettradev2Req(request, pk):
     trade = AddTradev2.objects.filter(id=pk).values()
-    print(trade)
+    return Response({'TeamList1': trade}, status=status.HTTP_200_OK)
+
 
 
 # ##########################   Delete Api ##########################
