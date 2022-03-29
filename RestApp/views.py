@@ -5,6 +5,7 @@ from doctest import master
 # from locale import D_T_FMT
 from logging import raiseExceptions
 from re import T
+from tkinter.messagebox import QUESTION
 from urllib import response
 from django.http import Http404, HttpResponse
 from rest_framework.permissions import SAFE_METHODS
@@ -302,17 +303,17 @@ def add_trade_v2_request(request):
     Teamid1 = data['Team1']
     Teamid2 = data['Team2']
     picks_trading_out_team1 = data['Team1_Pick1']
-    players_trading_out_team1_no = data['Team1_Players_no']
+    # players_trading_out_team1_no = data['Team1_Players_no']
     players_trading_out_team1 = data['Team1_players']
     picks_trading_out_team2 = data['Team2_Pick2']
-    players_trading_out_team2_no = data['Team2_Players_no']
+    # players_trading_out_team2_no = data['Team2_Players_no']
     players_trading_out_team2 = data['Team2_players']
 
     teamobj = Teams.objects.filter(id=Teamid1).values('id', 'TeamNames')
     team1id = teamobj[0]['id']
     picks_trading_out_team1_len = len(picks_trading_out_team1)
 
-    players_trading_out_team1_len = len(players_trading_out_team1_no)
+    players_trading_out_team1_len = len(players_trading_out_team1)
 
     if picks_trading_out_team1_len > 0:
 
@@ -343,7 +344,7 @@ def add_trade_v2_request(request):
     team2obj = Teams.objects.filter(id=Teamid2).values('id', 'TeamNames')
     team2id = team2obj[0]['id']
     picks_trading_out_team2_len = len(picks_trading_out_team2)
-    players_trading_out_team2_len = len(players_trading_out_team2_no)
+    players_trading_out_team2_len = len(players_trading_out_team2)
 
     if picks_trading_out_team2_len > 0:
         team2picksobj = MasterList.objects.filter(id=picks_trading_out_team1).values(
@@ -1048,6 +1049,14 @@ def GetPickType(request):
     return Response({'Picktype':Picktypes }, status=status.HTTP_201_CREATED)
 
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def GetRounds(request):
+    roundslist = list()
+    QuerySet = DraftRound.objects.filter().values()
+    for rounds in QuerySet:
+        roundslist.append(rounds)
+    return Response({'roundslist':roundslist }, status=status.HTTP_201_CREATED)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
