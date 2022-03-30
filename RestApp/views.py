@@ -302,6 +302,7 @@ def add_trade_v2_request(request):
     Teamid1 = data['Team1']
     Teamid2 = data['Team2']
     picks_trading_out_team1 = data['Team1_Pick1']
+
     # players_trading_out_team1_no = data['Team1_Players_no']
     players_trading_out_team1 = data['Team1_players']
     picks_trading_out_team2 = data['Team2_Pick2']
@@ -1076,7 +1077,7 @@ def Get_Rounds_Pick(request,pk):
 
     data_current_year_rd1 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD1')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
-
+    print(dict(data_current_year_rd1))
     data_current_year_rd2 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD2')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
@@ -1139,16 +1140,15 @@ def Get_Rounds_Pick(request,pk):
         'data_current_year_rd6':data_current_year_rd6
     }
 
+    # draftround = Current_Year_Round['data_current_year_rd1']['Draft_Round']
+    # OverallPick = Current_Year_Round['data_current_year_rd1']['Overall_Pick']
+    # shortname = Current_Year_Round['data_current_year_rd1']['Display_Name_Short']
 
-    draftround = Current_Year_Round['data_current_year_rd1']['Draft_Round']
-    OverallPick = Current_Year_Round['data_current_year_rd1']['Overall_Pick']
-    shortname = Current_Year_Round['data_current_year_rd1']['Display_Name_Short']
-
-    currentyear = {
-        "draftround":draftround,
-        'OverallPick':OverallPick,
-        'shortname':shortname
-    }
+    # currentyear = {
+    #     "draftround":draftround,
+    #     'OverallPick':OverallPick,
+    #     'shortname':shortname
+    # }
 
 
 
@@ -1160,16 +1160,16 @@ def Get_Rounds_Pick(request,pk):
         'data_next_year_rd5':data_next_year_rd5,
         'data_next_year_rd6':data_next_year_rd6
     }
-    draftround2 = Next_Year_Round['data_next_year_rd1']['Draft_Round']
-    OverallPick2 = Next_Year_Round['data_next_year_rd1']['Overall_Pick']
-    shortname2 = Next_Year_Round['data_next_year_rd1']['Display_Name_Short']
-    nextyear = {
-        "draftround2":draftround2,
-        "OverallPick2":OverallPick2,
-        "shortname2":shortname2
-    }
+    # draftround2 = Next_Year_Round['data_next_year_rd1']['Draft_Round']
+    # OverallPick2 = Next_Year_Round['data_next_year_rd1']['Overall_Pick']
+    # shortname2 = Next_Year_Round['data_next_year_rd1']['Display_Name_Short']
+    # nextyear = {
+    #     "draftround2":draftround2,
+    #     "OverallPick2":OverallPick2,
+    #     "shortname2":shortname2
+    # }
 
-    return Response({'Current_Year_Round':currentyear,'Next_Year_Round':nextyear}, status=status.HTTP_201_CREATED)
+    return Response({'Current_Year_Round':Current_Year_Round,'Next_Year_Round':Next_Year_Round}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
