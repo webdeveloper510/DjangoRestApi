@@ -621,8 +621,9 @@ def PriorityPickrRequest(request):
 
     for picks in Pickobj:
         arr.append(picks)
-    pp_pick_type_re = PicksType.objects.filter(
-        pickType=p_type).values('id', 'pickType')
+
+    pp_pick_type_re = PicksType.objects.filter(pickType=p_type).values('id', 'pickType')
+
     pp_pick_type = pp_pick_type_re[0]['pickType']
 
     if pp_pick_type == 'Start of Draft':
@@ -971,8 +972,7 @@ def PriorityPickrRequest(request):
             df['Current_Owner_id'] = Idd
             df['TeamName_id'] = Idd
             df['projectid_id'] = projectid
-            print(df)
-            exit()
+
             MasterList(**df).save()
     pp_dict = {}
 

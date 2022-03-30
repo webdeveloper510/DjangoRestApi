@@ -126,7 +126,7 @@ Team2_players
     "reason":"testing",
     "pp_insert_instructions":"Before",
     "pp_id":19,
-    "pick_type":"8",   
+    "pick_type":"Third round",   
     "projectId":"1",
     "round":"RD1"
  
