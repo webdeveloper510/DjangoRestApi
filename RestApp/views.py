@@ -5,7 +5,6 @@ from doctest import master
 # from locale import D_T_FMT
 from logging import raiseExceptions
 from re import T
-from tkinter.messagebox import QUESTION
 from urllib import response
 from django.http import Http404, HttpResponse
 from rest_framework.permissions import SAFE_METHODS
@@ -597,13 +596,13 @@ def PriorityPickrRequest(request):
     pp_round = data['round']
     Idd = data['teamid']
     reason = data['reason']
-    ppid = data['pp_id']
     p_type = data['pick_type']
     projectid = data['projectId']
     pp_insert_instructions = data['pp_insert_instructions']
 
     Teamobj = Teams.objects.filter(id__in=[Idd]).values()
     pp_team_id = Teamobj[0]['id']
+    ppid = Teamobj[0]['Display_Name_Detailed']
 
     for teamsid in Teamobj:
         pp_team.append(teamsid['TeamNames'])
@@ -1148,12 +1147,40 @@ def Get_Rounds_Pick(request,pk):
     }
     return Response({'Current_Year_Round':Current_Year_Round,'Next_Year_Round':Next_Year_Round,'data_draft_assets_graph':data_draft_assets_graph,'data_full_masterlist':data_full_masterlist}, status=status.HTTP_201_CREATED)
 
-
+@api_view(['POST'])
+@permission_classes([AllowAny])
 def AcademyBidRequest(request,pk):
-    df = MasterList.objects.filter(Projectid = pk).values()
-    udpatedf = update_masterlist(df)
-    print(df)
+    masterlist = []
+    dfobj = MasterList.objects.filter(projectid = pk).values()
+    for df_data in dfobj:
+        masterlist.append(df_data) 
+    df = pd.DataFrame(masterlist)
 
+    df.rename(columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
+    df.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
+    df.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
+
+    data = request.data
+    academy_player = data['player']
+
+    teamid = data['team']
+    teamQurerySet = Teams.objects.filter(TeamName = teamid).values('TeamNames')
+    academy_team =  teamQurerySet[0]['TeamNames']
+
+    academy_pick_type = 'Academy Bid Match'
+    pick_id = data['pickid']
+    PickQueryset = MasterList.objects.filter(id=pick_id).values('Display_Name_Detailed')
+    academy_bid = PickQueryset[0]['Display_Name_Detailed']
+    academy_pts_value = df.loc[df.Display_Name_Detailed == academy_bid, 'AFL_Points_Value'].iloc[0]
+    academy_bid_round = df.loc[df.Display_Name_Detailed == academy_bid, 'Draft_Round'].iloc[0]
+    # academy_bid_round_int = df.loc[df.Display_Name_Detailed == academy_bid, 'Draft_Round_Int'].iloc[0]
+    academy_bid_team = df.loc[df.Display_Name_Detailed == academy_bid, 'Current_Owner'].iloc[0]
+    academy_bid_pick_no = df.loc[df.Display_Name_Detailed == academy_bid, 'Overall_Pick'].iloc[0]
+    sum_line1 = academy_bid_team + ' have placed a bid on a ' + academy_team +' academy player at pick ' + academy_bid_pick_no + ' in ' + academy_bid_round
+    print(sum_line1)
+
+   
+   
 
 
 

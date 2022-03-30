@@ -138,6 +138,16 @@ Team2_players
  "project_desc":"test1 desc"
 }
 
+AcademyBid
+
+{
+   "player":"test",
+   "team":"1",
+   "pickid":"1"
+
+}
+
+
 
 
 
