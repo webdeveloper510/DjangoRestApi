@@ -4,10 +4,7 @@ from distutils.command.config import dump_file
 from doctest import master
 # from locale import D_T_FMT
 from logging import raiseExceptions
-<<<<<<< HEAD
-=======
 from re import T
->>>>>>> 69a1879370dbf58db9aa1019e0eee480c357391b
 from urllib import response
 from django.http import Http404, HttpResponse
 from rest_framework.permissions import SAFE_METHODS
@@ -1070,6 +1067,7 @@ def Get_Rounds_Pick(request,pk):
     for new_df in newdf_data:
         df_list.append(new_df)
     df = pd.DataFrame(df_list)
+
     current_date = date.today()
 
 
@@ -1123,9 +1121,8 @@ def Get_Rounds_Pick(request,pk):
     # data_order_of_entry = pd.crosstab(data_order_of_entry.TeamName_id, data_order_of_entry.Club_Pick_Number, values=data_order_of_entry.Overall_Pick,aggfunc=sum)
 
     # Draft Assets Graph - Bar Graph
-    # data_draft_assets_graph = df.groupby(['Current_Owner_id', 'Year'])['AFL_Points_Value'].sum() 
-    # print(data_draft_assets_graph)
-    # exit()
+    data_draft_assets_graph = df.groupby(['Current_Owner_id', 'Year'])['AFL_Points_Value'].sum() 
+
     ##### Full List of Draft Picks #####
 
     # data_full_masterlist = df[['Year', 'Draft_Round', 'Overall_Pick', 'TeamName_id',
@@ -1367,15 +1364,22 @@ def CheckMasterlistrequest(request):
 def GetTradeRequest(request, pk):
     
     Pick1List = []
+    mydict = {}
+    picksvalue = []
     team1Dict = Teams.objects.filter(id=pk).values('id', 'TeamNames')
     TeamName = team1Dict[0]['TeamNames']
 
-    Pick1dict = MasterList.objects.filter( Display_Name=TeamName).values('Display_Name_Detailed').distinct()
+    Pick1dict = MasterList.objects.filter( Display_Name=TeamName).values('id','Display_Name_Detailed').distinct()
 
     for pick1data in Pick1dict:
         Pick1List.append(pick1data)
+    
+    for data in Pick1List:
+        mydict['value'] = data.pop('id')
+        mydict['label'] = data.pop('Display_Name_Detailed')
+        list.append(mydict)
 
-    return Response({'TeamList1': TeamName, 'PicksList': Pick1List}, status=status.HTTP_200_OK)
+    return Response({'TeamList1': TeamName, 'PicksList': picksvalue}, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
