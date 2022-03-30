@@ -617,7 +617,7 @@ def PriorityPickrRequest(request):
     for teamsid in MasterListobj:
         pp_team.append(teamsid['TeamName_id'])
 
-    Pickobj = MasterList.objects.filter().values()
+    Pickobj = MasterList.objects.filter(projectid_id=projectid).values()
 
     for picks in Pickobj:
         arr.append(picks)
@@ -637,7 +637,8 @@ def PriorityPickrRequest(request):
         pp_dict['pp_team'] = [pp_pick_type]
 
     df = pd.DataFrame(arr)
-    df1 = pd.DataFrame(arr)
+
+    # df1 = pd.DataFrame(df)
 
     if pp_pick_type == 'First Round':
 
@@ -976,14 +977,21 @@ def PriorityPickrRequest(request):
             MasterList(**df).save()
     pp_dict = {}
 
-    df1.rename(columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
-    df1.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
-    df1.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
+    df=[]
+    Pickobj = MasterList.objects.filter(projectid_id=projectid).values()
 
-    udpatedf = update_masterlist(df1)
+    for picks in Pickobj:
+        df.append(picks)
+    df = pd.DataFrame(df)
+
+    df.rename(columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
+    df.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
+    df.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
+
+    udpatedf = update_masterlist(df)
     udpatedf.reset_index()
 
-    MasterList.objects.filter(projectid=projectid).delete()
+    # MasterList.objects.filter(projectid=projectid).delete()
     for index, updaterow in udpatedf.iterrows():
 
         row1 = dict(updaterow)
