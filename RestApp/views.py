@@ -605,6 +605,7 @@ def PriorityPickrRequest(request):
     Idd = data['teamid']
     reason = data['reason']
     p_type = data['pick_type']
+   
     projectid = data['projectId']
     pp_insert_instructions = data['pp_insert_instructions']
 
@@ -620,9 +621,8 @@ def PriorityPickrRequest(request):
 
     for picks in Pickobj:
         arr.append(picks)
-
     pp_pick_type_re = PicksType.objects.filter(
-        id__in=[p_type]).values('id', 'pickType')
+        pickType=p_type).values('id', 'pickType')
     pp_pick_type = pp_pick_type_re[0]['pickType']
 
     if pp_pick_type == 'Start of Draft':
@@ -870,7 +870,8 @@ def PriorityPickrRequest(request):
             pp_aligned_pick.append(picks['Display_Name_Detailed'])
             pp_aligned_pick.append(picks['id'])
         rowno = pp_aligned_pick[1]  
-
+        print(rowno)
+        print(pp_team_id)
         line = pd.DataFrame({'Position': df.loc[df.TeamName_id == pp_team_id, 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': pp_team_id, 'PickType': 'Priority', 'Original_Owner': pp_team_id, 'Current_Owner': pp_team_id,
                              'Previous_Owner': '', 'Draft_Round': pp_round,
