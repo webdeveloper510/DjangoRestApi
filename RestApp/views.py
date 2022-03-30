@@ -1073,46 +1073,47 @@ def Get_Rounds_Pick(request,pk):
 
     v_current_year = current_date.year
     v_current_year_plus1 = v_current_year+1
+
     data_current_year_rd1 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD1')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
     data_current_year_rd2 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD2')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
     data_current_year_rd3 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD3')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
   
     data_current_year_rd4 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD4')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
   
     data_current_year_rd5 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD5')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
     data_current_year_rd6 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD6')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
   
     # Next Year Round by Round:
 
     data_next_year_rd1 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
     
 
     data_next_year_rd2 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD2')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
     data_next_year_rd3 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
     data_next_year_rd4 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD4')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
     data_next_year_rd5 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD5')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
  
     data_next_year_rd6 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
 
     # Order of Entry Table
@@ -1129,6 +1130,7 @@ def Get_Rounds_Pick(request,pk):
     #                                'PickType', 'Original_Owner_id', 'Current_Owner_id', 'Previous_Owner_id', 'AFL_Points_Value', 'Club_Pick_Number']]
 
     Current_Year_Round = {
+
         'data_current_year_rd1':data_current_year_rd1,
         'data_current_year_rd2':data_current_year_rd2,
         'data_current_year_rd3':data_current_year_rd3,
@@ -1136,6 +1138,19 @@ def Get_Rounds_Pick(request,pk):
         'data_current_year_rd5':data_current_year_rd5,
         'data_current_year_rd6':data_current_year_rd6
     }
+
+
+    draftround = Current_Year_Round['data_current_year_rd1']['Draft_Round']
+    OverallPick = Current_Year_Round['data_current_year_rd1']['Overall_Pick']
+    shortname = Current_Year_Round['data_current_year_rd1']['Display_Name_Short']
+
+    currentyear = {
+        "draftround":draftround,
+        'OverallPick':OverallPick,
+        'shortname':shortname
+    }
+
+
 
     Next_Year_Round = {
         'data_next_year_rd1':data_next_year_rd1,
@@ -1145,7 +1160,16 @@ def Get_Rounds_Pick(request,pk):
         'data_next_year_rd5':data_next_year_rd5,
         'data_next_year_rd6':data_next_year_rd6
     }
-    return Response({'Current_Year_Round':Current_Year_Round,'Next_Year_Round':Next_Year_Round}, status=status.HTTP_201_CREATED)
+    draftround2 = Next_Year_Round['data_next_year_rd1']['Draft_Round']
+    OverallPick2 = Next_Year_Round['data_next_year_rd1']['Overall_Pick']
+    shortname2 = Next_Year_Round['data_next_year_rd1']['Display_Name_Short']
+    nextyear = {
+        "draftround2":draftround2,
+        "OverallPick2":OverallPick2,
+        "shortname2":shortname2
+    }
+
+    return Response({'Current_Year_Round':currentyear,'Next_Year_Round':nextyear}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
