@@ -4,8 +4,6 @@ from distutils.command.config import dump_file
 from doctest import master
 # from locale import D_T_FMT
 from logging import raiseExceptions
-from re import T
-from tkinter.messagebox import QUESTION
 from urllib import response
 from django.http import Http404, HttpResponse
 from rest_framework.permissions import SAFE_METHODS
