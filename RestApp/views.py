@@ -955,10 +955,10 @@ def PriorityPickrRequest(request):
             df['projectid_id'] = projectid
             
             MasterList.objects.filter(id=rowno).update(**df)
-        
+        else:
             df = pd.concat([df.iloc[:rowno + 1], line,
                            df.iloc[rowno + 1:]]).reset_index(drop=True)
-            df = df.iloc[rowno+1]
+            df = df.iloc[rowno]
             del df['TeamName']
             del df['Current_Owner']
             del df['Previous_Owner']
@@ -970,6 +970,8 @@ def PriorityPickrRequest(request):
             df['Current_Owner_id'] = Idd
             df['TeamName_id'] = Idd
             df['projectid_id'] = projectid
+            print(df)
+            exit()
             MasterList(**df).save()
     pp_dict = {}
 
