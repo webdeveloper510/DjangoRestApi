@@ -1377,8 +1377,7 @@ def GetTradeRequest(request, pk):
     for data in Pick1List:
         mydict['value'] = data.pop('id')
         mydict['label'] = data.pop('Display_Name_Detailed')
-        picksvalue.append(mydict)
-
+        picksvalue.append(mydict.copy())
     return Response({'TeamList1': TeamName, 'PicksList': picksvalue}, status=status.HTTP_200_OK)
 
 
