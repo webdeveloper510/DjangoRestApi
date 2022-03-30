@@ -605,7 +605,11 @@ def PriorityPickrRequest(request):
     Idd = data['teamid']
     reason = data['reason']
     p_type = data['pick_type']
-   
+
+    roundobj = DraftRound.objects.filter(id= pp_round).values('round')
+    pp_round = roundobj[0]['round']
+
+
     projectid = data['projectId']
     pp_insert_instructions = data['pp_insert_instructions']
 
@@ -672,7 +676,6 @@ def PriorityPickrRequest(request):
             df['Previous_Owner_id'] = ''
             df['projectid_id'] = projectid
            
-
             MasterList.objects.filter(id=rowno).update(**df)
 
         else:
@@ -684,7 +687,7 @@ def PriorityPickrRequest(request):
             df['Previous_Owner_id'] = ''
             df['projectid_id'] = projectid
             del df['Previous_Owner']
-            print(df)
+ 
             MasterList(**df).save()
 
     if pp_pick_type == 'End of First Round':
@@ -767,7 +770,6 @@ def PriorityPickrRequest(request):
 
     if pp_pick_type == 'Second Round':
 
-        pp_round = 'RD2'
         Pickobj = MasterList.objects.filter(Display_Name_Detailed=ppid).values()
 
         for picks in Pickobj:
@@ -865,7 +867,6 @@ def PriorityPickrRequest(request):
 
     if pp_pick_type == 'Third Round':
         pp_dict = {}
-        pp_round = 'RD3'
 
         Pickobj = MasterList.objects.filter(Display_Name_Detailed=ppid).values()
         for picks in Pickobj:
