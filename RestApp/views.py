@@ -296,25 +296,32 @@ def add_trade_v2_request(request):
     team1picks = []
     team2picks = []
     team2currentowner = []
-
+    picks_trading_out_team1 = []
+    picks_trading_out_team2 = []
     # TEAM 1 TRADING OUT ######################## = []
     data = request.data
     Teamid1 = data['Team1']
     Teamid2 = data['Team2']
-    picks_trading_out_team1 = data['Team1_Pick1']
+    picks_trading_out_team1_obj = data['Team1_Pick1']
+    picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
+    
+    print(picks_trading_out_team1)
+       
     # players_trading_out_team1_no = data['Team1_Players_no']
     players_trading_out_team1 = data['Team1_players']
-    picks_trading_out_team2 = data['Team2_Pick2']
+    picks_trading_out_team2_obj = data['Team2_Pick2']
+    picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
+    print(picks_trading_out_team2)
     # players_trading_out_team2_no = data['Team2_Players_no']
     players_trading_out_team2 = data['Team2_players']
 
     teamobj = Teams.objects.filter(id=Teamid1).values('id', 'TeamNames')
     team1id = teamobj[0]['id']
-    picks_trading_out_team1_len = len(picks_trading_out_team1)
+    picks_trading_out_team1_len = str(picks_trading_out_team1)
 
     players_trading_out_team1_len = len(players_trading_out_team1)
 
-    if picks_trading_out_team1_len > 0:
+    if picks_trading_out_team1_len :
 
         team1picksobj = MasterList.objects.filter(Current_Owner=team1id).values(
             'id', 'Display_Name_Detailed', 'Current_Owner')
@@ -324,7 +331,7 @@ def add_trade_v2_request(request):
         team1picks = set(team1picks)
 
 
-        for i in range(picks_trading_out_team1_len):
+        for i in range(picks_trading_out_team1):
             pick_trading_out_obj = MasterList.objects.filter(
                 id=picks_trading_out_team1).values('Display_Name_Detailed')
             for pickslist1 in pick_trading_out_obj:
@@ -332,8 +339,8 @@ def add_trade_v2_request(request):
     else:
         pass
 
-    if players_trading_out_team1_len > 0:
-        for i in range(players_trading_out_team1_len):
+    if players_trading_out_team1_len :
+        for i in range(players_trading_out_team1):
             # player_trading_out_team1 = Players.objects.filter(id__in = players_trading_out_team1).values('FirstName')
 
             team1_trades_players.append(players_trading_out_team2)
@@ -342,10 +349,10 @@ def add_trade_v2_request(request):
 
     team2obj = Teams.objects.filter(id=Teamid2).values('id', 'TeamNames')
     team2id = team2obj[0]['id']
-    picks_trading_out_team2_len = len(picks_trading_out_team2)
+    picks_trading_out_team2_len = picks_trading_out_team2
     players_trading_out_team2_len = len(players_trading_out_team2)
 
-    if picks_trading_out_team2_len > 0:
+    if picks_trading_out_team2_len :
         team2picksobj = MasterList.objects.filter(id=picks_trading_out_team1).values(
             'id', 'Display_Name_Detailed', 'Current_Owner')
         print(team2picksobj)
@@ -353,7 +360,7 @@ def add_trade_v2_request(request):
         for team2pickss in team2picksobj:
             team2_trades_picks.append(team2pickss['Display_Name_Detailed'])
 
-    if players_trading_out_team2_len > 0:
+    if players_trading_out_team2_len:
 
         for i in range(players_trading_out_team2_len):
 
