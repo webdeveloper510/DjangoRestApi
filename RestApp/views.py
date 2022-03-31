@@ -621,14 +621,10 @@ def PriorityPickrRequest(request):
     for teamsid in MasterListobj:
         pp_team.append(teamsid['TeamName_id'])
 
-<<<<<<< HEAD
-    Pickobj = MasterList.objects.filter().values()
-
-=======
     Pickobj = MasterList.objects.filter(projectid_id=project_Id).values()
     for picks in Pickobj:
         pp_aligned_pick.append(picks['Display_Name_Detailed'])
->>>>>>> 20de73ede7562f3bd01922122c65e259102021f8
+
     for picks in Pickobj:
         arr.append(picks)
 
@@ -647,11 +643,11 @@ def PriorityPickrRequest(request):
 
         pp_dict['pp_team'] = [pp_pick_type]
 
-<<<<<<< HEAD
-   
-=======
 
->>>>>>> 20de73ede7562f3bd01922122c65e259102021f8
+   
+
+
+
 
     # df1 = pd.DataFrame(df)
 
@@ -988,37 +984,33 @@ def PriorityPickrRequest(request):
     updatedf = update_masterlist(df1)
     updatedf.reset_index()
 
-<<<<<<< HEAD
+
     MasterList.objects.filter(projectid=projectid).delete()
-    for index, updaterow in udpatedf.iterrows():
-=======
+
+
     # MasterList.objects.filter(projectid=project_Id).delete()
     for index, updaterow in updatedf.iterrows():
->>>>>>> 20de73ede7562f3bd01922122c65e259102021f8
+
 
         row1 = dict(updaterow)
         Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
         Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
         previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
         team = Teams.objects.get(id=updaterow.TeamName)
-<<<<<<< HEAD
-        
-=======
+
+    
         Overall_pickk = row1['Overall_Pick']
         Project1 = Project.objects.get(id=project_Id)
 
->>>>>>> 20de73ede7562f3bd01922122c65e259102021f8
-        row1['TeamName'] = team
+        row['TeamName'] = team
         row1['Original_Owner'] = Original_Owner
         row1['Current_Owner'] = Current_Ownerr
         row1['projectid'] = Project1
-<<<<<<< HEAD
+
                 
-        
-        row1['Display_Name'] = str(Current_Ownerr.TeamNames)+' (Origin: '+str(team.TeamNames)+', Via: ' + \
-=======
+    
+
         row1['Display_Name'] = str(Current_Ownerr.TeamNames)+' (Origin: '+team.TeamNames+', Via: ' + \
->>>>>>> 20de73ede7562f3bd01922122c65e259102021f8
             None + ')' if Original_Owner.TeamNames != Current_Ownerr.TeamNames else Current_Ownerr.TeamNames
 
 
@@ -1041,10 +1033,8 @@ def PriorityPickrRequest(request):
         row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr.TeamNames + ' (Origin: ' + Original_Owner.TeamNames + ', Via: ' + \
             previous_owner.TeamNames + team.ShortName + \
             ')' if Original_Owner.TeamNames != Current_Ownerr.TeamNames else team.ShortName
-<<<<<<< HEAD
-        
-=======
->>>>>>> 20de73ede7562f3bd01922122c65e259102021f8
+
+    
         MasterList(**row1).save()
 
     current_time = datetime.datetime.now(pytz.timezone(
