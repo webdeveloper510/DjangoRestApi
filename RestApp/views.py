@@ -985,7 +985,7 @@ def PriorityPickrRequest(request):
     updatedf.reset_index()
 
 
-    MasterList.objects.filter(projectid=projectid).delete()
+    MasterList.objects.filter(projectid=project_Id).delete()
 
 
     # MasterList.objects.filter(projectid=project_Id).delete()
