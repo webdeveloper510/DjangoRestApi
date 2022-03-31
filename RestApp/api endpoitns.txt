@@ -122,16 +122,17 @@ Team2_players
 
 
 {
-    "teamid":"9",
+    "teamid":"2",
     "reason":"testing",
-    "pp_insert_instructions":"Before",
-    "pp_id":19,
-    "pick_type":"Third round",   
+    "pp_insert_instructions":"After",
+    "pp_id":2,
+    "pick_type":"First Round",   
     "projectId":"1",
-    "round":"RD1"
+    "round":"2"
  
  }
 
+ 
 {
   
 "project_name":"test1",
