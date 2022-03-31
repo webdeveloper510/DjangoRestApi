@@ -1045,7 +1045,7 @@ def PriorityPickrRequest(request):
         Transaction_Number='',
         Transaction_DateTime=current_time,
         Transaction_Type='Priority_Pick',
-        Transaction_Details=[pp_dict],
+        # Transaction_Details=[pp_dict],
         Transaction_Description=pp_description,
         projectId=project_Id
 
