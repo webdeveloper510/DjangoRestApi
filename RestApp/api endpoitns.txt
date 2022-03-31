@@ -122,17 +122,17 @@ Team2_players
 
 
 {
-    "teamid":"2",
+    "teamid":"1",
     "reason":"testing",
-    "pp_insert_instructions":"After",
+    "pp_insert_instructions":"Before",
     "pp_id":2,
-    "pick_type":"First Round",   
+    "pick_type":"Custom Fixed Position",   
     "projectId":"1",
     "round":"2"
  
  }
 
- 
+
 {
   
 "project_name":"test1",
