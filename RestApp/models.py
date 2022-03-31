@@ -88,7 +88,7 @@ class Transactions(models.Model):
     Transaction_Number = models.CharField(max_length=100,default='')
     Transaction_DateTime = models.CharField(max_length=100,default='')
     Transaction_Type = models.CharField(max_length=500, default='')
-    Transaction_Details = models.CharField(max_length=500, default='')
+    Transaction_Details = models.TextField()
     Transaction_Description = models.CharField(max_length=500, default='')
     projectId = models.IntegerField()
 
