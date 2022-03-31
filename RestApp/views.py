@@ -1002,7 +1002,7 @@ def PriorityPickrRequest(request):
         Overall_pickk = row1['Overall_Pick']
         Project1 = Project.objects.get(id=project_Id)
 
-        row['TeamName'] = team
+        row1['TeamName'] = team
         row1['Original_Owner'] = Original_Owner
         row1['Current_Owner'] = Current_Ownerr
         row1['projectid'] = Project1
