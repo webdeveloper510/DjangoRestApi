@@ -1186,7 +1186,7 @@ def Get_Rounds_Pick(request,pk):
     }
 
 
-    return Response({'Current_Year_Round':Current_Year_Round,'Next_Year_Round':Next_Year_Round,'data_draft_assets_graph_dict':data_draft_assets_graph_dict,'data_full_masterlist_dict':data_full_masterlist_dict}, status=status.HTTP_201_CREATED)
+    return Response({'Current_Year_Round':Current_Year_Round,'Next_Year_Round':Next_Year_Round}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
