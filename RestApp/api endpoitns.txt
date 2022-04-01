@@ -122,15 +122,16 @@ Team2_players
 
 
 {
-    "teamid":"9",
+    "teamid":"1",
     "reason":"testing",
     "pp_insert_instructions":"Before",
-    "pp_id":19,
-    "pick_type":"7",   
+    "pp_id":2,
+    "pick_type":"Start of Draft",   
     "projectId":"1",
-    "round":"RD1"
+    "round":"2"
  
  }
+
 
 {
   
@@ -156,11 +157,9 @@ Add trade v2
 {
  "Team1":"1",
  "Team1_Pick1":"11",
- "Team1_Players_no":"1",
  "Team1_players":"test",
 
   "Team2":"2",
   "Team2_Pick2":"12",
-   "Team2_Players_no":"1",
    "Team2_players":"test"
 }
