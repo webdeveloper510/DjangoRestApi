@@ -305,14 +305,14 @@ def add_trade_v2_request(request):
     Teamid2 = data['Team2']
     picks_trading_out_team1_obj = data['Team1_Pick1']
 
-    # picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
-    picks_trading_out_team1 = picks_trading_out_team1_obj
+    picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
+    # picks_trading_out_team1 = picks_trading_out_team1_obj
     
        
     # players_trading_out_team1_no = data['Team1_Players_no']
     players_trading_out_team1 = data['Team1_players'] or ''
     picks_trading_out_team2_obj = data['Team2_Pick2']
-    # picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
+    picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
     picks_trading_out_team2 = picks_trading_out_team2_obj
 
     # players_trading_out_team2_no = data['Team2_Players_no']
