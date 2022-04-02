@@ -407,7 +407,7 @@ def add_trade_v2_request(request):
     Team_id1 = Teams.objects.get(id=Teamid1)
     Team_id2 = Teams.objects.get(id=Teamid2)
     masterpick1 = MasterList.objects.get(id=picks_trading_out_team1)
-    masterpick2 = MasterList.objects.get(id=picks_trading_out_team2)
+    masterpick2 = MasterList.objects.get(id=picks_trading_out_team2[0]['value'])
 
     AddTradev2.objects.create(
         Team1=Team_id1,
