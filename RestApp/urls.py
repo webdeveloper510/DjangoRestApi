@@ -37,7 +37,9 @@ from .views import (
     Get_Rounds_Pick,
     GetPickType,
     AcademyBidRequest,
-    GetRounds
+    GetRounds,
+    ConstraintsRquest,
+    GetFlagPicks
 )
 
 urlpatterns = [
@@ -52,6 +54,7 @@ urlpatterns = [
     re_path(r'^MakeCompany/$', MakeCompanyRequest),
     re_path(r'^add_trade_v2/$', add_trade_v2_request),
     re_path(r'^Priority-Pick/$', PriorityPickrRequest),
+    
 
     # #################### Update URL's #################
 
@@ -76,8 +79,10 @@ urlpatterns = [
     re_path(r'^Get-Trade-v2/(?P<pk>[0-9]+)$', Gettradev2Req),
     re_path(r'^Rounds-Pick/(?P<pk>[0-9]+)$', Get_Rounds_Pick),
     re_path(r'^Academy-Bid/(?P<pk>[0-9]+)$', AcademyBidRequest),
+    re_path(r'^Contsraints/(?P<pk>[0-9]+)$', ConstraintsRquest),
     re_path(r'^PickTypes/$',GetPickType),
     re_path(r'^Get-Rounds/$',GetRounds),
+    re_path(r'^Get-FlagPicks/(?P<pk>[0-9]+)$',GetFlagPicks),
 
     # ################ Delete URL's ##########################
     re_path(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),

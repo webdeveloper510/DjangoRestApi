@@ -592,7 +592,7 @@ def PriorityPickrRequest(request):
 
     current_date = date.today()
     v_current_year = current_date.year
-    PicksList = []
+
     pp_team = []
     pp_dict = {}
     arr = []
@@ -602,14 +602,12 @@ def PriorityPickrRequest(request):
     Pick_Type = "Priority"
 
     data = request.data
-    round = data['round']
     Idd = data['teamid']
     reason = data['reason']
     p_type = data['pick_type']
+    pp_id = data['ppid']
 
-    roundobj = DraftRound.objects.filter(id= round).values('round')
-    pp_round = roundobj[0]['round']
-
+    pp_round = ''
 
     project_Id = data['projectId']
     pp_insert_instructions = data['pp_insert_instructions']
@@ -622,9 +620,8 @@ def PriorityPickrRequest(request):
     for teamsid in MasterListobj:
         pp_team.append(teamsid['TeamName_id'])
 
-    Pickobj = MasterList.objects.filter(projectid_id=project_Id).values()
-    for picks in Pickobj:
-        pp_aligned_pick.append(picks['Display_Name_Detailed'])
+    Pickobj = MasterList.objects.filter(id=pp_id).values()
+    pp_aligned_pick = Pickobj[0]['Display_Name_Detailed']
 
     for picks in Pickobj:
         arr.append(picks)
@@ -636,16 +633,42 @@ def PriorityPickrRequest(request):
     pp_pick_type = pp_pick_type_re[0]['pickType']
     df = pd.DataFrame(arr)
     if pp_pick_type == 'Start of Draft':
-        line = str(v_current_year) + '-' + 'RD1-Priority-' + pp_pick_type
-        MasterList.objects.filter(TeamName=Idd).update(Pick_Group=line, PickType=Pick_Type)
+        pp_dict = {}
+
+        rowno = df.id[df.Unique_Pick_ID.str.contains(str(v_current_year) + '-RD1-Standard')][0]
+
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id == pp_team_id, 'Position'].iloc[0], 'Year': v_current_year,
+                             'TeamName': pp_team_id, 'PickType': 'Priority',
+                             'Original_Owner': pp_team_id, 'Current_Owner': pp_team_id, 'Previous_Owner': '',
+                             'Draft_Round': 'RD1', 
+                             'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + pp_pick_type, 'Reason': reason }, index=[rowno])
+
+        df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]).reset_index(drop=True)
+        del df['Original_Owner']
+        del df['Current_Owner']
+        del df['Previous_Owner']
+        del df['TeamName']
+        df = df.iloc[rowno]
+
+        df['id'] = rowno
+        df['Original_Owner_id'] = Idd
+        df['Current_Owner_id'] = Idd
+        df['TeamName_id'] = Idd
+        df['Previous_Owner_id'] = ''
+        df['projectid_id'] = project_Id
+        pp_dict['pp_team'] = [pp_pick_type]
+        pp_description = str(pp_team) + ' received a ' + \
+            str(pp_pick_type) + ' Priority Pick'
 
         pp_description = str(pp_team) + 'received a ' + \
             str(pp_pick_type) + ' Priority Pick'
 
         pp_dict['pp_team'] = [pp_pick_type]
+        pp_dict['pp_team'] = [pp_pick_type, reason]
+        pp_description = str(pp_team) + 'received a ' + str(pp_pick_type) + ' Priority Pick'
 
-
-   
+        MasterList.objects.filter(id=rowno).update(**df)
+    
 
 
 
@@ -700,11 +723,6 @@ def PriorityPickrRequest(request):
     if pp_pick_type == 'End of First Round':
         pp_dict = {}
         arr = []
-
-        # obj = MasterList.objects.filter().values()
-        # for data in obj:
-        #     arr.append(data)
-        # df = pd.DataFrame(arr)
 
         rowno = df.index[df.Unique_Pick_ID.str.contains(str(v_current_year) + '-RD1-Standard')][-1]
 
@@ -1064,6 +1082,30 @@ def PriorityPickrRequest(request):
 
  
     return Response({'success': 'Priority Pick Created Successfuly'}, status=status.HTTP_201_CREATED)
+
+
+
+# def ConstraintsRquest(request,pk):
+#     Masterlist = []
+#     print(pk)
+#     QueryObj =  MasterList.objects.filter().values()
+
+#     for data in QueryObj:
+#         Masterlist.append(data)
+#     df = pd.DataFrame(Masterlist)
+    # c1_dropdown = df[df['Current_Owner'] ==v_team_name]['Display_Name_Detailed'].tolist()
+    # print(c1_dropdown)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def GetFlagPicks(request,pk):
+    PicksList = []
+    queryobj = MasterList.objects.filter(TeamName_id = pk).values()
+    for data in queryobj:
+        PicksList.append(data['Display_Name_Detailed'])
+    return Response({'PicksList':PicksList }, status=status.HTTP_201_CREATED)
+    
+
 
 
 @api_view(['GET'])
