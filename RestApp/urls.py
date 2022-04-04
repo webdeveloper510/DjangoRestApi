@@ -38,7 +38,7 @@ from .views import (
     GetPickType,
     AcademyBidRequest,
     GetRounds,
-    ConstraintsRquest,
+    # ConstraintsRquest,
     GetFlagPicks
 )
 
@@ -79,7 +79,7 @@ urlpatterns = [
     re_path(r'^Get-Trade-v2/(?P<pk>[0-9]+)$', Gettradev2Req),
     re_path(r'^Rounds-Pick/(?P<pk>[0-9]+)$', Get_Rounds_Pick),
     re_path(r'^Academy-Bid/(?P<pk>[0-9]+)$', AcademyBidRequest),
-    re_path(r'^Contsraints/(?P<pk>[0-9]+)$', ConstraintsRquest),
+    # re_path(r'^Contsraints/(?P<pk>[0-9]+)$', ConstraintsRquest),
     re_path(r'^PickTypes/$',GetPickType),
     re_path(r'^Get-Rounds/$',GetRounds),
     re_path(r'^Get-FlagPicks/(?P<pk>[0-9]+)$',GetFlagPicks),
