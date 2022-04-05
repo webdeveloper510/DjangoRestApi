@@ -1131,12 +1131,14 @@ def GetRounds(request):
 def Get_Rounds_Pick(request,pk):
 
     df_list = []
+
     newdf_data = MasterList.objects.filter(projectid=pk).values()
 
     for new_df in newdf_data:
         df_list.append(new_df)
     df = pd.DataFrame(df_list)
-
+    df['column'] = np.zeros(len(df))
+    
     current_date = date.today()
 
 
