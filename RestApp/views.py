@@ -1088,13 +1088,13 @@ def PriorityPickrRequest(request):
 # def ConstraintsRquest(request,pk):
 #     Masterlist = []
 #     print(pk)
-#     QueryObj =  MasterList.objects.filter().values()
+#     QueryObj =  MasterList.objects.filter(projectid_id=pk).values()
 
 #     for data in QueryObj:
 #         Masterlist.append(data)
 #     df = pd.DataFrame(Masterlist)
-    # c1_dropdown = df[df['Current_Owner'] ==v_team_name]['Display_Name_Detailed'].tolist()
-    # print(c1_dropdown)
+#     c1_dropdown = df[df['Current_Owner'] ==v_team_name]['Display_Name_Detailed'].tolist()
+    print(c1_dropdown)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
