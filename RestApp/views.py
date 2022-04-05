@@ -211,7 +211,7 @@ def AddTradeRequest(request):
     else:
         pass
 
-    if team2_pick3Id > 2:
+    if team2_pick3Id > 2:  
         team1_trades.append(team2_pick3)
         MasterList.objects.filter(pk=team2_pick3Id).update(
             Previous_Owner=team2_pick3Id)
@@ -1094,7 +1094,6 @@ def PriorityPickrRequest(request):
 #         Masterlist.append(data)
 #     df = pd.DataFrame(Masterlist)
 #     c1_dropdown = df[df['Current_Owner'] ==v_team_name]['Display_Name_Detailed'].tolist()
-    print(c1_dropdown)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -1188,25 +1187,41 @@ def Get_Rounds_Pick(request,pk):
 
     # Order of Entry Table
 
-
+    Teamnames = []
+    teamobj =  Teams.objects.filter(id=pk).values()
+    for teams in teamobj:
+        Teamnames.append(teams['TeamNames'])
     data_order_of_entry = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD6')][['TeamName_id','Overall_Pick','Club_Pick_Number']].sort_values(by='Overall_Pick')
-    data_order_of_entry = pd.crosstab(data_order_of_entry.TeamName_id, data_order_of_entry.Club_Pick_Number, values=data_order_of_entry.Overall_Pick,aggfunc=sum)
+
+    # data_order_of_entry = pd.crosstab(data_order_of_entry.TeamName_id, data_order_of_entry.Club_Pick_Number, values=data_order_of_entry.Overall_Pick,aggfunc=sum)
+
+    data_order_of_entry.reset_index(drop=True, inplace=True)
+    data_order_of_entry_dict = data_order_of_entry.to_dict(orient="index")
+
+
 
     # Draft Assets Graph - Bar Graph
-    data_draft_assets_graph = df.groupby(['Current_Owner_id', 'Year'])['AFL_Points_Value'].sum() 
 
+    my_dict = {}
+    graph_list =  []
+    data_draft_assets_graph = df.groupby(['Current_Owner_Short_Name', 'Year'])['AFL_Points_Value'].sum()
+    dict  = data_draft_assets_graph.items()
+    for data in dict:
+
+        my_dict['shortname'] = list(data).pop(0)[0]
+        my_dict['Year'] = list(data).pop(0)[1]
+        my_dict['AFL_POINTS'] = list(data).pop(1)
+        graph_list.append(my_dict)
 
     ##### Full List of Draft Picks #####
 
     data_full_masterlist = df[['Year', 'Draft_Round', 'Overall_Pick', 'TeamName_id',
                                    'PickType', 'Original_Owner_id', 'Current_Owner_id', 'Previous_Owner_id', 'AFL_Points_Value', 'Club_Pick_Number']]
-    data_draft_assets_graph_dict = {
-        'data_draft_asset':data_draft_assets_graph
-    }
-    
-    data_full_masterlist_dict= {
-        'full_masterlist':data_full_masterlist
-    }
+
+    dict = data_full_masterlist.items()
+    data_full_list = list(dict)
+    data_full_masterlist_array  = np.array(data_full_list,dtype=object)
+
 
     Current_Year_Round = {
 
@@ -1228,7 +1243,7 @@ def Get_Rounds_Pick(request,pk):
     }
 
 
-    return Response({'Current_Year_Round':Current_Year_Round,'Next_Year_Round':Next_Year_Round}, status=status.HTTP_201_CREATED)
+    return Response({'Current_Year_Round':Current_Year_Round,'Next_Year_Round':Next_Year_Round,'data_order_of_entry_dict':data_order_of_entry_dict,'data_full_masterlist_array':data_full_masterlist_array,'graph_list':graph_list}, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -1469,6 +1484,18 @@ def GetTradeRequest(request, pk):
 def Gettradev2Req(request, pk):
     trade = AddTradev2.objects.filter(id=pk).values()
     return Response({'TeamList1': trade}, status=status.HTTP_200_OK)
+
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
+def GetFlagsRequest(request):
+    FlagsList = []
+    TeamsQueryset = Teams.objects.filter().values()
+    for teamdata in  TeamsQueryset:
+        FlagsList.append(teamdata)
+    return Response({'Teamsdata': FlagsList}, status=status.HTTP_200_OK)
+    
+
+
 
 
 
