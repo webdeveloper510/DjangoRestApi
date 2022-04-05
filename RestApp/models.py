@@ -42,7 +42,7 @@ class User(models.Model):
 class Teams(models.Model):
     TeamNames = models.CharField(max_length=100, default='')
     ShortName = models.CharField(max_length=100,default='')
-    Image = models.ImageField(upload_to='media',default='')
+    Image = models.ImageField(default='')
 
   
 
