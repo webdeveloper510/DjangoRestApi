@@ -139,7 +139,7 @@ Team2_players
  "project_desc":"test1 desc"
 }
 
-AcademyBid
+AcademyBid  
 
 {
    "player":"test",

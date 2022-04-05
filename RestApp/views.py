@@ -1138,7 +1138,10 @@ def Get_Rounds_Pick(request,pk):
         df_list.append(new_df)
     df = pd.DataFrame(df_list)
     df['column'] = np.zeros(len(df))
-    
+    df['column'].describe()
+    df = df[~df.isin([np.nan, np.inf, -np.inf]).any(1)]
+
+
     current_date = date.today()
 
 
