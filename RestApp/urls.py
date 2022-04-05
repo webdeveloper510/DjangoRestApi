@@ -39,7 +39,8 @@ from .views import (
     AcademyBidRequest,
     GetRounds,
     # ConstraintsRquest,
-    GetFlagPicks
+    GetFlagPicks,
+    GetFlagsRequest
 )
 
 urlpatterns = [
@@ -83,6 +84,7 @@ urlpatterns = [
     re_path(r'^PickTypes/$',GetPickType),
     re_path(r'^Get-Rounds/$',GetRounds),
     re_path(r'^Get-FlagPicks/(?P<pk>[0-9]+)$',GetFlagPicks),
+    re_path(r'^Get-Flags/$',GetFlagsRequest),
 
     # ################ Delete URL's ##########################
     re_path(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),
