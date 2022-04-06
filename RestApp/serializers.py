@@ -69,3 +69,10 @@ class PicksTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = PicksType
         fields = '__all__'
+
+
+class ListImageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Teams
+        fields = '__all__'

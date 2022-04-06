@@ -1,6 +1,8 @@
 from unicodedata import name
 from django.urls import re_path
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
 from .views import (
     # CreateUserAPIView,
     authenticate_user,
@@ -94,4 +96,4 @@ urlpatterns = [
     re_path(r'^DeleteProject/(?P<pk>[0-9]+)$', DeleteProjectRequest),
     re_path(r'^DeleteLadder/(?P<pk>[0-9]+)$', DeleteLadderRecordRequest),
     re_path(r'^DeleteTrade/(?P<pk>[0-9]+)$', DeleteAddTradeRequest),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,5 +1,6 @@
 from array import array
 from ast import Add
+from dataclasses import replace
 from distutils.command.config import dump_file
 from doctest import master
 # from locale import D_T_FMT
@@ -20,7 +21,8 @@ from .serializers import (
     DraftAnalyserSerializer,
     # AddTraderSerializer,
     UserSerializer,
-    TeamSerializer
+    TeamSerializer,
+    ListImageSerializer
 )
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -41,7 +43,10 @@ from .models import (
     Transactions,
     PriorityPick,
     DraftRound,
-    PriorityTransactions
+    PriorityTransactions,
+    
+
+
 )
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
@@ -1493,11 +1498,17 @@ def Gettradev2Req(request, pk):
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
 def GetFlagsRequest(request):
-    FlagsList = []
-    TeamsQueryset = Teams.objects.filter().values()
-    for teamdata in  TeamsQueryset:
-        FlagsList.append(teamdata)
-    return Response({'Teamsdata': FlagsList}, status=status.HTTP_200_OK)
+
+    imgobj = Teams.objects.all()
+    # for data in imgobj:
+    #     image = data.Image
+    #     test = image.replace("media","")
+    #     print(test)
+    serializer = ListImageSerializer(imgobj, many=True, context= 
+        {'request': request})
+    return Response({
+            'status' : True,
+            'data' : serializer.data})
     
 
 
