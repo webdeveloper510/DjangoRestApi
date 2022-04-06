@@ -24,18 +24,6 @@ class Company(models.Model):
         return f"{self.Name}"
 
 
-class User(models.Model):
-    uui = models.CharField(max_length=50, blank=True,
-                           unique=True, default=uuid.uuid4)
-    username = models.CharField(max_length=100, default='')
-    email = models.CharField(max_length=100, default='')
-    password = models.CharField(max_length=100, default='')
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, blank=False)
-    Active = models.CharField(max_length=1, choices=(
-        ('A', 'Active'), ('I', 'Inactive')), default='')
-
-    def __str__(self):
-        return f"{self.username}"
 
 
 
@@ -45,6 +33,18 @@ class Teams(models.Model):
     Image = models.ImageField(default='')
 
   
+class User(models.Model):
+    uui = models.CharField(max_length=50, blank=True,
+                           unique=True, default=uuid.uuid4)
+    username = models.CharField(max_length=100, default='')
+    email = models.CharField(max_length=100, default='')
+    password = models.CharField(max_length=100, default='')
+    Team = models.ForeignKey(Teams,default='', on_delete=models.CASCADE, blank=False)
+    Active = models.CharField(max_length=1, choices=(
+        ('A', 'Active'), ('I', 'Inactive')), default='')
+
+    def __str__(self):
+        return f"{self.username}"
 
 
 class MasterList(models.Model):
@@ -70,6 +70,8 @@ class MasterList(models.Model):
     Display_Name_Detailed = models.CharField(max_length=100,default='')
     Display_Name_Mini = models.CharField(max_length=100,default='')
     Current_Owner_Short_Name = models.CharField(max_length=100,default='')
+    Pick_Status = models.CharField(max_length=100,default='')
+    Selected_Player = models.CharField(max_length=100,default='')
     projectid  = models.ForeignKey(Project, on_delete=models.CASCADE, default='')
 
 class library_AFL_Draft_Points(models.Model):
