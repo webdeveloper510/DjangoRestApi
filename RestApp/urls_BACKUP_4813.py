@@ -40,11 +40,13 @@ from .views import (
     GetPickType,
     AcademyBidRequest,
     GetRounds,
-   
+<<<<<<< HEAD
     
+=======
     ConstraintsRquest,
     GetFlagPicks,
     GetFlagsRequest,
+>>>>>>> 13701516734c3f599bb87889332b48c3c8e76d20
 )
 
 urlpatterns = [
