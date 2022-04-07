@@ -163,3 +163,10 @@ Add trade v2
   "Team2_Pick2":"12",
    "Team2_players":""
 }
+
+
+{
+   "email":"test@gmail.com",
+  "password":"123456"
+
+}

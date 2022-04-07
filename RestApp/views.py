@@ -60,7 +60,7 @@ import pytz
 import datetime
 from django.db import connection
 from collections import defaultdict
-import json
+from django.core.files import File
 
 
 pd.set_option('display.max_rows', None)
@@ -69,7 +69,11 @@ pd.set_option('display.max_columns', 500)
 #########################################  POST Requests ###############################################################
 
 unique_id = uuid.uuid4().hex[:6].upper()
+logged_user = ''
 
+def getuser(userid):
+    logged_user = userid
+    print(userid)
 
 class CreateUserAPIView(APIView):
     # Allow any user (authenticated or not) to access this url
@@ -83,6 +87,7 @@ class CreateUserAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         last_inserted_id = serializer.data['id']
+
         User.objects.filter(id=last_inserted_id).update(uui=unique_id)
         return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
 
@@ -90,7 +95,6 @@ class CreateUserAPIView(APIView):
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def authenticate_user(request):
-    # superusers_emails = User.objects.filter(is_superuser=True)
 
     try:
         email = request.data['email']
@@ -101,11 +105,16 @@ def authenticate_user(request):
             try:
                 token = jwt.encode({'unique_Id': user[0].uui}, SECRET_KEY)
                 payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-                print(payload)
-                request.session['token'] = token
                 user_details = {}
                 user_details['username'] = user[0].username
+        
                 user_details['token'] = token
+                getuser(user[0].id)
+                f = open('RestApp/userfile.py', 'w')
+                testfile = File(f)
+                testfile.write(str(user[0].id))
+                testfile.close
+                f.close
                 return Response(user_details, status=status.HTTP_200_OK)
 
             except Exception as e:
@@ -553,15 +562,14 @@ def CreateMasterListRequest(request, pk):
                 row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
                     previous_owner + team.ShortName + \
                     ')' if Original_Owner != Current_Ownerr else team.ShortName
+                df.reset_index(drop=False)
                
-                row1['Display_Name_Mini'] = str(Overall_pickk)+'(o:'+team.ShortNames+' , Via:' + \
-                    None + ')' if Original_Owner != Current_Ownerr else df['Current_Owner'].map(lambda x: team.ShortName)
-
-
-
+                row1['Display_Name_Mini'] = str(df['Overall_Pick'])+'(o:'+team.ShortName+' , Via:' + \
+                    None + ')' if Original_Owner != Current_Ownerr else df['Overall_Pick'].astype(str) + ' ' + df['Current_Owner'].map(lambda x: team.ShortName)
                 row1['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
                     previous_owner + team.ShortName + \
                     ')' if Original_Owner != Current_Ownerr else team.ShortName
+
                 row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
                     previous_owner + team.ShortName + \
                     ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -678,7 +686,6 @@ def PriorityPickrRequest(request):
 
     if pp_pick_type == 'First Round':
 
-        ppidlst = []
 
         Pickobj = MasterList.objects.filter(
             Display_Name_Detailed=ppid).values()
@@ -803,7 +810,7 @@ def PriorityPickrRequest(request):
                              'Previous_Owner': '', 'Draft_Round': pp_round,
                              'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + pp_pick_type},
                             index=[rowno])
-        print(line)
+
         if pp_insert_instructions == 'Before':
             pp_dic = {}
             df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
@@ -821,7 +828,7 @@ def PriorityPickrRequest(request):
             df['TeamName_id'] = Idd
             df['Previous_Owner_id'] = ''
             df['projectid_id'] = project_Id
-            print(df)
+
             MasterList.objects.filter(id=rowno).update(**df)
 
         else:
@@ -839,7 +846,7 @@ def PriorityPickrRequest(request):
             df['TeamName_id'] = Idd
             df['Previous_Owner_id'] = ''
             df['projectid_id'] = project_Id
-            print(df)
+
             MasterList(**df).save()
             pp_dict['pp_team'] = [pp_pick_type, pp_round,
                                   pp_aligned_pick, pp_insert_instructions]
@@ -1073,15 +1080,56 @@ def PriorityPickrRequest(request):
     return Response({'success': 'Priority Pick Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
-# def ConstraintsRquest(request,pk):
-#     Masterlist = []
-#     print(pk)
-#     QueryObj =  MasterList.objects.filter(projectid_id=pk).values()
+print(logged_user)
 
-#     for data in QueryObj:
-#         Masterlist.append(data)
-#     df = pd.DataFrame(Masterlist)
-#     c1_dropdown = df[df['Current_Owner'] ==v_team_name]['Display_Name_Detailed'].tolist()
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def ConstraintsRquest(request,pk):
+    loggeduser_id = ''
+    f = open('RestApp/userfile.py', 'r')
+    
+    if f.mode == 'r':
+       loggeduser_id =f.read()
+    Userobj = User.objects.get(id=loggeduser_id)
+    Teamid = Userobj.Teams.id
+    Teamobj = Teams.objects.get(id=Teamid)  
+    v_team_name = Teamobj.id
+
+    Masterlist = []
+    QueryObj =  MasterList.objects.filter(projectid_id=pk).values()
+    for data in QueryObj:
+        Masterlist.append(data)
+        df = pd.DataFrame(Masterlist)
+    c1_dropdown = df[df['Current_Owner_id'] ==v_team_name]['Display_Name_Detailed'].tolist()
+    c2_dropdown = df[df['Current_Owner_id'] ==v_team_name]['Year'].unique().tolist()
+    c3_dropdown = df[df['Current_Owner_id'] ==v_team_name]['Draft_Round'].unique().tolist()
+    c4_set = 0
+    c5_set = 99999999
+    c6_dropdown = df[df['Current_Owner_id'] !=v_team_name]['Current_Owner_id'].unique().tolist()
+    c7_dropdown = df[df['Current_Owner_id'] !=v_team_name]['Display_Name_Detailed'].unique().tolist()
+    c8_dropdown = df[df['Current_Owner_id'] !=v_team_name]['Year'].unique().tolist()
+    c9_dropdown = df[df['Current_Owner_id'] !=v_team_name]['Draft_Round'].unique().tolist()
+    c10_set = 0
+    c11_set = 99999999
+    c12_set = 0.10
+
+    c_dict = {}
+    c_dict['c1_dropdown'] = c1_dropdown
+    c_dict['c2_dropdown'] = c2_dropdown
+    c_dict['c3_dropdown'] = c3_dropdown
+    c_dict['c4_set'] = c4_set
+    c_dict['c5_set'] = c5_set
+    c_dict['c6_dropdown'] = c6_dropdown
+    c_dict['c7_dropdown'] = c7_dropdown
+    c_dict['c8_dropdown'] = c8_dropdown
+    c_dict['c9_dropdown'] = c9_dropdown
+    c_dict['c10_set'] = c10_set
+    c_dict['c11_set'] = c11_set
+    c_dict['c12_set'] = c12_set
+   
+    return Response({'constraints-data': c_dict}, status=status.HTTP_201_CREATED)
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -1324,6 +1372,10 @@ def LogoutRequest(request):
         request.session['userId'] = 0
         # return HttpResponseRedirect(redirect_to='')
         res = "You have been logged out !"
+        raw = open('RestApp/userfile.py', "r+")
+        contents = raw.read().split("\n")
+        raw.seek(0)                        # <- This is the missing piece
+        raw.truncate()
         return Response(res, status=status.HTTP_403_FORBIDDEN)
 
 
