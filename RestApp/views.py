@@ -345,13 +345,8 @@ def add_trade_v2_request(request):
     else:
         pass
 
-<<<<<<< HEAD
-    if players_trading_out_team1_len or players_trading_out_team1_len == '' :
-        for i in range(players_trading_out_team1_len):
-=======
     if players_trading_out_team1_len or players_trading_out_team1_len == '':
         for i in range(players_trading_out_team1_len or 0):
->>>>>>> c39bdeee172fb7149365802251b2a5d631f451fe
             # player_trading_out_team1 = Players.objects.filter(id__in = players_trading_out_team1).values('FirstName')
 
             team1_trades_players.append(players_trading_out_team2)
@@ -370,11 +365,7 @@ def add_trade_v2_request(request):
         for team2pickss in team2picksobj:
             team2_trades_picks.append(team2pickss['Display_Name_Detailed'])
 
-<<<<<<< HEAD
-    if players_trading_out_team2_len or players_trading_out_team2_len ==  '':
-=======
     if players_trading_out_team2_len or players_trading_out_team2_len == '':
->>>>>>> c39bdeee172fb7149365802251b2a5d631f451fe
 
         for i in range(players_trading_out_team2_len or 0):
 
@@ -559,12 +550,12 @@ def CreateMasterListRequest(request, pk):
                 row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
                     updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
 
-                row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
-                    previous_owner + team.ShortName + \
-                    ')' if Original_Owner != Current_Ownerr else team.ShortName
+                # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
+                #     previous_owner + team.ShortName + \
+                #     ')' if Original_Owner != Current_Ownerr else team.ShortName
                
-                row1['Display_Name_Mini'] = str(Overall_pickk)+'(o:'+team.ShortNames+' , Via:' + \
-                    None + ')' if Original_Owner != Current_Ownerr else df['Current_Owner'].map(lambda x: team.ShortName)
+                # row1['Display_Name_Mini'] = str(Overall_pickk)+'(o:'+team.ShortNames+' , Via:' + \
+                #     None + ')' if Original_Owner != Current_Ownerr else df['Current_Owner'].map(lambda x: team.ShortName)
 
 
 
