@@ -65,7 +65,7 @@ class MasterList(models.Model):
     Display_Name = models.CharField(max_length=100,default='')
     Display_Name_Short = models.CharField(max_length=100,default='')
     Display_Name_Detailed = models.CharField(max_length=100,default='')
-    Display_Name_Mini = models.CharField(max_length=100,default='')
+    Display_Name_Mini = models.TextField()
     Current_Owner_Short_Name = models.CharField(max_length=100,default='')
     Pick_Status = models.CharField(max_length=100,default='')
     Selected_Player = models.CharField(max_length=100,default='')
