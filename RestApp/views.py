@@ -309,12 +309,12 @@ def add_trade_v2_request(request):
     print(picks_trading_out_team1)
        
     # players_trading_out_team1_no = data['Team1_Players_no']
-    players_trading_out_team1 = data['Team1_players']
+    players_trading_out_team1 = data['Team1_players'] or ''
     picks_trading_out_team2_obj = data['Team2_Pick2']
     picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
     print(picks_trading_out_team2)
     # players_trading_out_team2_no = data['Team2_Players_no']
-    players_trading_out_team2 = data['Team2_players']
+    players_trading_out_team2 = data['Team2_players'] or ''
 
     teamobj = Teams.objects.filter(id=Teamid1).values('id', 'TeamNames')
     team1id = teamobj[0]['id']
@@ -340,7 +340,7 @@ def add_trade_v2_request(request):
     else:
         pass
 
-    if players_trading_out_team1_len :
+    if players_trading_out_team1_len or players_trading_out_team1_len == '' :
         for i in range(players_trading_out_team1_len):
             # player_trading_out_team1 = Players.objects.filter(id__in = players_trading_out_team1).values('FirstName')
 
@@ -361,7 +361,7 @@ def add_trade_v2_request(request):
         for team2pickss in team2picksobj:
             team2_trades_picks.append(team2pickss['Display_Name_Detailed'])
 
-    if players_trading_out_team2_len:
+    if players_trading_out_team2_len or players_trading_out_team2_len ==  '':
 
         for i in range(players_trading_out_team2_len):
 
