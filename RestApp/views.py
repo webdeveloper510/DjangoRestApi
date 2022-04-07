@@ -536,9 +536,14 @@ def CreateMasterListRequest(request, pk):
             udpatedf = update_masterlist(df)
 
             for index, updaterow in udpatedf.iterrows():
-
+                ShortNames = []
                 row1 = dict(updaterow)
                 team = Teams.objects.get(id=updaterow.TeamName)
+                teamsobj = Teams.objects.filter().values('ShortName')
+                for teams_short_list in teamsobj:
+                    ShortNames.append(teams_short_list['ShortName'])
+
+
                 Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
                 Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
                 previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
@@ -563,9 +568,9 @@ def CreateMasterListRequest(request, pk):
                 #     previous_owner + team.ShortName + \
                 #     ')' if Original_Owner != Current_Ownerr else team.ShortName
                 # df.reset_index(drop=False)
-               
-                # row1['Display_Name_Mini'] = str(df['Overall_Pick'])+'(o:'+team.ShortName+' , Via:' + \
-                #     None + ')' if Original_Owner != Current_Ownerr else df['Overall_Pick'].astype(str) + ' ' + df['Current_Owner'].map(lambda x: team.ShortName)
+
+                # print(row1['Display_Name_Mini'])
+                # exit()
                 row1['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
                     previous_owner + team.ShortName + \
                     ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -1034,12 +1039,12 @@ def PriorityPickrRequest(request):
         row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
 
-        # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
-        #     previous_owner + team.ShortName + \
-        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
+        row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
+            previous_owner + team.ShortName + \
+            ')' if Original_Owner != Current_Ownerr else team.ShortName
 
-        # row1['Display_Name_Mini'] = str(Overall_pickk)+'(o:'+team.ShortNames+' , Via:' + \
-        #     None + ')' if Original_Owner != Current_Ownerr else df['Current_Owner'].map(lambda x: team.ShortName)
+        row1['Display_Name_Mini'] = str(Overall_pickk)+'(o:'+team.ShortNames+' , Via:' + \
+            None + ')' if Original_Owner != Current_Ownerr else df['Current_Owner'].map(lambda x: team.ShortName)
 
         row1['Display_Name'] = str(Current_Ownerr.TeamNames)+' (Origin: '+team.TeamNames+', Via: ' + \
             None + ')' if Original_Owner.TeamNames != Current_Ownerr.TeamNames else Current_Ownerr.TeamNames
