@@ -1,6 +1,8 @@
 from unicodedata import name
-from django.conf.urls import url
+from django.urls import re_path
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
 from .views import (
     # CreateUserAPIView,
     authenticate_user,
@@ -37,54 +39,61 @@ from .views import (
     Get_Rounds_Pick,
     GetPickType,
     AcademyBidRequest,
-    GetRounds
+    GetRounds,
+    # ConstraintsRquest,
+    GetFlagPicks,
+    GetFlagsRequest
 )
 
 urlpatterns = [
 
     # ############# POST URl"S ##########################
-    url(r'^create-User/$', CreateUserAPIView.as_view()),
-    url(r'^Auth/$', authenticate_user),
-    url(r'^CreateProject/$', ProjNameDescRequest),
-    url(r'^LocalLadder/$', LocalLadderRequest),
-    url(r'^MasterList/$', CreateMasterListRequest),
-    url(r'^Add-Trade/$', AddTradeRequest),
-    url(r'^MakeCompany/$', MakeCompanyRequest),
-    url(r'^add_trade_v2/$', add_trade_v2_request),
-    url(r'^Priority-Pick/$', PriorityPickrRequest),
+    re_path(r'^create-User/$', CreateUserAPIView.as_view()),
+    re_path(r'^Auth/$', authenticate_user),
+    re_path(r'^CreateProject/$', ProjNameDescRequest),
+    re_path(r'^LocalLadder/$', LocalLadderRequest),
+    re_path(r'^MasterList/$', CreateMasterListRequest),
+    re_path(r'^Add-Trade/$', AddTradeRequest),
+    re_path(r'^MakeCompany/$', MakeCompanyRequest),
+    re_path(r'^add_trade_v2/$', add_trade_v2_request),
+    re_path(r'^Priority-Pick/$', PriorityPickrRequest),
+    
 
     # #################### Update URL's #################
 
-    url(r'^UpdateMasterList/(?P<pk>[0-9]+)$', update_masterlist),
+    re_path(r'^UpdateMasterList/(?P<pk>[0-9]+)$', update_masterlist),
 
     # ####################### GET Urls's ################################
 
-    url(r'^ShowMasterList/(?P<pk>[0-9]+)$', GETMasterListRequest),
-    url(r'^ShowProject/$', GETProjectRequest),
-    url(r'^Logout/$', LogoutRequest),
-    url(r'^AddTeam/$', AddTeamRequest),
-    url(r'^ShowCompany/$', CompanyListRequest),
-    url(r'^ListOfUsers/$', UserListRequest),
+    re_path(r'^ShowMasterList/(?P<pk>[0-9]+)$', GETMasterListRequest),
+    re_path(r'^ShowProject/$', GETProjectRequest),
+    re_path(r'^Logout/$', LogoutRequest),
+    re_path(r'^AddTeam/$', AddTeamRequest),
+    re_path(r'^ShowCompany/$', CompanyListRequest),
+    re_path(r'^ListOfUsers/$', UserListRequest),
     # url(r'^Transactions/$', TransactionsRequest),
-    url(r'^Ladder/$', LadderRequest),
-    url(r'^Show-Team/$', TeamRequest),
-    url(r'^ShowProjectDetails/(?P<pk>[0-9]+)$', ProjectDetailsRequest),
-    url(r'^Teams/$', TeamsRequest),
-    url(r'^Test-Masterlist/$', CheckMasterlistrequest),
-    url(r'^Get-Trade/(?P<pk>[0-9]+)$', GetTradeRequest),
-    url(r'^Get-Players/$', GetPlayer),
-    url(r'^Get-Trade-v2/(?P<pk>[0-9]+)$', Gettradev2Req),
-    url(r'^Rounds-Pick/(?P<pk>[0-9]+)$', Get_Rounds_Pick),
-    url(r'^Academy-Bid/(?P<pk>[0-9]+)$', AcademyBidRequest),
-    url(r'^PickTypes/$',GetPickType),
-    url(r'^Get-Rounds/$',GetRounds),
+    re_path(r'^Ladder/$', LadderRequest),
+    re_path(r'^Show-Team/$', TeamRequest),
+    re_path(r'^ShowProjectDetails/(?P<pk>[0-9]+)$', ProjectDetailsRequest),
+    re_path(r'^Teams/$', TeamsRequest),
+    re_path(r'^Test-Masterlist/$', CheckMasterlistrequest),
+    re_path(r'^Get-Trade/(?P<pk>[0-9]+)$', GetTradeRequest),
+    re_path(r'^Get-Players/$', GetPlayer),
+    re_path(r'^Get-Trade-v2/(?P<pk>[0-9]+)$', Gettradev2Req),
+    re_path(r'^Rounds-Pick/(?P<pk>[0-9]+)$', Get_Rounds_Pick),
+    re_path(r'^Academy-Bid/(?P<pk>[0-9]+)$', AcademyBidRequest),
+    # re_path(r'^Contsraints/(?P<pk>[0-9]+)$', ConstraintsRquest),
+    re_path(r'^PickTypes/$',GetPickType),
+    re_path(r'^Get-Rounds/$',GetRounds),
+    re_path(r'^Get-FlagPicks/(?P<pk>[0-9]+)$',GetFlagPicks),
+    re_path(r'^Get-Flags/$',GetFlagsRequest),
 
     # ################ Delete URL's ##########################
-    url(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),
-    url(r'^Delete-Company/(?P<pk>[0-9]+)$', DeleteCompanyRequest),
-    url(r'^DeleteMasterList/(?P<pk>[0-9]+)$', DeleteMasterListRequest),
-    url(r'^DeleteLocalLadder/(?P<pk>[0-9]+)$', DeleteLocalLadderRequest),
-    url(r'^DeleteProject/(?P<pk>[0-9]+)$', DeleteProjectRequest),
-    url(r'^DeleteLadder/(?P<pk>[0-9]+)$', DeleteLadderRecordRequest),
-    url(r'^DeleteTrade/(?P<pk>[0-9]+)$', DeleteAddTradeRequest),
-]
+    re_path(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),
+    re_path(r'^Delete-Company/(?P<pk>[0-9]+)$', DeleteCompanyRequest),
+    re_path(r'^DeleteMasterList/(?P<pk>[0-9]+)$', DeleteMasterListRequest),
+    re_path(r'^DeleteLocalLadder/(?P<pk>[0-9]+)$', DeleteLocalLadderRequest),
+    re_path(r'^DeleteProject/(?P<pk>[0-9]+)$', DeleteProjectRequest),
+    re_path(r'^DeleteLadder/(?P<pk>[0-9]+)$', DeleteLadderRecordRequest),
+    re_path(r'^DeleteTrade/(?P<pk>[0-9]+)$', DeleteAddTradeRequest),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

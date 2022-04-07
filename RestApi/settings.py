@@ -29,11 +29,11 @@ SECRET_KEY = 'django-insecure-7-q&$pl_l)+s_o!7*q@@(*%lsm_h$)p=mw@e38mdal(@yuvsav
 DEBUG = True
 
 
-ALLOWED_HOSTS = ['3.26.68.64','127.0.0.1'] 
+ALLOWED_HOSTS = ['3.25.74.31','127.0.0.1'] 
 CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOWED_ORIGINS = [
-    "https://3.26.68.64:8000",
+    "https://3.25.74.31:8000",
     "http://localhost:3000",
 ]
 
@@ -118,7 +118,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'restdb',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': 'Testing@123',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
 
@@ -164,9 +164,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (str(BASE_DIR.joinpath('static')),)
 STATIC_ROOT = str(BASE_DIR.joinpath('assets'))
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / '/media'
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 

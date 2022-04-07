@@ -128,7 +128,7 @@ Team2_players
     "pp_id":2,
     "pick_type":"Start of Draft",   
     "projectId":"1",
-    "round":"2"
+    "ppid":"1"
  
  }
 
@@ -139,7 +139,7 @@ Team2_players
  "project_desc":"test1 desc"
 }
 
-AcademyBid
+AcademyBid  
 
 {
    "player":"test",
@@ -157,9 +157,9 @@ Add trade v2
 {
  "Team1":"1",
  "Team1_Pick1":"11",
- "Team1_players":"test",
+ "Team1_players":"",
 
   "Team2":"2",
   "Team2_Pick2":"12",
-   "Team2_players":"test"
+   "Team2_players":""
 }
