@@ -122,13 +122,12 @@ Team2_players
 
 
 {
-    "teamid":"1",
+    "teamid":"5",
     "reason":"testing",
     "pp_insert_instructions":"Before",
-    "pp_id":2,
     "pick_type":"Start of Draft",   
     "projectId":"1",
-    "ppid":"1"
+    "ppid":"5"
  
  }
 

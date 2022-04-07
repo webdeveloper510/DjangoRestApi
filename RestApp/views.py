@@ -645,8 +645,8 @@ def PriorityPickrRequest(request):
     if pp_pick_type == 'Start of Draft':
         pp_dict = {}
 
-        rowno = df.id[df.Unique_Pick_ID.str.contains(
-            str(v_current_year) + '-RD1-Standard')][0]
+        rowno = df.index[df.Unique_Pick_ID.str.contains(str(v_current_year) + '-RD1-Standard')][0]
+  
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName_id == pp_team_id, 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': pp_team_id, 'PickType': 'Priority',
@@ -662,7 +662,7 @@ def PriorityPickrRequest(request):
         del df['TeamName']
         df = df.iloc[rowno]
 
-        df['id'] = rowno
+        df['id'] = rowno+1
         df['Original_Owner_id'] = Idd
         df['Current_Owner_id'] = Idd
         df['TeamName_id'] = Idd
@@ -680,7 +680,7 @@ def PriorityPickrRequest(request):
         pp_description = str(pp_team) + 'received a ' + \
             str(pp_pick_type) + ' Priority Pick'
 
-        MasterList.objects.filter(id=rowno).update(**df)
+        MasterList.objects.filter(id=rowno+1).update(**df)
 
     # df1 = pd.DataFrame(df)
 
@@ -712,6 +712,7 @@ def PriorityPickrRequest(request):
             df['TeamName_id'] = Idd
             df['Previous_Owner_id'] = ''
             df['projectid_id'] = project_Id
+
 
             MasterList.objects.filter(id=rowno).update(**df)
 
@@ -1473,8 +1474,13 @@ def ShowTeamRequest(request):
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
 def TeamsRequest(request):
-    data = Teams.objects.filter().values()
-    return Response(data)
+    imgobj = Teams.objects.all()
+
+    serializer = ListImageSerializer(
+        imgobj, many=True, context={'request': request})
+    return Response({
+        'status': True,
+        'data': serializer.data})
 
 
 @ api_view(['GET'])
