@@ -121,12 +121,12 @@ Team2_players
 
 
 {
-    "teamid":"18",
+    "teamid":"16",
     "reason":"testing",
     "pp_insert_instructions":"Before",
-    "pick_type":"Custom Fixed Position",   
+    "pick_type":"End of First Round",   
     "projectId":"1",
-    "ppid":"18"
+    "ppid":"16"
  
  }
 
