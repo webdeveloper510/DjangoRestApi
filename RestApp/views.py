@@ -602,14 +602,9 @@ def PriorityPickrRequest(request):
     Pick_Type = "Priority"
 
     data = request.data
-    round = data['round']
     Idd = data['teamid']
     reason = data['reason']
     p_type = data['pick_type']
-
-    roundobj = DraftRound.objects.filter(id= round).values('round')
-    pp_round = roundobj[0]['round']
-
 
     project_Id = data['projectId']
     pp_insert_instructions = data['pp_insert_instructions']
@@ -622,7 +617,8 @@ def PriorityPickrRequest(request):
     for teamsid in MasterListobj:
         pp_team.append(teamsid['TeamName_id'])
 
-    Pickobj = MasterList.objects.filter(projectid_id=project_Id).values()
+    Pickobj = MasterList.objects.filter(projectid=project_Id).values()
+
     for picks in Pickobj:
         pp_aligned_pick.append(picks['Display_Name_Detailed'])
 
@@ -636,8 +632,26 @@ def PriorityPickrRequest(request):
     pp_pick_type = pp_pick_type_re[0]['pickType']
     df = pd.DataFrame(arr)
     if pp_pick_type == 'Start of Draft':
-        line = str(v_current_year) + '-' + 'RD1-Priority-' + pp_pick_type
-        MasterList.objects.filter(TeamName=Idd).update(Pick_Group=line, PickType=Pick_Type)
+
+        rowno = df.id[df['Display_Name_Detailed'].str.contains(str(v_current_year) + '-RD1-Standard')]
+        
+        print(df)
+        exit()
+        
+
+        # line = str(v_current_year) + '-' + 'RD1-Priority-' + pp_pick_type
+
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id == pp_team_id, 'Position'].iloc[0], 'Year': v_current_year,
+                             'TeamName': pp_team_id,'PickType': 'Priority',
+                             'Original_Owner': pp_team_id, 'Current_Owner': pp_team_id, 'Previous_Owner': '',
+                             'Draft_Round': 'RD1',
+                             'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + pp_pick_type, 'Reason': reason }, index=[rowno])
+
+        # MasterList.objects.filter(TeamName=Idd).update(Pick_Group=line, PickType=Pick_Type)
+        df = pd.concat([df.iloc[1], line, df.iloc[1]]
+                       ).reset_index(drop=True)
+
+
 
         pp_description = str(pp_team) + 'received a ' + \
             str(pp_pick_type) + ' Priority Pick'
@@ -645,17 +659,11 @@ def PriorityPickrRequest(request):
         pp_dict['pp_team'] = [pp_pick_type]
 
 
-   
-
-
-
-
     # df1 = pd.DataFrame(df)
 
     if pp_pick_type == 'First Round':
 
         ppidlst = []
-
         Pickobj = MasterList.objects.filter(Display_Name_Detailed=ppid).values()
         # print(Pickobj)
 
@@ -665,7 +673,7 @@ def PriorityPickrRequest(request):
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName_id == pp_team_id, 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName_id': pp_team_id, 'PickType': 'Priority', 'Original_Owner_id': pp_team_id, 'Current_Owner_id': pp_team_id,
-                             'Previous_Owner': '', 'Draft_Round': pp_round,
+                             'Previous_Owner': '', 'Draft_Round': 'RD1',
                              'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + pp_pick_type},
                             index=[rowno])
 
@@ -701,10 +709,6 @@ def PriorityPickrRequest(request):
         pp_dict = {}
         arr = []
 
-        # obj = MasterList.objects.filter().values()
-        # for data in obj:
-        #     arr.append(data)
-        # df = pd.DataFrame(arr)
 
         rowno = df.index[df.Unique_Pick_ID.str.contains(str(v_current_year) + '-RD1-Standard')][-1]
 
@@ -772,6 +776,7 @@ def PriorityPickrRequest(request):
     if pp_pick_type == 'Second Round':
 
         Pickobj = MasterList.objects.filter(Display_Name_Detailed=ppid).values()
+        pp_round = 'RD2'
 
         for picks in Pickobj:
             pp_aligned_pick.append(picks['Display_Name_Detailed'])
@@ -868,7 +873,7 @@ def PriorityPickrRequest(request):
 
     if pp_pick_type == 'Third Round':
         pp_dict = {}
-
+        pp_round = 'RD3'
         rowno =  df.id[df['Display_Name_Detailed'] == pp_aligned_pick][0]
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName_id == pp_team_id, 'Position'].iloc[0], 'Year': v_current_year,
@@ -921,7 +926,7 @@ def PriorityPickrRequest(request):
 
     if pp_pick_type == 'Custom Fixed Position':
         pp_dict = {}
-        pp_round = data['round']
+        pp_round = 'RD3'
 
         rowno =  df.id[df['Display_Name_Detailed'] == pp_aligned_pick][0]
 

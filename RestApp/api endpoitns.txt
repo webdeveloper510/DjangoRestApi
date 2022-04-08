@@ -127,8 +127,7 @@ Team2_players
     "pp_insert_instructions":"Before",
     "pp_id":2,
     "pick_type":"Start of Draft",   
-    "projectId":"1",
-    "round":"2"
+    "projectId":"2"
  
  }
 
