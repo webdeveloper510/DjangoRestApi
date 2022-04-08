@@ -654,7 +654,7 @@ def PriorityPickrRequest(request):
     if pp_pick_type == 'Start of Draft':
         pp_dict = {}
 
-        rowno = df.index[df.Unique_Pick_ID.str.contains(str(v_current_year) + '-RD1-Standard')][0]
+        rowno = df.id[df.Unique_Pick_ID.str.contains(str(v_current_year) + '-RD1-Standard')][0]
    
   
 
@@ -670,7 +670,7 @@ def PriorityPickrRequest(request):
         del df['Current_Owner']
         del df['Previous_Owner']
         del df['TeamName']
-        df = df.iloc[rowno]
+        df = df.iloc[1]
 
         df['id'] = rowno+1
         df['Original_Owner_id'] = Idd
@@ -705,7 +705,7 @@ def PriorityPickrRequest(request):
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName_id == pp_team_id, 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName_id': pp_team_id, 'PickType': 'Priority', 'Original_Owner_id': pp_team_id, 'Current_Owner_id': pp_team_id,
-                             'Previous_Owner': '', 'Draft_Round': 'RD1',
+                             'Previous_Owner': '', 'Draft_Round': pp_round,
                              'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + pp_pick_type},
                             index=[rowno])
 
