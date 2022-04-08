@@ -120,17 +120,15 @@ Team2_players
 
 
 
-
 {
-    "teamid":"6",
+    "teamid":"18",
     "reason":"testing",
     "pp_insert_instructions":"Before",
-    "pick_type":"Start of Draft",   
+    "pick_type":"Custom Fixed Position",   
     "projectId":"1",
-    "ppid":"6"
+    "ppid":"18"
  
  }
-
 
 {
   
