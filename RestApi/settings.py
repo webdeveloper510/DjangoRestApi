@@ -117,8 +117,13 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'restdb',
+<<<<<<< HEAD
         'USER': 'root',
         'PASSWORD': 'Testing@123',
+=======
+        'USER': 'testuser',
+        'PASSWORD': 'Test@123',
+>>>>>>> 895d56f1a2eee93baa92d7234c2d4bddb20a5f70
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
 
