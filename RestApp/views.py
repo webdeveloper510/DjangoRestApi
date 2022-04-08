@@ -650,7 +650,7 @@ def PriorityPickrRequest(request):
         pickType=p_type).values('id', 'pickType')
 
     pp_pick_type = pp_pick_type_re[0]['pickType']
-    df = pd.DataFrame(arr)
+
     if pp_pick_type == 'Start of Draft':
         pp_dict = {}
 
