@@ -705,7 +705,7 @@ def PriorityPickrRequest(request):
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName_id == pp_team_id, 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName_id': pp_team_id, 'PickType': 'Priority', 'Original_Owner_id': pp_team_id, 'Current_Owner_id': pp_team_id,
-                             'Previous_Owner': '', 'Draft_Round': pp_round,
+                             'Previous_Owner': '', 'Draft_Round': 'RD1',
                              'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + pp_pick_type},
                             index=[rowno])
 
