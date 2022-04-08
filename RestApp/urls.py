@@ -1,6 +1,8 @@
 from unicodedata import name
 from django.urls import re_path
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
 from .views import (
     # CreateUserAPIView,
     authenticate_user,
@@ -37,7 +39,10 @@ from .views import (
     Get_Rounds_Pick,
     GetPickType,
     AcademyBidRequest,
-    GetRounds
+    GetRounds,
+    ConstraintsRquest,
+    GetFlagPicks,
+    GetFlagsRequest,
 )
 
 urlpatterns = [
@@ -52,6 +57,7 @@ urlpatterns = [
     re_path(r'^MakeCompany/$', MakeCompanyRequest),
     re_path(r'^add_trade_v2/$', add_trade_v2_request),
     re_path(r'^Priority-Pick/$', PriorityPickrRequest),
+    
 
     # #################### Update URL's #################
 
@@ -76,8 +82,12 @@ urlpatterns = [
     re_path(r'^Get-Trade-v2/(?P<pk>[0-9]+)$', Gettradev2Req),
     re_path(r'^Rounds-Pick/(?P<pk>[0-9]+)$', Get_Rounds_Pick),
     re_path(r'^Academy-Bid/(?P<pk>[0-9]+)$', AcademyBidRequest),
+    re_path(r'^Constraint/(?P<pk>[0-9]+)$', ConstraintsRquest),
     re_path(r'^PickTypes/$',GetPickType),
     re_path(r'^Get-Rounds/$',GetRounds),
+    re_path(r'^Get-FlagPicks/(?P<pk>[0-9]+)$',GetFlagPicks),
+    re_path(r'^Get-Flags/$',GetFlagsRequest),
+
 
     # ################ Delete URL's ##########################
     re_path(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),
@@ -87,4 +97,4 @@ urlpatterns = [
     re_path(r'^DeleteProject/(?P<pk>[0-9]+)$', DeleteProjectRequest),
     re_path(r'^DeleteLadder/(?P<pk>[0-9]+)$', DeleteLadderRecordRequest),
     re_path(r'^DeleteTrade/(?P<pk>[0-9]+)$', DeleteAddTradeRequest),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

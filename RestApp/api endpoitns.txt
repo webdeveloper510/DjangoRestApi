@@ -120,17 +120,15 @@ Team2_players
 
 
 
-
 {
-    "teamid":"1",
+    "teamid":"18",
     "reason":"testing",
     "pp_insert_instructions":"Before",
-    "pp_id":2,
-    "pick_type":"Start of Draft",   
-    "projectId":"2"
+    "pick_type":"Custom Fixed Position",   
+    "projectId":"1",
+    "ppid":"18"
  
  }
-
 
 {
   
@@ -138,7 +136,7 @@ Team2_players
  "project_desc":"test1 desc"
 }
 
-AcademyBid
+AcademyBid  
 
 {
    "player":"test",
@@ -161,4 +159,11 @@ Add trade v2
   "Team2":"2",
   "Team2_Pick2":"12",
    "Team2_players":""
+}
+
+
+{
+   "email":"test@gmail.com",
+  "password":"123456"
+
 }
