@@ -121,7 +121,7 @@ Team2_players
 
 
 {
-    "teamid":"23",
+    "teamid":"18",
     "reason":"testing",
     "pp_insert_instructions":"After",
     "pick_type":"Custom Fixed Position",  

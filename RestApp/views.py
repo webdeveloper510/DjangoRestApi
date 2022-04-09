@@ -1003,9 +1003,9 @@ def PriorityPickrRequest(request):
  
             MasterList.objects.filter(id=rowno).update(**df)
         else:
-            df = pd.concat([df.iloc[:rowno + 1], line,
-                           df.iloc[rowno + 1:]]).reset_index(drop=True)
-            df = df.iloc[rowno+1]
+            df = pd.concat([df.iloc[:rowno], line,
+                           df.iloc[rowno:]]).reset_index(drop=True)
+            df = df.iloc[rowno]
             del df['TeamName']
             del df['Current_Owner']
             del df['Previous_Owner']
@@ -1019,7 +1019,7 @@ def PriorityPickrRequest(request):
             df['Current_Owner_id'] = Idd
             df['TeamName_id'] = Idd
             df['projectid_id'] = project_Id
- 
+
             MasterList(**df).save()
     pp_dict = {}
 
@@ -1032,20 +1032,20 @@ def PriorityPickrRequest(request):
     df1.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
     df1.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
 
-    # updatedf = update_masterlist(df1)
+    updatedf = update_masterlist(df1)
     df1.reset_index()
 
 
     # MasterList.objects.filter(projectid=project_Id).delete()
 
 
-    for index, updaterow in df1.iterrows():
+    for index, updaterow in updatedf.iterrows():
+  
         row1 = dict(updaterow)
-
-        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
-        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
-        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
-        team = Teams.objects.get(id=updaterow.TeamName)
+        Original_Owner = Teams.objects.get(id=Idd)
+        Current_Ownerr = Teams.objects.get(id=Idd)
+        previous_owner = Teams.objects.get(id=Idd)
+        team = Teams.objects.get(id=Idd)
 
         Overall_pickk = row1['Overall_Pick']
         Project1 = Project.objects.get(id=project_Id)
@@ -1077,7 +1077,7 @@ def PriorityPickrRequest(request):
         row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr.TeamNames + ' (Origin: ' + Original_Owner.TeamNames + ', Via: ' + \
             previous_owner.TeamNames + team.ShortName + \
             ')' if Original_Owner.TeamNames != Current_Ownerr.TeamNames else team.ShortName
-
+        print(row1)
         MasterList(**row1).save()
 
     current_time = datetime.datetime.now(pytz.timezone(
@@ -1558,6 +1558,7 @@ def Gettradev2Req(request, pk):
 def GetFlagsRequest(request):
 
     imgobj = Teams.objects.all()
+
 
     serializer = ListImageSerializer(
         imgobj, many=True, context={'request': request})
