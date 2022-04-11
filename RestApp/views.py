@@ -5,7 +5,7 @@ from distutils.command.config import dump_file
 from doctest import master
 # from locale import D_T_FMT
 from logging import raiseExceptions
-from re import T
+from re import M, T
 from telnetlib import TELNET_PORT
 from urllib import response
 from django.http import Http404, HttpResponse
@@ -61,6 +61,7 @@ import datetime
 from django.db import connection
 from collections import defaultdict
 from django.core.files import File
+from django.db import connection
 
 
 pd.set_option('display.max_rows', None)
@@ -1022,12 +1023,14 @@ def PriorityPickrRequest(request):
             df['projectid_id'] = project_Id
 
             MasterList(**df).save()
+    
     pp_dict = {}
 
     new_df = []
     Queryset = MasterList.objects.filter(projectid_id=project_Id).values()
     for picks in Queryset:
         new_df.append(picks)
+
     df1 = pd.DataFrame(new_df)
     df1.rename(columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
     df1.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
@@ -1035,26 +1038,53 @@ def PriorityPickrRequest(request):
 
     updatedf = update_masterlist(df1)
 
-    # MasterList.objects.filter(projectid=project_Id).delete()
-      
-    for index, updaterow in updatedf.iterrows():
-  
+    
+    MasterList.objects.filter(projectid=project_Id).delete()
+
+    
+    Original_Owner = Teams.objects.get(id=Idd)
+    Current_Ownerr = Teams.objects.get(id=Idd)
+    previous_owner = Teams.objects.get(id=Idd)
+    team = Teams.objects.get(id=Idd)
+    
+    
+    # for item in updatedf.to_dict('records'):
+
+    #     item['TeamName'] = team
+    #     item['Original_Owner'] = Original_Owner
+    #     item['Current_Owner'] = Current_Ownerr
+    #     item['Previous_Owner'] = previous_owner
+    #     entry = MasterList(**item)
+    #     entry.save()
+    
+    
+    udpatedf = update_masterlist(df1)
+
+    for index, updaterow in udpatedf.iterrows():
+        ShortNames = []
         row1 = dict(updaterow)
-        Original_Owner = Teams.objects.get(id=Idd)
-        Current_Ownerr = Teams.objects.get(id=Idd)
-        previous_owner = Teams.objects.get(id=Idd)
-        team = Teams.objects.get(id=Idd)
+        team = Teams.objects.get(id=updaterow.TeamName)
+        teamsobj = Teams.objects.filter().values('ShortName')
+        for teams_short_list in teamsobj:
+            ShortNames.append(teams_short_list['ShortName'])
 
+
+        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
+        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
+        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
         Overall_pickk = row1['Overall_Pick']
-        Project1 = Project.objects.get(id=project_Id)
 
+        Project1 = Project.objects.get(id=project_Id)
+        df['Previous_Owner'] = previous_owner
+        team = Teams.objects.get(id=updaterow.TeamName)
         row1['TeamName'] = team
         row1['Original_Owner'] = Original_Owner
         row1['Current_Owner'] = Current_Ownerr
         row1['projectid'] = Project1
+        # row1['Overall_Pick'] = Overall_pickk
 
-        row1['Display_Name'] = str(Current_Ownerr.TeamNames)+' (Origin: '+team.TeamNames+', Via: ' + \
-            None + ')' if Original_Owner.TeamNames != Current_Ownerr.TeamNames else Current_Ownerr.TeamNames
+        row1['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+            None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
 
         row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
@@ -1062,21 +1092,23 @@ def PriorityPickrRequest(request):
         # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
         #     previous_owner + team.ShortName + \
         #     ')' if Original_Owner != Current_Ownerr else team.ShortName
+        # df.reset_index(drop=False)
 
-        # row1['Display_Name_Mini'] = str(Overall_pickk)+'(o:'+team.ShortNames+' , Via:' + \
-        #     None + ')' if Original_Owner != Current_Ownerr else df['Current_Owner'].map(lambda x: team.ShortName)
+        # print(row1['Display_Name_Mini'])
+        # exit()
+        row1['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+            previous_owner + team.ShortName + \
+            ')' if Original_Owner != Current_Ownerr else team.ShortName
 
-        row1['Display_Name'] = str(Current_Ownerr.TeamNames)+' (Origin: '+team.TeamNames+', Via: ' + \
-            None + ')' if Original_Owner.TeamNames != Current_Ownerr.TeamNames else Current_Ownerr.TeamNames
-        row1['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr.TeamNames + ' (Origin: ' + Original_Owner.TeamNames + ', Via: ' + \
-            previous_owner.TeamNames + team.ShortName + \
-            ')' if Original_Owner.TeamNames != Current_Ownerr.TeamNames else team.ShortName
-
-        row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr.TeamNames + ' (Origin: ' + Original_Owner.TeamNames + ', Via: ' + \
-            previous_owner.TeamNames + team.ShortName + \
-            ')' if Original_Owner.TeamNames != Current_Ownerr.TeamNames else team.ShortName
-
+        row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+            previous_owner + team.ShortName + \
+            ')' if Original_Owner != Current_Ownerr else team.ShortName
+            
         MasterList(**row1).save()
+
+
+    
+          
     current_time = datetime.datetime.now(pytz.timezone(
         'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
     pp_dict['pp_team'] = [pp_round, pp_aligned_pick, pp_insert_instructions]
@@ -1528,9 +1560,10 @@ def GetTradeRequest(request, pk):
     mydict = {}
     picksvalue = []
     team1Dict = Teams.objects.filter(id=pk).values('id', 'TeamNames')
-    TeamName = team1Dict[0]['TeamNames']
+    # TeamName = team1Dict[0]['TeamNames']
+    Teamid = team1Dict[0]['id']
 
-    Pick1dict = MasterList.objects.filter(Display_Name=TeamName).values(
+    Pick1dict = MasterList.objects.filter(TeamName_id=Teamid).values(
         'id', 'Display_Name_Detailed').distinct()
 
     for pick1data in Pick1dict:
@@ -1540,13 +1573,16 @@ def GetTradeRequest(request, pk):
         mydict['value'] = data.pop('id')
         mydict['label'] = data.pop('Display_Name_Detailed')
         picksvalue.append(mydict.copy())
-    return Response({'TeamList1': TeamName, 'PicksList': picksvalue}, status=status.HTTP_200_OK)
+
+    # return Response({'TeamList1': TeamName, 'PicksList': picksvalue}, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
 def Gettradev2Req(request, pk):
     trade = AddTradev2.objects.filter(id=pk).values()
+    print(trade)
+    exit()
     return Response({'TeamList1': trade}, status=status.HTTP_200_OK)
 
 
