@@ -782,7 +782,9 @@ def PriorityPickrRequest(request):
         pp_dict = {}
         arr = []
 
-        rowno = df.id[df.Unique_Pick_ID.str.contains(str(v_current_year) + '-RD2-Standard')][0]
+        rowno = df.index[df.Unique_Pick_ID.str.contains(
+            str(v_current_year) + '-RD2-Standard')][0]
+
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName_id == pp_team_id, 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': pp_team_id, 'PickType': 'Priority',
@@ -874,8 +876,7 @@ def PriorityPickrRequest(request):
 
         rowno = df.index[df.Unique_Pick_ID.str.contains(
             str(v_current_year) + '-RD2-Standard')][-1]
-       
-  
+
         line = pd.DataFrame({'Position': df.loc[df.TeamName_id == pp_team_id, 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': pp_team_id, 'PickType': 'Priority',
                              'Original_Owner': pp_team_id, 'Current_Owner': pp_team_id, 'Previous_Owner': '',
@@ -1033,12 +1034,9 @@ def PriorityPickrRequest(request):
     df1.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
 
     updatedf = update_masterlist(df1)
-    df1.reset_index()
-
 
     # MasterList.objects.filter(projectid=project_Id).delete()
-
-
+      
     for index, updaterow in updatedf.iterrows():
   
         row1 = dict(updaterow)
@@ -1077,9 +1075,8 @@ def PriorityPickrRequest(request):
         row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr.TeamNames + ' (Origin: ' + Original_Owner.TeamNames + ', Via: ' + \
             previous_owner.TeamNames + team.ShortName + \
             ')' if Original_Owner.TeamNames != Current_Ownerr.TeamNames else team.ShortName
-        print(row1)
-        MasterList(**row1).save()
 
+        MasterList(**row1).save()
     current_time = datetime.datetime.now(pytz.timezone(
         'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
     pp_dict['pp_team'] = [pp_round, pp_aligned_pick, pp_insert_instructions]
