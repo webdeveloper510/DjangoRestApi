@@ -121,12 +121,12 @@ Team2_players
 
 
 {
-    "teamid":"18",
+    "teamid":"15",
     "reason":"testing",
     "pp_insert_instructions":"After",
-    "pick_type":"Start of Draft",  
+    "pick_type":"Third Round",  
     "projectId":"1",
-    "ppid":"26"
+    "ppid":"24"
  
  }
 
