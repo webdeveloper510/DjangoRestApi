@@ -29,11 +29,7 @@ SECRET_KEY = 'django-insecure-7-q&$pl_l)+s_o!7*q@@(*%lsm_h$)p=mw@e38mdal(@yuvsav
 DEBUG = True
 
 
-<<<<<<< HEAD
-ALLOWED_HOSTS = [] 
-=======
 ALLOWED_HOSTS = ['3.26.209.172','127.0.0.1'] 
->>>>>>> 9ccedeb1b80a2391b3db337e9f71f249eec19daa
 CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOWED_ORIGINS = [
@@ -122,13 +118,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'restdb',
-<<<<<<< HEAD
         'USER': 'root',
         'PASSWORD': '',
-=======
-        'USER': 'testuser',
-        'PASSWORD': 'Test@123',
->>>>>>> 9ccedeb1b80a2391b3db337e9f71f249eec19daa
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
 

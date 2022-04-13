@@ -7,7 +7,7 @@ from .views import (
     # CreateUserAPIView,
     authenticate_user,
     LocalLadderRequest,
-    ProjNameDescRequest,
+    #ProjNameDescRequest,
     CreateMasterListRequest,
     update_masterlist,
     GETMasterListRequest,
@@ -43,6 +43,7 @@ from .views import (
     ConstraintsRquest,
     GetFlagPicks,
     GetFlagsRequest,
+    ProjPlayer,
 )
 
 urlpatterns = [
@@ -50,13 +51,14 @@ urlpatterns = [
     # ############# POST URl"S ##########################
     re_path(r'^create-User/$', CreateUserAPIView.as_view()),
     re_path(r'^Auth/$', authenticate_user),
-    re_path(r'^CreateProject/$', ProjNameDescRequest),
+    # re_path(r'^CreateProject/$', ProjNameDescRequest),
     re_path(r'^LocalLadder/$', LocalLadderRequest),
     re_path(r'^MasterList/$', CreateMasterListRequest),
-    re_path(r'^Add-Trade/$', AddTradeRequest),
+    #re_path(r'^Add-Trade/$', AddTradeRequest),
     re_path(r'^MakeCompany/$', MakeCompanyRequest),
     re_path(r'^add_trade_v2/$', add_trade_v2_request),
     re_path(r'^Priority-Pick/$', PriorityPickrRequest),
+    re_path(r'^select-player/$',  ProjPlayer),
     
 
     # #################### Update URL's #################
@@ -75,7 +77,7 @@ urlpatterns = [
     re_path(r'^Ladder/$', LadderRequest),
     re_path(r'^Show-Team/$', TeamRequest),
     re_path(r'^ShowProjectDetails/(?P<pk>[0-9]+)$', ProjectDetailsRequest),
-    re_path(r'^Teams/$', TeamsRequest),
+    re_path(r'^Teams/$', TeamsRequest), 
     re_path(r'^Test-Masterlist/$', CheckMasterlistrequest),
     re_path(r'^Get-Trade/(?P<pk>[0-9]+)$', GetTradeRequest),
     re_path(r'^Get-Players/$', GetPlayer),

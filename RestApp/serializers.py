@@ -76,3 +76,14 @@ class ListImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Teams
         fields = '__all__'
+        
+        
+
+class PlayersSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Players 
+        fields = '__all__'
+        
+        
+        
