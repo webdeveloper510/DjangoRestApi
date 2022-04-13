@@ -175,6 +175,7 @@ def AddTradeRequest(request):
 
     Teamobj = Teams.objects.filter(id=data['Team1']).values('id', 'TeamNames')
     team1 = Teamobj[0]['id']
+
     teamNames = Teamobj[0]['TeamNames']
     
 
@@ -261,12 +262,13 @@ def AddTradeRequest(request):
     projectIdd = MasterList.objects.filter(
         id__in=[team1, team2]).values('projectId')
     pId = projectIdd[0]['projectId']
-    print(pId)
     trade_dict = {team1: team1_trades, team2: team2_trades}
 
     ListinList = list(trade_dict.values())
 
+
     TradePicks = ''.join(ListinList[0])
+    
 
     trade_description = teamNames + ' traded ' + \
         ','.join(str(e) for e in team1_trades) + ' & ' + team2name + \
