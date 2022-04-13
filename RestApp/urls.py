@@ -24,7 +24,7 @@ from .views import (
     DeleteTeamRequest,
     DeleteCompanyRequest,
     DeleteLadderRecordRequest,
-    AddTradeRequest,
+    #AddTradeRequest,
     TeamRequest,
     DeleteAddTradeRequest,
     TeamsRequest,
@@ -37,7 +37,8 @@ from .views import (
     Get_Rounds_Pick,
     GetPickType,
     AcademyBidRequest,
-    GetRounds
+    GetRounds,
+    ProjPlayer
 )
 
 urlpatterns = [
@@ -48,10 +49,12 @@ urlpatterns = [
     url(r'^CreateProject/$', ProjNameDescRequest),
     url(r'^LocalLadder/$', LocalLadderRequest),
     url(r'^MasterList/$', CreateMasterListRequest),
-    url(r'^Add-Trade/$', AddTradeRequest),
+    #url(r'^Add-Trade/$', AddTradeRequest),
     url(r'^MakeCompany/$', MakeCompanyRequest),
     url(r'^add_trade_v2/$', add_trade_v2_request),
     url(r'^Priority-Pick/$', PriorityPickrRequest),
+    url(r'^Player-select/$', ProjPlayer),
+    
 
     # #################### Update URL's #################
 
@@ -65,7 +68,7 @@ urlpatterns = [
     url(r'^AddTeam/$', AddTeamRequest),
     url(r'^ShowCompany/$', CompanyListRequest),
     url(r'^ListOfUsers/$', UserListRequest),
-    # url(r'^Transactions/$', TransactionsRequest),
+    #url(r'^Transactions/$', TransactionsRequest),
     url(r'^Ladder/$', LadderRequest),
     url(r'^Show-Team/$', TeamRequest),
     url(r'^ShowProjectDetails/(?P<pk>[0-9]+)$', ProjectDetailsRequest),

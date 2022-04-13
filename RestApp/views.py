@@ -1,4 +1,4 @@
-from array import array
+from array import array               
 from ast import Add
 from distutils.command.config import dump_file
 from doctest import master
@@ -20,7 +20,8 @@ from .serializers import (
     DraftAnalyserSerializer,
     # AddTraderSerializer,
     UserSerializer,
-    TeamSerializer
+    TeamSerializer,
+    PlayersSerializer
 )
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -41,7 +42,8 @@ from .models import (
     Transactions,
     PriorityPick,
     DraftRound,
-    PriorityTransactions
+    PriorityTransactions,
+    
 )
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
@@ -121,14 +123,15 @@ def LocalLadderRequest(request):
     LocalLadder = request.data
     serializer = LocalLaddderSerializer(data=LocalLadder)
     serializer.is_valid(raise_exception=True)
-    serializer.save()
     fk = serializer.data['teamname']
     TeamNames = Teams.objects.filter(id=fk).values('TeamNames')
+    print(TeamNames)
     NamesDict = {
         "Names": TeamNames
     }
     fk = serializer.data['projectId']
     ProjectId = Project.objects.filter(id=fk).values('id', 'project_name')
+    print(ProjectId)
     return Response({'success': 'LocalLadder Created Successfuly', 'data': serializer.data, "NamesDict": NamesDict, 'Projectid': ProjectId}, status=status.HTTP_201_CREATED)
 
 
@@ -144,8 +147,11 @@ def import_ladder_dragdrop(library_team_dropdown_list, library_AFL_Team_Names, v
     ladder_current_year = ladder_current_year[['TeamName', 'Year', 'Position']]
 
     ladder_current_year_plus1 = ladder_current_year.copy()
-
+    print(library_team_dropdown_list)
     return ladder_current_year, ladder_current_year_plus1
+
+
+
 
 
 @api_view(['POST'])
@@ -160,6 +166,7 @@ def AddTradeRequest(request):
     Teamobj = Teams.objects.filter(id=data['Team1']).values('id', 'TeamNames')
     team1 = Teamobj[0]['id']
     teamNames = Teamobj[0]['TeamNames']
+    
 
     team1_pick1_obj = MasterList.objects.filter(
         id=data['team1_pick1']).values('Display_Name_Detailed')
@@ -244,9 +251,13 @@ def AddTradeRequest(request):
     projectIdd = MasterList.objects.filter(
         id__in=[team1, team2]).values('projectId')
     pId = projectIdd[0]['projectId']
+    print(pId)
     trade_dict = {team1: team1_trades, team2: team2_trades}
+    print(trade_dict)
     ListinList = list(trade_dict.values())
+    print(ListinList)
     TradePicks = ''.join(ListinList[0])
+    print(TradePicks)
     trade_description = teamNames + ' traded ' + \
         ','.join(str(e) for e in team1_trades) + ' & ' + team2name + \
         ' traded ' + ','.join(str(e) for e in team2_trades)
@@ -305,21 +316,32 @@ def add_trade_v2_request(request):
     Teamid2 = data['Team2']
     picks_trading_out_team1_obj = data['Team1_Pick1']
     picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
+    print(picks_trading_out_team1 )
     
-    print(picks_trading_out_team1)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
        
     # players_trading_out_team1_no = data['Team1_Players_no']
     players_trading_out_team1 = data['Team1_players']
     picks_trading_out_team2_obj = data['Team2_Pick2']
     picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
-    print(picks_trading_out_team2)
+
+    
     # players_trading_out_team2_no = data['Team2_Players_no']
     players_trading_out_team2 = data['Team2_players']
+
 
     teamobj = Teams.objects.filter(id=Teamid1).values('id', 'TeamNames')
     team1id = teamobj[0]['id']
     picks_trading_out_team1_len = len(str(picks_trading_out_team1))
-
     players_trading_out_team1_len = len(players_trading_out_team1)
 
     if picks_trading_out_team1_len :
@@ -402,6 +424,7 @@ def add_trade_v2_request(request):
     projectIdd = MasterList.objects.filter(
         id__in=[Teamid1, Teamid2]).values('projectid')
     pId = projectIdd[0]['projectid']
+    
 
     Team_id1 = Teams.objects.get(id=Teamid1)
     Team_id2 = Teams.objects.get(id=Teamid2)
@@ -521,6 +544,7 @@ def CreateMasterListRequest(request, pk):
             df['projectid'] = pk
 
             udpatedf = update_masterlist(df)
+        
 
             for index, updaterow in udpatedf.iterrows():
 
@@ -573,16 +597,8 @@ def CreateMasterListRequest(request, pk):
         return Response({'error': 'Masterlist with same project is already exist'}, status=status.HTTP_208_ALREADY_REPORTED)
 
 
-@api_view(['POST'])
-@permission_classes([AllowAny, ])
-def ProjNameDescRequest(request):
-    Projectdata = request.data
-    serializer = CreateProjectSerializer(data=Projectdata)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    pk = Project.objects.latest('id').id
-    CreateMasterListRequest(request, pk)
-    return Response({'success': 'Project Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
+
+
 
 
 @api_view(['POST'])
@@ -602,15 +618,19 @@ def PriorityPickrRequest(request):
 
     data = request.data
     round = data['round']
+
     Idd = data['teamid']
     reason = data['reason']
+    
     p_type = data['pick_type']
-
+    
     roundobj = DraftRound.objects.filter(id= round).values('round')
-    pp_round = roundobj[0]['round']
 
+    pp_round = roundobj[0]['round']
+    
 
     project_Id = data['projectId']
+
     pp_insert_instructions = data['pp_insert_instructions']
 
     MasterListobj = MasterList.objects.filter(TeamName=Idd).values()
@@ -1480,3 +1500,29 @@ def DeleteAddTradeRequest(request, pk):
     AddTradev2.objects.filter(id=pk).delete()
     return Response({"Success": "Data Deleted Successfully"}, status=status.HTTP_200_OK)
 
+
+
+
+
+
+
+
+class ProjPlayer(APIView):
+    def post(self,request,format=None):
+        player=Players.objects.all()
+        serializer=PlayersSerializer(data=request.data)
+        if serializer.is_valid():
+            return  Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+ 
+
+
+
+        
+        
+        
+        
+        
+        
+        

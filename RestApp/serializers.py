@@ -5,7 +5,7 @@ from rest_framework import serializers
 from .models import (
     Company, User, LocalLadder,Transactions, Project, MasterList,  DraftAnalyserTrade,
     AddTradev2,
-    Teams,PicksType
+    Teams,PicksType,Players
 )
 
 
@@ -69,3 +69,9 @@ class PicksTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = PicksType
         fields = '__all__'
+
+
+class PlayersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Players
+        fields=  '__all__'      

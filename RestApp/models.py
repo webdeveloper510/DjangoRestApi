@@ -107,8 +107,9 @@ class PriorityTransactions(models.Model):
 class Players(models.Model):
     FirstName = models.CharField(max_length=100, default='')
     LastName = models.CharField(max_length=100, default='')
+    Full_Name = models.CharField(max_length=100, default='')
     Height = models.CharField(max_length=100, default='')
-    width = models.CharField(max_length=100, default='')
+    Weight = models.CharField(max_length=100,default='')
     club = models.CharField(max_length=100, default='')
     State = models.CharField(max_length=100, default='')
     Position_1 = models.CharField(max_length=100, default='')

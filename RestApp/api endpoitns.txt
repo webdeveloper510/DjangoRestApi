@@ -156,10 +156,10 @@ Add trade v2
  
 {
  "Team1":"1",
- "Team1_Pick1":"11",
- "Team1_players":"test",
-
-  "Team2":"2",
+ "Team1_Pic2",
   "Team2_Pick2":"12",
    "Team2_players":"test"
-}
+}k1":"11",
+ "Team1_players":"test",
+
+  "Team2":"

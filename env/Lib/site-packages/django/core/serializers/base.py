@@ -1,28 +1,12 @@
 """
 Module for abstract serializer/unserializer base classes.
 """
-import pickle
 from io import StringIO
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 DEFER_FIELD = object()
-
-
-class PickleSerializer:
-    """
-    Simple wrapper around pickle to be used in signing.dumps()/loads() and
-    cache backends.
-    """
-    def __init__(self, protocol=None):
-        self.protocol = pickle.HIGHEST_PROTOCOL if protocol is None else protocol
-
-    def dumps(self, obj):
-        return pickle.dumps(obj, self.protocol)
-
-    def loads(self, data):
-        return pickle.loads(data)
 
 
 class SerializerDoesNotExist(KeyError):
@@ -273,7 +257,7 @@ def build_instance(Model, data, db):
     natural keys, try to retrieve it from the database.
     """
     default_manager = Model._meta.default_manager
-    pk = data.get(Model._meta.pk.attname)
+    pk = data.get(Model._meta.pk.name)
     if (pk is None and hasattr(default_manager, 'get_by_natural_key') and
             hasattr(Model, 'natural_key')):
         natural_key = Model(**data).natural_key()
