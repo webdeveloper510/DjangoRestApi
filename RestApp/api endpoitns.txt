@@ -120,15 +120,13 @@ Team2_players
 
 
 
-
 {
-    "teamid":"1",
+    "teamid":"15",
     "reason":"testing",
-    "pp_insert_instructions":"Before",
-    "pp_id":2,
-    "pick_type":"Start of Draft",   
+    "pp_insert_instructions":"After",
+    "pick_type":"Third Round",  
     "projectId":"1",
-    "round":"2"
+    "ppid":"24"
  
  }
 
@@ -139,7 +137,7 @@ Team2_players
  "project_desc":"test1 desc"
 }
 
-AcademyBid
+AcademyBid  
 
 {
    "player":"test",
@@ -156,6 +154,7 @@ Add trade v2
  
 {
  "Team1":"1",
+<<<<<<< HEAD
  "Team1_Pic2",
   "Team2_Pick2":"12",
    "Team2_players":"test"
@@ -163,3 +162,19 @@ Add trade v2
  "Team1_players":"test",
 
   "Team2":"
+=======
+ "Team1_Pick1":"11",
+ "Team1_players":"",
+
+  "Team2":"2",
+  "Team2_Pick2":"12",
+   "Team2_players":""
+}
+
+
+{
+   "email":"test@gmail.com",
+  "password":"123456"
+
+}
+>>>>>>> 9ccedeb1b80a2391b3db337e9f71f249eec19daa
