@@ -5,6 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from .views import (
     # CreateUserAPIView,
+    AddManualRequest,
     authenticate_user,
     LocalLadderRequest,
     #ProjNameDescRequest,
@@ -44,6 +45,7 @@ from .views import (
     GetFlagPicks,
     GetFlagsRequest,
     ProjPlayer,
+    AddManualRequest,
 )
 
 urlpatterns = [
@@ -51,9 +53,9 @@ urlpatterns = [
     # ############# POST URl"S ##########################
     re_path(r'^create-User/$', CreateUserAPIView.as_view()),
     re_path(r'^Auth/$', authenticate_user),
-    # re_path(r'^CreateProject/$', ProjNameDescRequest),
+    re_path(r'^CreateProject/$', ProjNameDescRequest),
     re_path(r'^LocalLadder/$', LocalLadderRequest),
-    re_path(r'^MasterList/$', CreateMasterListRequest),
+    # re_path(r'^MasterList/$', CreateMasterListRequest),
     #re_path(r'^Add-Trade/$', AddTradeRequest),
     re_path(r'^MakeCompany/$', MakeCompanyRequest),
     re_path(r'^add_trade_v2/$', add_trade_v2_request),
@@ -64,6 +66,8 @@ urlpatterns = [
     # #################### Update URL's #################
 
     re_path(r'^UpdateMasterList/(?P<pk>[0-9]+)$', update_masterlist),
+    re_path(r'^Add-Manual/(?P<pk>[0-9]+)$', AddManualRequest),
+    
 
     # ####################### GET Urls's ################################
 

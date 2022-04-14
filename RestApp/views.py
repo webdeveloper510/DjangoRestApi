@@ -1925,3 +1925,31 @@ def DeleteAddTradeRequest(request, pk):
 
 
 
+
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def AddManualRequest(request, pk):
+    masterlist = []
+    dfobj = MasterList.objects.filter(projectid=pk).values()
+    for df_data in dfobj:
+        masterlist.append(df_data)
+    df = pd.DataFrame(masterlist)
+    
+    print(df)
+    
+    data  =  request.data
+    pick_id  = data['pickid']
+    team_id  = data['teamid']
+    
+    manual_aligned_pick = []
+    pickqueryset  = MasterList.objects.filter(id = pick_id).values()
+    for pickdata in pickqueryset:
+        manual_aligned_pick.append(pickdata['Display_Name_Detailed'])
+    print(df)
+    exit()
+    rowno = df.index[df['Display_Name_Detailed'] == manual_aligned_pick]
+    print(rowno)
+
+

@@ -168,3 +168,12 @@ Add trade v2
   "password":"123456"
 
 }
+
+
+add Manual
+
+{
+ "pickid":"1",
+"teamid":"1"
+
+}
