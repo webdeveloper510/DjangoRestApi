@@ -1560,7 +1560,7 @@ def GetTradeRequest(request, pk):
     mydict = {}
     picksvalue = []
     team1Dict = Teams.objects.filter(id=pk).values('id', 'TeamNames')
-    # TeamName = team1Dict[0]['TeamNames']
+    TeamName = team1Dict[0]['TeamNames']
     Teamid = team1Dict[0]['id']
 
     Pick1dict = MasterList.objects.filter(TeamName_id=Teamid).values(
@@ -1574,7 +1574,7 @@ def GetTradeRequest(request, pk):
         mydict['label'] = data.pop('Display_Name_Detailed')
         picksvalue.append(mydict.copy())
 
-    # return Response({'TeamList1': TeamName, 'PicksList': picksvalue}, status=status.HTTP_200_OK)
+    return Response({'TeamList1': TeamName, 'PicksList': picksvalue}, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
