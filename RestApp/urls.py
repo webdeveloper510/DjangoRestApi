@@ -46,6 +46,7 @@ from .views import (
     GetFlagsRequest,
     ProjPlayer,
     AddManualRequest,
+    ProjNameDescRequest
 )
 
 urlpatterns = [

@@ -63,7 +63,7 @@ from django.db import connection
 from collections import defaultdict
 from django.core.files import File
 from django.db import connection
-
+from collections import Counter
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', 500)
@@ -609,7 +609,16 @@ def CreateMasterListRequest(request, pk):
 
 
 
-
+@api_view(['POST'])
+@permission_classes([AllowAny, ])
+def ProjNameDescRequest(request):
+    Projectdata = request.data
+    serializer = CreateProjectSerializer(data=Projectdata)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    pk = Project.objects.latest('id').id
+    CreateMasterListRequest(request, pk)
+    return Response({'success': 'Project Created Successfuly', 'data': serializer.data}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -1931,25 +1940,64 @@ def DeleteAddTradeRequest(request, pk):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def AddManualRequest(request, pk):
+    current_date = date.today()
+    v_current_year = current_date.year
     masterlist = []
     dfobj = MasterList.objects.filter(projectid=pk).values()
     for df_data in dfobj:
         masterlist.append(df_data)
     df = pd.DataFrame(masterlist)
-    
-    print(df)
+
     
     data  =  request.data
     pick_id  = data['pickid']
-    team_id  = data['teamid']
+    manual_team  = data['teamid']
+    manual_round = data['round']
+    manual_insert_instructions = data['instructions']
+    reason = data['reason']
+    manual_pick_type = 'Manual Insert'
     
     manual_aligned_pick = []
     pickqueryset  = MasterList.objects.filter(id = pick_id).values()
-    for pickdata in pickqueryset:
-        manual_aligned_pick.append(pickdata['Display_Name_Detailed'])
-    print(df)
-    exit()
-    rowno = df.index[df['Display_Name_Detailed'] == manual_aligned_pick]
-    print(rowno)
+    manual_aligned_pick = pickqueryset[0]['Display_Name_Detailed']
+ 
+    rowno = df.index[df['Display_Name_Detailed'] == manual_aligned_pick][1]
 
+    line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(manual_team), 'Position'].iloc[0], 'Year': v_current_year,
+                         'TeamName': int(manual_team), 'PickType': 'Manual_Insert', 'Original_Owner': manual_team, 'Current_Owner': manual_team,
+                         'Previous_Owner': '', 'Draft_Round': manual_round, 'Pick_Group': str(v_current_year) + '-' + 'RD1-Manual', 'Reason': reason},
+                        index=[rowno])
 
+    
+    if manual_insert_instructions == 'Before':
+            df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
+                       ).reset_index(drop=True)
+            print(df)
+
+    else:
+        df = pd.concat([df.iloc[:rowno + 1], line,
+                       df.iloc[rowno + 1:]]).reset_index(drop=True)
+        
+    
+    manual_dict = {manual_team: [
+        manual_pick_type, manual_round, manual_aligned_pick, manual_insert_instructions, reason]}
+    manual_description = manual_team + ' received a ' + manual_pick_type + ' Pick'
+    manual_dict_list = []
+    for key,value in manual_dict.items():
+        for i in value:
+            result = ' ' + key + ' ' + i
+            manual_dict_list.append(result)
+    manual_desc_str = "".join(manual_dict_list)
+        
+    current_time = datetime.datetime.now(pytz.timezone(
+        'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M') 
+    
+    transaction_details = pd.DataFrame(
+        {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'Manual_Insert', 'Transaction_Details': [manual_dict], 'Transaction_Description': manual_description,'projectId':pk})
+    df2 = []
+    df2  =df2.append(transaction_details)
+    Transactions(**transaction_details).save()
+    obj = Transactions.objects.latest('id')
+    Transactions_count = Transactions.objects.filter().count()
+
+    Transactions.objects.filter(id=pk.id).update(Transaction_Number=Transactions_count)
