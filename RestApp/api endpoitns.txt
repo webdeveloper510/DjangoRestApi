@@ -131,11 +131,6 @@ Team2_players
  }
 
 
-{
-  
-"project_name":"test1",
- "project_desc":"test1 desc"
-}
 
 AcademyBid  
 
@@ -146,6 +141,11 @@ AcademyBid
 
 }
 
+{
+  
+"project_name":"test1",
+ "project_desc":"test1 desc"
+}
 
 
 
