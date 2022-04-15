@@ -123,19 +123,14 @@ Team2_players
 {
     "teamid":"15",
     "reason":"testing",
-    "pp_insert_instructions":"After",
-    "pick_type":"Third Round",  
+    "pp_insert_instructions":"Before",
+    "pick_type":"Custom Fixed Position",  
     "projectId":"1",
     "ppid":"24"
  
  }
 
 
-{
-  
-"project_name":"test1",
- "project_desc":"test1 desc"
-}
 
 AcademyBid  
 
@@ -146,6 +141,11 @@ AcademyBid
 
 }
 
+{
+  
+"project_name":"test1",
+ "project_desc":"test1 desc"
+}
 
 
 
