@@ -43,6 +43,7 @@ from .views import (
     ConstraintsRquest,
     GetFlagPicks,
     GetFlagsRequest,
+    add_FA_compansation_request
 )
 
 urlpatterns = [
@@ -57,6 +58,8 @@ urlpatterns = [
     re_path(r'^MakeCompany/$', MakeCompanyRequest),
     re_path(r'^add_trade_v2/$', add_trade_v2_request),
     re_path(r'^Priority-Pick/$', PriorityPickrRequest),
+    re_path(r'^Academy-Bid/(?P<pk>[0-9]+)$', AcademyBidRequest),
+    re_path(r'^Add-FA-Compansation/(?P<pk>[0-9]+)$', add_FA_compansation_request),
     
 
     # #################### Update URL's #################
@@ -81,7 +84,6 @@ urlpatterns = [
     re_path(r'^Get-Players/$', GetPlayer),
     re_path(r'^Get-Trade-v2/(?P<pk>[0-9]+)$', Gettradev2Req),
     re_path(r'^Rounds-Pick/(?P<pk>[0-9]+)$', Get_Rounds_Pick),
-    re_path(r'^Academy-Bid/(?P<pk>[0-9]+)$', AcademyBidRequest),
     re_path(r'^Constraint/(?P<pk>[0-9]+)$', ConstraintsRquest),
     re_path(r'^PickTypes/$',GetPickType),
     re_path(r'^Get-Rounds/$',GetRounds),

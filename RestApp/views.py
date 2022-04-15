@@ -1659,20 +1659,18 @@ def AcademyBidRequest(request, pk):
 
     udpatedf = update_masterlist(df)
 
-    udpatedf = udpatedf.drop('id', 1)
+    # udpatedf = udpatedf.drop('id', 1)
+    udpatedf['id'] = udpatedf['id'].fillna(0) 
+    udpatedf['id'] = udpatedf['id'].astype(int)
     udpatedf = udpatedf.drop('projectid_id', 1)
     udpatedf = udpatedf.drop('Previous_Owner_id', 1)
-
+    iincreament_id = 1
     for index, updaterow in udpatedf.iterrows():
-        ShortNames = []
         row1 = dict(updaterow)
     
         team = Teams.objects.get(id=updaterow.TeamName)
         teamsobj = Teams.objects.filter().values('ShortName')
-        for teams_short_list in teamsobj:
-            ShortNames.append(teams_short_list['ShortName'])
-
-
+      
         Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
         Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
         previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
@@ -1707,40 +1705,41 @@ def AcademyBidRequest(request, pk):
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName  
         
-        # model_dictionary = {
-        #     'Year':row1['Year'],
-        #     'PickType':row1['PickType'],
-        #     'TeamName':row1['TeamName'],
-        #     'Position':row1['Position'],
-        #     'Original_Owner':row1['Original_Owner'],
-        #     'Current_Owner':row1['Current_Owner'],
-        #     'Previous_Owner':row1['Previous_Owner'],
-        #     'Draft_Round':row1['Draft_Round'],
-        #     'Draft_Round_Int':row1['Draft_Round_Int'],
-        #     'Pick_Group':row1['Pick_Group'],
-        #     'System_Note':row1['System_Note'],
-        #     'User_Note':row1['User_Note'],
-        #     'Reason':row1['Reason'],
-        #     'Overall_Pick':row1['Overall_Pick'],
-        #     'AFL_Points_Value':row1['AFL_Points_Value'],
-        #     'Unique_Pick_ID':row1['Unique_Pick_ID'],
-        #     'Club_Pick_Number':row1['Club_Pick_Number'],
-        #     'Display_Name':row1['Display_Name'],
-        #     'Display_Name_Short':row1['Display_Name_Short'],
-        #     'Display_Name_Detailed':row1['Display_Name_Detailed'],
-        #     'Display_Name_Mini':row1['Display_Name_Mini'],
-        #     'Current_Owner_Short_Name':row1['Current_Owner_Short_Name'],
-        #     'Pick_Status':row1['Pick_Status'],
-        #     'Selected_Player':row1['Selected_Player'],
-        #     'projectid':row1['projectid']
-        # }
+        model_dictionary = {
+            'Year':row1['Year'],
+            'PickType':row1['PickType'],
+            'TeamName':row1['TeamName'],
+            'Position':row1['Position'],
+            'Original_Owner':row1['Original_Owner'],
+            'Current_Owner':row1['Current_Owner'],
+            'Previous_Owner':row1['Previous_Owner'],
+            'Draft_Round':row1['Draft_Round'],
+            'Draft_Round_Int':row1['Draft_Round_Int'],
+            'Pick_Group':row1['Pick_Group'],
+            'System_Note':row1['System_Note'],
+            'User_Note':row1['User_Note'],
+            'Reason':row1['Reason'],
+            'Overall_Pick':row1['Overall_Pick'],
+            'AFL_Points_Value':row1['AFL_Points_Value'],
+            'Unique_Pick_ID':row1['Unique_Pick_ID'],
+            'Club_Pick_Number':row1['Club_Pick_Number'],
+            'Display_Name':row1['Display_Name'],
+            'Display_Name_Short':row1['Display_Name_Short'],
+            'Display_Name_Detailed':row1['Display_Name_Detailed'],
+            'Display_Name_Mini':row1['Display_Name_Mini'],
+            'Current_Owner_Short_Name':row1['Current_Owner_Short_Name'],
+            'Pick_Status':row1['Pick_Status'],
+            'Selected_Player':row1['Selected_Player'],
+            'projectid':row1['projectid']
+        }
         
-        # MasterList.objects.filter(projectid_id=pk).update(**model_dictionary)
-        
-        
-        
-        MasterList(**row1).save()  
+        print(model_dictionary)
     
+        
+        MasterList.objects.filter(id=iincreament_id).update(**model_dictionary)
+        
+        iincreament_id +=1
+           
     
      ######## Combine into a summary dataframe: #############
      
@@ -1775,18 +1774,39 @@ def AcademyBidRequest(request, pk):
     academy_str = ''.join(str(e) for e in academy_data)
 
 
+    instance_obj = Project.objects.get(id=pk)
 
-    transaction_details = pd.DataFrame(
-    {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'Academy_Bid_Match',
+    transaction_details = (
+    {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'Academy_Bid_Match',
         'Transaction_Details': academy_str,
         'Transaction_Description': academy_summary_str,
-        'Type':'AcdemyBid'
+        'Type':'AcademyBid',
+        'projectId':instance_obj.id
         })
 
-    df2 = df2.append(transaction_details)
     Transactions(**transaction_details).save()
-    
+    obj = Transactions.objects.latest('id')
+    count = Transactions.objects.filter().count()
+    Transactions.objects.filter(id = obj.id ).update(Transaction_Number=count)
     return Response({'success': 'Academy Bid has Created'}, status=status.HTTP_201_CREATED)    
+    
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def add_FA_compansation_request(request,pk):
+    project_id = pk
+    current_date = date.today()
+    v_current_year = current_date.year
+    v_current_year_plus1 = v_current_year+1
+    masterlist = []
+    dfobj = MasterList.objects.filter(projectid=project_id).values()
+    for df_data in dfobj:
+        masterlist.append(df_data)
+    df = pd.DataFrame(masterlist)
+    print(df)
+     
+    
+    
+    
     
 
 
