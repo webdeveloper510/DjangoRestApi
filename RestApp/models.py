@@ -54,10 +54,11 @@ class MasterList(models.Model):
     Current_Owner = models.ForeignKey( Teams, related_name='Current_Owner', on_delete=models.CASCADE,default='', blank=False)
     Previous_Owner = models.ForeignKey(Teams, related_name='Previous_Owner', on_delete=models.CASCADE,default=None, blank=True,null=True)
     Draft_Round = models.CharField(max_length=100, default='')
+    Draft_Round_Int = models.TextField()
     Pick_Group = models.CharField(max_length=100, default='')
-    System_Note = models.CharField(max_length=100, default='')
-    User_Note = models.CharField(max_length=100, default='')
-    Reason = models.CharField(max_length=100, default='')
+    System_Note = models.TextField()
+    User_Note = models.TextField()
+    Reason = models.TextField()
     Overall_Pick = models.CharField(max_length=100, default='')
     AFL_Points_Value = models.CharField(max_length=100, default='')
     Unique_Pick_ID = models.CharField(max_length=100, default='')
@@ -67,8 +68,8 @@ class MasterList(models.Model):
     Display_Name_Detailed = models.CharField(max_length=100,default='')
     Display_Name_Mini = models.TextField()
     Current_Owner_Short_Name = models.CharField(max_length=100,default='')
-    Pick_Status = models.CharField(max_length=100,default='')
-    Selected_Player = models.CharField(max_length=100,default='')
+    Pick_Status = models.TextField()
+    Selected_Player = models.TextField()
     projectid  = models.ForeignKey(Project, on_delete=models.CASCADE, default='')
 
 class library_AFL_Draft_Points(models.Model):
@@ -91,6 +92,7 @@ class Transactions(models.Model):
     Transaction_Details = models.TextField()
     Transaction_Description = models.CharField(max_length=500, default='')
     projectId = models.IntegerField()
+    Type = models.CharField(max_length=100,default = '  ')
 
 
 class PriorityTransactions(models.Model):

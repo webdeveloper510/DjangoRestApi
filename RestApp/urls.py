@@ -8,7 +8,7 @@ from .views import (
     AddManualRequest,
     authenticate_user,
     LocalLadderRequest,
-    #ProjNameDescRequest,
+    ProjNameDescRequest,
     CreateMasterListRequest,
     update_masterlist,
     GETMasterListRequest,
@@ -44,9 +44,9 @@ from .views import (
     ConstraintsRquest,
     GetFlagPicks,
     GetFlagsRequest,
-    ProjPlayer,
-    AddManualRequest,
-    ProjNameDescRequest
+    add_FA_compansation_request,
+    add_potential_trade
+    
 )
 
 urlpatterns = [
@@ -61,7 +61,9 @@ urlpatterns = [
     re_path(r'^MakeCompany/$', MakeCompanyRequest),
     re_path(r'^add_trade_v2/$', add_trade_v2_request),
     re_path(r'^Priority-Pick/$', PriorityPickrRequest),
-    re_path(r'^select-player/$',  ProjPlayer),
+    re_path(r'^Academy-Bid/(?P<pk>[0-9]+)$', AcademyBidRequest),
+    re_path(r'^Add-FA-Compansation/(?P<pk>[0-9]+)$', add_FA_compansation_request),
+    re_path(r'^Add-trade/(?P<pk>[0-9]+)$', add_potential_trade),
     
 
     # #################### Update URL's #################
@@ -88,7 +90,6 @@ urlpatterns = [
     re_path(r'^Get-Players/$', GetPlayer),
     re_path(r'^Get-Trade-v2/(?P<pk>[0-9]+)$', Gettradev2Req),
     re_path(r'^Rounds-Pick/(?P<pk>[0-9]+)$', Get_Rounds_Pick),
-    re_path(r'^Academy-Bid/(?P<pk>[0-9]+)$', AcademyBidRequest),
     re_path(r'^Constraint/(?P<pk>[0-9]+)$', ConstraintsRquest),
     re_path(r'^PickTypes/$',GetPickType),
     re_path(r'^Get-Rounds/$',GetRounds),
@@ -104,4 +105,4 @@ urlpatterns = [
     re_path(r'^DeleteProject/(?P<pk>[0-9]+)$', DeleteProjectRequest),
     re_path(r'^DeleteLadder/(?P<pk>[0-9]+)$', DeleteLadderRecordRequest),
     re_path(r'^DeleteTrade/(?P<pk>[0-9]+)$', DeleteAddTradeRequest),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]

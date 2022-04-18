@@ -6,6 +6,7 @@ from doctest import master
 # from locale import D_T_FMT
 from logging import raiseExceptions
 from re import M, T
+#from socket import MSG_EOR
 from telnetlib import TELNET_PORT
 from urllib import response
 from django.http import Http404, HttpResponse
@@ -293,7 +294,8 @@ def AddTradeRequest(request):
         Transaction_Type='Trade',
         Transaction_Details=TradePicks,
         Transaction_Description=trade_description,
-        projectId=pId
+        projectId=pId,
+        Type = 'Add-Trade-V2'
 
     )
     pk = Transactions.objects.latest('id')
@@ -458,7 +460,8 @@ def add_trade_v2_request(request):
         Transaction_Type='Trade',
         Transaction_Details=trade_str,
         Transaction_Description=trade_description,
-        projectId=pId
+        projectId=pId,
+        Type= 'Add-Trade-v2'
     )
 
     pk = Transactions.objects.latest('id')
@@ -539,7 +542,8 @@ def CreateMasterListRequest(request, pk):
             df['Draft_Round'] = 'RD' + \
                 (df.groupby(['Year', 'Current_Owner']
                             ).cumcount() + 1).astype(str)
-
+            df['Draft_Round_Int'] = (df.groupby(['Year', 'Current_Owner']).cumcount() + 1).astype(int)
+     
             df['Pick_Group'] = df['Year'].astype(
                 str) + '-' + df['Draft_Round'].astype(str) + '-' + df['PickType'].astype(str)
             df['System_Note'] = ''
@@ -1062,6 +1066,10 @@ def PriorityPickrRequest(request):
 
     
     udpatedf = update_masterlist(df1)
+    udpatedf = udpatedf.drop('id', 1)
+    udpatedf = udpatedf.drop('projectid_id', 1)
+    udpatedf = udpatedf.drop('Previous_Owner_id', 1)
+
 
     for index, updaterow in udpatedf.iterrows():
         ShortNames = []
@@ -1335,12 +1343,12 @@ def Get_Rounds_Pick(request, pk):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def AcademyBidRequest(request, pk):
-
+    projectid = pk
     current_date = date.today()
     v_current_year = current_date.year
     v_current_year_plus1 = v_current_year+1
     masterlist = []
-    dfobj = MasterList.objects.filter(projectid=pk).values()
+    dfobj = MasterList.objects.filter(projectid=projectid).values()
     for df_data in dfobj:
         masterlist.append(df_data)
     df = pd.DataFrame(masterlist)
@@ -1365,7 +1373,9 @@ def AcademyBidRequest(request, pk):
     academy_player = data['player']
 
     teamid = data['team']
-    teamQurerySet = Teams.objects.filter(TeamName=teamid).values('id','TeamNames')
+
+    teamQurerySet = Teams.objects.filter(id=teamid).values('id','TeamNames')
+
     academy_team = teamQurerySet[0]['TeamNames']
     academy_team_id = teamQurerySet[0]['id']
 
@@ -1373,14 +1383,13 @@ def AcademyBidRequest(request, pk):
     
     pick_id = data['pickid']
     
-    PickQueryset = MasterList.objects.filter(
-        id=pick_id).values('Display_Name_Detailed')
+    PickQueryset = MasterList.objects.filter(id=pick_id).values('Display_Name_Detailed')
     
     academy_bid = PickQueryset[0]['Display_Name_Detailed']
     
     academy_pts_value = df.loc[df.Display_Name_Detailed == academy_bid, 'AFL_Points_Value'].iloc[0]
     academy_bid_round = df.loc[df.Display_Name_Detailed == academy_bid, 'Draft_Round'].iloc[0]
-    academy_bid_round_int = df.loc[df.Display_Name_Detailed == academy_bid, 'Draft_Round'].iloc[0]
+    academy_bid_round_int = df.loc[df.Display_Name_Detailed == academy_bid, 'Draft_Round_Int'].iloc[0]
     academy_bid_team = df.loc[df.Display_Name_Detailed ==
                               academy_bid, 'Current_Owner'].iloc[0]
     academy_bid_pick_no = df.loc[df.Display_Name_Detailed ==
@@ -1444,6 +1453,7 @@ def AcademyBidRequest(request, pk):
     except:
         academy_points_deficit = []
 
+
         
       #Create lists of changes to make:
 
@@ -1457,6 +1467,7 @@ def AcademyBidRequest(request, pk):
     except:
         picks_shuffled_points_value = np.nan
     carry_over_deficit = academy_points_deficit
+    
     
     #Executing The Academy Bid:
     # 3 Steps: Picks moving to back of draft, Pick getting shuffled backwards, and then if a pick has carryover deficit.
@@ -1493,7 +1504,7 @@ def AcademyBidRequest(request, pk):
 
                 #Change the draft round
                 df['Draft_Round'].mask(df['Display_Name_Detailed'] == pick, 'BOD', inplace=True)
-                # df['Draft_Round_Int'].mask(df['Display_Name_Detailed'] == pick, 99, inplace=True)
+                df['Draft_Round_Int'].mask(df['Display_Name_Detailed'] == pick, 99, inplace=True)
                 df['Pick_Group'].mask(df['Display_Name_Detailed'] == pick, str(v_current_year) + '-Back of Draft', inplace=True)
 
                 #Reset points value
@@ -1552,11 +1563,11 @@ def AcademyBidRequest(request, pk):
         rowno_new_rd_no = df.index[df.Display_Name_Detailed == pick_shuffled][0] - 1
 
         #Fine Round No from row above:
-        new_rd_no = df.iloc[rowno_new_rd_no].Draft_Round
+        new_rd_no = df.iloc[rowno_new_rd_no].Draft_Round_Int
 
         #Make Changes
         # df['Draft_Round_Int'].mask(df['Display_Name_Detailed'] == pick_shuffled, new_rd_no,inplace=True)
-        df['Draft_Round'].mask(df['Display_Name_Detailed'] == pick_shuffled, str(new_rd_no), inplace=True)
+        df['Draft_Round_Int'].mask(df['Display_Name_Detailed'] == pick_shuffled, str(new_rd_no), inplace=True)
         
         df['Pick_Group'].mask(df['Display_Name_Detailed'] == pick_shuffled, str(v_current_year) + '-RD'+ str(new_rd_no) + '-ShuffledBack', inplace=True)
 
@@ -1576,22 +1587,25 @@ def AcademyBidRequest(request, pk):
         pick_shuffle_details = []   
         
         # Step 3: Applying the deficit to next year:
-    pick_deficit = 'testing'
+        
     if len(pick_deficit) > 0:
         deficit_subset = df.copy()
         deficit_subset = deficit_subset[(deficit_subset.Current_Owner == academy_team_id) & (deficit_subset.Year.astype(int) == v_current_year_plus1) & (deficit_subset.Draft_Round >= academy_bid_round_int)]
 
         #Finding the first pick in the round to take the points off (and rowno)
+
         deficit_attached_pick = deficit_subset['Display_Name_Detailed'].iloc[0]
         deficit_pickshuffled_rowno = df.index[df.Display_Name_Detailed == deficit_attached_pick][0]
 
 
         #finding the points value of that pick and then adjusting the deficit
         deficit_attached_pts = deficit_subset['AFL_Points_Value'].iloc[0]
-        deficit_pick_points =   deficit_attached_pts + academy_points_deficit
+        
+        
+        deficit_pick_points =   float(deficit_attached_pts) + academy_points_deficit
 
         # Find the row number of where the pick should be inserted:
-        deficit_pickshuffled_to = df[(df.Year == v_current_year_plus1)]['AFL_Points_Value'].ge(deficit_pick_points).idxmin()
+        deficit_pickshuffled_to = df[(df.Year.astype(int) == v_current_year_plus1)]['AFL_Points_Value'].astype(float).ge(deficit_pick_points).idxmin()
 
         #Execute pick shuffle
         df = pd.concat([df.iloc[:deficit_pickshuffled_to], df.iloc[[deficit_pickshuffled_rowno]], df.iloc[deficit_pickshuffled_to:]]).reset_index(drop=True)
@@ -1602,11 +1616,10 @@ def AcademyBidRequest(request, pk):
         # If needing to update pick numbers after the delete
         df['Overall_Pick'] = df.groupby('Year').cumcount() + 1
         df['AFL_Points_Value'] = df['Overall_Pick'].map(library_AFL_Draft_Points).fillna(0)
-
         # Reset index Again
         df = df.reset_index(drop=True)
 
-        # Change system note to describe action
+        # Change system note to describe action   
         df['System_Note'].mask(df['Display_Name_Detailed'] == deficit_attached_pick, 'Academy bid match: Points Deficit',
                                inplace=True)
 
@@ -1617,6 +1630,7 @@ def AcademyBidRequest(request, pk):
 
         # Fine Round No from row above:
         new_rd_no = df.iloc[rowno_new_rd_no].Draft_Round_Int
+     
 
         # Make Changes
         df['Draft_Round_Int'].mask(df['Display_Name_Detailed'] == deficit_attached_pick, new_rd_no, inplace=True)
@@ -1637,11 +1651,181 @@ def AcademyBidRequest(request, pk):
         pick_deficit_details = pd.DataFrame(
             {'Pick': deficit_attached_pick, 'Moves_To': deficit_new_shuffled_pick_no, 'New_Points_Value': deficit_pick_points},index=[0])
 
-        print(deficit_attached_pick + ' moves to pick ' + deficit_new_shuffled_pick_no.astype(str) + ' in ' + deficit_new_shuffled_pick_RD_no)
+        # print(deficit_attached_pick + ' moves to pick ' + deficit_new_shuffled_pick_no.astype(str) + ' in ' + deficit_new_shuffled_pick_RD_no)
 
     else:
         pick_deficit_details = []
 
+    ########## EXECUTE INSERT OF PICK TO THE SPOT OF THE BID ##############
+    #inserting pick above academy_bid
+
+    # Make the changes to the masterlist:
+    rowno = df.index[df['Display_Name_Detailed'] == academy_bid][0]
+    # create the line to insert:
+ 
+    line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == academy_team_id, 'Position'].iloc[0], 'Year': v_current_year,
+                         'TeamName': academy_team_id, 'PickType': 'AcademyBidMatch', 'Original_Owner': academy_team_id, 'Current_Owner': academy_team_id,
+                         'Previous_Owner': '', 'Draft_Round': academy_bid_round, 'Draft_Round_Int': academy_bid_round_int,
+                         'Pick_Group': str(v_current_year) + '-' + academy_bid_round + '-AcademyBidMatch','Reason': 'Academy Bid Match',
+                         'Pick_Status':'Used','Selected_Player': academy_player}, index=[rowno])
+    
+    # Execute Insert
+    #i.e stacks 3 dataframes on top of each other
+    df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]).reset_index(drop=True)
+    
+    # MasterList.objects.filter(projectid_id=pk).delete()
+
+    udpatedf = update_masterlist(df)
+
+    # udpatedf = udpatedf.drop('id', 1)
+    udpatedf['id'] = udpatedf['id'].fillna(0) 
+    udpatedf['id'] = udpatedf['id'].astype(int)
+    udpatedf = udpatedf.drop('projectid_id', 1)
+    udpatedf = udpatedf.drop('Previous_Owner_id', 1)
+    iincreament_id = 1
+    for index, updaterow in udpatedf.iterrows():
+        row1 = dict(updaterow)
+    
+        team = Teams.objects.get(id=updaterow.TeamName)
+        teamsobj = Teams.objects.filter().values('ShortName')
+      
+        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
+        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
+        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
+        Overall_pickk = row1['Overall_Pick']
+
+        Project1 = Project.objects.get(id=pk)
+        row1['Previous_Owner'] = team
+        team = Teams.objects.get(id=updaterow.TeamName)
+        row1['TeamName'] = team
+        row1['Original_Owner'] = Original_Owner
+        row1['Current_Owner'] = Current_Ownerr
+        row1['projectid'] = Project1
+
+        row1['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+            None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
+
+        row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
+            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
+
+        # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
+        #     previous_owner + team.ShortName + \
+        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
+        # df.reset_index(drop=False)
+
+        # print(row1['Display_Name_Mini'])
+        # exit()
+        row1['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+            previous_owner + team.ShortName + \
+            ')' if Original_Owner != Current_Ownerr else team.ShortName
+
+        row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+            previous_owner + team.ShortName + \
+            ')' if Original_Owner != Current_Ownerr else team.ShortName  
+        
+        model_dictionary = {
+            'Year':row1['Year'],
+            'PickType':row1['PickType'],
+            'TeamName':row1['TeamName'],
+            'Position':row1['Position'],
+            'Original_Owner':row1['Original_Owner'],
+            'Current_Owner':row1['Current_Owner'],
+            'Previous_Owner':row1['Previous_Owner'],
+            'Draft_Round':row1['Draft_Round'],
+            'Draft_Round_Int':row1['Draft_Round_Int'],
+            'Pick_Group':row1['Pick_Group'],
+            'System_Note':row1['System_Note'],
+            'User_Note':row1['User_Note'],
+            'Reason':row1['Reason'],
+            'Overall_Pick':row1['Overall_Pick'],
+            'AFL_Points_Value':row1['AFL_Points_Value'],
+            'Unique_Pick_ID':row1['Unique_Pick_ID'],
+            'Club_Pick_Number':row1['Club_Pick_Number'],
+            'Display_Name':row1['Display_Name'],
+            'Display_Name_Short':row1['Display_Name_Short'],
+            'Display_Name_Detailed':row1['Display_Name_Detailed'],
+            'Display_Name_Mini':row1['Display_Name_Mini'],
+            'Current_Owner_Short_Name':row1['Current_Owner_Short_Name'],
+            'Pick_Status':row1['Pick_Status'],
+            'Selected_Player':row1['Selected_Player'],
+            'projectid':row1['projectid']
+        }
+        
+        print(model_dictionary)
+    
+        
+        MasterList.objects.filter(id=iincreament_id).update(**model_dictionary)
+        
+        iincreament_id +=1
+           
+    
+     ######## Combine into a summary dataframe: #############
+     
+    academy_summaries_list = [pick_lost_details,pick_shuffle_details,pick_deficit_details]
+    
+
+    academy_summary_df = pd.DataFrame(columns=['Pick', 'Moves_To', 'New_Points_Value'])
+
+    for x in academy_summaries_list:
+        if len(x) > 0:
+            academy_summary_df = academy_summary_df.append(x)
+
+    academysummery_list = []
+    academy_summary_dict = academy_summary_df.to_dict(orient="list")
+    
+    for key , value in academy_summary_dict.items():
+        for i in value:
+            
+            result = ' ' + key + ' - ' + str(i)
+            academysummery_list.append(result)
+    academy_summary_str = ''.join(str(e) for e in academy_summaries_list)
+
+    ######### Exporting Transaction Details: ###############
+    
+    current_time = datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
+    academy_dict = {academy_team: [academy_pick_type, academy_bid, academy_bid_pick_no, academy_player]}
+    academy_data = []
+    for key, values in academy_dict.items():
+        for i in values:
+            result = ' ' + key + ' - ' + i
+            academy_data.append(result)
+    academy_str = ''.join(str(e) for e in academy_data)
+
+
+    instance_obj = Project.objects.get(id=pk)
+
+    transaction_details = (
+    {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'Academy_Bid_Match',
+        'Transaction_Details': academy_str,
+        'Transaction_Description': academy_summary_str,
+        'Type':'AcademyBid',
+        'projectId':instance_obj.id
+        })
+
+    Transactions(**transaction_details).save()
+    obj = Transactions.objects.latest('id')
+    count = Transactions.objects.filter().count()
+    Transactions.objects.filter(id = obj.id ).update(Transaction_Number=count)
+    return Response({'success': 'Academy Bid has Created'}, status=status.HTTP_201_CREATED)    
+    
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def add_FA_compansation_request(request,pk):
+    project_id = pk
+    current_date = date.today()
+    v_current_year = current_date.year
+    v_current_year_plus1 = v_current_year+1
+    masterlist = []
+    dfobj = MasterList.objects.filter(projectid=project_id).values()
+    for df_data in dfobj:
+        masterlist.append(df_data)
+    df = pd.DataFrame(masterlist)
+    print(df)
+     
+    
+    
+    
+    
 
 
 @api_view(['POST'])
@@ -2001,3 +2185,9 @@ def AddManualRequest(request, pk):
     Transactions_count = Transactions.objects.filter().count()
 
     Transactions.objects.filter(id=pk.id).update(Transaction_Number=Transactions_count)
+    
+    
+
+
+    
+   
