@@ -3,10 +3,12 @@ from ast import Add
 from dataclasses import replace
 from distutils.command.config import dump_file
 from doctest import master
+from locale import D_FMT
 # from locale import D_T_FMT
 from logging import raiseExceptions
 from re import M, T
 from socket import MSG_EOR
+from tabnanny import verbose
 from telnetlib import TELNET_PORT
 from urllib import response
 from django.http import Http404, HttpResponse
@@ -688,9 +690,6 @@ def PriorityPickrRequest(request):
         pp_description = str(pp_team) + ' received a ' + \
             str(pp_pick_type) + ' Priority Pick'
 
-        pp_description = str(pp_team) + 'received a ' + \
-            str(pp_pick_type) + ' Priority Pick'
-
         pp_dict['pp_team'] = [pp_pick_type]
         pp_dict['pp_team'] = [pp_pick_type, reason]
         pp_description = str(pp_team) + 'received a ' + \
@@ -698,7 +697,6 @@ def PriorityPickrRequest(request):
 
         MasterList.objects.filter(id=rowno+1).update(**df)
 
-    # df1 = pd.DataFrame(df)
 
     if pp_pick_type == 'First Round':
         
@@ -710,8 +708,6 @@ def PriorityPickrRequest(request):
             if num == int(pp_id):
                 
                 rowno = num
-
-
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName_id == pp_team_id, 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName_id': pp_team_id, 'PickType': 'Priority', 'Original_Owner_id': pp_team_id, 'Current_Owner_id': pp_team_id,
@@ -746,7 +742,7 @@ def PriorityPickrRequest(request):
             df['projectid_id'] = project_Id
             del df['Previous_Owner']
        
-            MasterList(**df).save()
+            MasterList.objects.filter(id=rowno+1).update(**df)
 
     if pp_pick_type == 'End of First Round':
         pp_dict = {}
@@ -777,12 +773,12 @@ def PriorityPickrRequest(request):
         df['Previous_Owner_id'] = ''
         df['projectid_id'] = project_Id
 
+        MasterList.objects.filter(id=rowno).update(**df)
 
         pp_dict['pp_team'] = [pp_pick_type]
         pp_description = str(pp_team) + ' received a ' + \
             str(pp_pick_type) + ' Priority Pick'
 
-        MasterList.objects.filter(id=rowno).update(**df)
 
     if pp_pick_type == 'Start of Second Round':
         pp_dict = {}
@@ -816,8 +812,7 @@ def PriorityPickrRequest(request):
         pp_description = str(pp_team) + ' received a ' + \
             str(pp_pick_type) + ' Priority Pick'
 
-        # MasterList.objects.filter(id=rowno).update(**df)
-        MasterList(**df).save()
+        MasterList.objects.filter(id=rowno).update(**df)
 
     if pp_pick_type == 'Second Round':
 
@@ -873,7 +868,7 @@ def PriorityPickrRequest(request):
             df['projectid_id'] = project_Id
         
 
-            MasterList(**df).save()
+            MasterList.objects.filter(id=rowno+1).update(**df)
             pp_dict['pp_team'] = [pp_pick_type, pp_round,
                                   pp_aligned_pick, pp_insert_instructions]
             pp_description = str(pp_team) + ' received a ' + \
@@ -906,8 +901,7 @@ def PriorityPickrRequest(request):
         df['Previous_Owner_id'] = ''
         df['projectid_id'] = project_Id
 
-        # MasterList.objects.filter(id=rowno).update(**df)
-        MasterList(**df).save()
+        MasterList.objects.filter(id=rowno).update(**df)
 
         pp_dict['pp_team'] = [pp_pick_type]
 
@@ -969,21 +963,17 @@ def PriorityPickrRequest(request):
             df['Previous_Owner_id'] = ''
             df['projectid_id'] = project_Id
 
-            MasterList(**df).save()
+            MasterList.objects.filter(id=rowno+1).update(**df)
             pp_dict['pp_team'] = [pp_pick_type, pp_round,
                                   pp_aligned_pick, pp_insert_instructions]
             pp_description = str(pp_team) + ' received a ' + \
                 str(pp_pick_type) + ' Priority Pick'
 
     if pp_pick_type == 'Custom Fixed Position':
-        rowno = ''
+    
 
-        ppid_df = df.id[df['Display_Name_Detailed'] == pp_aligned_pick]
-
-        for num in ppid_df:
-            if num == int(pp_id):
-                rowno = num
- 
+        rowno = df.id[df['Display_Name_Detailed'] == pp_aligned_pick].iloc[0]
+        
         line = pd.DataFrame({'Position': df.loc[df.TeamName_id == pp_team_id, 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': pp_team_id, 'PickType': 'Priority', 'Original_Owner': pp_team_id, 'Current_Owner': pp_team_id,
                              'Previous_Owner': '', 'Draft_Round': 'RD3',
@@ -1018,14 +1008,14 @@ def PriorityPickrRequest(request):
             del df['Previous_Owner']
             del df['TeamName']
 
-            df['id'] = rowno
+            df['id'] = rowno+1
             df['Original_Owner_id'] = Idd
             df['Previous_Owner_id'] = Idd 
             df['Current_Owner_id'] = Idd
             df['TeamName_id'] = Idd
             df['projectid_id'] = project_Id
 
-            MasterList(**df).save()
+            MasterList.objects.filter(id=rowno+1).update(**df)
 
     pp_dict = {}
 
@@ -1038,8 +1028,6 @@ def PriorityPickrRequest(request):
     df1.rename(columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
     df1.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
     df1.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
-
-    MasterList.objects.filter(projectid=project_Id).delete()
     
     Original_Owner = Teams.objects.get(id=Idd)
     Current_Ownerr = Teams.objects.get(id=Idd)
@@ -1052,34 +1040,29 @@ def PriorityPickrRequest(request):
     udpatedf = udpatedf.drop('projectid_id', 1)
     udpatedf = udpatedf.drop('Previous_Owner_id', 1)
 
-
+    iincreament_id =1
     for index, updaterow in udpatedf.iterrows():
-        ShortNames = []
-        row1 = dict(updaterow)
+        academy_dict = dict(updaterow)
+
         team = Teams.objects.get(id=updaterow.TeamName)
-        teamsobj = Teams.objects.filter().values('ShortName')
-        for teams_short_list in teamsobj:
-            ShortNames.append(teams_short_list['ShortName'])
-
-
         Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
         Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
         previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
-        Overall_pickk = row1['Overall_Pick']
+        Overall_pickk = academy_dict['Overall_Pick']
 
         Project1 = Project.objects.get(id=project_Id)
-        row1['Previous_Owner'] = previous_owner
+        academy_dict['Previous_Owner'] = previous_owner
         team = Teams.objects.get(id=updaterow.TeamName)
-        row1['TeamName'] = team
-        row1['Original_Owner'] = Original_Owner
-        row1['Current_Owner'] = Current_Ownerr
-        row1['projectid'] = Project1
+        academy_dict['TeamName'] = team
+        academy_dict['Original_Owner'] = Original_Owner
+        academy_dict['Current_Owner'] = Current_Ownerr
+        academy_dict['projectid'] = Project1
 
-        row1['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+        academy_dict['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
             None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
 
-        row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
-            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
+        academy_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
+            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(academy_dict['Display_Name'])
 
         # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
         #     previous_owner + team.ShortName + \
@@ -1088,15 +1071,47 @@ def PriorityPickrRequest(request):
 
         # print(row1['Display_Name_Mini'])
         # exit()
-        row1['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+        academy_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
 
-        row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+        academy_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
 
-        MasterList(**row1).save()   
+        # MasterList(**row1).save()   
+        model_dictionary = {
+            'Year':academy_dict['Year'],
+            'PickType':academy_dict['PickType'],
+            'TeamName':academy_dict['TeamName'],
+            'Position':academy_dict['Position'],
+            'Original_Owner':academy_dict['Original_Owner'],
+            'Current_Owner':academy_dict['Current_Owner'],
+            'Previous_Owner':academy_dict['Previous_Owner'],
+            'Draft_Round':academy_dict['Draft_Round'],
+            'Draft_Round_Int':academy_dict['Draft_Round_Int'],
+            'Pick_Group':academy_dict['Pick_Group'],
+            'System_Note':academy_dict['System_Note'],
+            'User_Note':academy_dict['User_Note'],
+            'Reason':academy_dict['Reason'],
+            'Overall_Pick':academy_dict['Overall_Pick'],
+            'AFL_Points_Value':academy_dict['AFL_Points_Value'],
+            'Unique_Pick_ID':academy_dict['Unique_Pick_ID'],
+            'Club_Pick_Number':academy_dict['Club_Pick_Number'],
+            'Display_Name':academy_dict['Display_Name'],
+            'Display_Name_Short':academy_dict['Display_Name_Short'],
+            'Display_Name_Detailed':academy_dict['Display_Name_Detailed'],
+            'Display_Name_Mini':academy_dict['Display_Name_Mini'],
+            'Current_Owner_Short_Name':academy_dict['Current_Owner_Short_Name'],
+            'Pick_Status':academy_dict['Pick_Status'],
+            'Selected_Player':academy_dict['Selected_Player'],
+            'projectid':academy_dict['projectid']
+        }
+    
+        
+        MasterList.objects.filter(id=iincreament_id).update(**model_dictionary)
+        
+        iincreament_id +=1
           
     current_time = datetime.datetime.now(pytz.timezone(
         'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
@@ -1126,200 +1141,6 @@ def PriorityPickrRequest(request):
     return Response({'success': 'Priority Pick Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def ConstraintsRquest(request,pk):
-    loggeduser_id = ''
-    f = open('RestApp/userfile.py', 'r')
-    
-    if f.mode == 'r':
-       loggeduser_id =f.read()
-    Userobj = User.objects.get(id=loggeduser_id)
-    Teamid = Userobj.Teams.id
-    Teamobj = Teams.objects.get(id=Teamid)  
-    v_team_name = Teamobj.id
-
-    Masterlist = []
-    QueryObj =  MasterList.objects.filter(projectid_id=pk).values()
-    for data in QueryObj:
-        Masterlist.append(data)
-        df = pd.DataFrame(Masterlist)
-    c1_dropdown = df[df['Current_Owner_id'] ==v_team_name]['Display_Name_Detailed'].tolist()
-    c2_dropdown = df[df['Current_Owner_id'] ==v_team_name]['Year'].unique().tolist()
-    c3_dropdown = df[df['Current_Owner_id'] ==v_team_name]['Draft_Round'].unique().tolist()
-    c4_set = 0
-    c5_set = 99999999
-    c6_dropdown = df[df['Current_Owner_id'] !=v_team_name]['Current_Owner_id'].unique().tolist()
-    c7_dropdown = df[df['Current_Owner_id'] !=v_team_name]['Display_Name_Detailed'].unique().tolist()
-    c8_dropdown = df[df['Current_Owner_id'] !=v_team_name]['Year'].unique().tolist()
-    c9_dropdown = df[df['Current_Owner_id'] !=v_team_name]['Draft_Round'].unique().tolist()
-    c10_set = 0
-    c11_set = 99999999
-    c12_set = 0.10
-
-    c_dict = {}
-    c_dict['c1_dropdown'] = c1_dropdown
-    c_dict['c2_dropdown'] = c2_dropdown
-    c_dict['c3_dropdown'] = c3_dropdown
-    c_dict['c4_set'] = c4_set
-    c_dict['c5_set'] = c5_set
-    c_dict['c6_dropdown'] = c6_dropdown
-    c_dict['c7_dropdown'] = c7_dropdown
-    c_dict['c8_dropdown'] = c8_dropdown
-    c_dict['c9_dropdown'] = c9_dropdown
-    c_dict['c10_set'] = c10_set
-    c_dict['c11_set'] = c11_set
-    c_dict['c12_set'] = c12_set
-   
-    return Response({'constraints-data': c_dict}, status=status.HTTP_201_CREATED)
-
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def GetFlagPicks(request, pk):
-    PicksList = []
-    queryobj = MasterList.objects.filter(TeamName_id=pk).values()
-    for data in queryobj:
-        PicksList.append(data['Display_Name_Detailed'])
-    return Response({'PicksList': PicksList}, status=status.HTTP_201_CREATED)
-
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def GetPickType(request):
-    Picktypes = []
-    PicksQuery = PicksType.objects.filter().values()
-    for types in PicksQuery:
-        Picktypes.append(types['pickType'])
-    return Response({'Picktype': Picktypes}, status=status.HTTP_201_CREATED)
-
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def GetRounds(request):
-    roundslist = list()
-    QuerySet = DraftRound.objects.filter().values()
-    for rounds in QuerySet:
-        roundslist.append(rounds)
-    return Response({'roundslist': roundslist}, status=status.HTTP_201_CREATED)
-
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def Get_Rounds_Pick(request, pk):
-
-    df_list = []
-
-    newdf_data = MasterList.objects.filter(projectid=pk).values()
-
-    for new_df in newdf_data:
-        df_list.append(new_df)
-    df = pd.DataFrame(df_list)
-    df['column'] = np.zeros(len(df))
-    df['column'].describe()
-    df = df[~df.isin([np.nan, np.inf, -np.inf]).any(1)]
-
-    current_date = date.today()
-
-    v_current_year = current_date.year
-    v_current_year_plus1 = v_current_year+1
-
-    data_current_year_rd1 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD1')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
-
-    data_current_year_rd2 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD2')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
-
-    data_current_year_rd3 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD3')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
-
-    data_current_year_rd4 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD4')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
-
-    data_current_year_rd5 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD5')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
-
-    data_current_year_rd6 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD6')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
-
-    # Next Year Round by Round:
-
-    data_next_year_rd1 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
-
-    data_next_year_rd2 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD2')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
-
-    data_next_year_rd3 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
-
-    data_next_year_rd4 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD4')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
-
-    data_next_year_rd5 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD5')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
-
-    data_next_year_rd6 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
-
-    # Order of Entry Table
-
-    Teamnames = []
-    teamobj = Teams.objects.filter(id=pk).values()
-    for teams in teamobj:
-        Teamnames.append(teams['TeamNames'])
-    data_order_of_entry = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
-        'TeamName_id', 'Overall_Pick', 'Club_Pick_Number']].sort_values(by='Overall_Pick')
-
-    # data_order_of_entry = pd.crosstab(data_order_of_entry.TeamName_id, data_order_of_entry.Club_Pick_Number, values=data_order_of_entry.Overall_Pick,aggfunc=sum)
-
-    data_order_of_entry.reset_index(drop=True, inplace=True)
-    data_order_of_entry_dict = data_order_of_entry.to_dict(orient="index")
-
-    # Draft Assets Graph - Bar Graph
-
-    my_dict = {}
-    graph_list = []
-    data_draft_assets_graph = df.groupby(['Current_Owner_Short_Name', 'Year'])[
-        'AFL_Points_Value'].sum()
-    dict = data_draft_assets_graph.items()
-    for data in dict:
-
-        my_dict['shortname'] = list(data).pop(0)[0]
-        my_dict['Year'] = list(data).pop(0)[1]
-        my_dict['AFL_POINTS'] = list(data).pop(1)
-        graph_list.append(my_dict)
-
-    ##### Full List of Draft Picks #####
-
-    data_full_masterlist = df[['Year', 'Draft_Round', 'Overall_Pick', 'TeamName_id',
-                               'PickType', 'Original_Owner_id', 'Current_Owner_id', 'Previous_Owner_id', 'AFL_Points_Value', 'Club_Pick_Number']]
-
-    dict = data_full_masterlist.items()
-    data_full_list = list(dict)
-    data_full_masterlist_array = np.array(data_full_list, dtype=object)
-
-    Current_Year_Round = {
-
-        'data_current_year_rd1': data_current_year_rd1,
-        'data_current_year_rd2': data_current_year_rd2,
-        'data_current_year_rd3': data_current_year_rd3,
-        'data_current_year_rd4': data_current_year_rd4,
-        'data_current_year_rd5': data_current_year_rd5,
-        'data_current_year_rd6': data_current_year_rd6
-    }
-
-    Next_Year_Round = {
-        'data_next_year_rd1': data_next_year_rd1,
-        'data_next_year_rd2': data_next_year_rd2,
-        'data_next_year_rd3': data_next_year_rd3,
-        'data_next_year_rd4': data_next_year_rd4,
-        'data_next_year_rd5': data_next_year_rd5,
-        'data_next_year_rd6': data_next_year_rd6
-    }
-
-    return Response({'Current_Year_Round': Current_Year_Round, 'Next_Year_Round': Next_Year_Round, 'data_order_of_entry_dict': data_order_of_entry_dict, 'data_full_masterlist_array': data_full_masterlist_array, 'graph_list': graph_list}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -1659,17 +1480,19 @@ def AcademyBidRequest(request, pk):
 
     udpatedf = update_masterlist(df)
 
+
     # udpatedf = udpatedf.drop('id', 1)
     udpatedf['id'] = udpatedf['id'].fillna(0) 
     udpatedf['id'] = udpatedf['id'].astype(int)
     udpatedf = udpatedf.drop('projectid_id', 1)
     udpatedf = udpatedf.drop('Previous_Owner_id', 1)
+
     iincreament_id = 1
+    
     for index, updaterow in udpatedf.iterrows():
         row1 = dict(updaterow)
     
         team = Teams.objects.get(id=updaterow.TeamName)
-        teamsobj = Teams.objects.filter().values('ShortName')
       
         Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
         Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
@@ -1732,8 +1555,6 @@ def AcademyBidRequest(request, pk):
             'Selected_Player':row1['Selected_Player'],
             'projectid':row1['projectid']
         }
-        
-        print(model_dictionary)
     
         
         MasterList.objects.filter(id=iincreament_id).update(**model_dictionary)
@@ -1790,9 +1611,26 @@ def AcademyBidRequest(request, pk):
     Transactions.objects.filter(id = obj.id ).update(Transaction_Number=count)
     return Response({'success': 'Academy Bid has Created'}, status=status.HTTP_201_CREATED)    
     
+    
+    
+def academy_bid_inputs(request,pk):
+    df_list = []
+    Queryset = MasterList.objects.filter(projectid=pk).values()
+    for df_data in Queryset:
+        df_list.append(df_data)
+    masterlist = pd.DataFrame(df_list)
+    data = request.data
+    academy_player = data['player']
+    academy_team = data['team']
+    academy_bid = masterlist[(masterlist['Pick_Status'] != 'Used')]['Display_Name_Detailed'].tolist()
+    return academy_player, academy_team, academy_bid
+    
+    
+    
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def add_FA_compansation_request(request,pk):
+    
     project_id = pk
     current_date = date.today()
     v_current_year = current_date.year
@@ -1802,17 +1640,1347 @@ def add_FA_compansation_request(request,pk):
     for df_data in dfobj:
         masterlist.append(df_data)
     df = pd.DataFrame(masterlist)
-    print(df)
+    
+    data = request.data
+    fa_team = data['teamid']
+    reason = data['reason']
+    types = data['type']
+    pickId = data['pickid']
+    fa_insert_instructions = data['instructions']
+    
+    fa_team_name = []
+    teams_queryset = Teams.objects.filter(id=int(fa_team)).values()
+    for teams_data in teams_queryset:
+        fa_team_name.append(teams_data['TeamNames'])
+    
+    
+    fa_pick_type_list = []
+    type_query = PicksType.objects.filter(pickType=types).values()
+    for types_data in type_query:
+        fa_pick_type_list.append(types_data['pickType'])
+        
+    fa_pick_type = "".join(fa_pick_type_list)
+
+    pick_queryset = MasterList.objects.filter(id=pickId).values()
+    fa_aligned_pick_list = []
+    for picksdata in pick_queryset:
+        fa_aligned_pick_list.append(picksdata['Display_Name_Detailed'])
+    fa_aligned_pick = "".join(fa_aligned_pick_list)
+    
+    if fa_pick_type == 'Start of Draft':
+        
+        fa_dict = {}
+        # Find the first row that is a standard pick:
+        
+        rowno = df.id[df.Unique_Pick_ID.str.contains(str(v_current_year) + '-RD1-Standard')].iloc[0]
      
+        # create the line to insert:
+
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,'TeamName': fa_team,  'PickType': 'FA_Compensation',
+                    'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': '',
+                    'Draft_Round': 'RD1',
+                    'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + fa_pick_type, 'Reason':reason}, index=[rowno])
+        
+        # Execute Insert above the rowno
+
+
+        df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
+                       ).reset_index(drop=True)
+        
+        del df['Original_Owner']
+        del df['Current_Owner']
+        del df['Previous_Owner']
+        del df['TeamName']
+        df = df.iloc[rowno]
+
+        df['id'] = rowno
+        df['Original_Owner_id'] = fa_team
+        df['Current_Owner_id'] = fa_team
+        df['TeamName_id'] = fa_team
+        df['Previous_Owner_id'] = ''
+        df['projectid_id'] = pk
+        
+        MasterList.objects.filter(id=rowno).update(**df)
+
+        
+        fa_round = 'RD1'
+        # Update transactions
+        fa_dict = fa_team_name + [fa_pick_type, fa_round, reason ,
+                             fa_aligned_pick, fa_insert_instructions]
+
+        fa_description = str(fa_team_name) + ' received a ' + \
+            str(fa_pick_type) + ' FA Compensation Pick'
+            
+            
+    if fa_pick_type == 'First Round':
+
+        
+        fa_round = 'RD1'
+
+        
+        fa_aligned_pick = "".join(fa_aligned_pick_list)
+        
+        rowno = df.id[df['Display_Name_Detailed'] == fa_aligned_pick][0]
+
+        # create the line to insert:
+        
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+                             'TeamName': fa_team, 'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
+                             'Previous_Owner': '', 'Draft_Round': fa_round, 'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + fa_pick_type, 'Reason':reason}, index=[rowno])
+        
+        # Execute Insert
+        
+        if fa_insert_instructions == 'Before':
+            df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
+                           ).reset_index(drop=True)
+            df = df.iloc[rowno]
+
+
+            df['id'] = rowno
+            df['Original_Owner_id'] = fa_team
+            df['Current_Owner_id'] = fa_team
+            df['TeamName_id'] = fa_team
+            df['Previous_Owner_id'] = ''
+            df['projectid'] = pk
+            MasterList.objects.filter(id=rowno).update(**df)
+
+        else:
+            df = pd.concat([df.iloc[:rowno + 1], line,
+                           df.iloc[rowno + 1:]]).reset_index(drop=True)
+            df = df.iloc[rowno+1]
+            del df['Previous_Owner']
+            del df['Original_Owner_id']
+            del df['Current_Owner_id']
+            # del df['Original_Owner_id']
+            
+            df['id'] = rowno+1
+            df['Previous_Owner_id'] = ''
+            df['projectid_id'] = pk
+            
+            MasterList.objects.filter(id=rowno+1).update(**df)
+
+            
+        fa_dict = {}
+        # Update Transactions List
+        fa_dict = fa_team_name + [fa_pick_type, fa_round, reason ,
+                             fa_aligned_pick, fa_insert_instructions]
+            
+        fa_description = fa_team_name + ' received a ' + \
+            fa_pick_type + ' FA Compensation Pick'
+
+    if fa_pick_type == 'End of First Round':
+        # Find the last row that is a standard pick:
+        
+        rowno = df.index[df.Unique_Pick_ID.str.contains(str(v_current_year) + '-RD1-Standard')][-1]
+     
+        # create the line to insert:
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team),         'Position'].iloc[0], 'Year': v_current_year,
+                             'Team_Name': fa_team, 'PickType': 'FA_Compensation',
+                             'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': '',
+                             'Draft_Round': 'RD1', 'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + fa_pick_type, 'Reason':reason}, index=[rowno])
+        # Execute Insert below the rowno
+        df = pd.concat([df.iloc[:rowno + 1], line,
+                       df.iloc[rowno + 1:]]).reset_index(drop=True)
+        
+        df = df.iloc[rowno+1]    
+        del df['Original_Owner']
+        del df['Current_Owner']
+        del df['Previous_Owner']
+        # del df['TeamName']
+
+        df['id'] = rowno+1
+        df['Original_Owner_id'] = fa_team
+        df['Current_Owner_id'] = fa_team
+        df['TeamName_id'] = fa_team
+        df['Previous_Owner_id'] = ''
+        df['projectid_id'] = pk
+
+
+        MasterList.objects.filter(id=rowno+1).update(**df)
+
+        # Update transactions
+        fa_dict = {}
+        fa_dict = fa_team_name + [fa_pick_type, reason]
+
+        fa_description = fa_team_name + ' received a ' + \
+            fa_pick_type + ' FA Compensation Pick'
+
+    if fa_pick_type == 'Start of Second Round':
+        
+            # Find the first row that is a standard pick in the 2nd round:
+        rowno = df.index[df.Unique_Pick_ID.str.contains(str(v_current_year) + '-RD2-Standard')][0]
+
+        # create the line to insert:
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+                             'TeamName': fa_team, 'Pick_Type': 'FA_Compensation',
+                             'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': '',
+                             'Draft_Round': 'RD2',
+                             'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + fa_pick_type, 'Reason':reason}, index=[rowno])
+
+        # Execute Insert above the rowno
+        df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
+                       ).reset_index(drop=True)
+        
+        df = df.iloc[rowno]
+
+        del df['Original_Owner']
+        del df['Current_Owner']
+        del df['Previous_Owner']
+        del df['TeamName']
+
+        df['id'] = rowno
+        df['Original_Owner_id'] = fa_team
+        df['Current_Owner_id'] = fa_team
+        df['TeamName_id'] = fa_team
+        df['Previous_Owner_id'] = ''
+        df['projectid_id'] = pk
+
+
+        MasterList.objects.filter(id=rowno).update(**df)
+ 
+
+        fa_round = 'RD1'
+        fa_dict = {}
+        # Update transactions
+        fa_dict = fa_team_name + [fa_pick_type, fa_round, reason ,
+                             fa_aligned_pick, fa_insert_instructions]
+        fa_description = fa_team_name + ' received a ' + \
+            fa_pick_type + ' FA Compensation Pick'
+        
+        
+        
+    if fa_pick_type == 'Second Round':
+            
+        # Get Details
+        fa_team_picks = df['Display_Name_Detailed'].tolist()
+
+        fa_round = 'RD2'
+
+        # Make the changes to the masterlist:
+        # find row number of the aligned pick:
+        
+        rowno = df.id[df['Display_Name_Detailed'] == fa_aligned_pick][0]
+ 
+        
+        # create the line to insert:
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+                            'TeamName': fa_team, 'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
+                            'Previous_Owner': '', 'Draft_Round': fa_round, 'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + fa_pick_type, 'Reason':reason},
+                            index=[rowno])
+
+        # Execute Insert
+        if fa_insert_instructions == 'Before':
+            df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
+                        ).reset_index(drop=True)
+            del df['Original_Owner']
+            del df['Current_Owner']
+            del df['Previous_Owner']
+            del df['TeamName']
+
+            df['id'] = rowno
+            df['Original_Owner_id'] = fa_team
+            df['Current_Owner_id'] = fa_team
+            df['TeamName_id'] = fa_team
+            df['Previous_Owner_id'] = ''
+            df['projectid_id'] = pk
+     
+
+            MasterList.objects.filter(id=rowno).update(**df)
+
+        else:
+            df = pd.concat([df.iloc[:rowno + 1], line,
+                        df.iloc[rowno + 1:]]).reset_index(drop=True)
+            
+            df = pd.concat([df.iloc[:rowno + 1], line,df.iloc[rowno + 1:]]).reset_index(drop=True)
+            
+            df = df.iloc[rowno+1]
+            del df['Original_Owner']
+            del df['Current_Owner']
+            del df['Previous_Owner']
+            del df['TeamName']
+
+            df['id'] = rowno+1
+            df['Original_Owner_id'] = fa_team
+            df['Current_Owner_id'] = fa_team
+            df['TeamName_id'] = fa_team
+            df['Previous_Owner_id'] = ''
+            df['projectid_id'] = pk
+            
+            MasterList.objects.filter(id=rowno+1).update(**df)
+  
+
+        # Update Transactions List
+        fa_dict= {}
+        fa_dict = fa_team_name + [fa_pick_type, fa_round, reason ,
+                             fa_aligned_pick, fa_insert_instructions]
+        fa_description = fa_team_name + ' received a ' + \
+            fa_pick_type + ' FA Compensation Pick'
+            
+     
+     
+    if fa_pick_type == 'End of Second Round':
+            # Find the last row that is a standard pick:
+        rowno = df.index[df.Unique_Pick_ID.str.contains(str(v_current_year) + '-RD2-Standard')][-1]
+        # create the line to insert:
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+                             'TeamName': fa_team, 'PickType': 'FA_Compensation',
+                             'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': '',
+                             'Draft_Round': 'RD2','Draft_Round_Int': 2,
+                             'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + fa_pick_type, 'Reason': reason}, index=[rowno])
+        # Execute Insert below the rowno
+        df = pd.concat([df.iloc[:rowno + 1], line,
+                       df.iloc[rowno + 1:]]).reset_index(drop=True)
+        
+        df = df.iloc[rowno+1]
+
+        del df['Original_Owner']
+        del df['Current_Owner']
+        del df['Previous_Owner']
+        del df['TeamName']
+
+        df['id'] = rowno
+        df['Original_Owner_id'] = fa_team
+        df['Current_Owner_id'] = fa_team
+        df['TeamName_id'] = fa_team
+        df['Previous_Owner_id'] = ''
+        df['projectid_id'] = pk 
+
+        MasterList.objects.filter(id=rowno).update(**df)
+        
+        # Update transactions
+        fa_round = 'RD2'
+        fa_aligned_pick = ''
+        fa_unique_pick = ''
+        fa_insert_instructions = ''
+        fa_dict = {fa_team: [fa_pick_type, fa_round, reason,
+                             fa_aligned_pick, fa_unique_pick, fa_insert_instructions]}
+        fa_description = fa_team + ' received a ' + fa_pick_type + ' FA Compensation Pick' + '(' + reason + ')'
+     
+     
+            
+            
+    if fa_pick_type == 'Third Round':
+            # Get Details
+        fa_team_picks = df['Display_Name_Detailed'].tolist()
+
+        fa_round = 'RD3'
+    
+        # Make the changes to the masterlist:
+        # find row number of the aligned pick:
+        rowno = df.id[df['Display_Name_Detailed'] == fa_aligned_pick][0]
+ 
+        
+        # create the line to insert:
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+                             'TeamName': fa_team,'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
+                             'Previous_Owner': '', 'Draft_Round': fa_round, 'Pick_Group': str(v_current_year) + '-' + 'RD3-Priority-' + fa_pick_type, 'Reason':reason},
+                            index=[rowno])
+
+        # Execute Insert
+        if fa_insert_instructions == 'Before':
+            df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
+                           ).reset_index(drop=True)
+            df = df.iloc[rowno]
+
+            del df['Original_Owner']
+            del df['Current_Owner']
+            del df['Previous_Owner']
+            del df['TeamName']
+
+            df['id'] = rowno
+            df['Original_Owner_id'] = fa_team
+            df['Current_Owner_id'] = fa_team
+            df['TeamName_id'] = fa_team
+            df['Previous_Owner_id'] = ''
+            df['projectid_id'] = pk
+
+            MasterList.objects.filter(id=rowno).update(**df)
+
+        else:
+            df = pd.concat([df.iloc[:rowno + 1], line,
+                           df.iloc[rowno + 1:]]).reset_index(drop=True)
+            
+            df = df.iloc[rowno+1]
+            del df['Original_Owner']
+            del df['Current_Owner']
+            del df['Previous_Owner']
+            del df['TeamName']
+
+            df['id'] = rowno+1
+            df['Original_Owner_id'] = fa_team
+            df['Current_Owner_id'] = fa_team
+            df['TeamName_id'] = fa_team
+            df['Previous_Owner_id'] = ''
+            df['projectid_id'] = pk
+    
+            MasterList.objects.filter(id=rowno+1).update(**df)
+        # Update Transactions List
+        fa_dict={}
+        fa_dict = fa_team_name + [fa_pick_type, fa_round, reason ,
+                             fa_aligned_pick, fa_insert_instructions]
+        fa_description = fa_team_name + ' received a ' + \
+            fa_pick_type + ' FA Compensation Pick'
+            
+    
+    if fa_pick_type == 'Custom Fixed Position':
+        fa_round = 'RD5'
+        fa_dict = {}
+        # find row number of the aligned pick:
+        rowno = df.id[df['Display_Name_Detailed'] == fa_aligned_pick][0]
+
+        # create the line to insert:
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+                             'TeamName': int(fa_team), 'PickType': 'FA_Compensation', 'Original_Owner': int(fa_team), 'Current_Owner': int(fa_team),
+                             'Previous_Owner': '', 'Draft_Round': fa_round,
+                             'Pick_Group': str(v_current_year) + '-' + fa_round + '-Priority-' + fa_pick_type, 'Reason':reason},
+                            index=[rowno])
+
+        # Execute Insert
+        if fa_insert_instructions == 'Before':
+            df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
+                           ).reset_index(drop=True)
+            
+            df = df.iloc[rowno]
+ 
+
+            del df['TeamName_id']
+            del df['Current_Owner_id']
+            del df['Previous_Owner_id']
+            del df['Original_Owner_id']
+
+            df['id'] = rowno
+            df['Original_Owner'] = fa_team
+            df['Current_Owner'] = fa_team
+            df['Previous_Owner'] = fa_team
+            df['TeamName'] = fa_team
+            df['projectid_id'] = pk
+          
+            MasterList.objects.filter(id=rowno).update(**df)
+
+        else:
+            df = pd.concat([df.iloc[:rowno + 1], line,
+                           df.iloc[rowno + 1:]]).reset_index(drop=True)
+            
+            df = df.iloc[rowno+1]
+
+            del df['Original_Owner']
+            del df['Current_Owner']
+            del df['Previous_Owner']
+            del df['TeamName']
+
+            df['id'] = rowno+1
+            df['Original_Owner_id'] = fa_team
+            df['Previous_Owner_id'] = fa_team 
+            df['Current_Owner_id'] = fa_team
+            df['TeamName_id'] = fa_team
+            df['projectid_id'] = pk 
+            MasterList.objects.filter(id=rowno+1).update(**df)
+
+
+        # Update Transactions List
+        fa_dict={}
+        fa_dict = fa_team_name + [fa_pick_type, fa_round, reason ,
+                             fa_aligned_pick, fa_insert_instructions]
+        
+        fa_description = str(fa_team_name) + ' received a ' + \
+            str(fa_pick_type) + ' FA Compensation Pick'
+            
+    new_df = []
+    Queryset = MasterList.objects.filter(projectid_id=pk).values()
+    for picks in Queryset:
+        new_df.append(picks)
+
+    df1 = pd.DataFrame(new_df)
+    df1.rename(columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
+    df1.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
+    df1.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
+
     
     
+    udpatedf = update_masterlist(df1)
+    udpatedf = udpatedf.drop('id', 1)
+    udpatedf = udpatedf.drop('projectid_id', 1)
+    udpatedf = udpatedf.drop('Previous_Owner_id', 1)
+
+
+    iincreament_id = 1
+    for index, updaterow in udpatedf.iterrows():
+
+        
+        row1 = dict(updaterow)
+        team = Teams.objects.get(id=updaterow.TeamName)
+        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
+        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
+        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
+        Overall_pickk = row1['Overall_Pick']
+
+        Project1 = Project.objects.get(id=pk)
+ 
+     
+        row1['Previous_Owner'] = team
+        row1['TeamName'] = team
+        row1['Original_Owner'] = Original_Owner
+        row1['Current_Owner'] = Current_Ownerr
+        row1['projectid'] = Project1
+
+        row1['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+            None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
+
+        row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
+            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
+
+        # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
+        #     previous_owner + team.ShortName + \
+        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
+        # df.reset_index(drop=False)
+
+        # print(row1['Display_Name_Mini'])
+        # exit()
+        row1['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+            previous_owner + team.ShortName + \
+            ')' if Original_Owner != Current_Ownerr else team.ShortName
+
+        row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+            previous_owner + team.ShortName + \
+            ')' if Original_Owner != Current_Ownerr else team.ShortName  
+        
+        model_dictionary = {
+            'Year':row1['Year'],
+            'PickType':row1['PickType'],
+            'TeamName':row1['TeamName'],
+            'Position':row1['Position'],
+            'Original_Owner':row1['Original_Owner'],
+            'Current_Owner':row1['Current_Owner'],
+            'Previous_Owner':row1['Previous_Owner'],
+            'Draft_Round':row1['Draft_Round'],
+            'Draft_Round_Int':row1['Draft_Round_Int'],
+            'Pick_Group':row1['Pick_Group'],
+            'System_Note':row1['System_Note'],
+            'User_Note':row1['User_Note'],
+            'Reason':row1['Reason'],
+            'Overall_Pick':row1['Overall_Pick'],
+            'AFL_Points_Value':row1['AFL_Points_Value'],
+            'Unique_Pick_ID':row1['Unique_Pick_ID'],
+            'Club_Pick_Number':row1['Club_Pick_Number'],
+            'Display_Name':row1['Display_Name'],
+            'Display_Name_Short':row1['Display_Name_Short'],
+            'Display_Name_Detailed':row1['Display_Name_Detailed'],
+            'Display_Name_Mini':row1['Display_Name_Mini'],
+            'Current_Owner_Short_Name':row1['Current_Owner_Short_Name'],
+            'Pick_Status':row1['Pick_Status'],
+            'Selected_Player':row1['Selected_Player'],
+            'projectid':row1['projectid']
+        }  
+        
+        MasterList.objects.filter(id=iincreament_id).update(**model_dictionary)
+        
+        iincreament_id +=1
+        
+    current_time = datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
     
+    fa_dict = {}
     
+    fa_dict['fa_team'] =  [fa_round,fa_aligned_pick,fa_insert_instructions]
+    f_list = []
+    for key , value in fa_dict.items():
+        for i in value:
+            result = ' ' + key + ' - ' + str(i)
+            f_list.append(result)
+    fa_str = ''.join(str(e) for e in f_list)
+
+    # Exporting trade to the transactions df
+    transaction_details = ( 
+        {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'FA_Compensation', 'Transaction_Details': fa_str, 'Transaction_Description': fa_description,'projectId':pk,'Type':'FA-Compansations'})
+
+    Transactions(**transaction_details).save()
+    obj = Transactions.objects.latest('id')
+    count = Transactions.objects.filter().count()
+    Transactions.objects.filter(id = obj.id ).update(Transaction_Number=count)
+
+    return Response({'success': 'Add-FA-compansation Created Successfuly'}, status=status.HTTP_201_CREATED)
+
+
+
+def add_FA_compensation_inputs_request(request,pk):
+    
+    projectid = pk
+    
+    masterlist = []
+    
+    dfobj = MasterList.objects.filter(projectid=projectid).values()
+    for df_data in dfobj:
+        masterlist.append(df_data)
+    masterlist = pd.DataFrame(masterlist)
+
+    data = request.data
+    
+     #Ask for team Name:
+    fa_team = data['teamid']
+    #Ask for FA Type
+    fa_pick_type = data['type']
+    
+    #Ask for FA reason
+    reason = data['reason']
+    
+    fa_round = data['round']
+    
+    pick_id = data['pickid']
+    fa_insert_instructions = data['instructions']
+    
+     #Define the teams current picks
+     
+    fa_team_picks = masterlist[masterlist['Current_Owner_id'].astype(int) ==int(fa_team)]['Display_Name_Detailed'].tolist()
+
+    #define a blank round & aligned pick as it will either be made here or within function
+    
+    fa_aligned_pick_list = []
+    # fa_round = ''
+    fa_unique_pick = ''
+    # fa_insert_instructions = ''
+    
+    MasterlistQuerySet  = MasterList.objects.filter(id=pick_id).values()
+    
+    for masterlist_data in MasterlistQuerySet :
+        fa_aligned_pick_list.append(masterlist_data['Display_Name_Detailed'])
+    
+    fa_aligned_pick = "".join(fa_aligned_pick_list)
+    
+    #ask for extra details depending on pick type:
+    if fa_pick_type == 'Custom Fixed Position':
+        
+        fa_unique_pick = masterlist.loc[masterlist.Display_Name_Detailed == fa_aligned_pick, 'Unique_Pick_ID'].iloc[0]
+        
+    if fa_pick_type == 'First Round' or fa_pick_type == 'Second Round' or fa_pick_type == 'Third Round':
+        
+        fa_unique_pick = masterlist.loc[masterlist.Display_Name_Detailed == fa_aligned_pick, 'Unique_Pick_ID'].iloc[0]
+        
+    return masterlist,pick_id,fa_team, fa_pick_type, fa_round, reason, fa_aligned_pick,fa_unique_pick, fa_insert_instructions
+      
+
+
 
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+def add_FA_compensation_v2(request,pk):
+    
+    current_date = date.today()
+    v_current_year = current_date.year
+    masterlist,fa_team,pick_id, fa_pick_type, fa_round, reason, fa_aligned_pick,fa_unique_pick, fa_insert_instructions = add_FA_compensation_inputs_request(request,pk)
+    df =masterlist
+
+    if fa_pick_type == 'Start of Draft':
+        # Find the first row that is a standard pick:
+        rowno = df.id[df.Unique_Pick_ID.str.contains(str(v_current_year) + '-RD1-Standard')][0]
+
+        # create the line to insert:
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+                             'TeamName': int(fa_team), 'PickType': 'FA_Compensation',
+                             'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': '',
+                             'Draft_Round': 'RD1','Draft_Round_Int': 1,
+                             'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + fa_pick_type, 'Reason': reason }, index=[rowno])
+        
+        # Execute Insert above the rowno
+        df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
+                       )
+        
+        
+        del df['Original_Owner']
+        del df['Current_Owner']
+        del df['Previous_Owner']
+        del df['TeamName']
+        df = df.iloc[1]
+
+        df['id'] = rowno
+        df['Original_Owner_id'] = fa_team
+        df['Current_Owner_id'] = fa_team
+        df['TeamName_id'] = fa_team
+        df['Previous_Owner_id'] = ''
+        df['projectid_id'] = pk
+
+        # Update transactions
+        fa_round = 'RD1'
+        # fa_aligned_pick = ''
+        # fa_unique_pick = ''
+        # fa_insert_instructions = ''
+        fa_dict = {}
+        fa_dict['fa_team'] =  [fa_pick_type, fa_round, reason,
+                             fa_aligned_pick, fa_unique_pick, fa_insert_instructions]
+        fa_description = str(fa_team) + ' received a ' + str(fa_pick_type) + ' FA Compensation Pick' + '(' + str(reason) + ')'
+        MasterList.objects.filter(id=rowno).update(**df)
+        
+    if fa_pick_type == 'First Round':
+        # Make the changes to the masterlist:
+        rowno = df.index[df['Display_Name_Detailed'] == fa_aligned_pick][0]
+        fa_unique_pick = df.loc[df.Display_Name_Detailed == fa_aligned_pick, 'Unique_Pick_ID'].iloc[0]
+        # create the line to insert:
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+                             'TeamName': fa_team,  'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
+                             'Previous_Owner': '', 'Draft_Round': 'RD1', 'Draft_Round_Int': 1,
+                             'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + fa_pick_type, 'Reason': reason},
+                            index=[rowno])
+        # Execute Insert
+        #i.e stacks 3 dataframes on top of each other
+        if fa_insert_instructions == 'Before':
+            df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
+                           ).reset_index(drop=True)
+            
+            df = df.iloc[rowno]
+
+
+            df['id'] = rowno
+            df['Original_Owner_id'] = fa_team
+            df['Current_Owner_id'] = fa_team
+            df['TeamName_id'] = fa_team
+            df['Previous_Owner_id'] = ''
+            df['projectid'] = pk
+            MasterList.objects.filter(id=rowno).update(**df)
+
+        else:
+            df = pd.concat([df.iloc[:rowno + 1], line,
+                           df.iloc[rowno + 1:]]).reset_index(drop=True)
+            df = pd.concat([df.loc[:rowno], line, df.iloc[rowno:]]
+                           ).reset_index(drop=True)
+            df = df.iloc[rowno+1]
+            df['id'] = rowno+1
+            df['Previous_Owner_id'] = ''
+            df['projectid_id'] = pk
+            del df['Previous_Owner']
+       
+            MasterList.objects.filter(id=rowno+1).update(**df)
+
+
+        # Update transactions
+        fa_round = 'RD1'
+        
+        fa_dict={}
+        fa_dict['fa_team'] =  [fa_pick_type, fa_round, reason,fa_aligned_pick, fa_unique_pick, fa_insert_instructions]
+
+        fa_description = str(fa_team) + ' received a ' + str(fa_pick_type) + ' FA Compensation Pick' + '(' + reason + ')'
+        
+        
+    if fa_pick_type == 'End of First Round':
+        # Find the last row that is a standard pick:
+        rowno = df.index[df.Unique_Pick_ID.str.contains(str(v_current_year) + '-RD1-Standard')][-1]
+
+        # create the line to insert:
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+                             'TeamName': fa_team, 'PickType': 'FA_Compensation',
+                             'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': '',
+                             'Draft_Round': 'RD1','Draft_Round_Int': 1,
+                             'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + fa_pick_type, 'Reason': reason}, index=[rowno])
+        # Execute Insert below the rowno
+        df = pd.concat([df.iloc[:rowno + 1], line,
+                       df.iloc[rowno + 1:]]).reset_index(drop=True)   
+        df = df.iloc[rowno+1]    
+        del df['Original_Owner']
+        del df['Current_Owner']
+        del df['Previous_Owner']
+        del df['TeamName']
+
+        df['id'] = rowno+1
+        df['Original_Owner_id'] = fa_team
+        df['Current_Owner_id'] = fa_team
+        df['TeamName_id'] = fa_team
+        df['Previous_Owner_id'] = ''
+        df['projectid_id'] = pk
+
+
+        MasterList.objects.filter(id=rowno+1).update(**df)
+
+        # Update transactions
+        fa_round = 'RD1'
+        fa_aligned_pick = ''
+        fa_unique_pick = ''
+        fa_insert_instructions = ''
+        fa_dict = {}
+        fa_dict['fa_team'] =  [fa_pick_type, fa_round, reason,
+                             fa_aligned_pick, fa_unique_pick, fa_insert_instructions]
+
+        fa_description = str(fa_team) + ' received a ' + str(fa_pick_type) + ' FA Compensation Pick' + '(' + reason + ')'
+        
+    if fa_pick_type == 'Start of Second Round':
+        # Find the first row that is a standard pick in the 2nd round:
+        rowno = df.id[df.Unique_Pick_ID.str.contains(str(v_current_year) + '-RD2-Standard')][0]
+
+        # create the line to insert:
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+                             'TeamName': fa_team, 'PickType': 'FA_Compensation',
+                             'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': '',
+                             'Draft_Round': 'RD2','Draft_Round_Int': 2,
+                             'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + fa_pick_type, 'Reason': reason}, index=[rowno])
+        # Execute Insert above the rowno
+        df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
+                       ).reset_index(drop=True)
+
+        df = df.iloc[rowno]
+
+        del df['Original_Owner']
+        del df['Current_Owner']
+        del df['Previous_Owner']
+        del df['TeamName']
+
+        df['id'] = rowno
+        df['Original_Owner_id'] = fa_team
+        df['Current_Owner_id'] = fa_team
+        df['TeamName_id'] = fa_team
+        df['Previous_Owner_id'] = ''
+        df['projectid_id'] = pk
+
+        
+
+        MasterList.objects.filter(id=rowno).update(**df)
+    
+
+        # Update transactions
+        fa_round = 'RD2'
+        fa_aligned_pick = ''
+        fa_unique_pick = ''
+        fa_insert_instructions = ''
+        fa_dict = {}
+        fa_dict['fa_team'] =  [fa_pick_type, fa_round, reason,fa_aligned_pick, fa_unique_pick, fa_insert_instructions]
+        fa_description = str(fa_team) + ' received a ' + str(fa_pick_type) + ' FA Compensation Pick' + '(' + reason + ')'
+        
+        
+    if fa_pick_type == 'Second Round':
+        # Make the changes to the masterlist:
+        # find row number of the aligned pick:
+        rowno = df.id[df['Display_Name_Detailed'] == fa_aligned_pick][0]
+        fa_unique_pick = df.loc[df.Display_Name_Detailed == fa_aligned_pick, 'Unique_Pick_ID'].iloc[0]
+        # create the line to insert:
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+                             'TeamName': fa_team, 'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
+                             'Previous_Owner': '', 'Draft_Round': 'RD2', 'Draft_Round_Int': 2,
+                             'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + fa_pick_type, 'Reason': reason},
+                            index=[rowno])
+        # Execute Insert
+        if fa_insert_instructions == 'Before':
+            df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
+                           ).reset_index(drop=True)
+            df = df.iloc[rowno]
+   
+            del df['Original_Owner']
+            del df['Current_Owner']
+            del df['Previous_Owner']
+            del df['TeamName']
+
+            df['id'] = rowno
+            df['Original_Owner_id'] = fa_team
+            df['Current_Owner_id'] = fa_team
+            df['TeamName_id'] = fa_team
+            df['Previous_Owner_id'] = ''
+            df['projectid_id'] = pk
+     
+
+            # MasterList.objects.filter(id=rowno).update(**df)
+            
+        else:
+            
+            df = pd.concat([df.iloc[:rowno + 1], line,
+            df.iloc[rowno + 1:]]).reset_index(drop=True)
+            df = df.iloc[rowno+1]
+            del df['Original_Owner']
+            del df['Current_Owner']
+            del df['Previous_Owner']
+            del df['TeamName']
+
+            df['id'] = rowno+1
+            df['Original_Owner_id'] = fa_team
+            df['Current_Owner_id'] = fa_team
+            df['TeamName_id'] = fa_team
+            df['Previous_Owner_id'] = ''
+            df['projectid_id'] = pk
+         
+
+            MasterList.objects.filter(id=rowno+1).update(**df)
+            
+        # Update Transactions List
+        fa_round = 'RD2'
+        
+        fa_dict['fa_team'] = [fa_pick_type, fa_round, reason,fa_aligned_pick, fa_unique_pick, fa_insert_instructions]
+        fa_description = str(fa_team) + ' received a ' + str(fa_pick_type) + ' FA Compensation Pick' + '(' + reason + ')'
+        
+    if fa_pick_type == 'End of Second Round':
+        # Find the last row that is a standard pick:
+
+        rowno = df.id[df.Unique_Pick_ID.str.contains(str(v_current_year) + '-RD2-Standard')].iloc[-1]
+   
+        fa_dict= {}
+        fa_dict['fa_team'] = [fa_pick_type, fa_round, reason,fa_aligned_pick, fa_unique_pick, fa_insert_instructions]
+
+ 
+        # create the line to insert:
+        
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+                             'TeamName': fa_team,'PickType': 'FA_Compensation',
+                             'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': '',
+                             'Draft_Round': 'RD2','Draft_Round_Int': 2,
+                             'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + fa_pick_type, 'Reason': reason}, index=[rowno])
+        # Execute Insert below the rowno
+        df = pd.concat([df.iloc[:rowno + 1], line,
+                       df.iloc[rowno + 1:]]).reset_index(drop=True)
+        df = df.iloc[rowno+1]
+
+        del df['Original_Owner']
+        del df['Current_Owner']
+        del df['Previous_Owner']
+        del df['TeamName']
+
+        df['id'] = rowno
+        df['Original_Owner_id'] = fa_team
+        df['Current_Owner_id'] = fa_team
+        df['TeamName_id'] = fa_team
+        df['Previous_Owner_id'] = ''
+        df['projectid_id'] = pk
+
+        MasterList.objects.filter(id=rowno).update(**df)
+
+        # display(df)
+
+        # Update transactions
+        fa_round = 'RD2'
+        fa_aligned_pick = ''
+        fa_unique_pick = ''
+        fa_insert_instructions = ''
+        
+        fa_description = str(fa_team) + ' received a ' + str(fa_pick_type) + ' FA Compensation Pick' + '(' + reason + ')'
+        
+        
+    if fa_pick_type == 'Third Round':
+        # Make the changes to the masterlist:
+        # find row number of the aligned pick:
+                
+        # create the line to insert:
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,         
+                             'TeamName': fa_team, 'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
+                             'Previous_Owner': '', 'Draft_Round': 'RD3', 'Draft_Round_Int': 3,
+                             'Pick_Group': str(v_current_year) + '-' + 'RD3-Priority-' + fa_pick_type, 'Reason': reason},
+                            index=[rowno])
+
+        # Execute Insert
+        if fa_insert_instructions == 'Before':
+            df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
+                           ).reset_index(drop=True)
+            df = df.iloc[rowno]
+
+            del df['Original_Owner']
+            del df['Current_Owner']
+            del df['Previous_Owner']
+            del df['TeamName']
+
+            df['id'] = rowno
+            df['Original_Owner_id'] = fa_team
+            df['Current_Owner_id'] = fa_team
+            df['TeamName_id'] = fa_team
+            df['Previous_Owner_id'] = ''
+            df['projectid_id'] = pk
+            MasterList.objects.filter(id=rowno).update(**df)
+            
+        else:
+            df = pd.concat([df.iloc[:rowno + 1], line,
+                           df.iloc[rowno + 1:]]).reset_index(drop=True)
+            df = df.iloc[rowno+1]
+            del df['Original_Owner']
+            del df['Current_Owner']
+            del df['Previous_Owner']
+            del df['TeamName']
+
+            df['id'] = rowno+1
+            df['Original_Owner_id'] = fa_team
+            df['Current_Owner_id'] = fa_team
+            df['TeamName_id'] = fa_team
+            df['Previous_Owner_id'] = ''
+            df['projectid_id'] = pk
+
+            MasterList.objects.filter(id=rowno+1).update(**df)
+            
+        # Update Transactions List
+        fa_round = 'RD3'
+        
+        fa_dict={}
+        fa_dict['fa_team'] = [fa_pick_type, fa_round, reason,fa_aligned_pick, fa_unique_pick, fa_insert_instructions]
+        fa_description = str(fa_team) + ' received a ' + str(fa_pick_type) + ' FA Compensation Pick' + '(' + reason + ')'
+        
+    if fa_pick_type == 'Custom Fixed Position':
+        # Make the changes to the masterlist:
+        # find row number of the aligned pick:
+        rowno = df.id[df['Display_Name_Detailed'] == fa_aligned_pick][0]
+
+        
+        # create the line to insert:
+        fa_unique_pick = df.loc[df.Display_Name_Detailed == fa_aligned_pick, 'Unique_Pick_ID'].iloc[0]
+
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+                             'TeamName': fa_team, 'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
+                             'Previous_Owner': '', 'Draft_Round': fa_round, 
+                             'Pick_Group': str(v_current_year) + '-' + fa_round + '-Priority-' + fa_pick_type, 'Reason': reason},
+                            index=[rowno])
+        # Execute Insert
+        if fa_insert_instructions == 'Before':
+            df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
+                           ).reset_index(drop=True)
+            df = df.iloc[rowno]
+ 
+
+            del df['TeamName_id']
+            del df['Current_Owner_id']
+            del df['Previous_Owner_id']
+            del df['Original_Owner_id']
+
+            df['id'] = rowno
+            df['Original_Owner'] = fa_team
+            df['Current_Owner'] = fa_team
+            df['Previous_Owner'] = fa_team
+            df['TeamName'] = fa_team
+            df['projectid_id'] = pk
+
+          
+            MasterList.objects.filter(id=rowno).update(**df)
+        else:
+            df = pd.concat([df.iloc[:rowno + 1], line,
+                           df.iloc[rowno + 1:]]).reset_index(drop=True)
+            
+            df = df.iloc[rowno+1]
+
+            del df['Original_Owner']
+            del df['Current_Owner']
+            del df['Previous_Owner']
+            del df['TeamName']
+
+            df['id'] = rowno+1
+            df['Original_Owner_id'] = fa_team
+            df['Previous_Owner_id'] = fa_team 
+            df['Current_Owner_id'] = fa_team
+            df['TeamName_id'] = fa_team
+            df['projectid_id'] = pk
+            
+            MasterList.objects.filter(id=rowno+1).update(**df)
+
+        # Update Transactions List
+
+        
+    
+        fa_dict={}
+        fa_dict['fa_team'] = [fa_pick_type, fa_round, reason,fa_aligned_pick, fa_unique_pick, fa_insert_instructions]
+        fa_description = str(fa_team) + ' received a ' + str(fa_pick_type) + ' FA Compensation Pick' + '(' + reason + ')'  
+    
+    
+    
+        new_df = []
+   
+    Queryset = MasterList.objects.filter(projectid_id=pk).values()
+    for picks in Queryset:
+        new_df.append(picks)
+
+    df1 = pd.DataFrame(new_df)
+    df1.rename(columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
+    df1.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
+    df1.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
+
+    
+    
+    udpatedf = update_masterlist(df1)
+    udpatedf = udpatedf.drop('id', 1)
+    udpatedf = udpatedf.drop('projectid_id', 1)
+    udpatedf = udpatedf.drop('Previous_Owner_id', 1)
+
+
+    iincreament_id = 1
+    for index, updaterow in udpatedf.iterrows():
+        FA_v2_data = dict(updaterow)
+        team = Teams.objects.get(id=updaterow.TeamName)
+        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
+        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
+        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
+        Overall_pickk = FA_v2_data['Overall_Pick']
+
+        Project1 = Project.objects.get(id=pk)
+        FA_v2_data['Previous_Owner'] = team
+        FA_v2_data['TeamName'] = team
+        FA_v2_data['Original_Owner'] = Original_Owner
+        FA_v2_data['Current_Owner'] = Current_Ownerr
+        FA_v2_data['projectid'] = Project1
+
+        FA_v2_data['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+            None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
+
+        FA_v2_data['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
+            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(FA_v2_data['Display_Name'])
+
+        # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
+        #     previous_owner + team.ShortName + \
+        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
+        # df.reset_index(drop=False)
+
+        # print(row1['Display_Name_Mini'])
+        # exit()
+        FA_v2_data['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+            previous_owner + team.ShortName + \
+            ')' if Original_Owner != Current_Ownerr else team.ShortName
+
+        FA_v2_data['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+            previous_owner + team.ShortName + \
+            ')' if Original_Owner != Current_Ownerr else team.ShortName  
+    
+        model_dictionary = {
+            'Year':FA_v2_data['Year'],
+            'PickType':FA_v2_data['PickType'],
+            'TeamName':FA_v2_data['TeamName'],
+            'Position':FA_v2_data['Position'],
+            'Original_Owner':FA_v2_data['Original_Owner'],
+            'Current_Owner':FA_v2_data['Current_Owner'],
+            'Previous_Owner':FA_v2_data['Previous_Owner'],
+            'Draft_Round':FA_v2_data['Draft_Round'],
+            'Draft_Round_Int':FA_v2_data['Draft_Round_Int'],
+            'Pick_Group':FA_v2_data['Pick_Group'],
+            'System_Note':FA_v2_data['System_Note'],
+            'User_Note':FA_v2_data['User_Note'],
+            'Reason':FA_v2_data['Reason'],
+            'Overall_Pick':FA_v2_data['Overall_Pick'],
+            'AFL_Points_Value':FA_v2_data['AFL_Points_Value'],
+            'Unique_Pick_ID':FA_v2_data['Unique_Pick_ID'],
+            'Club_Pick_Number':FA_v2_data['Club_Pick_Number'],
+            'Display_Name':FA_v2_data['Display_Name'],
+            'Display_Name_Short':FA_v2_data['Display_Name_Short'],
+            'Display_Name_Detailed':FA_v2_data['Display_Name_Detailed'],
+            'Display_Name_Mini':FA_v2_data['Display_Name_Mini'],
+            'Current_Owner_Short_Name':FA_v2_data['Current_Owner_Short_Name'],
+            'Pick_Status':FA_v2_data['Pick_Status'],
+            'Selected_Player':FA_v2_data['Selected_Player'],
+            'projectid':FA_v2_data['projectid']
+        }
+    
+        
+        MasterList.objects.filter(id=iincreament_id).update(**model_dictionary)
+        
+        iincreament_id +=1
+        
+     # variables for transactions dict
+    current_time = datetime.datetime.now(pytz.timezone(
+        'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
+    
+    fa_dict = {fa_team : [fa_round,fa_aligned_pick,fa_insert_instructions]}
+    fa_list = []
+    for key,value in fa_dict.items():
+        for i in value:
+            result = ' ' + key + ' ' + i
+            fa_list.append(result)
+    fa_str = "".join(fa_list)
+    
+    # Exporting trade to the transactions df
+    FA_v2_transaction_details = (
+        {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'Priority_Pick', 'Transaction_Details': fa_str, 'Transaction_Description': fa_description,'projectId':pk,'Type':'FA-Compansations-v2'})
+
+    Transactions(**FA_v2_transaction_details).save()
+    obj = Transactions.objects.latest('id')
+    count = Transactions.objects.filter().count()
+    Transactions.objects.filter(id = obj.id ).update(Transaction_Number=count)
+    return Response({'success': 'add_FA_compensation_v2 has been Created'}, status=status.HTTP_201_CREATED)    
+    
+    
+    
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def ConstraintsRquest(request,pk):
+    loggeduser_id = ''
+    f = open('RestApp/userfile.py', 'r')
+    
+    if f.mode == 'r':
+       loggeduser_id =f.read()
+    Userobj = User.objects.get(id=loggeduser_id)
+    Teamid = Userobj.Teams.id
+    Teamobj = Teams.objects.get(id=Teamid)  
+    v_team_name = Teamobj.id
+
+    Masterlist = []
+    QueryObj =  MasterList.objects.filter(projectid_id=pk).values()
+    for data in QueryObj:
+        Masterlist.append(data)
+        df = pd.DataFrame(Masterlist)
+    c1_dropdown = df[df['Current_Owner_id'] ==v_team_name]['Display_Name_Detailed'].tolist()
+    c2_dropdown = df[df['Current_Owner_id'] ==v_team_name]['Year'].unique().tolist()
+    c3_dropdown = df[df['Current_Owner_id'] ==v_team_name]['Draft_Round'].unique().tolist()
+    c4_set = 0
+    c5_set = 99999999
+    c6_dropdown = df[df['Current_Owner_id'] !=v_team_name]['Current_Owner_id'].unique().tolist()
+    c7_dropdown = df[df['Current_Owner_id'] !=v_team_name]['Display_Name_Detailed'].unique().tolist()
+    c8_dropdown = df[df['Current_Owner_id'] !=v_team_name]['Year'].unique().tolist()
+    c9_dropdown = df[df['Current_Owner_id'] !=v_team_name]['Draft_Round'].unique().tolist()
+    c10_set = 0
+    c11_set = 99999999
+    c12_set = 0.10
+
+    c_dict = {}
+    c_dict['c1_dropdown'] = c1_dropdown
+    c_dict['c2_dropdown'] = c2_dropdown
+    c_dict['c3_dropdown'] = c3_dropdown
+    c_dict['c4_set'] = c4_set
+    c_dict['c5_set'] = c5_set
+    c_dict['c6_dropdown'] = c6_dropdown
+    c_dict['c7_dropdown'] = c7_dropdown
+    c_dict['c8_dropdown'] = c8_dropdown
+    c_dict['c9_dropdown'] = c9_dropdown
+    c_dict['c10_set'] = c10_set
+    c_dict['c11_set'] = c11_set
+    c_dict['c12_set'] = c12_set
+   
+    return Response({'constraints-data': c_dict}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def GetFlagPicks(request, pk):
+    PicksList = []
+    queryobj = MasterList.objects.filter(TeamName_id=pk).values()
+    for data in queryobj:
+        PicksList.append(data['Display_Name_Detailed'])
+    return Response({'PicksList': PicksList}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def GetPickType(request):
+    Picktypes = []
+    PicksQuery = PicksType.objects.filter().values()
+    for types in PicksQuery:
+        Picktypes.append(types['pickType'])
+    return Response({'Picktype': Picktypes}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def GetRounds(request):
+    roundslist = list()
+    QuerySet = DraftRound.objects.filter().values()
+    for rounds in QuerySet:
+        roundslist.append(rounds)
+    return Response({'roundslist': roundslist}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def Get_Rounds_Pick(request, pk):
+
+    df_list = []
+
+    newdf_data = MasterList.objects.filter(projectid=pk).values()
+
+    for new_df in newdf_data:
+        df_list.append(new_df)
+    df = pd.DataFrame(df_list)
+    df['column'] = np.zeros(len(df))
+    df['column'].describe()
+    df = df[~df.isin([np.nan, np.inf, -np.inf]).any(1)]
+
+    current_date = date.today()
+
+    v_current_year = current_date.year
+    v_current_year_plus1 = v_current_year+1
+
+    data_current_year_rd1 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD1')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+
+    data_current_year_rd2 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD2')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+
+    data_current_year_rd3 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD3')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+
+    data_current_year_rd4 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD4')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+
+    data_current_year_rd5 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD5')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+
+    data_current_year_rd6 = df[(int(df.Year[0]) == v_current_year) & (df.Draft_Round == 'RD6')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+
+    # Next Year Round by Round:
+
+    data_next_year_rd1 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+
+    data_next_year_rd2 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD2')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+
+    data_next_year_rd3 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+
+    data_next_year_rd4 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD4')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+
+    data_next_year_rd5 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD5')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+
+    data_next_year_rd6 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+
+    # Order of Entry Table
+
+    Teamnames = []
+    teamobj = Teams.objects.filter(id=pk).values()
+    for teams in teamobj:
+        Teamnames.append(teams['TeamNames'])
+    data_order_of_entry = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
+        'TeamName_id', 'Overall_Pick', 'Club_Pick_Number']].sort_values(by='Overall_Pick')
+
+    # data_order_of_entry = pd.crosstab(data_order_of_entry.TeamName_id, data_order_of_entry.Club_Pick_Number, values=data_order_of_entry.Overall_Pick,aggfunc=sum)
+
+    data_order_of_entry.reset_index(drop=True, inplace=True)
+    data_order_of_entry_dict = data_order_of_entry.to_dict(orient="index")
+
+    # Draft Assets Graph - Bar Graph
+
+    my_dict = {}
+    graph_list = []
+    data_draft_assets_graph = df.groupby(['Current_Owner_Short_Name', 'Year'])[
+        'AFL_Points_Value'].sum()
+    dict = data_draft_assets_graph.items()
+    for data in dict:
+
+        my_dict['shortname'] = list(data).pop(0)[0]
+        my_dict['Year'] = list(data).pop(0)[1]
+        my_dict['AFL_POINTS'] = list(data).pop(1)
+        graph_list.append(my_dict)
+
+    ##### Full List of Draft Picks #####
+
+    data_full_masterlist = df[['Year', 'Draft_Round', 'Overall_Pick', 'TeamName_id',
+                               'PickType', 'Original_Owner_id', 'Current_Owner_id', 'Previous_Owner_id', 'AFL_Points_Value', 'Club_Pick_Number']]
+
+    dict = data_full_masterlist.items()
+    data_full_list = list(dict)
+    data_full_masterlist_array = np.array(data_full_list, dtype=object)
+
+    Current_Year_Round = {
+
+        'data_current_year_rd1': data_current_year_rd1,
+        'data_current_year_rd2': data_current_year_rd2,
+        'data_current_year_rd3': data_current_year_rd3,
+        'data_current_year_rd4': data_current_year_rd4,
+        'data_current_year_rd5': data_current_year_rd5,
+        'data_current_year_rd6': data_current_year_rd6
+    }
+
+    Next_Year_Round = {
+        'data_next_year_rd1': data_next_year_rd1,
+        'data_next_year_rd2': data_next_year_rd2,
+        'data_next_year_rd3': data_next_year_rd3,
+        'data_next_year_rd4': data_next_year_rd4,
+        'data_next_year_rd5': data_next_year_rd5,
+        'data_next_year_rd6': data_next_year_rd6
+    }
+
+    return Response({'Current_Year_Round': Current_Year_Round, 'Next_Year_Round': Next_Year_Round, 'data_order_of_entry_dict': data_order_of_entry_dict, 'data_full_masterlist_array': data_full_masterlist_array, 'graph_list': graph_list}, status=status.HTTP_201_CREATED)
+
+
+
+    
+    
+@api_view(['POST'])
+@permission_classes([AllowAny])
 def MakeCompanyRequest(request):
+
     Company_obj = request.data
     serializer = MakeCompanySerializer(data=Company_obj)
     serializer.is_valid(raise_exception=True)
