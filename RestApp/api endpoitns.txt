@@ -130,6 +130,14 @@ AcademyBid
 }
 
 
+AcademyBid inputs
+
+{
+   "player":"test",
+   "team":"1",
+   "pickid":"1"
+}
+
 
 
 Add trade v2
