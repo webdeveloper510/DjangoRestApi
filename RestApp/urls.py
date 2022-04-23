@@ -45,7 +45,9 @@ from .views import (
     GetFlagPicks,
     GetFlagsRequest,
     add_FA_compansation_request,
-    add_potential_trade
+    update_potential_trade,
+    add_father_son
+    
     
 )
 
@@ -56,19 +58,21 @@ urlpatterns = [
     re_path(r'^Auth/$', authenticate_user),
     re_path(r'^CreateProject/$', ProjNameDescRequest),
     re_path(r'^LocalLadder/$', LocalLadderRequest),
-    # re_path(r'^MasterList/$', CreateMasterListRequest),
+    re_path(r'^MasterList/$', CreateMasterListRequest),
     #re_path(r'^Add-Trade/$', AddTradeRequest),
     re_path(r'^MakeCompany/$', MakeCompanyRequest),
     re_path(r'^add_trade_v2/$', add_trade_v2_request),
     re_path(r'^Priority-Pick/$', PriorityPickrRequest),
     re_path(r'^Academy-Bid/(?P<pk>[0-9]+)$', AcademyBidRequest),
     re_path(r'^Add-FA-Compansation/(?P<pk>[0-9]+)$', add_FA_compansation_request),
-    re_path(r'^Add-trade/(?P<pk>[0-9]+)$', add_potential_trade),
-    
+    re_path(r'^Potential-Trade/(?P<pk>[0-9]+)$', update_potential_trade),
+    re_path(r'^Add-Father-Son/(?P<pk>[0-9]+)$',add_father_son ),
+
+        
 
     # #################### Update URL's #################
 
-    re_path(r'^UpdateMasterList/(?P<pk>[0-9]+)$', update_masterlist),
+    re_path(r'^(?P<pk>[0-9]+)$', update_masterlist),
     re_path(r'^Add-Manual/(?P<pk>[0-9]+)$', AddManualRequest),
     
 

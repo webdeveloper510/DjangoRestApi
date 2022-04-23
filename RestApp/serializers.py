@@ -86,4 +86,4 @@ class PlayersSerializer(serializers.ModelSerializer):
         fields = '__all__'
         
         
-        
+

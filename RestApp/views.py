@@ -46,9 +46,7 @@ from .models import (
     PriorityPick,
     DraftRound,
     PriorityTransactions,
-
-
-
+    Trades
 )
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
@@ -61,10 +59,10 @@ import math
 import pytz
 import datetime
 from django.db import connection
-from collections import defaultdict
 from django.core.files import File
 from django.db import connection
-from collections import Counter
+from ast import literal_eval
+import ast
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', 500)
@@ -503,7 +501,7 @@ def update_masterlist(df):
 
 
 def CreateMasterListRequest(request, pk):
-
+    print('hello')
     current_date = date.today()
     v_current_year = current_date.year
     v_current_year_plus1 = current_date.year+1
@@ -531,9 +529,8 @@ def CreateMasterListRequest(request, pk):
     df = pd.concat([masterlistthisyear, masterlistnextyear],
                    ignore_index=True, axis=0)
     pkkkk = MasterList.objects.filter(projectid=pk).first()
-
     if pkkkk is None:
-
+  
         try:
             df['PickType'] = 'Standard'
             df['Original_Owner'] = df['TeamName']
@@ -554,11 +551,12 @@ def CreateMasterListRequest(request, pk):
             df['projectid'] = pk
 
             udpatedf = update_masterlist(df)
-        
+            
 
             for index, updaterow in udpatedf.iterrows():
                 ShortNames = []
                 row1 = dict(updaterow)
+                print(row1)
                 team = Teams.objects.get(id=updaterow.TeamName)
                 teamsobj = Teams.objects.filter().values('ShortName')
                 for teams_short_list in teamsobj:
@@ -611,7 +609,7 @@ def CreateMasterListRequest(request, pk):
     else:
         return Response({'error': 'Masterlist with same project is already exist'}, status=status.HTTP_208_ALREADY_REPORTED)
 
-
+# CreateMasterListRequest('MasterList/',4)
 
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
@@ -1760,11 +1758,11 @@ def AcademyBidRequest(request, pk):
            
     
      ######## Combine into a summary dataframe: #############
-     
-    academy_summaries_list = [pick_lost_details,pick_shuffle_details,pick_deficit_details]
-    
+        
+        academy_summaries_list = [pick_lost_details,pick_shuffle_details,pick_deficit_details]
+        
 
-    academy_summary_df = pd.DataFrame(columns=['Pick', 'Moves_To', 'New_Points_Value'])
+        academy_summary_df = pd.DataFrame(columns=['Pick', 'Moves_To', 'New_Points_Value'])
 
     for x in academy_summaries_list:
         if len(x) > 0:
@@ -2010,7 +2008,6 @@ def TeamsRequest(request):
 def CheckMasterlistrequest(request):
     MasterlisId = list()
     MasterList1dict = MasterList.objects.filter().values()
-    print(  MasterList1dict )
     for masterdata in MasterList1dict:
         MasterlisId.append(masterdata['projectId_id'])
     if len(MasterlisId) > 0:
@@ -2187,7 +2184,601 @@ def AddManualRequest(request, pk):
     Transactions.objects.filter(id=pk.id).update(Transaction_Number=Transactions_count)
     
     
-
+def add_potential_trade(request, pk):
+   
+    df = []
+    dfobj = MasterList.objects.filter(projectid=pk).values()
+    for df_data in dfobj:
+        df.append(df_data)
+        
+    masterlist = pd.DataFrame(df)
+    
+    data=request.data
+    v_team_name = data['teamid']
+    Trade_Partner=data['Trade_Partner']
+    Trading_Out_Num=data['Trading_Out_Num']
+    Trading_Out_Num_Player=data['Trading_Out_Num_Player']
+    pick_out_idd = data['pick_trading_out']
+    player_trading_out = data['player_trading_out']
+    pick_in_id = data['pick_trading_in']
+    Trading_In_Num = data['Trading_In_Num']
+    Trading_In_Num_Player = data['Trading_In_Num_Player']
+    player_trading_in = data['player_trading_in']
+    Trading_Out={}
+    Trading_Out_Simple=[]
+    total_points_out = 0
+    total_points_in = 0
+    
+    pick_trading_out_list = []
+    pick_trading_in_list = []
+    
+    Trading_Out_Num_len = int(Trading_Out_Num)
+    Trading_In_Num = int(Trading_Out_Num_Player)
+    Trading_In_Num_Player_Num = int(Trading_In_Num_Player)
+    
+    MasterQuerytset = MasterList.objects.filter(id__in = [pick_out_idd,pick_in_id]).values()
 
     
+
+    
+    for masterlist_data in MasterQuerytset:
+        if masterlist_data['id'] == int(pick_out_idd):
+            pick_trading_out_list.append(masterlist_data['Display_Name_Detailed'])
+        elif masterlist_data['id']==int(pick_in_id):
+            pick_trading_in_list.append(masterlist_data['Display_Name_Detailed'])
+        
+        
+    pick_trading_out = "".join(pick_trading_out_list)
+    pick_trading_in = "".join(pick_trading_in_list)
+    
+    if Trading_Out_Num is not None:
+        for i in range(Trading_Out_Num_len):
+         
+            points_trading_out = masterlist.loc[masterlist.Display_Name_Detailed == pick_trading_out, 'AFL_Points_Value'].iloc[0]
+            pick_out_id = masterlist.loc[masterlist.Display_Name_Detailed == pick_trading_out, 'Unique_Pick_ID'].iloc[0]
+
+      
+            Trading_Out[pick_out_id] = [points_trading_out,pick_out_id]
+            Trading_Out_Simple.append(pick_trading_out)
+       
+    else:
+        pass
+    
+    
+    
+    #Ask for which players to trade out:
+    if Trading_Out_Num_Player is not None:
+        for i in range(Trading_In_Num):
+            
+            Trading_Out['Player'] = [player_trading_out,0]
+            Trading_Out_Simple.append(player_trading_out)
+    
+    Trading_In = dict()
+    Trading_In_Simple = []
+       #print picks of trade partner
+    
+    if Trading_Out_Num is not None:
+        for i in range(Trading_In_Num):
+  
+            points_trading_in = masterlist.loc[masterlist.Display_Name_Detailed == pick_trading_in, 'AFL_Points_Value'].iloc[0]
+            pick_in_id = masterlist.loc[masterlist.Display_Name_Detailed == pick_trading_in, 'Unique_Pick_ID'].iloc[0]
+            Trading_In[pick_in_id] = [pick_trading_in, points_trading_in]
+            Trading_In_Simple.append(pick_trading_in)
+            
+    else:
+        pass
    
+    if Trading_In_Num_Player is not None:
+            for i in range(Trading_In_Num_Player_Num):
+                Trading_In['Player'] = [player_trading_in,0]
+
+    #loop to get the points for each pick going out  
+
+
+    for v in Trading_Out.values():
+        
+        total_points_out += int(v[0])
+
+    #loop to get the points for each pick coming in
+    
+    for v in Trading_In.values():
+            total_points_in += int(v[1])
+    
+
+
+ 
+    # print("You will be trading out " + str(total_points_out) + "pts out and receiving " + str(total_points_in) + "pts in.")
+    total_points_diff = total_points_in - total_points_out
+    
+    note = data['notes']
+    
+    Trading_In_Simple_str = "".join(Trading_In_Simple)
+    Trading_In_Out_str = "".join(Trading_Out_Simple)
+    Trading_In_str = "".join(Trading_In)
+    Trading_Out_list = []
+    for trade_out_data in Trading_Out:
+        Trading_Out_list.append(trade_out_data)
+    Trading_Out_as_str = "".join(Trading_Out_list)
+    
+    trades = pd.DataFrame({'Trade_Partner': Trade_Partner, 'Trading_Out' : [Trading_Out_Simple],'Trading_In': [Trading_In_Simple],
+                            'Points_Out': total_points_out,'Points_In': total_points_in
+                            ,  'Points_Diff':total_points_diff,  'Notes':note, 'System_Out':[Trading_Out],'System_In':[Trading_In]},index=[0])
+    
+    # trades = pd.concat([trades,append_df])
+    
+    return trades,masterlist,v_team_name
+    
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def update_potential_trade(request, pk):
+    trades_updated = ''
+    trades,masterlist,v_team_name = add_potential_trade(request,pk)
+    if trades.empty:
+        pass
+    else:
+        #creating the new trades df to reaplace the old trades at the end of function
+        trades_updated = pd.DataFrame(columns=['Trade_Partner', 'Trading_Out',
+                                               'Trading_In','Points_Out','Points_In' , 'Points_Diff',  'Notes', 'System_Out','System_In','Warning'])
+         # looping over each row to extract the keys and return their current position & value:
+         
+        for _, row in trades.iterrows():   
+
+            Trading_Out = dict()
+            Trading_In = dict()
+            Trading_Out_Simple = []
+            Trading_In_Simple = []
+            Trade_Warning = []
+
+            Trade_Partner = row.Trade_Partner
+            Notes = row.Notes
+         
+            ##### Picks Traded Out ######
+            #converting string back to a dictionary:
+            d =  ast.literal_eval(str(row.System_Out))
+            for k in d:
+                unique_pick_id = k
+                if unique_pick_id == 'Player':
+                
+
+                    for player in d.values():
+                        
+                        player_trading_out = player[0]
+                        
+                        Trading_Out['Player'] = [player_trading_out, 0]
+                    
+                        Trading_Out_Simple.append(player_trading_out)
+                        
+                                   
+                else:                   
+                    updated_pick_name = masterlist.loc[masterlist.Unique_Pick_ID == unique_pick_id, 'Display_Name_Detailed'].iloc[0]
+
+
+                    masterlist.rename(columns = {'Current_Owner_id':'Current_Owner'}, inplace = True)
+                    
+                    masterlist.rename(columns = {'Previous_Owner_id':'Previous_Owner'}, inplace = True)
+                    updated_pick_pts = masterlist.loc[masterlist.Unique_Pick_ID == unique_pick_id, 'AFL_Points_Value'].iloc[0]
+                    
+                    updated_pick_owner = masterlist.loc[masterlist.Unique_Pick_ID == unique_pick_id, 'Current_Owner'].iloc[0]
+                    updated_recent_owner = masterlist.loc[masterlist.Unique_Pick_ID == unique_pick_id, 'Previous_Owner'].iloc[0]
+                    if updated_pick_owner != v_team_name or updated_recent_owner == Trade_Partner:
+                        warning = 'Trade is no longer valid'
+                    else:
+                        warning = ''
+       
+                    #Appending to dictionaries
+
+                    Trade_Warning.append(warning)
+                    Trading_In[unique_pick_id] = [updated_pick_name, updated_pick_pts]
+                    
+                    Trading_In_Simple.append(updated_pick_name)
+                    
+            total_points_out = 0
+            total_points_in = 0           
+
+
+            #loop to get the points for each pick going out
+            for v in Trading_Out.values():
+                total_points_out += int(v[1])
+
+            #loop to get the points for each pick coming in
+            for v in Trading_In.values():
+                total_points_in += int(v[1])
+
+            # Calculations for pick difference
+            total_points_diff = total_points_in - total_points_out
+            
+            
+            Trading_In_Simple_str = "".join(Trading_In_Simple)
+            Trading_In_Out_str = "".join(Trading_Out_Simple)
+            Trading_In_str = "".join(Trading_In)
+            Trade_Warning_as_str = "".join(Trade_Warning)
+            Trading_Out_list = []
+            for trade_out_data in Trading_Out:
+                Trading_Out_list.append(trade_out_data)
+            Trading_Out_as_str = "".join(Trading_Out_list)
+            
+            
+
+            # Creating a new row to add to the updated trad
+    append_df = pd.DataFrame({'Trade_Partner': Trade_Partner, 'Trading_Out' :Trading_In_Out_str,'Trading_In': Trading_In_Simple_str,
+                    'Points_Out': total_points_out,'Points_In': total_points_in
+                    ,  'Points_Diff':total_points_diff,  'Notes':Notes, 'System_Out':Trading_Out_as_str,'System_In':Trading_In_str
+                    ,'Warning':Trade_Warning_as_str},index=[0])
+
+    # trades_updated = pd.concat([trades_updated,append_df])
+        # print(trades_updated)
+    Tarde_dict = {}
+    for index, updaterow in append_df.iterrows():
+        Tarde_dict = dict(updaterow)
+        print(Tarde_dict)
+    Trades(**Tarde_dict).save()
+                        
+    return Response("You will be trading out " + str(total_points_out) + "pts out and receiving " + str(total_points_in) + "pts in.", status=status.HTTP_200_OK)
+            
+            
+        # return trades_updated, trades
+        
+        
+        
+        
+        
+
+def add_father_son_input(request):
+
+      
+    
+    data=request.data 
+    fs_player=data['player']
+    fs_team=data['teamid']
+    fs_bid=data['pickid']
+    
+    return fs_player,fs_team,fs_bid
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+
+def add_father_son(request,pk):
+    current_date = date.today()
+    v_current_year = current_date.year
+    v_current_year_plus1 = v_current_year+1
+
+    fs_player,fs_team,fs_bid = add_father_son_input(request)
+    masterlist = []
+    dfobj = MasterList.objects.filter(projectid=pk).values()
+    for df_data in dfobj:
+        masterlist.append(df_data)
+    df = pd.DataFrame(masterlist)
+
+    # obj=MasterList.objects.get(id=fs_bid)
+    # fs_pick=obj.Display_Name_Detailed
+    list=[]
+    queryset=MasterList.objects.filter(id__in=fs_bid).values()
+    for query in queryset:
+        list.append(query['Display_Name_Detailed'])
+    fs_pick = "".join(list)
+    df.rename(columns = {'Current_Owner_id':'Current_Owner'}, inplace = True)
+
+    fs_pts_value = df.loc[df.Display_Name_Detailed == fs_pick, 'AFL_Points_Value'].iloc[0]
+    fs_bid_round = df.loc[df.Display_Name_Detailed == fs_pick, 'Draft_Round'].iloc[0]
+    fs_bid_round_int = df.loc[df.Display_Name_Detailed == fs_pick, 'Draft_Round_Int'].iloc[0]
+    fs_bid_team = df.loc[df.Display_Name_Detailed == fs_pick, 'Current_Owner'].iloc[0]
+    fs_bid_pick_no = df.loc[df.Display_Name_Detailed == fs_pick, 'Overall_Pick'].iloc[0]
+    fs_pick_type = 'Father Son Bid Match'
+    
+    
+    sum_line1 = str(fs_bid_team) + ' have placed a bid on a ' + str(fs_team) +' Father Son player at pick ' + str(fs_bid_pick_no) + ' in ' + fs_bid_round
+
+    # Defining discounts based off what round the bid came in:
+    if fs_bid_round == 'RD1':
+        fs_pts_required = float(fs_pts_value) * .8
+
+        sum_line2 = str(fs_team) +' will require ' + str(fs_pts_required) + ' draft points to match bid.'
+        print(sum_line2)
+    else:
+        fs_pts_required = float(fs_pts_value) -197
+        sum_line2 = str(fs_team) +' will require ' + str(fs_pts_required) + ' draft points to match bid.'
+        print(sum_line2)
+        
+    df_subset = df.copy()
+    df_subset = df_subset[(df_subset.Current_Owner.astype(int) == int(fs_team)) & (df_subset.Year.astype( int) == int(v_current_year)) & (df_subset.Overall_Pick.astype(int) >= int(fs_bid_pick_no))]
+
+      # Creating the cumulative calculations to determine how the points are repaid:
+
+    df_subset['Cumulative_Pts'] = df_subset.groupby('Current_Owner')['AFL_Points_Value'].transform(pd.Series.cumsum)
+    print(df_subset['Cumulative_Pts'])
+
+    df_subset['Payoff_Diff'] = df_subset['Cumulative_Pts'].astype(float) - fs_pts_required   
+    df_subset['AFL_Pts_Left'] = np.where(
+        df_subset['Payoff_Diff'] <= 0,
+        0,
+        np.where(
+             df_subset['Payoff_Diff'] < df_subset['AFL_Points_Value'].astype(float),
+             df_subset['Payoff_Diff'],
+             df_subset['AFL_Points_Value']
+        )
+    )
+    
+    
+    df_subset['AFL_Pts_Left_previous_pick'] = df_subset['AFL_Pts_Left'].shift()
+    df_subset['AFL_Pts_Value_previous_pick'] = df_subset['AFL_Points_Value'].shift()
+    
+
+    df_subset['Action'] =  np.where((df_subset['AFL_Pts_Left'] != df_subset['AFL_Points_Value']) & (df_subset['AFL_Pts_Left']== 0),
+                    'Pick lost to back of draft',
+                    np.where((df_subset['AFL_Pts_Left'] != df_subset['AFL_Points_Value']) & (df_subset['AFL_Pts_Left'].astype(int)>0),
+                    'Pick Shuffled Backwards',
+                    np.where((df_subset['AFL_Pts_Left'] == df_subset['AFL_Points_Value']) & (df_subset['Payoff_Diff'] < 0) & (df_subset['AFL_Pts_Value_previous_pick'].astype(float) > 0)
+                    ,'Points Deficit',
+                    'No Change')))
+    
+    
+      #Add a column for the deficit amount and then define it as a variable:
+    df_subset['Deficit_Amount'] = np.where(df_subset['Action'] == 'Points Deficit', df_subset['Payoff_Diff'],np.nan)
+    
+    
+    
+    try:
+        fs_points_deficit = df_subset.loc[df_subset.Action == 'Points Deficit', 'Deficit_Amount'].iloc[0]
+    except:
+        fs_points_deficit = []
+
+    #Create lists of changes to make:
+    picks_lost = df_subset.loc[df_subset.Action == 'Pick lost to back of draft', 'Display_Name_Detailed'].to_list()
+    
+    picks_shuffled = df_subset.loc[df_subset.Action == 'Pick Shuffled Backwards', 'Display_Name_Detailed'].to_list()
+    pick_deficit = df_subset.loc[df_subset.Action == 'Points Deficit', 'Display_Name_Detailed'].to_list()
+    
+    try:
+        picks_shuffled_points_value = df_subset.loc[df_subset.Action == 'Pick Shuffled Backwards', 'AFL_Pts_Left'].iloc[0]
+    except:
+        picks_shuffled_points_value = np.nan
+
+    carry_over_deficit = fs_points_deficit
+    
+
+    
+    if len(picks_lost) > 0:
+        pick_lost_details = pd.DataFrame(columns=['Pick', 'Moves_To', 'New_Points_Value'])
+
+        for pick in picks_lost:
+            # Reset the index
+            df = df.reset_index(drop=True)
+
+            #Find row number of pick lost
+            rowno_picklost = df.index[df.Display_Name_Detailed == pick][0]
+            #print(rowno_picklost)
+
+            #Find row number of the first pick in the next year
+            rowno_startnextyear = df.index[(df.Season == v_current_year_plus1) & (df.Overall_Pick == 1)][0]
+            #print(rowno_startnextyear)
+
+            #Insert pick to the row before next years draft:
+            df = pd.concat([df.iloc[:rowno_startnextyear], df.iloc[[rowno_picklost]], df.iloc[rowno_startnextyear:]]).reset_index(drop=True)
+
+            #Find row number to delete and execute delete:
+            rowno_delete = df.index[df.Display_Name_Detailed == pick][0]
+            #print(rowno_delete)
+            df.drop(rowno_delete, axis=0, inplace=True)
+
+            #Changing the names of some key details:
+            #Change system note to describe action
+            df['System_Note'].mask(df['Display_Name_Detailed'] == pick, 'FS bid match: pick lost to back of draft', inplace=True)
+
+            #Change the draft round
+            df['Draft_Round'].mask(df['Display_Name_Detailed'] == pick, 'BOD', inplace=True)
+            df['Draft_Round_Int'].mask(df['Display_Name_Detailed'] == pick, 99, inplace=True)
+            df['Pick_Group'].mask(df['Display_Name_Detailed'] == pick, str(v_current_year) + '-Back of Draft', inplace=True)
+
+            #Reset points value
+            df['AFL_Points_Value'].mask(df['Display_Name_Detailed'] == pick, 0, inplace=True)
+
+            # If needing to update pick moves before the inserts
+            df['Overall_Pick'] = df.groupby('Year').cumcount() + 1
+            df['AFL_Points_Value'] = df['Overall_Pick'].map(library_AFL_Draft_Points).fillna(0)
+
+            #Reset index Again
+            df = df.reset_index(drop=True)
+            
+            #One line summary:
+            print(pick + ' has been lost to the back of the draft.')
+            
+            #Update picks lost details df
+            pick_lost_details_loop = pd.DataFrame({'Pick': pick,
+                 'Moves_To': 'End of Draft',
+                 'New_Points_Value': 0},index=[0])
+            pick_lost_details = pick_lost_details.append(pick_lost_details_loop)
+            
+        
+            
+    else:
+        pick_lost_details = pd.DataFrame(columns=['Pick', 'Moves_To', 'New_Points_Value'])
+    
+    
+    
+    if len(picks_shuffled) > 0:
+            pick_shuffled = picks_shuffled[0]
+
+            # Find row number of pick shuffled
+            rowno_pickshuffled = df.index[df.Display_Name_Detailed == pick_shuffled][0]
+
+            # Find the row number of where the pick should be inserted:
+            rowno_pickshuffled_to = df[(df.Year.astype(int) == v_current_year)]['AFL_Points_Value'].astype(float).ge(picks_shuffled_points_value).idxmin()
+
+            #Execute Shuffle
+            # Insert pick to the row before next years draft:
+            df = pd.concat([df.iloc[:rowno_pickshuffled_to], df.iloc[[rowno_pickshuffled]], df.iloc[rowno_pickshuffled_to:]]).reset_index(drop=True)
+
+            # Find row number to delete and execute delete:
+            df.drop(rowno_pickshuffled, axis=0, inplace=True)
+
+            # If needing to update pick numbers after the delete
+            df['Overall_Pick'] = df.groupby('Year').cumcount() + 1
+            df['AFL_Points_Value'] = df['Overall_Pick'].map(library_AFL_Draft_Points).fillna(0)
+
+            # Reset index Again
+            df = df.reset_index(drop=True)
+
+            # Changing the names of some key details:
+            # Change system note to describe action
+            df['System_Note'].mask(df['Display_Name_Detailed'] == pick_shuffled, 'NGA bid match: pick shuffled backwards', inplace=True)
+
+            # Change the draft round
+            #Just take row above? if above and below equal each other, then value, if not take one above.
+            #Find row above:
+            rowno_new_rd_no = df.index[df.Display_Name_Detailed == pick_shuffled][0] - 1
+
+            #Fine Round No from row above:
+            new_rd_no = df.iloc[rowno_new_rd_no].Draft_Round_Int
+
+            #Make Changes
+            df['Draft_Round_Int'].mask(df['Display_Name_Detailed'] == pick_shuffled, new_rd_no,inplace=True)
+            df['Draft_Round'].mask(df['Display_Name_Detailed'] == pick_shuffled, 'RD' + str(int(new_rd_no)), inplace=True)
+            df['Pick_Group'].mask(df['Display_Name_Detailed'] == pick_shuffled, str(v_current_year) + '-RD'+ new_rd_no + '-ShuffledBack', inplace=True)
+
+            # Reset points value
+            df['AFL_Points_Value'].mask(df['Display_Name_Detailed'] == pick_shuffled, picks_shuffled_points_value, inplace=True)
+
+
+            #Summary:
+            new_shuffled_pick_no = df.index[df.Display_Name_Detailed == pick_shuffled][0] + 1
+            print(pick_shuffled + ' will be shuffled back to pick ' + new_shuffled_pick_no.astype(str) + ' in RD' + str(int(new_rd_no)))
+
+            #Summary Dataframe
+            pick_shuffle_details = pd.DataFrame(
+                {'Pick': pick_shuffled, 'Moves_To': 'RD' + str(int(new_rd_no)) + '-Pick' + new_shuffled_pick_no.astype(str), 'New_Points_Value': picks_shuffled_points_value},index=[0])
+
+    else:
+            pick_shuffle_details = []
+
+    
+    
+    if len(pick_deficit) > 0:
+            deficit_subset = df.copy()
+            deficit_subset = deficit_subset[(deficit_subset.Current_Owner.astype(int) == fs_team) & (deficit_subset.Year.astype(int) == v_current_year_plus1) & (deficit_subset.Draft_Round_Int >= fs_bid_round_int)]
+        
+        #Finding the first pick in the round to take the points off (and rowno)
+            deficit_attached_pick = deficit_subset['Display_Name_Detailed'].iloc[0]
+            deficit_pickshuffled_rowno = df.index[df.Display_Name_Detailed == deficit_attached_pick][0]
+
+
+            #finding the points value of that pick and then adjusting the deficit
+            deficit_attached_pts = deficit_subset['AFL_Points_Value'].iloc[0]
+            deficit_pick_points =   deficit_attached_pts + fs_points_deficit
+
+            # Find the row number of where the pick should be inserted:
+            deficit_pickshuffled_to = df[(df.Season == v_current_year_plus1)]['AFL_Points_Value'].ge(deficit_pick_points).idxmin()
+
+            #Execute pick shuffle
+            df = pd.concat([df.iloc[:deficit_pickshuffled_to], df.iloc[[deficit_pickshuffled_rowno]], df.iloc[deficit_pickshuffled_to:]]).reset_index(drop=True)
+
+            # Find row number to delete and execute delete:
+            df.drop(deficit_pickshuffled_rowno, axis=0, inplace=True)
+
+            # If needing to update pick numbers after the delete
+            df['Overall_Pick'] = df.groupby('Season').cumcount() + 1
+            df['AFL_Points_Value'] = df['Overall_Pick'].map(library_AFL_Draft_Points).fillna(0)
+
+            # Reset index Again
+            df = df.reset_index(drop=True)
+
+            # Change system note to describe action
+            df['System_Note'].mask(df['Display_Name_Detailed'] == deficit_attached_pick, 'FS bid match: Points Deficit',
+                                inplace=True)
+
+            # Change the draft round
+            # Just take row above? if above and below equal each other, then value, if not take one above.
+            # Find row above:
+            rowno_new_rd_no = df.index[df.Display_Name_Detailed == deficit_attached_pick][0] - 1
+
+            # Fine Round No from row above:
+            new_rd_no = df.iloc[rowno_new_rd_no].Draft_Round_Int
+
+            # Make Changes
+            df['Draft_Round_Int'].mask(df['Display_Name_Detailed'] == deficit_attached_pick, new_rd_no, inplace=True)
+            df['Draft_Round'].mask(df['Display_Name_Detailed'] == deficit_attached_pick, 'RD' + new_rd_no.round(0).astype(str),
+                                inplace=True)
+            df['Pick_Group'].mask(df['Display_Name_Detailed'] == deficit_attached_pick,
+                                str(v_current_year) + '-RD' + new_rd_no.round(0).astype(str) + '-FS_Deficit', inplace=True)
+
+            # Reset points value
+            df['AFL_Points_Value'].mask(df['Display_Name_Detailed'] == deficit_attached_pick, deficit_pick_points , inplace=True)
+            
+
+            # Summary:
+            #getting the new overall pick number and what round it belongs to:
+            deficit_new_shuffled_pick_no = df[df.Display_Name_Detailed == deficit_attached_pick].Overall_Pick.iloc[0]
+            deficit_new_shuffled_pick_RD_no = df[df.Display_Name_Detailed == deficit_attached_pick].Draft_Round.iloc[0]
+            
+
+        
+        
+
+        #2021-RD3-Pick43-Richmond
+            pick_deficit_details = pd.DataFrame(
+                {'Pick': deficit_attached_pick, 'Moves_To': deficit_new_shuffled_pick_no, 'New_Points_Value': deficit_pick_points},index=[0])
+
+            print(deficit_attached_pick + ' moves to pick ' + deficit_new_shuffled_pick_no.astype(str) + ' in ' + deficit_new_shuffled_pick_RD_no)
+
+    else:
+        pick_deficit_details = []
+
+
+    ########## EXECUTE INSERT OF PICK TO THE SPOT OF THE BID ##############
+    #inserting pick above fs_bid
+
+    # Make the changes to the masterlist:
+
+    rowno = df.index[df['Display_Name_Detailed'] == fs_pick][0]
+    # create the line to insert:
+
+    line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fs_team), 'Position'].iloc[0], 'Year': v_current_year,
+                         'TeamName': fs_team, 'PickType': 'FS_BidMatch', 'Original_Owner': fs_team, 'Current_Owner': fs_team,
+                         'Previous_Owner': '', 'Draft_Round': fs_bid_round, 'Draft_Round_Int': fs_bid_round_int,
+                         'Pick_Group': str(v_current_year) + '-' + fs_bid_round + '-FSBidMatch','Reason': 'FS Bid Match',
+                         'Pick_Status':'Used','Selected_Player': fs_player}, index=[rowno])
+    
+    # Execute Insert
+    #i.e stacks 3 dataframes on top of each other
+    df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]).reset_index(drop=True)
+
+
+
+    ######## Combine into a summary dataframe: #############
+    fs_summaries_list = [pick_lost_details,pick_shuffle_details,pick_deficit_details]
+    fs_summary_df = pd.DataFrame(columns=['Pick', 'Moves_To', 'New_Points_Value'])
+    for x in fs_summaries_list:
+        if len(x) > 0:
+            fs_summary_df = fs_summary_df.append(x)
+    print(fs_summary_df)
+
+
+    fs_summary_dict = fs_summary_df.to_dict(orient="list")
+
+    ######### Exporting Transaction Details: ###############
+    current_time = datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
+    fs_dict = {fs_team: [fs_pick_type, fs_bid, fs_bid_pick_no, fs_player]}
+
+    ###Create Simple description.
+    fs_description = 'Father Son Bid Match: Pick '+ str(fs_bid_pick_no) + ' ' + str(fs_team) + ' (' + str(fs_player) + ')'
+
+
+    transaction_details = pd.DataFrame(
+        {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'FS_Bid_Match',
+         'Transaction_Details': [fs_dict],
+         'Transaction_Description': fs_description})
+
+
+    ########## EXPORT TRANSACTION OF DRAFT SELECTION ###########
+    #Create Drafted Player dict
+    drafted_player_dict = {fs_team: [fs_bid_round, fs_bid_pick_no,fs_player]}
+    drafted_description = 'With pick ' + fs_bid_pick_no.astype(str) + ' ' + fs_team + ' have selected ' + fs_player
+
+
+    drafted_player_transaction_details = pd.DataFrame(
+        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'Drafted_Player',
+         'Transaction_Details': [drafted_player_dict],
+         'Transaction_Description': drafted_description})
+    df2 = df2.append(drafted_player_transaction_details)
+            
+    

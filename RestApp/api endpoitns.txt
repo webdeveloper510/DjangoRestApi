@@ -180,3 +180,29 @@ add Manual
 "reason":"testing"
 
 }
+
+
+Trade Potential
+
+{
+"teamid":"1",
+"Trade_Partner":"1",
+"Trading_Out_Num":"1",
+"Trading_Out_Num_Player":"1",
+"pick_trading_out":"1",
+"pick_trading_in":"3",
+"player_trading_out":"1",
+"Trading_In_Num":"1",
+"Trading_In_Num_Player":"1",
+"player_trading_in":"1",
+"notes":"testing"
+}
+
+
+add father season
+
+{
+   "player":"1",
+   "teamid":"1",
+   "pickid":"1"
+}
