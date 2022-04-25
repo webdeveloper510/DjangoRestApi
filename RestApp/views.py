@@ -65,6 +65,7 @@ from django.db import connection
 from collections import defaultdict
 from django.core.files import File
 from django.db import connection
+import sys
 
 
 pd.set_option('display.max_rows', None)
@@ -1854,11 +1855,10 @@ def academy_bid_v2(request,pk):
         #finding the points value of that pick and then adjusting the deficit
         deficit_attached_pts = deficit_subset['AFL_Points_Value'].iloc[0]
         academy_points_deficit_as_float = np.array(list(academy_points_deficit)).astype(float)
-        
+    
         deficit_pick_points =   deficit_attached_pts + academy_points_deficit_as_float
 
         # Find the row number of where the pick should be inserted:
-
 
         deficit_pickshuffled_to = df[(int(df.Year[0])+1 == int(v_current_year_plus1))]['AFL_Points_Value'].astype(float).ge(deficit_pick_points).idxmin()
 
@@ -3222,6 +3222,400 @@ def add_FA_compensation_v2(request,pk):
     return Response({'success': 'add_FA_compensation_v2 has been Created'}, status=status.HTTP_201_CREATED)    
     
     
+def add_nga_bid_inputs(request,pk):
+    
+    df_list = []
+    bid_list = []
+    queryset_returned = MasterList.objects.filter(projectid=pk).values()
+    for df_val in queryset_returned:
+        df_list.append(df_val)
+    masterlist = pd.DataFrame(df_list) 
+    
+    data = request.data
+    
+    #Ask for player name:
+    
+    nga_player = data['playerid']
+    nga_team_id = data['teamid']
+    nga_bid_id = data['pickid']
+    teamlist = []
+    
+    teamqueryset = Teams.objects.filter(id__in = nga_team_id).values()
+    for teamvalues in teamqueryset:
+        teamlist.append(teamvalues['TeamNames'])
+        
+    nga_team = "".join(teamlist)
+    
+    bidqueryset = MasterList.objects.filter(id__in=nga_bid_id).values()
+    for bidvalues in bidqueryset:
+        
+        bid_list.append(bidvalues['Display_Name_Detailed'])
+    
+    nga_bid = "".join(bid_list)
+    
+      #Check to make sure NGA bid is not before pick 40:
+    nga_bid_pick_no = masterlist.loc[masterlist.Display_Name_Detailed == nga_bid, 'Overall_Pick'].iloc[0]
+
+    if int(nga_bid_id) < 21:
+        
+        print("NGA bid match invalid (Bid pick is inside 20)")
+        sys.exit("Exiting Function")
+        
+        #Return variables for main function
+    return masterlist,nga_team_id,nga_player, nga_team, nga_bid 
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def add_nga_bid(request,pk):
+    current_day = date.today()
+    v_current_year = current_day.year
+    v_current_year_plus1 = v_current_year+1
+    masterlist,nga_team_id,nga_player, nga_team, nga_bid = add_nga_bid_inputs(request,pk)
+    df = masterlist
+        #originals to be returned if cancelling bid:
+    df_original = df.copy()
+    deficit_subset = df.copy()
+    
+    df.rename(columns = {'Current_Owner_id':'Current_Owner'}, inplace = True)
+
+        # Details of the bid
+    nga_pts_value = df.loc[df.Display_Name_Detailed == nga_bid, 'AFL_Points_Value'].iloc[0]
+    nga_bid_round = df.loc[df.Display_Name_Detailed == nga_bid, 'Draft_Round'].iloc[0]
+    nga_bid_round_int = df.loc[df.Display_Name_Detailed == nga_bid, 'Draft_Round_Int'].iloc[0]
+    nga_bid_team = df.loc[df.Display_Name_Detailed == nga_bid, 'Current_Owner'].iloc[0]
+    nga_bid_pick_no = df.loc[df.Display_Name_Detailed == nga_bid, 'Overall_Pick'].iloc[0]
+    nga_pick_type = 'NGA Bid Match'
+    
+    sum_line1 = str(nga_bid_team) + ' have placed a bid on a ' + str(nga_team) +' NGA player at pick ' + str(nga_bid_pick_no) + ' in ' + nga_bid_round
+
+      # Creating a copy df of that teams available picks to match bid
+    df_subset = df.copy()
+    df_subset = df_subset[(df_subset.Current_Owner.astype(int) == int(nga_team_id)) & (df_subset.Year.astype(int) == v_current_year) & (df_subset.Overall_Pick.astype(int) >= int(nga_bid_pick_no))]
+       
+       
+       
+    #Finding out the next pick the club owns in case the bid comes after 40:
+    nga_team_next_pick = df_subset.loc[df_subset.Current_Owner.astype(int) == int(nga_team_id), 'Display_Name_Detailed'].iloc[0]
+      
+      
+     ##If the bid is less than pick 41 the it follows the normal points based calculations:    
+    if int(nga_bid_pick_no) <41:
+
+        # Defining discounts based off what round the bid came in:
+        if nga_bid_round == 'RD1':
+            nga_pts_required = float(nga_pts_value) * .8
+            sum_line2 = nga_team +' will require ' + f"{nga_pts_required}" + ' draft points to match bid.'
+            
+        else:
+            nga_pts_required = float(nga_pts_value) -197
+            sum_line2 = nga_team +' will require ' + f"{nga_pts_required}" + ' draft points to match bid.'
+            
+            
+        df_subset['Cumulative_Pts'] = df_subset.groupby('Current_Owner')['AFL_Points_Value'].transform(pd.Series.cumsum)
+        df_subset['Payoff_Diff'] = df_subset['Cumulative_Pts'].astype(float) - nga_pts_required   
+        df_subset['AFL_Pts_Left'] = np.where(
+            df_subset['Payoff_Diff'] <= 0,
+            0,
+            np.where(
+                df_subset['Payoff_Diff'] < df_subset['AFL_Points_Value'].astype(float),
+                df_subset['Payoff_Diff'],
+                df_subset['AFL_Points_Value']
+            )
+        )
+                
+        #creating previous pick rows to compare whether the picks have to be used or not:
+        df_subset['AFL_Pts_Left_previous_pick'] = df_subset['AFL_Pts_Left'].shift()
+        df_subset['AFL_Pts_Value_previous_pick'] = df_subset['AFL_Points_Value'].shift()
+        
+        df_subset['AFL_Pts_Value_previous_pick'] = np.array(list(df_subset['AFL_Pts_Value_previous_pick'])).astype(float)
+        df_subset.fillna(0)
+        df_subset['Action'] =  np.where((df_subset['AFL_Pts_Left'] != df_subset['AFL_Points_Value']) & (df_subset['AFL_Pts_Left']== 0),
+                        'Pick lost to back of draft',
+                        np.where((df_subset['AFL_Pts_Left'] != df_subset['AFL_Points_Value']) & (df_subset['AFL_Pts_Left'].astype(float)>0),
+                        'Pick Shuffled Backwards',
+                        np.where((df_subset['AFL_Pts_Left'] == df_subset['AFL_Points_Value']) & (df_subset['Payoff_Diff'].astype(float) < 0) & (df_subset['AFL_Pts_Value_previous_pick'].fillna(0).astype(float) > 0)
+                        ,'Points Deficit',
+                        'No Change')))
+
+        df_subset['Deficit_Amount'] = np.where(df_subset['Action'] == 'Points Deficit', df_subset['Payoff_Diff'],np.nan)
+        
+         #defining the deficit amount
+        try:
+            nga_points_deficit = df_subset.loc[df_subset.Action == 'Points Deficit', 'Deficit_Amount'].iloc[0]
+            
+        except:
+            nga_points_deficit = []
+            
+        #Create lists of changes to make:
+        picks_lost = df_subset.loc[df_subset.Action == 'Pick lost to back of draft', 'Display_Name_Detailed'].to_list()
+        picks_shuffled = df_subset.loc[df_subset.Action == 'Pick Shuffled Backwards', 'Display_Name_Detailed'].to_list()
+        pick_deficit = df_subset.loc[df_subset.Action == 'Points Deficit', 'Display_Name_Detailed'].to_list()
+
+        try:
+            picks_shuffled_points_value = df_subset.loc[df_subset.Action == 'Pick Shuffled Backwards', 'AFL_Pts_Left'].iloc[0]
+            # print(picks_shuffled_points_value)
+        except:
+            picks_shuffled_points_value = np.nan
+            # print(picks_shuffled_points_value)
+        carry_over_deficit = nga_points_deficit
+        # Step 1: Moving all picks to the back of the draft:
+
+        if len(picks_lost) > 0:
+            pick_lost_details = pd.DataFrame(columns=['Pick', 'Moves_To', 'New_Points_Value'])
+            
+            
+            for pick in picks_lost:
+                    # Reset the index
+                df = df.reset_index(drop=True)
+                #Find row number of pick lost
+                rowno_picklost = df.index[df.Display_Name_Detailed == pick][0]
+                #Find row number of the first pick in the next year
+                rowno_startnextyear = df.index[(df.Year.astype(int) ==int( v_current_year_plus1)) & (df.Overall_Pick.astype(int) == 1)][0]
+                #print(rowno_startnextyear)
+
+                #Insert pick to the row before next years draft:
+                df = pd.concat([df.iloc[:rowno_startnextyear], df.iloc[[rowno_picklost]], df.iloc[rowno_startnextyear:]]).reset_index(drop=True)
+                #Find row number to delete and execute delete:
+                rowno_delete = df.index[df.Display_Name_Detailed == pick][0]
+                #print(rowno_delete)
+                df.drop(rowno_delete, axis=0, inplace=True)
+                #Changing the names of some key details:
+                #Change system note to describe action
+                df['System_Note'].mask(df['Display_Name_Detailed'] == pick, 'NGA bid match: pick lost to back of draft', inplace=True)
+
+                #Change the draft round
+                df['Draft_Round'].mask(df['Display_Name_Detailed'] == pick, 'BOD', inplace=True)
+                df['Draft_Round_Int'].mask(df['Display_Name_Detailed'] == pick, 99, inplace=True)
+                df['Pick_Group'].mask(df['Display_Name_Detailed'] == pick, str(v_current_year) + '-Back of Draft', inplace=True)
+
+                #Reset points value
+                df['AFL_Points_Value'].mask(df['Display_Name_Detailed'] == pick, 0, inplace=True)
+
+                # If needing to update pick moves before the inserts
+                df['Overall_Pick'] = df.groupby('Year').cumcount() + 1
+                library_AFL_Draft_Points = df['AFL_Points_Value']
+                df['AFL_Points_Value'] = df['Overall_Pick'].map(library_AFL_Draft_Points).fillna(0)
+
+                #Reset index Again
+                df = df.reset_index(drop=True)
+                
+                #One line summary:
+                print(pick + ' has been lost to the back of the draft.')
+                
+                #Update picks lost details df
+                pick_lost_details_loop = pd.DataFrame({'Pick': pick,
+                    'Moves_To': 'End of Draft',
+                    'New_Points_Value': 0},index=[0])
+                pick_lost_details = pick_lost_details.append(pick_lost_details_loop)
+        
+
+        else:
+            pick_lost_details = pd.DataFrame(columns=['Pick', 'Moves_To', 'New_Points_Value'])
+
+        
+                # Step 2: Shuffling Pick back to their spot
+
+        if len(picks_shuffled) > 0:
+            
+
+            # pick_shuffled = picks_shuffled[0]
+
+            # Find row number of pick shuffled
+            rowno_pickshuffled = df.index[df.Display_Name_Detailed == picks_shuffled][0]
+      
+            # Find the row number of where the pick should be inserted:
+
+            rowno_pickshuffled_to = df[(df.Year.astype(int) == int(v_current_year))]['AFL_Points_Value'].ge(picks_shuffled_points_value).idxmin()
+
+            #Execute Shuffle
+            # Insert pick to the row before next years draft:
+            df = pd.concat([df.iloc[:rowno_pickshuffled_to], df.iloc[[rowno_pickshuffled]], df.iloc[rowno_pickshuffled_to:]]).reset_index(drop=True)
+            # Find row number to delete and execute delete:
+            df.drop(rowno_pickshuffled, axis=0, inplace=True)
+
+
+            # If needing to update pick numbers after the delete
+            df['Overall_Pick'] = df.groupby('Year').cumcount() + 1
+            library_AFL_Draft_Points = df['AFL_Points_Value']
+            df['AFL_Points_Value'] = df['Overall_Pick'].map(library_AFL_Draft_Points).fillna(0)
+
+            # Reset index Again
+            df = df.reset_index(drop=True)
+
+            # Changing the names of some key details:
+            # Change system note to describe action
+            df['System_Note'].mask(df['Display_Name_Detailed'] == picks_shuffled, 'NGA bid match: pick shuffled backwards', inplace=True)
+
+            # Change the draft round
+            #Just take row above? if above and below equal each other, then value, if not take one above.
+            #Find row above:
+            rowno_new_rd_no = df.index[df.Display_Name_Detailed == picks_shuffled][0] - 1
+
+            #Fine Round No from row above:
+            new_rd_no = df.iloc[rowno_new_rd_no].Draft_Round_Int
+
+            #Make Changes
+            df['Draft_Round_Int'].mask(df['Display_Name_Detailed'] == picks_shuffled, new_rd_no,inplace=True)
+            df['Draft_Round'].mask(df['Display_Name_Detailed'] == picks_shuffled, 'RD' + str(int(new_rd_no)), inplace=True)
+            df['Pick_Group'].mask(df['Display_Name_Detailed'] == picks_shuffled, str(v_current_year) + '-RD'+ new_rd_no + '-ShuffledBack', inplace=True)
+
+            # Reset points value
+            df['AFL_Points_Value'].mask(df['Display_Name_Detailed'] == picks_shuffled, picks_shuffled_points_value, inplace=True)
+
+
+            #Summary:
+            new_shuffled_pick_no = df.index[df.Display_Name_Detailed == picks_shuffled][0] + 1
+            # print(picks_shuffled + ' will be shuffled back to pick ' + new_shuffled_pick_no.astype(str) + ' in RD' + str(int(new_rd_no)))
+
+            #Summary Dataframe
+            pick_shuffle_details = pd.DataFrame(
+                {'Pick': picks_shuffled, 'Moves_To': 'RD' + str(int(new_rd_no)) + '-Pick' + new_shuffled_pick_no.astype(str), 'New_Points_Value': picks_shuffled_points_value},index=[0])
+        
+        else:
+            pick_shuffle_details = []
+            
+        # Step 3: Applying the deficit to next year:
+        pick_deficit = "2022-RD3-Pick39-Carlton"
+        if len(pick_deficit) > 0:
+            library_AFL_Draft_Points = df['AFL_Points_Value']
+            deficit_subset.rename(columns = {'Current_Owner_id':'Current_Owner'}, inplace = True)
+            deficit_subset = deficit_subset[(deficit_subset.Current_Owner.astype(int) == int(nga_team_id)) & (int(deficit_subset.Year[0])+1 == int(v_current_year_plus1)) & (deficit_subset.Draft_Round_Int.astype(int) >= int(nga_bid_round_int))]
+
+            #Finding the first pick in the round to take the points off (and rowno)
+            deficit_attached_pick = deficit_subset['Display_Name_Detailed'].iloc[0]
+            deficit_pickshuffled_rowno = df.index[df.Display_Name_Detailed == deficit_attached_pick][0]
+
+
+            #finding the points value of that pick and then adjusting the deficit
+            deficit_attached_pts = deficit_subset['AFL_Points_Value']
+            
+            nga_points_deficit = "123456.000"
+
+            deficit_pick_points =   deficit_attached_pts + nga_points_deficit
+
+            # Find the row number of where the pick should be inserted:
+            deficit_pickshuffled_to = df[(df.Year == v_current_year_plus1)]['AFL_Points_Value'].ge(deficit_pick_points.astype(float)).idxmin()
+
+            #Execute pick shuffle
+            df = pd.concat([df.iloc[:deficit_pickshuffled_to], df.iloc[[deficit_pickshuffled_rowno]], df.iloc[deficit_pickshuffled_to:]]).reset_index(drop=True)
+
+            # Find row number to delete and execute delete:
+            df.drop(deficit_pickshuffled_rowno, axis=0, inplace=True)
+
+            # If needing to update pick numbers after the delete
+            df['Overall_Pick'] = df.groupby('Year').cumcount() + 1
+            
+            df['AFL_Points_Value'] = df['Overall_Pick'].map(library_AFL_Draft_Points).fillna(0)
+
+            # Reset index Again
+            df = df.reset_index(drop=True)
+
+            # Change system note to describe action
+            df['System_Note'].mask(df['Display_Name_Detailed'] == deficit_attached_pick, 'NGA bid match: Points Deficit',
+                                inplace=True)
+
+            # Change the draft round
+            # Just take row above? if above and below equal each other, then value, if not take one above.
+            # Find row above:
+            rowno_new_rd_no = df.index[df.Display_Name_Detailed == deficit_attached_pick][0] - 1
+
+            # Fine Round No from row above:
+            new_rd_no = df.iloc[rowno_new_rd_no].Draft_Round_Int
+
+            # Make Changes
+            df['Draft_Round_Int'].mask(df['Display_Name_Detailed'] == deficit_attached_pick, new_rd_no, inplace=True)
+            df['Draft_Round'].mask(df['Display_Name_Detailed'] == deficit_attached_pick, 'RD' + str(int(new_rd_no)),
+                                inplace=True)
+            df['Pick_Group'].mask(df['Display_Name_Detailed'] == deficit_attached_pick,
+                                str(v_current_year) + '-RD' + str(int(new_rd_no)) + '-NGA_Deficit', inplace=True)
+
+            # Reset points value
+            df['AFL_Points_Value'].mask(df['Display_Name_Detailed'] == deficit_attached_pick, deficit_pick_points , inplace=True)
+
+            # Summary:
+            #getting the new overall pick number and what round it belongs to:
+            deficit_new_shuffled_pick_no = df[df.Display_Name_Detailed == deficit_attached_pick].Overall_Pick.iloc[0]
+            deficit_new_shuffled_pick_RD_no = df[df.Display_Name_Detailed == deficit_attached_pick].Draft_Round.iloc[0]
+
+            #2021-RD3-Pick43-Richmond
+            pick_deficit_details = pd.DataFrame(
+                {'Pick': deficit_attached_pick, 'Moves_To': deficit_new_shuffled_pick_no, 'New_Points_Value': deficit_pick_points},index=[0])
+
+            print(deficit_attached_pick + ' moves to pick ' + deficit_new_shuffled_pick_no.astype(str) + ' in ' + deficit_new_shuffled_pick_RD_no)
+
+        else:
+            pick_deficit_details = []
+        
+        ########## EXECUTE INSERT OF PICK TO THE SPOT OF THE BID ##############
+        #inserting pick above nga_bid
+
+        # Make the changes to the masterlist:
+        rowno = df.index[df['Display_Name_Detailed'] == nga_bid][0]
+     
+        # create the line to insert:
+        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(nga_team_id), 'Position'].iloc[0], 'Year': v_current_year,
+                            'TeamName': nga_team_id, 'PickType': 'NGA_BidMatch', 'Original_Owner': nga_team_id, 'Current_Owner': nga_team_id,
+                            'Previous_Owner': '', 'Draft_Round': nga_bid_round, 'Draft_Round_Int': nga_bid_round_int,
+                            'Pick_Group': str(v_current_year) + '-' + nga_bid_round + '-NGABidMatch','Reason': 'NGA Bid Match',
+                            'Pick_Status':'Used','Selected_Player': nga_player}, index=[rowno])
+
+        # Execute Insert
+        #i.e stacks 3 dataframes on top of each other
+
+        df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]).reset_index(drop=True)
+        
+        del df['TeamName']
+        # del df['Current_Owner']
+        del df['Original_Owner']
+        del df['Previous_Owner']
+        
+        
+        df.rename(columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
+        df.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
+        df.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
+        df.rename(columns={'Previous_Owner_id': 'Previous'}, inplace=True)
+        
+        df = df.astype({"TeamName":'int'})
+        
+    
+        
+
+
+        print(df)
+        exit()
+        df = df.iloc[rowno]
+        
+        df['id']= rowno
+        df['projectid'] = pk
+
+
+        ######## Combine into a summary dataframe: #############
+        nga_summaries_list = [pick_lost_details,pick_shuffle_details,pick_deficit_details]
+        nga_summary_df = pd.DataFrame(columns=['Pick', 'Moves_To', 'New_Points_Value'])
+        for x in nga_summaries_list:
+            if len(x) > 0:
+                nga_summary_df = nga_summary_df.append(x)
+        print(nga_summary_df)
+
+        nga_summary_dict = nga_summary_df.to_dict(orient="list")
+
+        ######### Exporting Transaction Details: ###############
+        current_time = datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
+        nga_dict = {nga_team: [nga_pick_type, nga_bid, nga_bid_pick_no, nga_player]}
+
+        ###Create Simple description.
+        nga_description = 'NGA Bid Match: Pick '+ nga_bid_pick_no.astype(str) + ' ' + nga_team + ' (' + nga_player + ')'
+
+
+        transaction_details = pd.DataFrame(
+            {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'NGA_Bid_Match',
+            'Transaction_Details': [nga_dict],
+            'Transaction_Description': nga_description})
+        df2 = df2.append(transaction_details)
+            
+
+
+
     
 @api_view(['GET'])
 @permission_classes([AllowAny])

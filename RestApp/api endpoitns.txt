@@ -175,6 +175,22 @@ Add FA compansation type v2
 }
 
 
+add nga bid inputs
+
+
+{
+   "playerid":"1",
+   "teamid":"3",
+   "pickid":"40"
+
+}
+
+
+
+
+
+
+
 create project
 {
   
