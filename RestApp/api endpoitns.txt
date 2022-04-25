@@ -90,19 +90,7 @@ Ladder
 
 
 
-Priotity pick
 
-
-
-{
-    "teamid":"2",
-    "reason":"testing",
-    "pp_insert_instructions":"Before",
-    "pp_id":"2",
-    "pick_type":"2",   
-    "projectId":"1"
- 
- }
 
 
 
@@ -118,7 +106,7 @@ Team2_players
 
 
 
-
+Priority pick
 
 {
     "teamid":"15",
@@ -141,12 +129,14 @@ AcademyBid
 
 }
 
-{
-  
-"project_name":"test1",
- "project_desc":"test1 desc"
-}
 
+AcademyBid inputs
+
+{
+   "player":"test",
+   "team":"1",
+   "pickid":"1"
+}
 
 
 
@@ -161,6 +151,38 @@ Add trade v2
   "Team2_Pick2":"12",
    "Team2_players":""
 }
+
+Add FA compansation
+
+
+{
+   "teamid":"1",
+   "reason":"testing",
+   "type":"Custom Fixed Position",
+   "instructions":"Before",
+   "pickid":"1"
+}
+
+Add FA compansation type v2
+
+{
+   "teamid":"1",
+   "reason":"testing",
+   "type":"Custom Fixed Position",
+   "round":"RD1",
+   "pickid":"1",
+   "instructions":"After"
+}
+
+
+create project
+{
+  
+"project_name":"test1",
+ "project_desc":"test1 desc"
+}
+
+
 
 
 {
