@@ -46,7 +46,8 @@ from .views import (
     GetFlagsRequest,
     add_FA_compansation_request,
     add_FA_compensation_v2,
-    academy_bid_v2
+    academy_bid_v2,
+    add_nga_bid
 )
 
 urlpatterns = [
@@ -65,6 +66,7 @@ urlpatterns = [
     re_path(r'^Academy-Bid-v2/(?P<pk>[0-9]+)$', academy_bid_v2),
     re_path(r'^Add-FA-Compansation/(?P<pk>[0-9]+)$', add_FA_compansation_request),
     re_path(r'^Add-FA-Compansation_Inputs/(?P<pk>[0-9]+)$', add_FA_compensation_v2),
+    re_path(r'^Add-nga/(?P<pk>[0-9]+)$', add_nga_bid),
     
 
     # #################### Update URL's #################
