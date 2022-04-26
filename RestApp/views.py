@@ -3925,7 +3925,8 @@ def UserListRequest(request):
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
 def TeamRequest(request):
-    data_dict = Teams.objects.filter().values()
+    
+    
     imgQuery = Teams.objects.all()
 
 
