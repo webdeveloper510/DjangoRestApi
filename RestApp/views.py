@@ -3926,8 +3926,15 @@ def UserListRequest(request):
 @ permission_classes([AllowAny])
 def TeamRequest(request):
     data_dict = Teams.objects.filter().values()
-    print(data_dict)
-    return Response(data_dict, status=status.HTTP_200_OK)
+    imgQuery = Teams.objects.all()
+
+
+    serializer = ListImageSerializer(
+        imgQuery, many=True, context={'request': request})
+
+    return Response({
+        'status': True,
+        'data': serializer.data})
 
 
 @ api_view(['GET'])
