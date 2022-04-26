@@ -3777,7 +3777,7 @@ def add_father_son(request,pk):
             deficit_pick_points =   deficit_attached_pts + fs_points_deficit
 
             # Find the row number of where the pick should be inserted:
-            deficit_pickshuffled_to = df[(df.Season == v_current_year_plus1)]['AFL_Points_Value'].ge(deficit_pick_points).idxmin()
+            deficit_pickshuffled_to = df[(df.Year.astype(int) == int(v_current_year_plus1))]['AFL_Points_Value'].astype(float).ge(deficit_pick_points).idxmin()
 
             #Execute pick shuffle
             df = pd.concat([df.iloc[:deficit_pickshuffled_to], df.iloc[[deficit_pickshuffled_rowno]], df.iloc[deficit_pickshuffled_to:]]).reset_index(drop=True)
@@ -3786,7 +3786,7 @@ def add_father_son(request,pk):
             df.drop(deficit_pickshuffled_rowno, axis=0, inplace=True)
 
             # If needing to update pick numbers after the delete
-            df['Overall_Pick'] = df.groupby('Season').cumcount() + 1
+            df['Overall_Pick'] = df.groupby('Year').cumcount() + 1
             df['AFL_Points_Value'] = df['Overall_Pick'].map(library_AFL_Draft_Points).fillna(0)
 
             # Reset index Again
