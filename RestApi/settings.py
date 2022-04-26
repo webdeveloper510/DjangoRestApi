@@ -57,13 +57,14 @@ INSTALLED_APPS = [
     'rest_framework',
     # 'rest_framework.authtoken',
     'corsheaders',
-]
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
 
-    ),
-}
+]
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+
+#     ),
+# }
 
 
 JWT_AUTH = {

@@ -1,10 +1,9 @@
-import logging
 import threading
+import warnings
 import weakref
 
+from django.utils.deprecation import RemovedInDjango40Warning
 from django.utils.inspect import func_accepts_kwargs
-
-logger = logging.getLogger('django.dispatch')
 
 
 def _make_id(target):
@@ -28,11 +27,19 @@ class Signal:
         receivers
             { receiverkey (id) : weakref(receiver) }
     """
-    def __init__(self, use_caching=False):
+    def __init__(self, providing_args=None, use_caching=False):
         """
         Create a new signal.
         """
         self.receivers = []
+        if providing_args is not None:
+            warnings.warn(
+                'The providing_args argument is deprecated. As it is purely '
+                'documentational, it has no replacement. If you rely on this '
+                'argument as documentation, you can move the text to a code '
+                'comment or docstring.',
+                RemovedInDjango40Warning, stacklevel=2,
+            )
         self.lock = threading.Lock()
         self.use_caching = use_caching
         # For convenience we create empty caches even if they are not used.
@@ -80,8 +87,8 @@ class Signal:
 
         # If DEBUG is on, check that we got a good receiver
         if settings.configured and settings.DEBUG:
-            if not callable(receiver):
-                raise TypeError('Signal receivers must be callable.')
+            assert callable(receiver), "Signal receivers must be callable."
+
             # Check for **kwargs
             if not func_accepts_kwargs(receiver):
                 raise ValueError("Signal receivers must accept keyword arguments (**kwargs).")
@@ -201,12 +208,6 @@ class Signal:
             try:
                 response = receiver(signal=self, sender=sender, **named)
             except Exception as err:
-                logger.error(
-                    'Error calling %s in Signal.send_robust() (%s)',
-                    receiver.__qualname__,
-                    err,
-                    exc_info=err,
-                )
                 responses.append((receiver, err))
             else:
                 responses.append((receiver, response))

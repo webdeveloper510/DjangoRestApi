@@ -109,8 +109,9 @@ class PriorityTransactions(models.Model):
 class Players(models.Model):
     FirstName = models.CharField(max_length=100, default='')
     LastName = models.CharField(max_length=100, default='')
+    Full_Name = models.CharField(max_length=100, default='')
     Height = models.CharField(max_length=100, default='')
-    width = models.CharField(max_length=100, default='')
+    Weight = models.CharField(max_length=100,default='')
     club = models.CharField(max_length=100, default='')
     State = models.CharField(max_length=100, default='')
     Position_1 = models.CharField(max_length=100, default='')
@@ -183,3 +184,29 @@ class DraftRound(models.Model):
     def __str__(self):
         return f"{self.round}"
 
+
+# class TradePotentialAnalyser(models.Model):
+#     projectid = models.IntegerField()
+#     Trade_Partner=models.CharField(max_length=255,default='')
+#     Trading_Out_Num=models.IntegerField()
+#     Trading_Out_Num_Player=models.IntegerField()
+#     Trading_In_Num =models.IntegerField()
+#     Trading_In_Num_Player=models.IntegerField()
+#     note=models.CharField(maxdefault_length=250,default='')
+    
+    
+class Trades(models.Model):
+    Trade_Partner=models.CharField(max_length=255,default='')
+    Trading_Out=models.CharField(max_length=255,default='')
+    Trading_In=models.CharField(max_length=255,default='')
+    Points_Out=models.CharField(max_length=255,default='')
+    Points_In=models.CharField(max_length=255,default='')
+    Points_Diff=models.CharField(max_length=255,default='')
+    Notes=models.CharField(max_length=255,default='')
+    System_Out=models.CharField(max_length=255,default='')
+    System_In=models.CharField(max_length=255,default='')
+    Warning = models.CharField(max_length=255,default='')
+    
+    
+    
+    
