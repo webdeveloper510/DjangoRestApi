@@ -108,4 +108,5 @@ urlpatterns = [
     re_path(r'^DeleteProject/(?P<pk>[0-9]+)$', DeleteProjectRequest),
     re_path(r'^DeleteLadder/(?P<pk>[0-9]+)$', DeleteLadderRecordRequest),
     re_path(r'^DeleteTrade/(?P<pk>[0-9]+)$', DeleteAddTradeRequest),
-]
+    
+]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
