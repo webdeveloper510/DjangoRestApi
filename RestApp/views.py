@@ -3587,10 +3587,6 @@ def add_nga_bid(request,pk):
         
     
         
-
-
-        print(df)
-        exit()
         df = df.iloc[rowno]
         
         df['id']= rowno
@@ -3642,35 +3638,40 @@ def ConstraintsRquest(request,pk):
     QueryObj =  MasterList.objects.filter(projectid_id=pk).values()
     for data in QueryObj:
         Masterlist.append(data)
-        df = pd.DataFrame(Masterlist)
-    c1_dropdown = df[df['Current_Owner_id'] ==v_team_name]['Display_Name_Detailed'].tolist()
-    c2_dropdown = df[df['Current_Owner_id'] ==v_team_name]['Year'].unique().tolist()
-    c3_dropdown = df[df['Current_Owner_id'] ==v_team_name]['Draft_Round'].unique().tolist()
-    c4_set = 0
-    c5_set = 99999999
-    c6_dropdown = df[df['Current_Owner_id'] !=v_team_name]['Current_Owner_id'].unique().tolist()
-    c7_dropdown = df[df['Current_Owner_id'] !=v_team_name]['Display_Name_Detailed'].unique().tolist()
-    c8_dropdown = df[df['Current_Owner_id'] !=v_team_name]['Year'].unique().tolist()
-    c9_dropdown = df[df['Current_Owner_id'] !=v_team_name]['Draft_Round'].unique().tolist()
-    c10_set = 0
-    c11_set = 99999999
-    c12_set = 0.10
-
-    c_dict = {}
-    c_dict['c1_dropdown'] = c1_dropdown
-    c_dict['c2_dropdown'] = c2_dropdown
-    c_dict['c3_dropdown'] = c3_dropdown
-    c_dict['c4_set'] = c4_set
-    c_dict['c5_set'] = c5_set
-    c_dict['c6_dropdown'] = c6_dropdown
-    c_dict['c7_dropdown'] = c7_dropdown
-    c_dict['c8_dropdown'] = c8_dropdown
-    c_dict['c9_dropdown'] = c9_dropdown
-    c_dict['c10_set'] = c10_set
-    c_dict['c11_set'] = c11_set
-    c_dict['c12_set'] = c12_set
-   
-    return Response({'constraints-data': c_dict}, status=status.HTTP_201_CREATED)
+        
+    df = pd.DataFrame(Masterlist)
+    
+    constraints_1 = df[df['Current_Owner_id'] ==v_team_name]['Display_Name_Detailed'].tolist()
+    constraints_2 = df[df['Current_Owner_id'] ==v_team_name]['Year'].unique().tolist()
+    constraints_3 = df[df['Current_Owner_id'] ==v_team_name]['Draft_Round'].unique().tolist()
+    constraints_4 = [0]
+    constraints_5 = [99999999]
+    constraints_6 = df[df['Current_Owner_id'] !=v_team_name]['Current_Owner_id'].unique().tolist()
+    constraints_7 = df[df['Current_Owner_id'] !=v_team_name]['Display_Name_Detailed'].unique().tolist()
+    constraints_8 = df[df['Current_Owner_id'] !=v_team_name]['Year'].unique().tolist()
+    constraints_9 = df[df['Current_Owner_id'] !=v_team_name]['Draft_Round'].unique().tolist()
+    constraints_10 = [0]
+    constraints_11 = [99999999]
+    constraints_12 = [0.10]
+    constraints_13 = [0]
+    constraints_14 = [10]
+    
+    my_dict = {"constraints_1": constraints_1 ,
+               "constraints_2": constraints_2,
+               "constraints_3": constraints_3,
+               "constraints_4": constraints_4,
+               'constraints_5':constraints_5,
+               'constraints_6':constraints_6,
+               'constraints_7':constraints_7,
+               'constraints_8':constraints_8,
+               'constraints_9':constraints_9,
+               'constraints_10':constraints_10,
+               'constraints_11':constraints_11,
+               'constraints_12':constraints_12,
+               'constraints_13':constraints_13,
+               'constraints_14':constraints_14,
+               } 
+    return Response(my_dict, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
