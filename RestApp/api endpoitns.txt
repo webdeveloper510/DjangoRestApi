@@ -87,13 +87,6 @@ Ladder
 }
 
 
-
-
-
-
-
-
-
 Team1
 Team1_Pick1
 Team1_Players_no
