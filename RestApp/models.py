@@ -54,10 +54,11 @@ class MasterList(models.Model):
     Current_Owner = models.ForeignKey( Teams, related_name='Current_Owner', on_delete=models.CASCADE,default='', blank=False)
     Previous_Owner = models.ForeignKey(Teams, related_name='Previous_Owner', on_delete=models.CASCADE,default=None, blank=True,null=True)
     Draft_Round = models.CharField(max_length=100, default='')
+    Draft_Round_Int = models.TextField()
     Pick_Group = models.CharField(max_length=100, default='')
-    System_Note = models.CharField(max_length=100, default='')
-    User_Note = models.CharField(max_length=100, default='')
-    Reason = models.CharField(max_length=100, default='')
+    System_Note = models.TextField()
+    User_Note = models.TextField()
+    Reason = models.TextField()
     Overall_Pick = models.CharField(max_length=100, default='')
     AFL_Points_Value = models.CharField(max_length=100, default='')
     Unique_Pick_ID = models.CharField(max_length=100, default='')
@@ -67,8 +68,8 @@ class MasterList(models.Model):
     Display_Name_Detailed = models.CharField(max_length=100,default='')
     Display_Name_Mini = models.TextField()
     Current_Owner_Short_Name = models.CharField(max_length=100,default='')
-    Pick_Status = models.CharField(max_length=100,default='')
-    Selected_Player = models.CharField(max_length=100,default='')
+    Pick_Status = models.TextField()
+    Selected_Player = models.TextField()
     projectid  = models.ForeignKey(Project, on_delete=models.CASCADE, default='')
 
 class library_AFL_Draft_Points(models.Model):
@@ -91,6 +92,7 @@ class Transactions(models.Model):
     Transaction_Details = models.TextField()
     Transaction_Description = models.CharField(max_length=500, default='')
     projectId = models.IntegerField()
+    Type = models.CharField(max_length=100,default = '  ')
 
 
 class PriorityTransactions(models.Model):
@@ -107,8 +109,9 @@ class PriorityTransactions(models.Model):
 class Players(models.Model):
     FirstName = models.CharField(max_length=100, default='')
     LastName = models.CharField(max_length=100, default='')
+    Full_Name = models.CharField(max_length=100, default='')
     Height = models.CharField(max_length=100, default='')
-    width = models.CharField(max_length=100, default='')
+    Weight = models.CharField(max_length=100,default='')
     club = models.CharField(max_length=100, default='')
     State = models.CharField(max_length=100, default='')
     Position_1 = models.CharField(max_length=100, default='')
@@ -181,3 +184,29 @@ class DraftRound(models.Model):
     def __str__(self):
         return f"{self.round}"
 
+
+# class TradePotentialAnalyser(models.Model):
+#     projectid = models.IntegerField()
+#     Trade_Partner=models.CharField(max_length=255,default='')
+#     Trading_Out_Num=models.IntegerField()
+#     Trading_Out_Num_Player=models.IntegerField()
+#     Trading_In_Num =models.IntegerField()
+#     Trading_In_Num_Player=models.IntegerField()
+#     note=models.CharField(maxdefault_length=250,default='')
+    
+    
+class Trades(models.Model):
+    Trade_Partner=models.CharField(max_length=255,default='')
+    Trading_Out=models.CharField(max_length=255,default='')
+    Trading_In=models.CharField(max_length=255,default='')
+    Points_Out=models.CharField(max_length=255,default='')
+    Points_In=models.CharField(max_length=255,default='')
+    Points_Diff=models.CharField(max_length=255,default='')
+    Notes=models.CharField(max_length=255,default='')
+    System_Out=models.CharField(max_length=255,default='')
+    System_In=models.CharField(max_length=255,default='')
+    Warning = models.CharField(max_length=255,default='')
+    
+    
+    
+    

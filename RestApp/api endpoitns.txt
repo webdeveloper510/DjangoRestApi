@@ -87,25 +87,6 @@ Ladder
 }
 
 
-
-
-
-Priotity pick
-
-
-
-{
-    "teamid":"2",
-    "reason":"testing",
-    "pp_insert_instructions":"Before",
-    "pp_id":"2",
-    "pick_type":"2",   
-    "projectId":"1"
- 
- }
-
-
-
 Team1
 Team1_Pick1
 Team1_Players_no
@@ -118,23 +99,19 @@ Team2_players
 
 
 
-
+Priority pick
 
 {
-    "teamid":"16",
+    "teamid":"15",
     "reason":"testing",
     "pp_insert_instructions":"Before",
-    "pick_type":"First Round",   
+    "pick_type":"Custom Fixed Position",  
     "projectId":"1",
-    "ppid":"16"
+    "ppid":"24"
  
  }
 
-{
-  
-"project_name":"test1",
- "project_desc":"test1 desc"
-}
+
 
 AcademyBid  
 
@@ -146,6 +123,13 @@ AcademyBid
 }
 
 
+AcademyBid inputs
+
+{
+   "player":"test",
+   "team":"1",
+   "pickid":"1"
+}
 
 
 
@@ -161,9 +145,95 @@ Add trade v2
    "Team2_players":""
 }
 
+Add FA compansation
+
+
+{
+   "teamid":"1",
+   "reason":"testing",
+   "type":"Custom Fixed Position",
+   "instructions":"Before",
+   "pickid":"1"
+}
+
+Add FA compansation type v2
+
+{
+   "teamid":"1",
+   "reason":"testing",
+   "type":"Custom Fixed Position",
+   "round":"RD1",
+   "pickid":"1",
+   "instructions":"After"
+}
+
+
+add nga bid inputs
+
+
+{
+   "playerid":"1",
+   "teamid":"3",
+   "pickid":"40"
+
+}
+
+
+
+
+
+
+
+create project
+{
+  
+"project_name":"test1",
+ "project_desc":"test1 desc"
+}
+
+
+
 
 {
    "email":"test@gmail.com",
   "password":"123456"
 
+}
+
+
+add Manual
+
+{
+ "pickid":"1",
+"teamid":"1",
+"round": "RD1",
+"instructions":"Before",
+"reason":"testing"
+
+}
+
+
+Trade Potential
+
+{
+"teamid":"1",
+"Trade_Partner":"1",
+"Trading_Out_Num":"1",
+"Trading_Out_Num_Player":"1",
+"pick_trading_out":"1",
+"pick_trading_in":"3",
+"player_trading_out":"1",
+"Trading_In_Num":"1",
+"Trading_In_Num_Player":"1",
+"player_trading_in":"1",
+"notes":"testing"
+}
+
+
+add father season
+
+{
+   "player":"1",
+   "teamid":"1",
+   "pickid":"1"
 }
