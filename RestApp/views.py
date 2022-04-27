@@ -654,7 +654,7 @@ def PriorityPickrRequest(request):
     if pp_pick_type == 'Start of Draft':
         pp_dict = {}
 
-        rowno = df.id[df.Unique_Pick_ID.str.contains(str(v_current_year) + '-RD1-Standard')][0]
+        rowno = df.id[df.Unique_Pick_ID.str.contains(str(v_current_year) + '-RD1-Standard')]
    
   
 
@@ -697,11 +697,11 @@ def PriorityPickrRequest(request):
     if pp_pick_type == 'First Round':
 
 
-        Pickobj = MasterList.objects.filter(
-            Display_Name_Detailed=ppid).values()
+        Pickobj = MasterList.objects.filter(Display_Name_Detailed=ppid).values()
         # print(Pickobj)
 
-        rowno = df.id[df['Display_Name_Detailed'] == pp_aligned_pick][0]
+        # rowno = df.id[df['Display_Name_Detailed'] == pp_aligned_pick][0]
+        rowno = Pickobj[0]['id']
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName_id == pp_team_id, 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName_id': pp_team_id, 'PickType': 'Priority', 'Original_Owner_id': pp_team_id, 'Current_Owner_id': pp_team_id,

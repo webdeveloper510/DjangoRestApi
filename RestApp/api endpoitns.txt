@@ -124,7 +124,7 @@ Team2_players
     "teamid":"16",
     "reason":"testing",
     "pp_insert_instructions":"Before",
-    "pick_type":"End of First Round",   
+    "pick_type":"First Round",   
     "projectId":"1",
     "ppid":"16"
  
