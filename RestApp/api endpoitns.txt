@@ -237,3 +237,21 @@ add father season
    "teamid":"1",
    "pickid":"1"
 }
+
+
+add-draft-night-selection
+
+{
+
+  "selected_pick_id":"1",
+   "player_taken_id":"1"
+
+}
+
+
+{
+
+"selected_pick_id":"1",
+"player_taken_id":"1"
+
+}

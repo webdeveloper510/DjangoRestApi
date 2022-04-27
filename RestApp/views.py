@@ -48,7 +48,9 @@ from .models import (
     PriorityPick,
     DraftRound,
     PriorityTransactions,
-    Trades
+    TradePotentialAnalyser,
+    Trades,
+
 )
 from django.core.serializers import serialize
 from django.views.decorators.csrf import csrf_exempt
@@ -98,7 +100,7 @@ def dataframerequest(request,pk):
     for df_val in df_re:
         list.append(df_val)
     df = pd.DataFrame(list)
-
+    df.rename(columns = {'Current_Owner_id':'Current_Owner'}, inplace = True)
     return df
 
 
@@ -3446,7 +3448,7 @@ def update_potential_trade(request, pk):
          
             ##### Picks Traded Out ######
             #converting string back to a dictionary:
-            d =  ast.literal_eval(str(row.System_Out))
+            d =  literal_eval(str(row.System_Out))
             for k in d:
                 unique_pick_id = k
                 if unique_pick_id == 'Player':
@@ -3523,7 +3525,7 @@ def update_potential_trade(request, pk):
     for index, updaterow in append_df.iterrows():
         Tarde_dict = dict(updaterow)
         print(Tarde_dict)
-    Trades(**Tarde_dict).save()
+    # Trades(**Tarde_dict).save()
                         
     return Response("You will be trading out " + str(total_points_out) + "pts out and receiving " + str(total_points_in) + "pts in.", status=status.HTTP_200_OK)
             
@@ -4883,5 +4885,36 @@ def DeleteAddTradeRequest(request, pk):
 
 
 
+def add_draft_night_selection_request(request):   
+    data=request.data
+    selected_pick_id=data['selected_pick_id']
+    player_taken_id=data['player_taken_id']
+    return selected_pick_id, player_taken_id
+
+@ api_view(['POST'])
+@ permission_classes([AllowAny, ])
+def add_draft_night_selection(request,pk):
+    masterlist = dataframerequest(request,pk)
+
+    selected_pick_id, player_taken_id = add_draft_night_selection_request(request)
+    
+    pick_obj=MasterList.objects.get(id=selected_pick_id)
+    selected_pick = pick_obj.Display_Name_Detailed
+    
+    player_obj=Players.objects.get(id=player_taken_id)
+    player_taken = player_obj.FirstName
+    masterlist['Pick_Status'].mask(masterlist['Display_Name_Detailed'] == selected_pick, 'Used' , inplace=True)
+    masterlist['Selected_Player'].mask(masterlist['Display_Name_Detailed'] == selected_pick, player_taken , inplace=True)
+
+    current_time = datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
+    team_name = masterlist.loc[masterlist.Display_Name_Detailed == selected_pick, 'Current_Owner'].iloc[0]
+    pick_round = masterlist.loc[masterlist.Display_Name_Detailed == selected_pick, 'Draft_Round'].iloc[0]
+    overall_pick = masterlist.loc[masterlist.Display_Name_Detailed == selected_pick, 'Overall_Pick'].iloc[0]
+    print("dff")
+    print(overall_pick)
+
+    drafted_player_dict = {team_name: [pick_round, overall_pick,player_taken]}
+    drafted_description = 'With pick ' + overall_pick.astype(str) + ' ' + team_name + ' have selected ' + player_taken
+       
 
     

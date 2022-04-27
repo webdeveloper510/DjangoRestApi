@@ -49,7 +49,9 @@ from .views import (
     academy_bid_v2,
     add_nga_bid,
     dataframerequest,
-    add_father_son
+    add_father_son,
+    add_draft_night_selection,
+    add_potential_trade,
 )
 
 urlpatterns = [
@@ -71,7 +73,7 @@ urlpatterns = [
     re_path(r'^Add-nga/(?P<pk>[0-9]+)$', add_nga_bid),
     re_path(r'^df/(?P<pk>[0-9]+)$', dataframerequest),
     re_path(r'^add-add_father_son/(?P<pk>[0-9]+)$', add_father_son),
-    
+    re_path(r'^add-draft-night-selection/(?P<pk>[0-9]+)$', add_draft_night_selection),
 
     # #################### Update URL's #################
 
