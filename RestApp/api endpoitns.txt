@@ -170,23 +170,16 @@ Add FA compansation type v2
 
 add nga bid inputs
 
-
 {
    "playerid":"1",
-   "teamid":"3",
-   "pickid":"40"
-
+   "teamid":"14",
+   "pickid":"32"
 }
 
 
-
-
-
-
-
 create project
+
 {
-  
 "project_name":"test1",
  "project_desc":"test1 desc"
 }
@@ -230,7 +223,7 @@ Trade Potential
 }
 
 
-add father season
+add father son
 
 {
    "player":"1",
