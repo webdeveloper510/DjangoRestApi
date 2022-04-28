@@ -66,6 +66,7 @@ from django.db import connection
 from django.core.files import File
 from django.db import connection
 import sys
+import ast
 
 
 pd.set_option('display.max_rows', None)
@@ -92,8 +93,6 @@ class CreateUserAPIView(APIView):
         User.objects.filter(id=last_inserted_id).update(uui=unique_id)
         return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
 
-
-
 def dataframerequest(request,pk):
     list = []
     df_re = MasterList.objects.filter(projectid=pk).values() 
@@ -102,8 +101,6 @@ def dataframerequest(request,pk):
     df = pd.DataFrame(list)
     df.rename(columns = {'Current_Owner_id':'Current_Owner'}, inplace = True)
     return df
-
-
 
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
@@ -174,10 +171,6 @@ def import_ladder_dragdrop(library_team_dropdown_list, library_AFL_Team_Names, v
     ladder_current_year_plus1 = ladder_current_year.copy()
     print(library_team_dropdown_list)
     return ladder_current_year, ladder_current_year_plus1
-
-
-
-
 
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
@@ -318,7 +311,6 @@ def AddTradeRequest(request):
         Transaction_Number=message_count)
 
     return Response({'success': 'Trade and Trasactions Created'}, status=status.HTTP_201_CREATED)
-
 
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
@@ -484,6 +476,177 @@ def add_trade_v2_request(request):
 
     return Response({'success': 'Trade and Trasactions Created'}, status=status.HTTP_201_CREATED)
 
+def add_trade_v3_inputs(request,pk):
+
+    team1_trades_picks = []
+    team1_trades_players = []
+    team2_trades_picks = []
+    team2_trades_players =[]
+
+
+    data = request.data
+    team1 = data['teamid1']
+    player1 = data['player1']
+    team2 = data['teamid2']
+    player2 = data['player2']
+    pickid1 = data['pickid1']
+    pickid2 = data['pickid2']
+
+    df = dataframerequest(request,pk)
+    masterlist = df
+    picks_trading_out_team1 = pickid1
+    players_trading_out_team1 = str(len(player1))
+
+    #Getting the pick(s) name for the pick(s) traded out:
+    if int(picks_trading_out_team1) > 0:
+        #Priniting the available picks for team 1 to trade out
+        for i in range(len(picks_trading_out_team1)):         
+            pick_trading_out_team1_obj = MasterList.objects.filter(Current_Owner_id=team1).values()
+            for pick_trading_out_team1 in pick_trading_out_team1_obj:
+                team1_trades_picks.append(pick_trading_out_team1['Display_Name_Detailed'])
+    else:
+        pass 
+
+    #Getting the pick(s) name for the pick(s) traded out:
+    if int(players_trading_out_team1) > 0:
+        #Priniting the available picks for team 1 to trade out
+        for i in range(int(players_trading_out_team1)):            
+            player_trading_out_team1_obj = Players.objects.filter(id=player1).values()
+            for player_trading_out_team1 in player_trading_out_team1_obj:
+
+                team1_trades_players.append(player_trading_out_team1['Full_Name'])
+    else:
+        pass         
+
+    picks_trading_out_team2 = pickid2
+    players_trading_out_team2 = str(len(player2))
+
+    if int(picks_trading_out_team2) > 0:
+
+    #Priniting the available picks for team 1 to trade out
+        for i in range(len(picks_trading_out_team2)):         
+            pick_trading_out_team2_obj = MasterList.objects.filter(Current_Owner=team2).values()
+            for pick_trading_out_team1 in pick_trading_out_team2_obj:
+                team2_trades_picks.append(pick_trading_out_team1['Display_Name_Detailed'])
+    else:
+        pass 
+
+    #Getting the pick(s) name for the pick(s) traded out:
+    if int(players_trading_out_team2) > 0:
+        #Priniting the available picks for team 1 to trade out
+        for i in range(int(players_trading_out_team2)):            
+            player_trading_out_team1_obj = Players.objects.filter(id=player2).values()
+            for player_trading_out_team2 in player_trading_out_team1_obj:
+                team2_trades_players.append(player_trading_out_team2['Full_Name'])
+    else:
+        pass       
+    return masterlist, team1, team2,team1_trades_picks,team1_trades_players, team2_trades_picks,team2_trades_players
+
+@api_view(['POST'])
+@permission_classes([AllowAny, ])
+def add_trade_v3(request,pk):
+
+    ################### TRADE EXECUTION ############################
+        
+    # Trade facilitation - Swapping current owner names & Applying Most Recent Owner First:
+    
+    ##### Team 1 receiving from Team 2 #####
+    #Loop for each pick that team 2 is trading out to team 1:
+
+    masterlist, team1, team2,team1_trades_picks,team1_trades_players, team2_trades_picks,team2_trades_players = add_trade_v3_inputs(request,pk)
+    current_date = date.today()
+    v_current_year = current_date.year
+    for team2pickout in team2_trades_picks:
+        #Changing the previous owner name
+        masterlist.rename(columns = {'Previous_Owner_id':'Previous_Owner'}, inplace = True)
+        masterlist.rename(columns = {'Current_Owner_id':'Current_Owner'}, inplace = True)
+        masterlist['Previous_Owner'].mask(masterlist['Display_Name_Detailed'] == team2pickout, masterlist['Current_Owner'], inplace=True)
+        #Executing change of ownership
+        masterlist['Current_Owner'].mask(masterlist['Display_Name_Detailed'] == team2pickout, team1, inplace=True)
+
+    ##### Team 2 receiving from Team 1 #####
+    #Loop for each pick that team 1 is trading out to team 2:
+    for team1pickout in team1_trades_picks:
+        #Changing the previous owner name
+        masterlist['Previous_Owner'].mask(masterlist['Display_Name_Detailed'] == team1pickout, masterlist['Current_Owner'], inplace=True)
+        #print( masterlist['Previous_Owner'])
+        #Executing change of ownership
+        masterlist['Current_Owner'].mask(masterlist['Display_Name_Detailed'] == team1pickout, team2, inplace=True)    
+
+    # ###########  Call Update masterlist ############
+    udpatedf = update_masterlist(masterlist)
+
+    for index, updaterow in udpatedf.iterrows():
+        trade_dict = dict(updaterow)
+
+        team = Teams.objects.get(id=updaterow.TeamName)
+        
+        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
+        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
+        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
+        Overall_pickk = trade_dict['Overall_Pick']
+
+        Project1 = Project.objects.get(id=pk)
+        trade_dict['Previous_Owner'] = previous_owner
+        team = Teams.objects.get(id=updaterow.TeamName)
+        trade_dict['TeamName'] = team
+        trade_dict['Original_Owner'] = Original_Owner
+        trade_dict['Current_Owner'] = Current_Ownerr
+        trade_dict['projectid'] = Project1
+
+        trade_dict['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+            None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
+
+        trade_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
+            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(trade_dict['Display_Name'])
+
+        # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
+        #     previous_owner + team.ShortName + \
+        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
+        # df.reset_index(drop=False)
+
+        # print(row1['Display_Name_Mini'])
+        # exit()
+        trade_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+            previous_owner + team.ShortName + \
+            ')' if Original_Owner != Current_Ownerr else team.ShortName
+
+        trade_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+            previous_owner + team.ShortName + \
+            ')' if Original_Owner != Current_Ownerr else team.ShortName
+
+        MasterList(**trade_dict).save()   
+
+    ################### RECORDING TRANSACTION ############################
+    #Summarising what each team traded out:
+    team1_out = team1_trades_players +  team1_trades_picks
+    team2_out = team2_trades_players +  team2_trades_picks
+    
+    # variables for transactions dict
+    current_time = datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
+    
+    #Creating a dict of what each team traded out
+    trade_dict = {team1: team1_out , team2: team2_out}
+    trade_dict_full = {team1: [team1_trades_players,team1_trades_picks] , team2: [team2_trades_players,team2_trades_picks]}
+    
+    #Creating a written description
+    trade_description = team1 + ' traded ' + ','.join(str(e) for e in team1_out) + ' & ' + team2 + ' traded ' + ','.join(str(e) for e in team2_out)
+
+     # Exporting trade to the transactions df
+    Proj_obj = Project.objects.get(id=pk)
+    project_id = Proj_obj.id
+    transaction_details = pd.DataFrame(
+        {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'Trade',
+         'Transaction_Details': [trade_dict_full],
+         'Transaction_Description': trade_description,
+         'Type':'Add-Trade-V3',
+         'projectId':project_id
+         })
+    transactions_obj = Transactions.objects.latest('id')
+    last_Transations_id = transactions_obj.id
+    Transactions.objects.filter(id=last_Transations_id).update(Transaction_Number=last_Transations_id)
+    return Response({'success': 'Add-Trade-v3 Created Successfuly'}, status=status.HTTP_201_CREATED)
+
 
 def update_masterlist(df):
     library_AFL_Draft_Pointss = []
@@ -498,6 +661,12 @@ def update_masterlist(df):
     for pointss in list(PointsQueryset):
 
         library_AFL_Draft_Pointss.append(pointss['points'])
+
+    df.rename(columns = {'Current_Owner_id':'Current_Owner'}, inplace = True)
+    df.rename(columns = {'Original_Owner_id':'Original_Owner'}, inplace = True)
+    df.rename(columns = {'TeamName_id':'TeamName'}, inplace = True)
+    df.rename(columns = {'Previous_Owner_id':'Previous_Owner'}, inplace = True)
+
 
     df['Overall_Pick'] = df.groupby('Year').cumcount() + 1
 
@@ -3227,73 +3396,6 @@ def add_FA_compensation_v2(request,pk):
     count = Transactions.objects.filter().count()
     Transactions.objects.filter(id = obj.id ).update(Transaction_Number=count)
     return Response({'success': 'add_FA_compensation_v2 has been Created'}, status=status.HTTP_201_CREATED)    
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def AddManualRequest(request, pk):
-    current_date = date.today()
-    v_current_year = current_date.year
-    masterlist = []
-    dfobj = MasterList.objects.filter(projectid=pk).values()
-    for df_data in dfobj:
-        masterlist.append(df_data)
-    df = pd.DataFrame(masterlist)
-
-    
-    data  =  request.data
-    pick_id  = data['pickid']
-    manual_team  = data['teamid']
-    manual_round = data['round']
-    manual_insert_instructions = data['instructions']
-    reason = data['reason']
-    manual_pick_type = 'Manual Insert'
-    
-    manual_aligned_pick = []
-    pickqueryset  = MasterList.objects.filter(id = pick_id).values()
-    manual_aligned_pick = pickqueryset[0]['Display_Name_Detailed']
- 
-    rowno = df.index[df['Display_Name_Detailed'] == manual_aligned_pick][1]
-
-    line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(manual_team), 'Position'].iloc[0], 'Year': v_current_year,
-                         'TeamName': int(manual_team), 'PickType': 'Manual_Insert', 'Original_Owner': manual_team, 'Current_Owner': manual_team,
-                         'Previous_Owner': '', 'Draft_Round': manual_round, 'Pick_Group': str(v_current_year) + '-' + 'RD1-Manual', 'Reason': reason},
-                        index=[rowno])
-
-    
-    if manual_insert_instructions == 'Before':
-            df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
-                       ).reset_index(drop=True)
-            print(df)
-
-    else:
-        df = pd.concat([df.iloc[:rowno + 1], line,
-                       df.iloc[rowno + 1:]]).reset_index(drop=True)
-        
-    
-    manual_dict = {manual_team: [
-        manual_pick_type, manual_round, manual_aligned_pick, manual_insert_instructions, reason]}
-    manual_description = manual_team + ' received a ' + manual_pick_type + ' Pick'
-    manual_dict_list = []
-    for key,value in manual_dict.items():
-        for i in value:
-            result = ' ' + key + ' ' + i
-            manual_dict_list.append(result)
-    manual_desc_str = "".join(manual_dict_list)
-        
-    current_time = datetime.datetime.now(pytz.timezone(
-        'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M') 
-    
-    transaction_details = pd.DataFrame(
-        {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'Manual_Insert', 'Transaction_Details': [manual_dict], 'Transaction_Description': manual_description,'projectId':pk})
-    df2 = []
-    df2  =df2.append(transaction_details)
-    Transactions(**transaction_details).save()
-    obj = Transactions.objects.latest('id')
-    Transactions_count = Transactions.objects.filter().count()
-
-    Transactions.objects.filter(id=pk.id).update(Transaction_Number=Transactions_count)
-    
-    
     
     # ##################### Code Done by Abhishek ########################
     
@@ -3448,7 +3550,7 @@ def update_potential_trade(request, pk):
          
             ##### Picks Traded Out ######
             #converting string back to a dictionary:
-            d =  literal_eval(str(row.System_Out))
+            d =  ast.literal_eval(str(row.System_Out))
             for k in d:
                 unique_pick_id = k
                 if unique_pick_id == 'Player':
@@ -3997,7 +4099,7 @@ def add_father_son(request,pk):
          'Type':"Drafted-Player-Transactions"
          
         })
-    Transactions(**transaction_details).save()
+    Transactions(**drafted_player_transaction_details).save()
     lastinsertedId = Transactions.objects.latest('id')
     Transactions.objects.filter(id=lastinsertedId.id).update(Transaction_Number=lastinsertedId.id)
     return Response("Success", status=status.HTTP_201_CREATED)
@@ -4051,6 +4153,7 @@ def add_nga_bid(request,pk):
     df_original = df.copy()
     deficit_subset = df.copy()
     df_subset = df.copy()
+    
     
     df.rename(columns = {'Current_Owner_id':'Current_Owner'}, inplace = True)
     df_subset.rename(columns = {'Current_Owner_id':'Current_Owner'}, inplace = True)
@@ -4269,8 +4372,6 @@ def add_nga_bid(request,pk):
 
             #finding the points value of that pick and then adjusting the deficit
             deficit_attached_pts = deficit_subset['AFL_Points_Value']
-            
-            nga_points_deficit = "123456.000"
 
             deficit_pick_points =   deficit_attached_pts + nga_points_deficit
 
@@ -4475,7 +4576,306 @@ def add_nga_bid(request,pk):
             last_obj = Transactions.objects.latest('id')
             Transactions.objects.filter(id=last_obj.id).update(Transaction_Number=last_obj.id)
             return Response({'success':'success'}, status=status.HTTP_201_CREATED) 
+
+# #####################################################  Code Done By ABhishek ##########################
+
+
+def add_draft_night_selection_request(request):   
+    data=request.data
+    selected_pick_id=data['selected_pick_id']
+    player_taken_id=data['player_taken_id']
+    return selected_pick_id, player_taken_id
+
+
+@ api_view(['POST'])
+@ permission_classes([AllowAny, ])
+def add_draft_night_selection(request,pk):
+    masterlist = dataframerequest(request,pk)
+    current_date = date.today()
+    v_current_year = current_date.year
+    selected_pick_id, player_taken_id = add_draft_night_selection_request(request)
+    
+    pick_obj=MasterList.objects.get(id=selected_pick_id)
+    selected_pick = pick_obj.Display_Name_Detailed
+    player_obj=Players.objects.get(id=player_taken_id)
+    player_taken = player_obj.Full_Name
+    masterlist['Pick_Status'].mask(masterlist['Display_Name_Detailed'] == selected_pick, 'Used' , inplace=True)
+    masterlist['Selected_Player'].mask(masterlist['Display_Name_Detailed'] == selected_pick, player_taken , inplace=True)
+
+    current_time = datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
+    team_name = masterlist.loc[masterlist.Display_Name_Detailed == selected_pick, 'Current_Owner'].iloc[0]
+    pick_round = masterlist.loc[masterlist.Display_Name_Detailed == selected_pick, 'Draft_Round'].iloc[0]
+    overall_pick = masterlist.loc[masterlist.Display_Name_Detailed == selected_pick, 'Overall_Pick'].iloc[0]
+  
+    drafted_player_dict = {team_name: [pick_round, overall_pick,player_taken]}
+    drafted_description = 'With pick ' + str(overall_pick)+ ' ' + str(team_name) + ' have selected ' + str(player_taken)
+    
+    # ####################call masterlist ########################################
+    
+    # df = dataframerequest(request,pk) 
+
+    masterlist.rename(columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
+    masterlist.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
+    masterlist.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
+    masterlist.rename(columns={'Previous_Owner_id': 'Previous_Owner'}, inplace=True)
+    updatedf = update_masterlist(masterlist)
+
+
+    iincreament_id = 1
+    for index,updaterow in updatedf.iterrows():
+
+        draft_night_dict = dict(updaterow)
+        team = Teams.objects.get(id=updaterow.TeamName)
+        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
+        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
+        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
+        Overall_pickk = draft_night_dict['Overall_Pick']
+
+        Project1 = Project.objects.get(id=pk)
+        draft_night_dict['Previous_Owner'] = previous_owner
+        team = Teams.objects.get(id=updaterow.TeamName)
+        draft_night_dict['TeamName'] = team
+        draft_night_dict['Original_Owner'] = Original_Owner
+        draft_night_dict['Current_Owner'] = Current_Ownerr
+        draft_night_dict['projectid'] = Project1
+
+        draft_night_dict['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+            None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
+
+        draft_night_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
+            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(draft_night_dict['Display_Name'])
+
+        # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
+        #     previous_owner + team.ShortName + \
+        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
+        # df.reset_index(drop=False)
+
+        # print(row1['Display_Name_Mini'])
+        # exit()
+        draft_night_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+            previous_owner + team.ShortName + \
+            ')' if Original_Owner != Current_Ownerr else team.ShortName
+
+        draft_night_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+            previous_owner + team.ShortName + \
+            ')' if Original_Owner != Current_Ownerr else team.ShortName
+
+        # MasterList(**row1).save()   
+        model_dictionary = {
+            'Year':draft_night_dict['Year'],
+            'PickType':draft_night_dict['PickType'],
+            'TeamName':draft_night_dict['TeamName'],
+            'Position':draft_night_dict['Position'],
+            'Original_Owner':draft_night_dict['Original_Owner'],
+            'Current_Owner':draft_night_dict['Current_Owner'],
+            'Previous_Owner':draft_night_dict['Previous_Owner'],
+            'Draft_Round':draft_night_dict['Draft_Round'],
+            'Draft_Round_Int':draft_night_dict['Draft_Round_Int'],
+            'Pick_Group':draft_night_dict['Pick_Group'],
+            'System_Note':draft_night_dict['System_Note'],
+            'User_Note':draft_night_dict['User_Note'],
+            'Reason':draft_night_dict['Reason'],
+            'Overall_Pick':draft_night_dict['Overall_Pick'],
+            'AFL_Points_Value':draft_night_dict['AFL_Points_Value'],
+            'Unique_Pick_ID':draft_night_dict['Unique_Pick_ID'],
+            'Club_Pick_Number':draft_night_dict['Club_Pick_Number'],
+            'Display_Name':draft_night_dict['Display_Name'],
+            'Display_Name_Short':draft_night_dict['Display_Name_Short'],
+            'Display_Name_Detailed':draft_night_dict['Display_Name_Detailed'],
+            'Display_Name_Mini':draft_night_dict['Display_Name_Mini'],
+            'Current_Owner_Short_Name':draft_night_dict['Current_Owner_Short_Name'],
+            'Pick_Status':draft_night_dict['Pick_Status'],
+            'Selected_Player':draft_night_dict['Selected_Player'],
+            'projectid':draft_night_dict['projectid']
+        }
+    
         
+        MasterList.objects.filter(id=iincreament_id).update(**model_dictionary)
+        
+        iincreament_id +=1
+    Projobj = Project.objects.get(id=pk)
+    Proj_id = Projobj.id
+    drafted_player_transaction_details = pd.DataFrame(
+        {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'Drafted_Player',
+         'Transaction_Details': [drafted_player_dict],
+         'Transaction_Description': drafted_description,
+         'Type':'Add-Draft-Night-Selection',
+         'projectId':Proj_id
+         })
+    Transactions(**drafted_player_transaction_details).save()      
+    obj=Transactions.objects.latest('id')
+    Transactions.objects.filter(id=obj.id).update(Transaction_Number=obj.id)
+    return Response({'success':"Add-draft-Night-Selection created successfully"}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def AddManualRequest(request, pk):
+    current_date = date.today()
+    v_current_year = current_date.year
+    masterlist = []
+    dfobj = MasterList.objects.filter(projectid=pk).values()
+    for df_data in dfobj:
+        masterlist.append(df_data)
+    df = pd.DataFrame(masterlist)
+    data  =  request.data
+    pick_id  = data['pickid']
+    manual_team  = data['teamid']
+    manual_round = data['round']
+    manual_insert_instructions = data['instructions']
+    reason = data['reason']
+    manual_pick_type = 'Manual Insert'
+    
+    manual_aligned_pick = []
+    pickqueryset  = MasterList.objects.filter(id = pick_id).values()
+    manual_aligned_pick = pickqueryset[0]['Display_Name_Detailed']
+ 
+    rowno = df.index[df['Display_Name_Detailed'] == manual_aligned_pick][1]
+
+
+    line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(manual_team), 'Position'].iloc[0], 'Year': v_current_year,
+                         'TeamName': int(manual_team), 'PickType': 'Manual_Insert', 'Original_Owner': manual_team, 'Current_Owner': manual_team,
+                         'Previous_Owner': '', 'Draft_Round': manual_round, 'Pick_Group': str(v_current_year) + '-' + 'RD1-Manual', 'Reason': reason},
+                        index=[rowno])
+
+    
+    if manual_insert_instructions == 'Before':
+            df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
+                       ).reset_index(drop=True)
+            df = df.iloc[rowno]
+            
+            del df['TeamName_id']
+            del df['Current_Owner_id']
+            del df['Previous_Owner_id']
+            del df['Original_Owner_id']
+
+            df['id'] = rowno
+            df['TeamName']=manual_team
+            df['projectid_id']=pk
+
+            MasterList.objects.filter(id=rowno).update(**df)
+    else:
+        df = pd.concat([df.iloc[:rowno + 1], line,
+                       df.iloc[rowno + 1:]]).reset_index(drop=True)
+        df = df.iloc[rowno]
+        del df['TeamName_id']
+        del df['Current_Owner_id']
+        del df['Previous_Owner_id']
+        del df['Original_Owner_id']
+
+        df['id'] = rowno+1
+        df['TeamName']=manual_team
+        df['Current_Owner']=manual_team
+        df['Original_Owner']=manual_team
+        df['Previous_Owner']=''
+        df['projectid_id']=pk
+        MasterList.objects.filter(id=rowno+1).update(**df)
+    
+    df1 = dataframerequest(request,pk)
+
+    updatedf = update_masterlist(df1)
+
+    updatedf.rename(columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
+    updatedf.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
+    updatedf.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
+    updatedf.rename(columns={'Previous_Owner_id': 'Previous_Owner'}, inplace=True)
+
+    iincreament_id = 1
+    for index,updaterow in updatedf.iterrows():
+
+        manual_dict = dict(updaterow)
+        team = Teams.objects.get(id=updaterow.TeamName)
+        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
+        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
+        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
+        Overall_pickk = manual_dict['Overall_Pick']
+
+        Project1 = Project.objects.get(id=pk)
+        manual_dict['Previous_Owner'] = previous_owner
+        team = Teams.objects.get(id=updaterow.TeamName)
+        manual_dict['TeamName'] = team
+        manual_dict['Original_Owner'] = Original_Owner
+        manual_dict['Current_Owner'] = Current_Ownerr
+        manual_dict['projectid'] = Project1
+
+        manual_dict['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+            None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
+
+        manual_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
+            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(manual_dict['Display_Name'])
+
+        # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
+        #     previous_owner + team.ShortName + \
+        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
+        # df.reset_index(drop=False)
+
+        # print(row1['Display_Name_Mini'])
+        # exit()
+        manual_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+            previous_owner + team.ShortName + \
+            ')' if Original_Owner != Current_Ownerr else team.ShortName
+
+        manual_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+            previous_owner + team.ShortName + \
+            ')' if Original_Owner != Current_Ownerr else team.ShortName
+
+        # MasterList(**row1).save()   
+        model_dictionary = {
+            'Year':manual_dict['Year'],
+            'PickType':manual_dict['PickType'],
+            'TeamName':manual_dict['TeamName'],
+            'Position':manual_dict['Position'],
+            'Original_Owner':manual_dict['Original_Owner'],
+            'Current_Owner':manual_dict['Current_Owner'],
+            'Previous_Owner':manual_dict['Previous_Owner'],
+            'Draft_Round':manual_dict['Draft_Round'],
+            'Draft_Round_Int':manual_dict['Draft_Round_Int'],
+            'Pick_Group':manual_dict['Pick_Group'],
+            'System_Note':manual_dict['System_Note'],
+            'User_Note':manual_dict['User_Note'],
+            'Reason':manual_dict['Reason'],
+            'Overall_Pick':manual_dict['Overall_Pick'],
+            'AFL_Points_Value':manual_dict['AFL_Points_Value'],
+            'Unique_Pick_ID':manual_dict['Unique_Pick_ID'],
+            'Club_Pick_Number':manual_dict['Club_Pick_Number'],
+            'Display_Name':manual_dict['Display_Name'],
+            'Display_Name_Short':manual_dict['Display_Name_Short'],
+            'Display_Name_Detailed':manual_dict['Display_Name_Detailed'],
+            'Display_Name_Mini':manual_dict['Display_Name_Mini'],
+            'Current_Owner_Short_Name':manual_dict['Current_Owner_Short_Name'],
+            'Pick_Status':manual_dict['Pick_Status'],
+            'Selected_Player':manual_dict['Selected_Player'],
+            'projectid':manual_dict['projectid']
+        }
+    
+        
+        MasterList.objects.filter(id=iincreament_id).update(**model_dictionary)
+        
+        iincreament_id +=1
+        
+    
+    manual_dict = {manual_team: [
+        manual_pick_type, manual_round, manual_aligned_pick, manual_insert_instructions, reason]}
+    manual_description = manual_team + ' received a ' + manual_pick_type + ' Pick'
+    manual_dict_list = []
+    for key,value in manual_dict.items():
+        for i in value:
+            result = ' ' + key + ' ' + i
+            manual_dict_list.append(result)
+    manual_desc_str = "".join(manual_dict_list)
+        
+    current_time = datetime.datetime.now(pytz.timezone(
+        'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M') 
+    
+    transaction_details = pd.DataFrame(
+        {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'Manual_Insert', 'Transaction_Details': [manual_dict], 'Transaction_Description': manual_description,'projectId':pk})
+
+    Transactions(**transaction_details).save()
+    obj = Transactions.objects.latest('id')
+    Transactions_count = Transactions.objects.filter().count()
+
+    Transactions.objects.filter(id=obj.id).update(Transaction_Number=Transactions_count)
+    return Response({'success': 'Add Manual created Successfully'}, status=status.HTTP_201_CREATED)
 
     
 @api_view(['GET'])
@@ -4723,6 +5123,9 @@ def ProjPlayer(request,format=None):
         serializer.save()
         return Response({'success':'Player has been created successfully'}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    
 
 #  ########################################  GET Requests ###############################################################
 
@@ -4981,36 +5384,3 @@ def DeleteAddTradeRequest(request, pk):
 
 
 
-def add_draft_night_selection_request(request):   
-    data=request.data
-    selected_pick_id=data['selected_pick_id']
-    player_taken_id=data['player_taken_id']
-    return selected_pick_id, player_taken_id
-
-@ api_view(['POST'])
-@ permission_classes([AllowAny, ])
-def add_draft_night_selection(request,pk):
-    masterlist = dataframerequest(request,pk)
-
-    selected_pick_id, player_taken_id = add_draft_night_selection_request(request)
-    
-    pick_obj=MasterList.objects.get(id=selected_pick_id)
-    selected_pick = pick_obj.Display_Name_Detailed
-    
-    player_obj=Players.objects.get(id=player_taken_id)
-    player_taken = player_obj.FirstName
-    masterlist['Pick_Status'].mask(masterlist['Display_Name_Detailed'] == selected_pick, 'Used' , inplace=True)
-    masterlist['Selected_Player'].mask(masterlist['Display_Name_Detailed'] == selected_pick, player_taken , inplace=True)
-
-    current_time = datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
-    team_name = masterlist.loc[masterlist.Display_Name_Detailed == selected_pick, 'Current_Owner'].iloc[0]
-    pick_round = masterlist.loc[masterlist.Display_Name_Detailed == selected_pick, 'Draft_Round'].iloc[0]
-    overall_pick = masterlist.loc[masterlist.Display_Name_Detailed == selected_pick, 'Overall_Pick'].iloc[0]
-    print("dff")
-    print(overall_pick)
-
-    drafted_player_dict = {team_name: [pick_round, overall_pick,player_taken]}
-    drafted_description = 'With pick ' + overall_pick.astype(str) + ' ' + team_name + ' have selected ' + player_taken
-       
-
-    

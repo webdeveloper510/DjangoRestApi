@@ -197,13 +197,13 @@ create project
 add Manual
 
 {
- "pickid":"1",
-"teamid":"1",
+ "pickid":"4",
+"teamid":"4",
 "round": "RD1",
 "instructions":"Before",
 "reason":"testing"
-
 }
+
 
 
 Trade Potential
@@ -235,16 +235,19 @@ add father son
 add-draft-night-selection
 
 {
-
   "selected_pick_id":"1",
    "player_taken_id":"1"
-
 }
 
 
-{
 
-"selected_pick_id":"1",
-"player_taken_id":"1"
+add trade v3
 
+{  
+   "teamid1":"2",
+   "player1":"1",
+   "pickid1":"2",
+   "teamid2":"2",
+   "player2":"1",
+   "pickid2":"2"
 }

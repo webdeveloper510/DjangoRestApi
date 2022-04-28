@@ -52,6 +52,7 @@ from .views import (
     add_father_son,
     add_draft_night_selection,
     add_potential_trade,
+    add_trade_v3
 )
 
 urlpatterns = [
@@ -74,6 +75,7 @@ urlpatterns = [
     re_path(r'^df/(?P<pk>[0-9]+)$', dataframerequest),
     re_path(r'^add-add_father_son/(?P<pk>[0-9]+)$', add_father_son),
     re_path(r'^add-draft-night-selection/(?P<pk>[0-9]+)$', add_draft_night_selection),
+    re_path(r'^add_trade_v3/(?P<pk>[0-9]+)$', add_trade_v3),
 
     # #################### Update URL's #################
 
