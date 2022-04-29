@@ -102,13 +102,12 @@ Team2_players
 Priority pick
 
 {
-    "teamid":"15",
+    "teamid":"3",
     "reason":"testing",
     "pp_insert_instructions":"Before",
-    "pick_type":"Custom Fixed Position",  
+    "pick_type":"Second Round",  
     "projectId":"1",
     "ppid":"24"
- 
  }
 
 
