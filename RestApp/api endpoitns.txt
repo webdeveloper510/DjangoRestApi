@@ -251,3 +251,13 @@ add trade v3
    "player2":"1",
    "pickid2":"2"
 }
+
+Priority pick v2
+
+{
+   "teamid":"7",
+   "pick_type":"Custom Fixed Position",
+   "pp_aligned_pick_id":"7",
+   "instructions":"Before",
+   "reason":"testing"
+}

@@ -52,7 +52,8 @@ from .views import (
     add_father_son,
     add_draft_night_selection,
     add_potential_trade,
-    add_trade_v3
+    add_trade_v3,
+    add_priority_pick_v2
 )
 
 urlpatterns = [
@@ -76,6 +77,7 @@ urlpatterns = [
     re_path(r'^add-add_father_son/(?P<pk>[0-9]+)$', add_father_son),
     re_path(r'^add-draft-night-selection/(?P<pk>[0-9]+)$', add_draft_night_selection),
     re_path(r'^add_trade_v3/(?P<pk>[0-9]+)$', add_trade_v3),
+    re_path(r'^add_priority_pick_v2/(?P<pk>[0-9]+)$', add_priority_pick_v2),
 
     # #################### Update URL's #################
 
