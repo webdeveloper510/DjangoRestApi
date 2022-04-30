@@ -968,7 +968,7 @@ def PriorityPickrRequest(request):
 
         pp_dict['pp_team'] = [pp_pick_type]
         pp_description = str(pp_team) + ' received a ' + \
-            str(pp_pick_type) + ' Priority Pick'
+            str(pp_pick_type) + 'Priority Pick'
         MasterList.objects.filter(id=rowno).update(**df)
 
     if pp_pick_type == 'Second Round':
@@ -4799,7 +4799,7 @@ def add_father_son(request, pk):
     # obj=MasterList.objects.get(id=fs_bid)
     # fs_pick=obj.Display_Name_Detailed
     list = []
-    queryset = MasterList.objects.filter(id__in=fs_bid).values()
+    queryset = MasterList.objects.filter(id__in=[fs_bid]).values()
     for query in queryset:
         list.append(query['Display_Name_Detailed'])
     fs_pick = "".join(list)
