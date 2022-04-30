@@ -126,9 +126,10 @@ AcademyBid inputs
 
 {
    "player":"test",
-   "team":"1",
-   "pickid":"1"
+   "team":"2",
+   "pickid":"2"
 }
+
 
 
 
@@ -144,15 +145,15 @@ Add trade v2
    "Team2_players":""
 }
 
-Add FA compansation
+Add FA compansation inputs
 
 
 {
-   "teamid":"1",
+   "teamid":"3",
+   "pickid":"3",
    "reason":"testing",
-   "type":"Custom Fixed Position",
-   "instructions":"Before",
-   "pickid":"1"
+   "type":"Start of Second Round",
+   "instructions":"Before"
 }
 
 Add FA compansation type v2
@@ -165,7 +166,6 @@ Add FA compansation type v2
    "pickid":"1",
    "instructions":"After"
 }
-
 
 add nga bid inputs
 
@@ -259,4 +259,16 @@ Priority pick v2
    "pp_aligned_pick_id":"7",
    "instructions":"Before",
    "reason":"testing"
+}
+
+
+manual pick move
+
+{
+   "teamid":"2",
+   "reason":"testing",
+   "round":"RD2",
+   "pick_being_moved":"2",
+   "pick_moved_to":"3",
+   "instructions":"Before"
 }

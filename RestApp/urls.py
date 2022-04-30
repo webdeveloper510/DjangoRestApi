@@ -44,7 +44,7 @@ from .views import (
     ConstraintsRquest,
     GetFlagPicks,
     GetFlagsRequest,
-    add_FA_compansation_request,
+    add_FA_compansation,
     add_FA_compensation_v2,
     academy_bid_v2,
     add_nga_bid,
@@ -53,7 +53,8 @@ from .views import (
     add_draft_night_selection,
     add_potential_trade,
     add_trade_v3,
-    add_priority_pick_v2
+    add_priority_pick_v2,
+    manual_pick_move
 )
 
 urlpatterns = [
@@ -70,7 +71,7 @@ urlpatterns = [
     re_path(r'^Priority-Pick/$', PriorityPickrRequest),
     re_path(r'^Academy-Bid/(?P<pk>[0-9]+)$', AcademyBidRequest),
     re_path(r'^Academy-Bid-v2/(?P<pk>[0-9]+)$', academy_bid_v2),
-    re_path(r'^Add-FA-Compansation/(?P<pk>[0-9]+)$', add_FA_compansation_request),
+    re_path(r'^Add-FA-Compansation/(?P<pk>[0-9]+)$', add_FA_compansation),
     re_path(r'^Add-FA-Compansation_v2/(?P<pk>[0-9]+)$', add_FA_compensation_v2),
     re_path(r'^Add-nga-bid/(?P<pk>[0-9]+)$', add_nga_bid),
     re_path(r'^df/(?P<pk>[0-9]+)$', dataframerequest),
@@ -78,6 +79,7 @@ urlpatterns = [
     re_path(r'^add-draft-night-selection/(?P<pk>[0-9]+)$', add_draft_night_selection),
     re_path(r'^add_trade_v3/(?P<pk>[0-9]+)$', add_trade_v3),
     re_path(r'^add_priority_pick_v2/(?P<pk>[0-9]+)$', add_priority_pick_v2),
+    re_path(r'^manual_pick_move/(?P<pk>[0-9]+)$', manual_pick_move),
 
     # #################### Update URL's #################
 
