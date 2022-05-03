@@ -226,8 +226,8 @@ add father son
 
 {
    "player":"1",
-   "teamid":"1",
-   "pickid":"1"
+   "teamid":"2",
+   "pickid":"2"
 }
 
 
