@@ -272,3 +272,13 @@ manual pick move
    "pick_moved_to":"3",
    "instructions":"Before"
 }
+
+
+academy bid calculator
+
+{
+"academy_team":"5",
+"academy_pick_type":"1",
+"academy_bid":"5",
+"player":"1"
+}
