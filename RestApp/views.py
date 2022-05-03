@@ -2941,7 +2941,7 @@ def add_FA_compensation_inputs_request(request, pk):
 
     # Define the teams current picks
 
-    fa_team_picks = masterlist[masterlist['Current_Owner_id'].astype(
+    fa_team_picks = masterlist[masterlist['Current_Owner'].astype(
         int) == int(fa_team)]['Display_Name_Detailed'].tolist()
 
     # define a blank round & aligned pick as it will either be made here or within function
@@ -2980,15 +2980,21 @@ def add_FA_compensation_v2(request, pk):
     v_current_year = current_date.year
     masterlist, fa_team, pick_id, fa_pick_type, fa_round, reason, fa_aligned_pick, fa_unique_pick, fa_insert_instructions = add_FA_compensation_inputs_request(
         request, pk)
+
     df = masterlist
 
+    #  Rename Columns name because database is returning names with id concatenated (Forienkey relation working on the columns fields)
+    df.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
+    df.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
+    df.rename(columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
+    df.rename(columns={'Previous_Owner_id': 'Previous_Owner'}, inplace=True)
     if fa_pick_type == 'Start of Draft':
         # Find the first row that is a standard pick:
-        rowno = df.id[df.Unique_Pick_ID.str.contains(
-            str(v_current_year) + '-RD1-Standard')][0]
+        rowno = df.index[df.Unique_Pick_ID.str.contains(
+            str(v_current_year) + '-RD1-Standard')]
 
         # create the line to insert:
-        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+        line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': int(fa_team), 'PickType': 'FA_Compensation',
                              'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': '',
                              'Draft_Round': 'RD1', 'Draft_Round_Int': 1,
@@ -2998,17 +3004,10 @@ def add_FA_compensation_v2(request, pk):
         df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
                        )
 
-        del df['Original_Owner']
-        del df['Current_Owner']
-        del df['Previous_Owner']
-        del df['TeamName']
-        df = df.iloc[1]
+        df = df.iloc[rowno]
 
         df['id'] = rowno
-        df['Original_Owner_id'] = fa_team
-        df['Current_Owner_id'] = fa_team
-        df['TeamName_id'] = fa_team
-        df['Previous_Owner_id'] = ''
+
         df['projectid_id'] = pk
 
         # Update transactions
@@ -3029,7 +3028,7 @@ def add_FA_compensation_v2(request, pk):
         fa_unique_pick = df.loc[df.Display_Name_Detailed ==
                                 fa_aligned_pick, 'Unique_Pick_ID'].iloc[0]
         # create the line to insert:
-        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+        line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team,  'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
                              'Previous_Owner': '', 'Draft_Round': 'RD1', 'Draft_Round_Int': 1,
                              'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + fa_pick_type, 'Reason': reason},
@@ -3043,10 +3042,6 @@ def add_FA_compensation_v2(request, pk):
             df = df.iloc[rowno]
 
             df['id'] = rowno
-            df['Original_Owner_id'] = fa_team
-            df['Current_Owner_id'] = fa_team
-            df['TeamName_id'] = fa_team
-            df['Previous_Owner_id'] = ''
             df['projectid'] = pk
             MasterList.objects.filter(id=rowno).update(**df)
 
@@ -3057,9 +3052,7 @@ def add_FA_compensation_v2(request, pk):
                            ).reset_index(drop=True)
             df = df.iloc[rowno+1]
             df['id'] = rowno+1
-            df['Previous_Owner_id'] = ''
             df['projectid_id'] = pk
-            del df['Previous_Owner']
 
             MasterList.objects.filter(id=rowno+1).update(**df)
 
@@ -3079,7 +3072,7 @@ def add_FA_compensation_v2(request, pk):
             str(v_current_year) + '-RD1-Standard')][-1]
 
         # create the line to insert:
-        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+        line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team, 'PickType': 'FA_Compensation',
                              'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': '',
                              'Draft_Round': 'RD1', 'Draft_Round_Int': 1,
@@ -3088,16 +3081,8 @@ def add_FA_compensation_v2(request, pk):
         df = pd.concat([df.iloc[:rowno + 1], line,
                        df.iloc[rowno + 1:]]).reset_index(drop=True)
         df = df.iloc[rowno+1]
-        del df['Original_Owner']
-        del df['Current_Owner']
-        del df['Previous_Owner']
-        del df['TeamName']
 
         df['id'] = rowno+1
-        df['Original_Owner_id'] = fa_team
-        df['Current_Owner_id'] = fa_team
-        df['TeamName_id'] = fa_team
-        df['Previous_Owner_id'] = ''
         df['projectid_id'] = pk
 
         MasterList.objects.filter(id=rowno+1).update(**df)
@@ -3116,11 +3101,11 @@ def add_FA_compensation_v2(request, pk):
 
     if fa_pick_type == 'Start of Second Round':
         # Find the first row that is a standard pick in the 2nd round:
-        rowno = df.id[df.Unique_Pick_ID.str.contains(
+        rowno = df.index[df.Unique_Pick_ID.str.contains(
             str(v_current_year) + '-RD2-Standard')][0]
 
         # create the line to insert:
-        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+        line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team, 'PickType': 'FA_Compensation',
                              'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': '',
                              'Draft_Round': 'RD2', 'Draft_Round_Int': 2,
@@ -3128,23 +3113,10 @@ def add_FA_compensation_v2(request, pk):
         # Execute Insert above the rowno
         df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
                        ).reset_index(drop=True)
-
         df = df.iloc[rowno]
-
-        del df['Original_Owner']
-        del df['Current_Owner']
-        del df['Previous_Owner']
-        del df['TeamName']
-
         df['id'] = rowno
-        df['Original_Owner_id'] = fa_team
-        df['Current_Owner_id'] = fa_team
-        df['TeamName_id'] = fa_team
-        df['Previous_Owner_id'] = ''
         df['projectid_id'] = pk
-
         MasterList.objects.filter(id=rowno).update(**df)
-
         # Update transactions
         fa_round = 'RD2'
         fa_aligned_pick = ''
@@ -3159,11 +3131,11 @@ def add_FA_compensation_v2(request, pk):
     if fa_pick_type == 'Second Round':
         # Make the changes to the masterlist:
         # find row number of the aligned pick:
-        rowno = df.id[df['Display_Name_Detailed'] == fa_aligned_pick][0]
+        rowno = df.index[df['Display_Name_Detailed'] == fa_aligned_pick][0]
         fa_unique_pick = df.loc[df.Display_Name_Detailed ==
                                 fa_aligned_pick, 'Unique_Pick_ID'].iloc[0]
         # create the line to insert:
-        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+        line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team, 'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
                              'Previous_Owner': '', 'Draft_Round': 'RD2', 'Draft_Round_Int': 2,
                              'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + fa_pick_type, 'Reason': reason},
@@ -3173,40 +3145,16 @@ def add_FA_compensation_v2(request, pk):
             df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
                            ).reset_index(drop=True)
             df = df.iloc[rowno]
-
-            del df['Original_Owner']
-            del df['Current_Owner']
-            del df['Previous_Owner']
-            del df['TeamName']
-
             df['id'] = rowno
-            df['Original_Owner_id'] = fa_team
-            df['Current_Owner_id'] = fa_team
-            df['TeamName_id'] = fa_team
-            df['Previous_Owner_id'] = ''
             df['projectid_id'] = pk
-
-            # MasterList.objects.filter(id=rowno).update(**df)
-
+            MasterList.objects.filter(id=rowno).update(**df)
         else:
-
             df = pd.concat([df.iloc[:rowno + 1], line,
                             df.iloc[rowno + 1:]]).reset_index(drop=True)
             df = df.iloc[rowno+1]
-            del df['Original_Owner']
-            del df['Current_Owner']
-            del df['Previous_Owner']
-            del df['TeamName']
-
             df['id'] = rowno+1
-            df['Original_Owner_id'] = fa_team
-            df['Current_Owner_id'] = fa_team
-            df['TeamName_id'] = fa_team
-            df['Previous_Owner_id'] = ''
             df['projectid_id'] = pk
-
             MasterList.objects.filter(id=rowno+1).update(**df)
-
         # Update Transactions List
         fa_round = 'RD2'
 
@@ -3218,7 +3166,7 @@ def add_FA_compensation_v2(request, pk):
     if fa_pick_type == 'End of Second Round':
         # Find the last row that is a standard pick:
 
-        rowno = df.id[df.Unique_Pick_ID.str.contains(
+        rowno = df.index[df.Unique_Pick_ID.str.contains(
             str(v_current_year) + '-RD2-Standard')].iloc[-1]
 
         fa_dict = {}
@@ -3227,7 +3175,7 @@ def add_FA_compensation_v2(request, pk):
 
         # create the line to insert:
 
-        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+        line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team, 'PickType': 'FA_Compensation',
                              'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': '',
                              'Draft_Round': 'RD2', 'Draft_Round_Int': 2,
@@ -3237,16 +3185,7 @@ def add_FA_compensation_v2(request, pk):
                        df.iloc[rowno + 1:]]).reset_index(drop=True)
         df = df.iloc[rowno+1]
 
-        del df['Original_Owner']
-        del df['Current_Owner']
-        del df['Previous_Owner']
-        del df['TeamName']
-
         df['id'] = rowno
-        df['Original_Owner_id'] = fa_team
-        df['Current_Owner_id'] = fa_team
-        df['TeamName_id'] = fa_team
-        df['Previous_Owner_id'] = ''
         df['projectid_id'] = pk
 
         MasterList.objects.filter(id=rowno).update(**df)
@@ -3265,9 +3204,9 @@ def add_FA_compensation_v2(request, pk):
     if fa_pick_type == 'Third Round':
         # Make the changes to the masterlist:
         # find row number of the aligned pick:
-
+        rowno = df.index[df['Display_Name_Detailed'] == fa_aligned_pick][0]
         # create the line to insert:
-        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+        line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team, 'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
                              'Previous_Owner': '', 'Draft_Round': 'RD3', 'Draft_Round_Int': 3,
                              'Pick_Group': str(v_current_year) + '-' + 'RD3-Priority-' + fa_pick_type, 'Reason': reason},
@@ -3279,33 +3218,15 @@ def add_FA_compensation_v2(request, pk):
                            ).reset_index(drop=True)
             df = df.iloc[rowno]
 
-            del df['Original_Owner']
-            del df['Current_Owner']
-            del df['Previous_Owner']
-            del df['TeamName']
-
             df['id'] = rowno
-            df['Original_Owner_id'] = fa_team
-            df['Current_Owner_id'] = fa_team
-            df['TeamName_id'] = fa_team
-            df['Previous_Owner_id'] = ''
+
             df['projectid_id'] = pk
             MasterList.objects.filter(id=rowno).update(**df)
-
         else:
             df = pd.concat([df.iloc[:rowno + 1], line,
                            df.iloc[rowno + 1:]]).reset_index(drop=True)
             df = df.iloc[rowno+1]
-            del df['Original_Owner']
-            del df['Current_Owner']
-            del df['Previous_Owner']
-            del df['TeamName']
-
             df['id'] = rowno+1
-            df['Original_Owner_id'] = fa_team
-            df['Current_Owner_id'] = fa_team
-            df['TeamName_id'] = fa_team
-            df['Previous_Owner_id'] = ''
             df['projectid_id'] = pk
 
             MasterList.objects.filter(id=rowno+1).update(**df)
@@ -3322,13 +3243,12 @@ def add_FA_compensation_v2(request, pk):
     if fa_pick_type == 'Custom Fixed Position':
         # Make the changes to the masterlist:
         # find row number of the aligned pick:
-        rowno = df.id[df['Display_Name_Detailed'] == fa_aligned_pick][0]
-
+        rowno = df.index[df['Display_Name_Detailed'] == fa_aligned_pick][0]
         # create the line to insert:
         fa_unique_pick = df.loc[df.Display_Name_Detailed ==
                                 fa_aligned_pick, 'Unique_Pick_ID'].iloc[0]
 
-        line = pd.DataFrame({'Position': df.loc[df.TeamName_id.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+        line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team, 'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
                              'Previous_Owner': '', 'Draft_Round': fa_round,
                              'Pick_Group': str(v_current_year) + '-' + fa_round + '-Priority-' + fa_pick_type, 'Reason': reason},
@@ -3338,17 +3258,7 @@ def add_FA_compensation_v2(request, pk):
             df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
                            ).reset_index(drop=True)
             df = df.iloc[rowno]
-
-            del df['TeamName_id']
-            del df['Current_Owner_id']
-            del df['Previous_Owner_id']
-            del df['Original_Owner_id']
-
             df['id'] = rowno
-            df['Original_Owner'] = fa_team
-            df['Current_Owner'] = fa_team
-            df['Previous_Owner'] = fa_team
-            df['TeamName'] = fa_team
             df['projectid_id'] = pk
 
             MasterList.objects.filter(id=rowno).update(**df)
@@ -3357,17 +3267,7 @@ def add_FA_compensation_v2(request, pk):
                            df.iloc[rowno + 1:]]).reset_index(drop=True)
 
             df = df.iloc[rowno+1]
-
-            del df['Original_Owner']
-            del df['Current_Owner']
-            del df['Previous_Owner']
-            del df['TeamName']
-
             df['id'] = rowno+1
-            df['Original_Owner_id'] = fa_team
-            df['Previous_Owner_id'] = fa_team
-            df['Current_Owner_id'] = fa_team
-            df['TeamName_id'] = fa_team
             df['projectid_id'] = pk
 
             MasterList.objects.filter(id=rowno+1).update(**df)
@@ -3382,19 +3282,8 @@ def add_FA_compensation_v2(request, pk):
 
         new_df = []
 
-    Queryset = MasterList.objects.filter(projectid_id=pk).values()
-    for picks in Queryset:
-        new_df.append(picks)
-
-    df1 = pd.DataFrame(new_df)
-    df1.rename(columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
-    df1.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
-    df1.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
-
-    udpatedf = update_masterlist(df1)
-    udpatedf = udpatedf.drop('id', 1)
-    udpatedf = udpatedf.drop('projectid_id', 1)
-    udpatedf = udpatedf.drop('Previous_Owner_id', 1)
+    df = dataframerequest(request, pk)
+    udpatedf = update_masterlist(df)
 
     iincreament_id = 1
     for index, updaterow in udpatedf.iterrows():
@@ -3404,14 +3293,12 @@ def add_FA_compensation_v2(request, pk):
         Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
         previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
         Overall_pickk = FA_v2_data['Overall_Pick']
-
         Project1 = Project.objects.get(id=pk)
         FA_v2_data['Previous_Owner'] = team
         FA_v2_data['TeamName'] = team
         FA_v2_data['Original_Owner'] = Original_Owner
         FA_v2_data['Current_Owner'] = Current_Ownerr
         FA_v2_data['projectid'] = Project1
-
         FA_v2_data['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
             None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
 
@@ -3425,44 +3312,14 @@ def add_FA_compensation_v2(request, pk):
 
         # print(row1['Display_Name_Mini'])
         # exit()
-        FA_v2_data['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+        FA_v2_data['Display_Name_Short'] = str(Overall_pickk) + '  ' + str(Current_Ownerr) + ' (Origin: ' + str(Original_Owner) + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
 
         FA_v2_data['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
-
-        model_dictionary = {
-            'Year': FA_v2_data['Year'],
-            'PickType': FA_v2_data['PickType'],
-            'TeamName': FA_v2_data['TeamName'],
-            'Position': FA_v2_data['Position'],
-            'Original_Owner': FA_v2_data['Original_Owner'],
-            'Current_Owner': FA_v2_data['Current_Owner'],
-            'Previous_Owner': FA_v2_data['Previous_Owner'],
-            'Draft_Round': FA_v2_data['Draft_Round'],
-            'Draft_Round_Int': FA_v2_data['Draft_Round_Int'],
-            'Pick_Group': FA_v2_data['Pick_Group'],
-            'System_Note': FA_v2_data['System_Note'],
-            'User_Note': FA_v2_data['User_Note'],
-            'Reason': FA_v2_data['Reason'],
-            'Overall_Pick': FA_v2_data['Overall_Pick'],
-            'AFL_Points_Value': FA_v2_data['AFL_Points_Value'],
-            'Unique_Pick_ID': FA_v2_data['Unique_Pick_ID'],
-            'Club_Pick_Number': FA_v2_data['Club_Pick_Number'],
-            'Display_Name': FA_v2_data['Display_Name'],
-            'Display_Name_Short': FA_v2_data['Display_Name_Short'],
-            'Display_Name_Detailed': FA_v2_data['Display_Name_Detailed'],
-            'Display_Name_Mini': FA_v2_data['Display_Name_Mini'],
-            'Current_Owner_Short_Name': FA_v2_data['Current_Owner_Short_Name'],
-            'Pick_Status': FA_v2_data['Pick_Status'],
-            'Selected_Player': FA_v2_data['Selected_Player'],
-            'projectid': FA_v2_data['projectid']
-        }
-
-        MasterList.objects.filter(id=iincreament_id).update(**model_dictionary)
-
+        MasterList.objects.filter(id=iincreament_id).update(**FA_v2_data)
         iincreament_id += 1
 
      # variables for transactions dict
@@ -5104,9 +4961,6 @@ def add_father_son(request, pk):
     Transactions.objects.filter(id=lastinsertedId.id).update(
         Transaction_Number=lastinsertedId.id)
     return Response("Success", status=status.HTTP_201_CREATED)
-
-
-
 
     # ##############  Abhishek Code end ##########################
 

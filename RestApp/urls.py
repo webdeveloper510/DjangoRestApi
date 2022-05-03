@@ -72,7 +72,7 @@ urlpatterns = [
     re_path(r'^Academy-Bid/(?P<pk>[0-9]+)$', AcademyBidRequest),
     re_path(r'^Academy-Bid-v2/(?P<pk>[0-9]+)$', academy_bid_v2),
     re_path(r'^Add-FA-Compansation/(?P<pk>[0-9]+)$', add_FA_compansation),
-    re_path(r'^Add-FA-Compansation_v2/(?P<pk>[0-9]+)$', add_FA_compensation_v2),
+    re_path(r'^Add_FA_Compansation_v2/(?P<pk>[0-9]+)$', add_FA_compensation_v2),
     re_path(r'^Add-nga-bid/(?P<pk>[0-9]+)$', add_nga_bid),
     re_path(r'^df/(?P<pk>[0-9]+)$', dataframerequest),
     re_path(r'^add_father_son/(?P<pk>[0-9]+)$', add_father_son),

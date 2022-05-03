@@ -159,11 +159,11 @@ Add FA compansation inputs
 Add FA compansation type v2
 
 {
-   "teamid":"1",
+   "teamid":"4",
    "reason":"testing",
    "type":"Custom Fixed Position",
    "round":"RD1",
-   "pickid":"1",
+   "pickid":"4",
    "instructions":"After"
 }
 
