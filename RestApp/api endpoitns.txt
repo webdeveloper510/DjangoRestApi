@@ -274,7 +274,7 @@ manual pick move
 }
 
 
-academy bid calculator
+quick academy bid calculator
 
 {
 "academy_team":"5",
