@@ -134,16 +134,18 @@ AcademyBid inputs
 
 
 Add trade v2
- 
-{
- "Team1":"1",
- "Team1_Pick1":"11",
- "Team1_players":"",
 
-  "Team2":"2",
-  "Team2_Pick2":"12",
-   "Team2_players":""
+
+{
+ "Team1":"2",
+ "Team1_Pick1":"2",
+ "Team1_players":"1",
+
+  "Team2":"3",
+  "Team2_Pick2":"3",
+   "Team2_players":"1"
 }
+
 
 Add FA compansation inputs
 
@@ -185,11 +187,10 @@ create project
 
 
 
-
+Auth
 {
    "email":"test@gmail.com",
   "password":"123456"
-
 }
 
 
