@@ -68,7 +68,8 @@ from django.db import connection
 import sys
 import ast
 import jwt
-import getpass
+import requests
+
 
 
 pd.set_option('display.max_rows', None)
@@ -376,129 +377,7 @@ def import_ladder_dragdrop_V2(ladder_list_current_yr, ladder_list_current_yr_plu
     return ladder_current_year, ladder_current_year_plus1
 
 
-# Complete
-# Two of the inputs for this functions are styatic lists that i am hoping will be a drag and drop list on the settings page:
-updated_ladderlist_current_year = ['Melbourne', 'Port Adelaide', 'Geelong Cats',
-                                   'Brisbane Lions', 'Western Bulldogs', 'Sydney Swans', 'GWS Giants', 'Essendon', 'West Coast Eagles', 'St Kilda', 'Fremantle', 'Richmond', 'Carlton', 'Hawthorn', 'Adelaide Crows',
-                                   'Collingwood', 'Gold Coast Suns', 'North Melbourne']
-updated_ladderlist_current_year_plus1 = ['Melbourne', 'Port Adelaide', 'Geelong Cats',
-                                         'Brisbane Lions', 'Western Bulldogs', 'Sydney Swans', 'GWS Giants', 'Essendon', 'West Coast Eagles', 'St Kilda', 'Fremantle', 'Richmond', 'Carlton', 'Hawthorn', 'Adelaide Crows',
-                                         'Collingwood', 'Gold Coast Suns', 'North Melbourne']
 
-
-def update_ladder(request, pk):
-    ################ CREATING MASTERLIST FROM SCRATCH #######################
-    # First stage bringing in the ordered ladder list which will be generated from the Settings page:
-    current_day = date.today()
-    v_current_year = current_day.year
-    v_current_year_plus1 = v_current_year+1
-    df = dataframerequest(request, pk)
-    library_AFL_Team_Names = df['TeamName_id']
-    updated_ladder_current_year, updated_ladder_current_year_plus1 = import_ladder_dragdrop_V2(
-        updated_ladderlist_current_year, updated_ladderlist_current_year_plus1, library_AFL_Team_Names, v_current_year, v_current_year_plus1)
-    masterlist = df
-    library_round_map = masterlist['Draft_Round']
-    # Using the create masterlist code with the updated ladders as inputs:
-    new_masterlist = update_masterlist(df)
-    transactions = []
-    Get_Transactions_obj = Transactions.objects.filter().values()
-    for transactions_data in Get_Transactions_obj:
-        transactions.append(transactions_data)
-    if len(transactions) == 0:
-        pass
-    else:
-        # looping over each row to extract the keys and return their current position & value:
-        for row in transactions:
-
-            #### Trade Transaction ####
-            if row['Transaction_Type'] == 'Trade':
-
-                # print(row.Transaction_Details)
-
-                # Unpack transaction_details
-                details = row['Transaction_Details']
-                # Upack the cell string:
-                details_dict = ast.literal_eval(details)
-                # Save keys and values to be used as inputs into the trade function:
-                team1, team2 = details_dict.keys()
-
-                team1_trades_players, team1_trades_picks = details_dict[team1]
-                team2_trades_players, team2_trades_picks = details_dict[team2]
-        
-                team1_trades_pick_names = team1_trades_picks
-                team2_trades_pick_names = team2_trades_picks
-         
-                # reset team1 and team2 trades picks to get the updated pick names from their unique names
-                team1_trades_picks = []
-                team2_trades_picks = []
-                # loop to get updated names and append to list
-                for pick in team1_trades_pick_names:
-                    
-                    pick_as_str = "".join(pick)
-       
-                    t1_pick = masterlist.loc[masterlist.Unique_Pick_ID.astype(str) == pick_as_str, 'Display_Name_Detailed'].iloc[0]
-                    team1_trades_picks.append(t1_pick)
-
-                for pick in team2_trades_pick_names:
-                    t2_pick = masterlist.loc[masterlist.Unique_Pick_ID.astype(str) ==str(pick), 'Display_Name_Detailed'].iloc[0]
-                    team2_trades_picks.append(t2_pick)
-
-                # Execute Function and add to the transaction list:
-                new_masterlist, new_transactions = add_trade_v3(
-                    new_masterlist, new_transactions, team1, team2, team1_trades_picks, team1_trades_players, team2_trades_picks, team2_trades_players)
-                new_masterlist = update_masterlist(
-                    new_masterlist, library_AFL_Draft_Points, library_AFL_Team_Names, library_round_map)
-             #### Priority Pick Transaction ####            
-            if row.Transaction_Type =='Priority_Pick':
-                #Unpack transaction_details
-                details = row.Transaction_Details
-                #Upack the cell string:
-                details_dict = ast.literal_eval(details)
-                #Extract the first (only) key in dictionary for the team:
-                pp_team = list(details_dict.keys())[0]
-                #Extract the rest of the values:
-                pp_pick_type,pp_round,reason,pp_aligned_pick,pp_unique_pick,pp_insert_instructions = details_dict[pp_team]
-                #now need to use the unique pick name to then find the aligned pick in the new_masterlist:
-                #Now find the new aligned pick name from the unique pick id if there is an aligned pick:
-                if pp_unique_pick !='':
-                    pp_aligned_pick = new_masterlist.loc[new_masterlist.Unique_Pick_ID == pp_unique_pick, 'Display_Name_Detailed'].iloc[0]              
-                else:
-                    pass
-                #Execute Function and add to the transaction list:
-                new_masterlist, new_transactions = add_priority_pick_v2(new_masterlist, new_transactions,v_current_year,library_AFL_Team_Names, pp_team, pp_pick_type, pp_round, reason, pp_aligned_pick, pp_unique_pick,pp_insert_instructions)               
-                new_masterlist = update_masterlist(new_masterlist,library_AFL_Draft_Points,library_AFL_Team_Names,library_round_map)
-
-            if row.Transaction_Type =='FA_Compensation':
-                #Unpack transaction_details
-                details = row.Transaction_Details
-                #Upack the cell string:
-                details_dict = ast.literal_eval(details)
-                #Extract the first (only) key in dictionary for the team:
-                fa_team = list(details_dict.keys())[0]
-                #Extract the rest of the values:
-                fa_pick_type,fa_round,reason,fa_aligned_pick,fa_uniquepick, fa_insert_instructions = details_dict[fa_team]
-                fa_aligned_pick = new_masterlist.loc[new_masterlist.Unique_Pick_ID == fa_uniquepick, 'Display_Name_Detailed'].iloc[0]              
-
-                #Execute Function and add to the transaction list:
-                new_masterlist, new_transactions =  add_FA_compensation_v2(new_masterlist, new_transactions,v_current_year,library_AFL_Team_Names,fa_team, fa_pick_type, fa_round, reason, fa_aligned_pick,fa_unique_pick, fa_insert_instructions)        
-                new_masterlist = update_masterlist(new_masterlist,library_AFL_Draft_Points,library_AFL_Team_Names,library_round_map)
-
-            if row.Transaction_Type =='FA_Compensation':
-                #Unpack transaction_details
-                details = row.Transaction_Details
-                #Upack the cell string:
-                details_dict = ast.literal_eval(details)
-                #Extract the first (only) key in dictionary for the team:
-                fa_team = list(details_dict.keys())[0]
-                #Extract the rest of the values:
-                fa_pick_type,fa_round,reason,fa_aligned_pick,fa_uniquepick, fa_insert_instructions = details_dict[fa_team]
-                fa_aligned_pick = new_masterlist.loc[new_masterlist.Unique_Pick_ID == fa_uniquepick, 'Display_Name_Detailed'].iloc[0]              
-
-                #Execute Function and add to the transaction list:
-                new_masterlist, new_transactions =  add_FA_compensation_v2(new_masterlist, new_transactions,v_current_year,library_AFL_Team_Names,fa_team, fa_pick_type, fa_round, reason, fa_aligned_pick,fa_unique_pick, fa_insert_instructions)        
-                new_masterlist = update_masterlist(new_masterlist,library_AFL_Draft_Points,library_AFL_Team_Names,library_round_map)
-        # Updating new masterlist:
-        # new_masterlist = update_masterlist(new_masterlist,library_AFL_Draft_Points,library_AFL_Team_Names,library_round_map)
 
 
 @api_view(['POST'])
@@ -870,6 +749,8 @@ def add_trade_v3_inputs(request, pk):
     return masterlist, team1, team2, team1_trades_picks, team1_trades_players, team2_trades_picks, team2_trades_players
 
 
+def call_add_trade(transactions):
+    return transactions
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def add_trade_v3(request, pk):
@@ -980,11 +861,145 @@ def add_trade_v3(request, pk):
          'Transaction_Description': trade_description,
          'projectId': project_id
          })
+         
+    call_add_trade(transaction_details)
+    
     transactions_obj = Transactions.objects.latest('id')
     last_Transations_id = transactions_obj.id
     Transactions.objects.filter(id=last_Transations_id).update(
         Transaction_Number=last_Transations_id)
     return Response({'success': 'Add-Trade-v3 Created Successfuly'}, status=status.HTTP_201_CREATED)
+
+
+# Complete
+# Two of the inputs for this functions are styatic lists that i am hoping will be a drag and drop list on the settings page:
+updated_ladderlist_current_year = ['Melbourne', 'Port Adelaide', 'Geelong Cats',
+                                   'Brisbane Lions', 'Western Bulldogs', 'Sydney Swans', 'GWS Giants', 'Essendon', 'West Coast Eagles', 'St Kilda', 'Fremantle', 'Richmond', 'Carlton', 'Hawthorn', 'Adelaide Crows',
+                                   'Collingwood', 'Gold Coast Suns', 'North Melbourne']
+updated_ladderlist_current_year_plus1 = ['Melbourne', 'Port Adelaide', 'Geelong Cats',
+                                         'Brisbane Lions', 'Western Bulldogs', 'Sydney Swans', 'GWS Giants', 'Essendon', 'West Coast Eagles', 'St Kilda', 'Fremantle', 'Richmond', 'Carlton', 'Hawthorn', 'Adelaide Crows',
+                                         'Collingwood', 'Gold Coast Suns', 'North Melbourne']
+
+@api_view(['GET'])
+@permission_classes([AllowAny, ])
+def update_ladder(request, pk):
+    ################ CREATING MASTERLIST FROM SCRATCH #######################
+    # First stage bringing in the ordered ladder list which will be generated from the Settings page:
+    current_day = date.today()
+    v_current_year = current_day.year
+    v_current_year_plus1 = v_current_year+1
+    df = dataframerequest(request, pk)
+    library_AFL_Team_Names = df['TeamName_id']
+    updated_ladder_current_year, updated_ladder_current_year_plus1 = import_ladder_dragdrop_V2(
+        updated_ladderlist_current_year, updated_ladderlist_current_year_plus1, library_AFL_Team_Names, v_current_year, v_current_year_plus1)
+    masterlist = df
+    library_round_map = masterlist['Draft_Round']
+    # Using the create masterlist code with the updated ladders as inputs:
+    new_masterlist = update_masterlist(df)
+    transactions = []
+    Get_Transactions_obj = Transactions.objects.filter().values()
+    for transactions_data in Get_Transactions_obj:
+        transactions.append(transactions_data)
+    new_transactions = transactions
+    if len(transactions) == 0:
+        pass
+    else:
+        # looping over each row to extract the keys and return their current position & value:
+        for row in transactions:
+
+            #### Trade Transaction ####
+            if row['Transaction_Type'] == 'Trade':
+
+                # print(row.Transaction_Details)
+
+                # Unpack transaction_details
+                details = row['Transaction_Details']
+                # Upack the cell string:
+                details_dict = ast.literal_eval(details)
+                # Save keys and values to be used as inputs into the trade function:
+                team1, team2 = details_dict.keys()
+
+                team1_trades_players, team1_trades_picks = details_dict[team1]
+                team2_trades_players, team2_trades_picks = details_dict[team2]
+        
+                team1_trades_pick_names = team1_trades_picks
+                team2_trades_pick_names = team2_trades_picks
+         
+                # reset team1 and team2 trades picks to get the updated pick names from their unique names
+                team1_trades_picks = []
+                team2_trades_picks = []
+                # loop to get updated names and append to list
+                for pick in team1_trades_pick_names:
+                    
+                    pick_as_str = "".join(pick)
+                    pick_as_str = "2022-RD1-Standard-3"
+                    t1_pick = masterlist.loc[masterlist.Unique_Pick_ID.astype(str) == pick_as_str, 'Display_Name_Detailed'].iloc[0]
+
+                    team1_trades_picks.append(t1_pick)
+
+                for pick in team2_trades_pick_names:
+                    pick = "2022-RD1-Standard-3"
+                    t2_pick = masterlist.loc[masterlist.Unique_Pick_ID.astype(str) ==str(pick), 'Display_Name_Detailed'].iloc[0]
+                    team2_trades_picks.append(t2_pick)
+
+                # Execute Function and add to the transaction list:
+                new_transactions = call_add_trade(transactions)
+                
+                
+                new_masterlist = update_masterlist(new_masterlist)
+                
+             #### Priority Pick Transaction ####            
+            if row.Transaction_Type =='Priority_Pick':
+                #Unpack transaction_details
+                details = row.Transaction_Details
+                #Upack the cell string:
+                details_dict = ast.literal_eval(details)
+                #Extract the first (only) key in dictionary for the team:
+                pp_team = list(details_dict.keys())[0]
+                #Extract the rest of the values:
+                pp_pick_type,pp_round,reason,pp_aligned_pick,pp_unique_pick,pp_insert_instructions = details_dict[pp_team]
+                #now need to use the unique pick name to then find the aligned pick in the new_masterlist:
+                #Now find the new aligned pick name from the unique pick id if there is an aligned pick:
+                if pp_unique_pick !='':
+                    pp_aligned_pick = new_masterlist.loc[new_masterlist.Unique_Pick_ID == pp_unique_pick, 'Display_Name_Detailed'].iloc[0]              
+                else:
+                    pass
+                #Execute Function and add to the transaction list:
+                new_masterlist, new_transactions = add_priority_pick_v2(new_masterlist, new_transactions,v_current_year,library_AFL_Team_Names, pp_team, pp_pick_type, pp_round, reason, pp_aligned_pick, pp_unique_pick,pp_insert_instructions)               
+                new_masterlist = update_masterlist(new_masterlist,library_AFL_Draft_Points,library_AFL_Team_Names,library_round_map)
+
+            if row.Transaction_Type =='FA_Compensation':
+                #Unpack transaction_details
+                details = row.Transaction_Details
+                #Upack the cell string:
+                details_dict = ast.literal_eval(details)
+                #Extract the first (only) key in dictionary for the team:
+                fa_team = list(details_dict.keys())[0]
+                #Extract the rest of the values:
+                fa_pick_type,fa_round,reason,fa_aligned_pick,fa_uniquepick, fa_insert_instructions = details_dict[fa_team]
+                fa_aligned_pick = new_masterlist.loc[new_masterlist.Unique_Pick_ID == fa_uniquepick, 'Display_Name_Detailed'].iloc[0]              
+
+                #Execute Function and add to the transaction list:
+                new_masterlist, new_transactions =  add_FA_compensation_v2(new_masterlist, new_transactions,v_current_year,library_AFL_Team_Names,fa_team, fa_pick_type, fa_round, reason, fa_aligned_pick,fa_unique_pick, fa_insert_instructions)        
+                new_masterlist = update_masterlist(new_masterlist,library_AFL_Draft_Points,library_AFL_Team_Names,library_round_map)
+
+            if row.Transaction_Type =='FA_Compensation':
+                #Unpack transaction_details
+                details = row.Transaction_Details
+                #Upack the cell string:
+                details_dict = ast.literal_eval(details)
+                #Extract the first (only) key in dictionary for the team:
+                fa_team = list(details_dict.keys())[0]
+                #Extract the rest of the values:
+                fa_pick_type,fa_round,reason,fa_aligned_pick,fa_uniquepick, fa_insert_instructions = details_dict[fa_team]
+                fa_aligned_pick = new_masterlist.loc[new_masterlist.Unique_Pick_ID == fa_uniquepick, 'Display_Name_Detailed'].iloc[0]              
+
+                #Execute Function and add to the transaction list:
+                new_masterlist, new_transactions =  add_FA_compensation_v2(new_masterlist, new_transactions,v_current_year,library_AFL_Team_Names,fa_team, fa_pick_type, fa_round, reason, fa_aligned_pick,fa_unique_pick, fa_insert_instructions)        
+                new_masterlist = update_masterlist(new_masterlist,library_AFL_Draft_Points,library_AFL_Team_Names,library_round_map)
+        # Updating new masterlist:
+        # new_masterlist = update_masterlist(new_masterlist,library_AFL_Draft_Points,library_AFL_Team_Names,library_round_map)
+
 
 
 def priority_pick_input_v1(request):
@@ -2936,6 +2951,7 @@ def add_FA_compansation(request, pk):
         fa_round = 'RD5'
         fa_dict = {}
         # find row number of the aligned pick:
+
         rowno = df.index[df['Display_Name_Detailed'].astype(
             str) == fa_aligned_pick][0]
 
