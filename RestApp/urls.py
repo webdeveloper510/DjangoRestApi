@@ -56,7 +56,8 @@ from .views import (
     add_priority_pick_v2,
     manual_pick_move,
     quick_academy_calculator,
-    update_ladder
+    update_ladder,
+    add_draftee_player
 )
 
 urlpatterns = [
@@ -88,6 +89,7 @@ urlpatterns = [
         r'^quick_academy_calculator/(?P<pk>[0-9]+)$', quick_academy_calculator),
     re_path(r'^Constraint/(?P<pk>[0-9]+)$', trade_optimiser_algorithm),
     re_path(r'^update_ladder/(?P<pk>[0-9]+)$', update_ladder),
+    re_path(r'^add-new-player/(?P<pk>[0-9]+)$', add_draftee_player),
 
     # #################### Update URL's #################
 

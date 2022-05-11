@@ -3885,6 +3885,19 @@ def update_ladder(request, pk):
 
 
 
+def add_draftee_player(self, request):
+        C_Name = Company.objects.filter().values('id', 'Name')
+        user = request.data
+        serializer = PlayersSerializer(data=user)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        last_inserted_id = serializer.data['id']
+
+        User.objects.filter(id=last_inserted_id).update(uui=unique_id)
+        return Response({'success': 'Player has been Created Successfuly'}, status=status.HTTP_201_CREATED)
+
+
+
 def add_potential_trade(request, pk):
 
     df = []
@@ -5744,6 +5757,14 @@ def quick_academy_calculator(request, pk):
     Transactions.objects.filter(id=last_inserted_id).update(
         Transaction_Number=last_inserted_id)
     return Response({'Success': 'Success'}, status=status.HTTP_201_CREATED)
+
+
+
+
+
+
+
+
 
     # ##############  Abhishek Code end ##########################
 
