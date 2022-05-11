@@ -173,8 +173,8 @@ add nga bid inputs
 
 {
    "playerid":"1",
-   "teamid":"14",
-   "pickid":"32"
+   "teamid":"4",
+   "pickid":"24"
 }
 
 
