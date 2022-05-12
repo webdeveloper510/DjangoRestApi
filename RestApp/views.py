@@ -68,7 +68,7 @@ from django.db import connection
 import sys
 import ast
 import jwt
-
+import pulp as plp
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', 500)
@@ -3648,14 +3648,14 @@ def update_ladder(request, pk):
                 for pick in team1_trades_pick_names:
 
                     pick_as_str = "".join(pick)
-                    
+
                     t1_pick = masterlist.loc[masterlist.Unique_Pick_ID.astype(
                         str) == pick_as_str, 'Display_Name_Detailed'].iloc[0]
 
                     team1_trades_picks.append(t1_pick)
 
                 for pick in team2_trades_pick_names:
-                   
+
                     t2_pick = masterlist.loc[masterlist.Unique_Pick_ID.astype(
                         str) == str(pick), 'Display_Name_Detailed'].iloc[0]
                     team2_trades_picks.append(t2_pick)
@@ -3884,18 +3884,18 @@ def update_ladder(request, pk):
         return Response({'success': 'success'}, status=status.HTTP_201_CREATED)
 
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def add_draftee_player(request, pk):
+    C_Name = Company.objects.filter().values('id', 'Name')
+    user = request.data
+    serializer = PlayersSerializer(data=user)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    last_inserted_id = serializer.data['id']
 
-def add_draftee_player(self, request):
-        C_Name = Company.objects.filter().values('id', 'Name')
-        user = request.data
-        serializer = PlayersSerializer(data=user)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        last_inserted_id = serializer.data['id']
-
-        User.objects.filter(id=last_inserted_id).update(uui=unique_id)
-        return Response({'success': 'Player has been Created Successfuly'}, status=status.HTTP_201_CREATED)
-
+    User.objects.filter(id=last_inserted_id).update(uui=unique_id)
+    return Response({'success': 'Player has been Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
 def add_potential_trade(request, pk):
@@ -5758,19 +5758,11 @@ def quick_academy_calculator(request, pk):
         Transaction_Number=last_inserted_id)
     return Response({'Success': 'Success'}, status=status.HTTP_201_CREATED)
 
-
-
-
-
-
-
-
-
     # ##############  Abhishek Code end ##########################
 
 
 def ConstraintsRquest_inputs(request, pk):
-    user = current_user(request)
+
     loggeduser_id = ''
     f = open('RestApp/userfile.py', 'r')
 
@@ -5881,7 +5873,6 @@ def trade_optimiser_algorithm(request, pk):
     trade_out_vec = []
     sol_index = []
 
-    v_team_name = v_team_name
     trade_optimiser_df = masterlist
 
     # Get set of nodes
@@ -5893,8 +5884,6 @@ def trade_optimiser_algorithm(request, pk):
     draft_rounds = trade_optimiser_df['Draft_Round'].to_numpy()
 
     trade_optimiser_df_team = trade_optimiser_df[trade_optimiser_df["Current_Owner"] == v_team_name]
-    print(trade_optimiser_df_team)
-    exit()
     trade_optimiser_df_team.set_index('Display_Name_Detailed', inplace=True)
     trade_optimiser_df_team_dict = trade_optimiser_df_team.to_dict()
     trade_optimiser_df_team.reset_index(inplace=True)
@@ -5904,6 +5893,7 @@ def trade_optimiser_algorithm(request, pk):
 
     trade_optimiser_df_to_trade_in = trade_optimiser_df[
         trade_optimiser_df["Current_Owner"] != v_team_name]
+
     to_trade_in_picks = trade_optimiser_df_to_trade_in['Display_Name_Detailed'].to_numpy(
     )
     trade_optimiser_df_to_trade_in.set_index(
@@ -5913,8 +5903,278 @@ def trade_optimiser_algorithm(request, pk):
     trade_optimiser_df_to_trade_in.reset_index(inplace=True)
     teams_to_trade_with = list(
         set(trade_optimiser_df_to_trade_in['Current_Owner'].to_numpy()))
-    print(teams_to_trade_with)
-    exit()
+
+    trade_out_solutions = [{} for i in range(0, number_possible_solutions)]
+
+    trade_in_solutions = [{} for i in range(0, number_possible_solutions)]
+    count_solution = [0 for i in range(0, number_possible_solutions)]
+
+    for sol in range(0, number_possible_solutions):
+
+        # Importing the docplex.mp.model from the CPLEX as Model
+        opt_model = plp.LpProblem(name="MIP Model")
+
+        trade_out = {(i): plp.LpVariable(cat=plp.LpBinary, name="trade_out_{0}".format(i))
+                     for i in owned_picks}
+
+        trade_in = {(i): plp.LpVariable(cat=plp.LpBinary, name="trade_in_{0}".format(i))
+                    for i in to_trade_in_picks}
+        team_trade_in = {(i): plp.LpVariable(cat=plp.LpBinary,
+                                             name="team_trade_in_{0}".format(i))
+                         for i in teams_to_trade_with}
+
+        objective = plp.lpSum(
+            trade_out[i] for i in owned_picks) + plp.lpSum(trade_in[i] for i in to_trade_in_picks)
+
+        # Defines what wallet is chosen
+
+        c0 = {(i, j):
+              opt_model.addConstraint(
+                  team_trade_in[i] >= trade_in[j], name="".format(i, j))
+              for i in teams_to_trade_with for j in to_trade_in_picks if trade_optimiser_df_to_trade_in_dict['Current_Owner'][j] == i}
+
+        c0_1 = opt_model.addConstraint(plp.lpSum(team_trade_in[i] for i in teams_to_trade_with) == 1,
+                                       name="c0_1")
+
+        # Constraint 1 - Which Display_Name_Detailed to include
+
+        if(len(c1_set) > 0):
+            picks_to_trade_out_df = trade_optimiser_df_team[trade_optimiser_df_team['Display_Name_Detailed'].isin(
+                c1_set)]
+            picks_to_trade_out = picks_to_trade_out_df['Display_Name_Detailed'].to_numpy(
+            )
+
+            c1 = {(i): opt_model.addConstraint(trade_out[i] == 1,
+                                               name="".format(i))
+                  for i in picks_to_trade_out}
+
+            if(c1_type == "Fixed"):
+                c1_1 = {(i):
+                        opt_model.addConstraint(trade_out[i] == 0,
+                                                name="c1_1_".format(i))
+                        for i in owned_picks if i not in picks_to_trade_out}
+
+             # Constraint 2 - Which Season to send
+
+        if(len(c2_set) > 0):
+            picks_to_trade_out_df = trade_optimiser_df_team[trade_optimiser_df_team['Year'].isin(
+                c2_set)]
+            picks_to_trade_out = picks_to_trade_out_df['Display_Name_Detailed'].to_numpy(
+            )
+            for y in c2_set:
+                c2 = opt_model.addConstraint(plp.lpSum(trade_out[i] for i in owned_picks if trade_optimiser_df_team_dict["Year"][i] == y) >= 1,
+                                             name="".format(y))
+
+            if(c2_type == "Fixed"):
+                c2_1 = {(i):
+                        opt_model.addConstraint(trade_out[i] == 0,
+                                                name="".format(i))
+                        for i in owned_picks if i not in picks_to_trade_out}
+
+           # Constraint 3 - Which Draft_Round to send
+
+        if(len(c3_set) > 0):
+            picks_to_trade_out_df = trade_optimiser_df_team[trade_optimiser_df_team['Draft_Round'].isin(
+                c3_set)]
+            picks_to_trade_out = picks_to_trade_out_df['Display_Name_Detailed'].to_numpy(
+            )
+            for c in c3_set:
+                c2 = opt_model.addConstraint(plp.lpSum(trade_out[i] for i in owned_picks if trade_optimiser_df_team_dict["Draft_Round"][i] == c) >= 1,
+                                             name="".format(c))
+
+            if(c3_type == "Fixed"):
+                c3_1 = {(i):
+                        opt_model.addConstraint(trade_out[i] == 0,
+                                                name="".format(i))
+                        for i in owned_picks if i not in picks_to_trade_out}
+
+        #   Constraint 4 - Minimum value to send
+
+        if(c4_type == "Fixed" or c4_type == "Include"):
+            c4 = opt_model.addConstraint(plp.lpSum((trade_out)[i]*trade_optimiser_df_team_dict["AFL_Points_Value"][i] for i in owned_picks) >= c4_set,
+                name="c4")
+
+        #   # Constraint 5 - Minimum value to send
+        # if(c5_type == "Fixed" or c5_type == "Include"):
+        #     c5 = opt_model.addConstraint(plp.lpSum(trade_out[i]*trade_optimiser_df_team_dict["AFL_Points_Value"][i] for i in owned_picks) <= c5_set,
+        #         name="c5")
+
+        # #   Constraint 6 - Current_Owner to receive from
+
+        # if(len(c6_set) > 0):
+        #     trade_optimiser_df_to_trade_in_df = trade_optimiser_df_to_trade_in[trade_optimiser_df_to_trade_in['Current_Owner'].isin(
+        #         c6_set)]
+        #     trade_optimiser_df_to_buy_list = trade_optimiser_df_to_trade_in_df['Display_Name_Detailed'].to_numpy(
+        #     )
+
+        #     c6 = {(i): opt_model.addConstraint(trade_in[i] == 1,
+        #                                        name="".format(i))
+        #           for i in trade_optimiser_df_to_buy_list}
+
+        #  # Constraint 7 - Which Display_Name_Detailed to receive
+
+        # if(len(c7_set) > 0):
+        #     trade_optimiser_df_to_trade_in_df = trade_optimiser_df_to_trade_in[
+        #         trade_optimiser_df_to_trade_in['Display_Name_Detailed'].isin(c7_set)]
+        #     trade_optimiser_df_to_buy_list = trade_optimiser_df_to_trade_in_df['Display_Name_Detailed'].to_numpy(
+        #     )
+        #     c7 = {(i): opt_model.addConstraint(trade_in[i] == 1,
+        #                                        name="".format(i))
+        #           for i in trade_optimiser_df_to_buy_list}
+
+        #     if(c7_type == "Fixed"):
+        #         c7_1 = {(i):
+        #                 opt_model.addConstraint(trade_in[i] == 0,
+        #                                         name="".format(i))
+        #                 for i in to_trade_in_picks if i not in trade_optimiser_df_to_buy_list}
+        #  # Constraint 8 - Which Season to receive
+
+        # if(len(c8_set) > 0):
+        #     trade_optimiser_df_to_trade_in_df = trade_optimiser_df_to_trade_in[trade_optimiser_df_to_trade_in['Year'].isin(
+        #         c8_set)]
+        #     trade_optimiser_df_to_buy_list = trade_optimiser_df_to_trade_in_df['Display_Name_Detailed'].to_numpy(
+        #     )
+        #     for y in c8_set:
+        #         c8 = opt_model.addConstraint(plp.lpSum(trade_in[i] for i in to_trade_in_picks if trade_optimiser_df_to_trade_in_dict["Year"][i] == y) >= 1,
+        #                                      name="".format(y))
+
+        #     if(c8_type == "Fixed"):
+        #         c8_1 = {(i):
+        #                 opt_model.addConstraint(trade_in[i] == 0,
+        #                                         name="".format(i))
+        #                 for i in to_trade_in_picks if i not in trade_optimiser_df_to_buy_list}
+
+        #   # Constraint 9 - Which Draft_Round to receive
+
+        # if(len(c9_set) > 0):
+        #     trade_optimiser_df_to_trade_in_df = trade_optimiser_df_to_trade_in[trade_optimiser_df_to_trade_in['Draft_Round'].isin(
+        #         c9_set)]
+
+        #     trade_optimiser_df_to_buy_list = trade_optimiser_df_to_trade_in_df['Display_Name_Detailed'].to_numpy(
+        #     )
+        #     for c in c9_set:
+        #         c9 = opt_model.addConstraint(plp.lpSum(trade_in[i] for i in to_trade_in_picks if trade_optimiser_df_to_trade_in_dict["Draft_Round"][i] == c) >= 1,
+        #                                      name="".format(c))
+
+        #     if(c9_type == "Fixed"):
+        #         c9_1 = {(i):
+        #                 opt_model.addConstraint(trade_in[i] == 0,
+        #                                         name="".format(i))
+        #                 for i in to_trade_in_picks if i not in trade_optimiser_df_to_buy_list}
+
+        #  # Constraint 10 - Minimum value to receive
+        # if(c10_type == "Fixed" or c10_type == "Include"):
+        #     c10 = opt_model.addConstraint(plp.lpSum(trade_in[i]*trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i] for i in to_trade_in_picks) >= c10_set,
+        #                                   name="c10")
+
+        #    # Constraint 11 - Maximum AFL_Points_Value to receive
+        # if(c11_type == "Fixed" or c11_type == "Include"):
+        #     c11 = opt_model.addConstraint(plp.lpSum(trade_in[i]*trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i] for i in to_trade_in_picks) <= c11_set,
+        #                                   name="c11")
+
+        #   # Constraint 12 - Max difference of total value
+        # if(c12_type == "Fixed" or c12_type == "Include"):
+        #     c12_1 = opt_model.addConstraint(plp.lpSum(trade_out[i]*trade_optimiser_df_team_dict["AFL_Points_Value"][i] for i in owned_picks) <=
+        #                                     (1 + c12_set)*plp.lpSum(
+        #                                         trade_in[i]*trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i] for i in to_trade_in_picks),
+        #                                     name="c12_1")
+
+        #     c12_2 = opt_model.addConstraint((1 + c12_set)*plp.lpSum(trade_out[i]*trade_optimiser_df_team_dict["AFL_Points_Value"][i] for i in owned_picks) >=
+        #                                     plp.lpSum(
+        #                                         trade_in[i]*trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i] for i in to_trade_in_picks),
+        #                                     name="c12_2")
+
+        c_aux = {(ct):
+                 opt_model.addConstraint(plp.lpSum(trade_out[i] for i in trade_out_solutions[ct]) + plp.lpSum(trade_in[i] for i in trade_in_solutions[ct])
+                                         <= count_solution[ct] - 1,
+                                         name="".format(ct))
+                 for ct in range(0, sol)}
+        # Getting the solution
+        opt_model.sense = plp.LpMinimize
+        opt_model.setObjective(objective)
+        # opt_model.solve(plp.PULP_CBC_CMD(msg=False))
+        opt_model.solve()
+
+        if(plp.LpStatus[opt_model.status] == 'Optimal'):
+            print("SOLUTION NUMBER ", sol+1)
+            print("")
+            print("   TRADE OUT")
+            trade_out_picks_sol = ""
+            for i in owned_picks:
+                if(trade_out[i].varValue == 1):
+                    print("      ", i)
+                    trade_out_solutions[sol][i] = 1
+                    count_solution[sol] += 1
+                    if(trade_out_picks_sol == ""):
+                        trade_out_picks_sol += i
+                    else:
+                        trade_out_picks_sol += ", " + i
+            trade_out_vec.append(trade_out_picks_sol)
+
+            print("   TRADE IN")
+            trade_in_sol = ""
+            for i in to_trade_in_picks:
+                if(trade_in[i].varValue == 1):
+                    print(
+                        "      ", i, trade_optimiser_df_to_trade_in_dict['Current_Owner'][i])
+                    trade_in_solutions[sol][i] = 1
+                    count_solution[sol] += 1
+                    if(trade_in_sol == ""):
+                        trade_in_sol += i
+                    else:
+                        trade_in_sol += ", " + i
+            trade_in_vec.append(trade_in_sol)
+            print("")
+            sol_index.append(sol+1)
+        else:
+            print("Problem is infeasible")
+            break
+
+    results_df["Suggestion"] = sol_index
+    results_df["Trade Out"] = trade_out_vec
+    results_df["Trade In"] = trade_in_vec
+
+    # Calculations of Points differences
+    # Defining points lists
+    AFL_Points_Out = []
+    AFL_Points_In = []
+
+    # Trade Out Points:
+    for idx, k in enumerate(trade_out_solutions):
+        total_pts = 0
+        suggestion = idx + 1
+        #     print(suggestion)
+        for v in k.keys():
+            #         print(v)
+            pick_pts = trade_optimiser_df.loc[trade_optimiser_df.Display_Name_Detailed ==
+                                              v, 'AFL_Points_Value'].iloc[0]
+            total_pts = pick_pts + total_pts
+        #     print(total_pts)
+        AFL_Points_Out.append(total_pts)
+
+    # Trade In Points:
+    for idx, k in enumerate(trade_in_solutions):
+        total_pts = 0
+        suggestion = idx + 1
+        #     print(suggestion)
+        for v in k.keys():
+            #         print(v)
+            pick_pts = trade_optimiser_df.loc[trade_optimiser_df.Display_Name_Detailed ==
+                                              v, 'AFL_Points_Value'].iloc[0]
+            total_pts = pick_pts + total_pts
+        #     print(total_pts)
+        AFL_Points_In.append(total_pts)
+
+    # Add Columns
+    results_df['Points Out'] = AFL_Points_Out
+    results_df['Points In'] = AFL_Points_In
+    results_df['Points Diff'] = results_df['Points In'] - \
+        results_df['Points Out']
+    print(results_df)
+    data_trade_suggestion = results_df
+    return data_trade_suggestion
+    trade_optimiser_algorithm(number_possible_solutions, c1_type, c1_set, c2_type, c2_set, c3_type, c3_set, c4_type, c4_set, c5_type, c5_set, c6_type, c6_set, c7_type,
+                              c7_set, c8_type, c8_set, c9_type, c9_set, c10_type, c10_set, c11_type, c11_set, c12_type, c12_set, c13_type, c13_set, c14_type, c14_set, v_team_name, masterlist)
 
 
 # @api_view(['GET'])
