@@ -57,7 +57,8 @@ from .views import (
     manual_pick_move,
     quick_academy_calculator,
     update_ladder,
-    add_draftee_player
+    add_draftee_player,
+    update_potential_trade
 )
 
 urlpatterns = [
@@ -76,7 +77,7 @@ urlpatterns = [
     re_path(r'^Academy-Bid-v2/(?P<pk>[0-9]+)$', academy_bid_v2),
     re_path(r'^Add-FA-Compansation/(?P<pk>[0-9]+)$', add_FA_compansation),
     re_path(
-        r'^Add_FA_Compansation_v2/(?P<pk>[0-9]+)$', add_FA_compensation_v2),
+        r'^add_FA_compensation_v2/(?P<pk>[0-9]+)$', add_FA_compensation_v2),
     re_path(r'^Add-nga-bid/(?P<pk>[0-9]+)$', add_nga_bid),
     re_path(r'^df/(?P<pk>[0-9]+)$', dataframerequest),
     re_path(r'^add_father_son/(?P<pk>[0-9]+)$', add_father_son),
@@ -90,6 +91,7 @@ urlpatterns = [
     re_path(r'^Constraint/(?P<pk>[0-9]+)$', trade_optimiser_algorithm),
     re_path(r'^update_ladder/(?P<pk>[0-9]+)$', update_ladder),
     re_path(r'^add-new-player/(?P<pk>[0-9]+)$', add_draftee_player),
+    re_path(r'^update_potential_trade/(?P<pk>[0-9]+)$', update_potential_trade),
 
     # #################### Update URL's #################
 

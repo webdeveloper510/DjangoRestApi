@@ -116,7 +116,7 @@ AcademyBid
 
 {
    "player":"test",
-   "team":"1",
+   "team":"2",
    "pickid":"1"
 
 }
@@ -206,7 +206,7 @@ add Manual
 
 
 
-Trade Potential
+update Trade Potential
 
 {
 "teamid":"1",
