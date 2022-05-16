@@ -665,8 +665,11 @@ def add_trade_v2_request(request, pk):
 
     return Response({'success': 'Trade and Trasactions Created'}, status=status.HTTP_201_CREATED)
 
+
 def call_add_trade(transactions):
     return transactions
+
+
 # Complete
 # Two of the inputs for this functions are styatic lists that i am hoping will be a drag and drop list on the settings page:
 updated_ladderlist_current_year = ['Melbourne', 'Port Adelaide', 'Geelong Cats',
@@ -3233,6 +3236,7 @@ def manual_pick_move_inputs(request, pk):
 
     return masterlist, pick_move_team, reason, pick_being_moved_val, pick_destination_round, pick_destination_val, pick_move_insert_instructions, pick_being_moved_unique_pick, pick_destination_unique_pick
 
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def manual_pick_move(request, pk):
@@ -3379,29 +3383,32 @@ def manual_pick_move(request, pk):
     call_manual_pick_move(transaction_details)
     return Response({'success': 'Manual Pick Move has been Created'}, status=status.HTTP_201_CREATED)
 
+
 def call_drafted_player(transactions):
     return transactions
 
+
 def call_add_father_son(transactions):
     return transactions
+
+
 def call_add_draft_night_selection(transactions):
     return transactions
+
+
 def call_manual_pick_move(transactions):
     return transactions
 
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-
-
-    # ##################### Code Done by Abhishek ########################
-
-
+# ##################### Code Done by Abhishek ########################
 def update_player_details(request):
     data = request.data
     playerid = data.get('playerid')
     player_details = data.get('player_details')
     Players.objects.filter(id=playerid).update(player_details)
+
 
 def add_trade_v3_inputs(request, pk):
 
@@ -3489,6 +3496,8 @@ def add_trade_v3_inputs(request, pk):
     else:
         pass
     return masterlist, team1, team2, team1_trades_picks, team1_trades_players, team2_trades_picks, team2_trades_players, team1_trades_pick_names, team2_trades_pick_names
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def add_trade_v3(request, pk):
@@ -3611,6 +3620,7 @@ def add_trade_v3(request, pk):
         Transaction_Number=last_Transations_id)
     call_add_trade(transaction_details)
     return Response({'success': 'Add-Trade-v3 Created Successfuly'}, status=status.HTTP_201_CREATED)
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny, ])
@@ -4634,8 +4644,8 @@ def add_nga_bid(request, pk):
 
 def add_draft_night_selection_request(request):
     data = request.data
-    selected_pick_id = data['selected_pick_id']
-    player_taken_id = data['player_taken_id']
+    selected_pick_id = data.get('selected_pick_id')
+    player_taken_id = data.get('player_taken_id')
     return selected_pick_id, player_taken_id
 
 
@@ -4908,6 +4918,7 @@ def AddManualRequest(request, pk):
         Transaction_Number=Transactions_count)
     call_manual_insert(transaction_details)
     return Response({'success': 'Add Manual created Successfully'}, status=status.HTTP_201_CREATED)
+
 
 def quick_academy_calculator(request, pk):
     current_date = date.today()
@@ -5268,8 +5279,7 @@ def quick_academy_calculator(request, pk):
         Transaction_Number=last_inserted_id)
     return Response({'Success': 'Success'}, status=status.HTTP_201_CREATED)
 
-
-                        # ##############  Abhishek Code end ##########################
+    # ##############  Abhishek Code end ##########################
 
 
 def ConstraintsRquest_inputs(request, pk):
