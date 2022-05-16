@@ -185,14 +185,14 @@ class DraftRound(models.Model):
         return f"{self.round}"
 
 
-# class TradePotentialAnalyser(models.Model):
-#     projectid = models.IntegerField()
-#     Trade_Partner=models.CharField(max_length=255,default='')
-#     Trading_Out_Num=models.IntegerField()
-#     Trading_Out_Num_Player=models.IntegerField()
-#     Trading_In_Num =models.IntegerField()
-#     Trading_In_Num_Player=models.IntegerField()
-#     note=models.CharField(maxdefault_length=250,default='')
+class TradePotentialAnalyser(models.Model):
+    projectid = models.IntegerField()
+    Trade_Partner=models.CharField(max_length=255,default='')
+    Trading_Out_Num=models.IntegerField()
+    Trading_Out_Num_Player=models.IntegerField()
+    Trading_In_Num =models.IntegerField()
+    Trading_In_Num_Player=models.IntegerField()
+    note=models.CharField(max_length=250,default='')
     
     
 class Trades(models.Model):

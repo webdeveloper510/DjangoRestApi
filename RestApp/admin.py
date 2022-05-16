@@ -13,8 +13,7 @@ from .models import (
     Transactions,
     library_AFL_Draft_Points,
     DraftRound,
-    PriorityTransactions,
-    Trades
+    PriorityTransactions
 )
 
 
@@ -45,4 +44,4 @@ admin.site.register(library_AFL_Draft_Points)
 admin.site.register(Transactions)
 admin.site.register(DraftRound)
 admin.site.register(PriorityTransactions)
-admin.site.register(Trades)
+# admin.site.register(Trades)

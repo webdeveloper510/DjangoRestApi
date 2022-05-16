@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'corsheaders',
 
 ]
+
 # REST_FRAMEWORK = {
 #     'DEFAULT_AUTHENTICATION_CLASSES': (
 #         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
@@ -67,14 +68,14 @@ INSTALLED_APPS = [
 # }
 
 
-JWT_AUTH = {
+# JWT_AUTH = {
 
-    'JWT_VERIFY': True,
-    'JWT_VERIFY_EXPIRATION': True,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=3000),
-    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+#     'JWT_VERIFY': True,
+#     'JWT_VERIFY_EXPIRATION': True,
+#     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=3000),
+#     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
 
-}
+# }
 
 MIDDLEWARE = [
 
@@ -125,7 +126,6 @@ DATABASES = {
 
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
