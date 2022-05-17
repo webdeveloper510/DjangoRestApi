@@ -287,7 +287,6 @@ def CreateMasterListRequest(request, pk):
             for index, updaterow in udpatedf.iterrows():
                 ShortNames = []
                 row1 = dict(updaterow)
-                print(row1)
                 team = Teams.objects.get(id=updaterow.TeamName)
                 teamsobj = Teams.objects.filter().values('ShortName')
                 for teams_short_list in teamsobj:
@@ -313,17 +312,13 @@ def CreateMasterListRequest(request, pk):
                 row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
                     updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
 
-                # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
-                #     previous_owner + team.ShortName + \
-                #     ')' if Original_Owner != Current_Ownerr else team.ShortName
-                # df.reset_index(drop=False)
+                row1['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
 
-                # print(row1['Display_Name_Mini'])
-                # exit()
                 row1['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
                     previous_owner + team.ShortName + \
                     ')' if Original_Owner != Current_Ownerr else team.ShortName
-
+            
                 row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
                     previous_owner + team.ShortName + \
                     ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -1039,13 +1034,9 @@ def PriorityPickrRequest(request):
         academy_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(academy_dict['Display_Name'])
 
-        # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
-        #     previous_owner + team.ShortName + \
-        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
-        # df.reset_index(drop=False)
+        academy_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
 
-        # print(row1['Display_Name_Mini'])
-        # exit()
         academy_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -1420,13 +1411,10 @@ def add_priority_pick_v2(request, pk):
         pp_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(pp_dict['Display_Name'])
 
-        # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
-        #     previous_owner + team.ShortName + \
-        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
-        # df.reset_index(drop=False)
+        pp_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
 
-        # print(row1['Display_Name_Mini'])
-        # exit()
+    
         pp_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -1860,13 +1848,9 @@ def AcademyBidRequest(request, pk):
         row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
 
-        # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
-        #     previous_owner + team.ShortName + \
-        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
-        # df.reset_index(drop=False)
+        row1['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
 
-        # print(row1['Display_Name_Mini'])
-        # exit()
         row1['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -2324,13 +2308,9 @@ def academy_bid_v2(request, pk):
         academy_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(academy_dict['Display_Name'])
 
-        # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
-        #     previous_owner + team.ShortName + \
-        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
-        # df.reset_index(drop=False)
+        academy_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
 
-        # print(row1['Display_Name_Mini'])
-        # exit()
         academy_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -2766,14 +2746,9 @@ def add_FA_compansation(request, pk):
 
         row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
+        row1['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
 
-        # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
-        #     previous_owner + team.ShortName + \
-        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
-        # df.reset_index(drop=False)
-
-        # print(row1['Display_Name_Mini'])
-        # exit()
         row1['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -3192,13 +3167,9 @@ def add_FA_compensation_v2(request, pk):
         FA_v2_data['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(FA_v2_data['Display_Name'])
 
-        # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
-        #     previous_owner + team.ShortName + \
-        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
-        # df.reset_index(drop=False)
+        FA_v2_data['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
 
-        # print(row1['Display_Name_Mini'])
-        # exit()
         FA_v2_data['Display_Name_Short'] = str(Overall_pickk) + '  ' + str(Current_Ownerr) + ' (Origin: ' + str(Original_Owner) + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -3357,13 +3328,9 @@ def manual_pick_move(request, pk):
         manualpickmove_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(manualpickmove_dict['Display_Name'])
 
-        # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
-        #     previous_owner + team.ShortName + \
-        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
-        # df.reset_index(drop=False)
+        manual_move_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
 
-        # print(row1['Display_Name_Mini'])
-        # exit()
         manualpickmove_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -3443,14 +3410,16 @@ def Visualisations(request, pk):
     v_current_year = current_day.year
     v_current_year_plus1 = v_current_year+1
     v_team_name = masterlist['TeamName']
+
     data_dashboard_trade_offers = {}
-    # Current Year Picks to a List:
     data_current_year_club_picks = {}
     data_trade_offers = {}
     data_transaction_list = {}
     data_completed_trades = {}
     draft_player_dict = {}
     data_dashboard_draftboard = {}
+
+    # Current Year Picks to a List:
     data_current_year_club_picks['data_current_year_club_picks'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (
         masterlist.Current_Owner.astype(int) == v_team_name.astype(int))].Display_Name_Mini.to_dict()
 
@@ -3757,13 +3726,9 @@ def add_trade_v3(request, pk):
         trade_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(trade_dict['Display_Name'])
 
-        # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
-        #     previous_owner + team.ShortName + \
-        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
-        # df.reset_index(drop=False)
+        trade_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
 
-        # print(row1['Display_Name_Mini'])
-        # exit()
         trade_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -4084,14 +4049,9 @@ def update_ladder(request, pk):
 
             update_ladder_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
                 updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(update_ladder_dict['Display_Name'])
+            update_ladder['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
 
-            # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
-            #     previous_owner + team.ShortName + \
-            #     ')' if Original_Owner != Current_Ownerr else team.ShortName
-            # df.reset_index(drop=False)
-
-            # print(row1['Display_Name_Mini'])
-            # exit()
             update_ladder_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
                 previous_owner + team.ShortName + \
                 ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -4775,14 +4735,9 @@ def add_nga_bid(request, pk):
 
             nga_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
                 updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(nga_dict['Display_Name'])
+            nga_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
 
-            # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
-            #     previous_owner + team.ShortName + \
-            #     ')' if Original_Owner != Current_Ownerr else team.ShortName
-            # df.reset_index(drop=False)
-
-            # print(row1['Display_Name_Mini'])
-            # exit()
             nga_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
                 previous_owner + team.ShortName + \
                 ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -4918,13 +4873,9 @@ def add_draft_night_selection(request, pk):
         draft_night_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(draft_night_dict['Display_Name'])
 
-        # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
-        #     previous_owner + team.ShortName + \
-        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
-        # df.reset_index(drop=False)
+        draft_night_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
 
-        # print(row1['Display_Name_Mini'])
-        # exit()
         draft_night_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -5067,13 +5018,9 @@ def AddManualRequest(request, pk):
         manual_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(manual_dict['Display_Name'])
 
-        # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
-        #     previous_owner + team.ShortName + \
-        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
-        # df.reset_index(drop=False)
+        manual_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
 
-        # print(row1['Display_Name_Mini'])
-        # exit()
         manual_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -6482,12 +6429,6 @@ def add_father_son(request, pk):
 
     # Make the changes to the masterlist:
 
-        # #### rename column names because database is returning columns fields with id concatenated
-    df.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
-    df.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
-    df.rename(columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
-    df.rename(columns={'Previous_Owner_id': 'Previous_Owner'}, inplace=True)
-
     rowno = df.index[df['Display_Name_Detailed'] == fs_pick][0]
 
     # create the line to insert:
@@ -6534,14 +6475,9 @@ def add_father_son(request, pk):
 
         fs_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(fs_dict['Display_Name'])
+        fs_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
 
-        # row1['Display_Name_Mini'] = str(Overall_pickk)+  '  ' + Current_Ownerr +  ' (Origin: '+ Original_Owner +  ', Via: ' + \
-        #     previous_owner + team.ShortName + \
-        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
-        # df.reset_index(drop=False)
-
-        # print(row1['Display_Name_Mini'])
-        # exit()
         fs_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
