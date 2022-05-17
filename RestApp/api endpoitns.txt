@@ -219,7 +219,8 @@ update Trade Potential
 "Trading_In_Num":"1",
 "Trading_In_Num_Player":"1",
 "player_trading_in":"1",
-"notes":"testing"
+"notes":"testing",
+"projectid":""
 }
 
 
@@ -282,4 +283,23 @@ quick academy bid calculator
 "academy_pick_type":"1",
 "academy_bid":"5",
 "player":"1"
+}
+
+
+add_draftee_player 
+
+{
+   "FirstName":"john",
+   "LastName":"doe",
+   "Full_Name":"johndoe",
+   "Height":"6",
+   "Weight":"60",
+   "club":"club",
+   "State":"AUS",
+   "Position_1":"position 1",
+   "Position_2":"position 2",
+   "Rank":"1",
+   "Tier":"teir",
+   "Notes":"test player",
+   "projectId":"1"
 }

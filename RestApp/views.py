@@ -109,6 +109,33 @@ def dataframerequest(request, pk):
     return df
 
 
+def playerdataframe(request, pk):
+    player_list = []
+    player_val = Players.objects.filter(projectId=pk).values()
+    for k in player_val:
+        player_list.append(k)
+    players = pd.DataFrame(player_list)
+    return players
+
+
+def transactionsdataframe(request, pk):
+    append_list = []
+    _transactions_val = Transactions.objects.filter(projectId=pk).values()
+    for k in _transactions_val:
+        append_list.append(k)
+    transactions = pd.DataFrame(append_list)
+    return transactions
+
+
+def tradesdataframe(request, pk):
+    append_trade = []
+    trade_res = Trades.objects.filter(projectid=pk).values()
+    for k in trade_res:
+        append_trade.append(k)
+    trades = pd.DataFrame(append_trade)
+    return trades
+
+
 @api_view(['GET'])
 def current_user(request):
     serializer = UserSerializer(request.user)
@@ -3400,6 +3427,138 @@ def call_manual_pick_move(transactions):
     return transactions
 
 
+# ################### Visualisations Api's #########################################
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def Visualisations(request, pk):
+    # call masterlist dataframe
+    masterlist = dataframerequest(request, pk)
+    # call players dataframe
+    players = playerdataframe(request, pk)
+    # call trade dataframe 
+    trades = tradesdataframe(request, pk)
+    # call transactions dataframe
+    transactions = transactionsdataframe(request, pk)
+    current_day = date.today()
+    v_current_year = current_day.year
+    v_current_year_plus1 = v_current_year+1
+    v_team_name = masterlist['TeamName']
+
+    # Current Year Picks to a List:
+    data_current_year_club_picks = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (
+        masterlist.Current_Owner.astype(int) == v_team_name.astype(int))].Display_Name_Mini.to_list()
+
+    # Current Year Picks to a List:
+    data_next_year_club_picks = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (
+        masterlist.Current_Owner.astype(int) == v_team_name.astype(int))].Display_Name_Mini.to_list()
+    # Dashboard page Draft Board
+    if players.empty:
+        pass
+    else:
+        data_dashboard_draftboard = players[[
+            'FirstName', 'LastName', 'Position_1', 'Rank']].sort_values(by='Rank', ascending=True)
+
+# Dashboard Page trade Offers
+    if trades.empty:
+        pass
+    else:
+
+        data_dashboard_trade_offers = trades[[
+            'Trade_Partner', 'Trading_Out', 'Trading_In', 'Points_Diff', 'Notes']]
+    # Dashboard Page Transactions
+    if transactions.empty:
+        pass
+    else:
+        data_transaction_list = transactions[[
+            'Transaction_Number', 'Transaction_Type', 'Transaction_Description']]
+    ##### DRAFT PICKS WEBPAGE #####
+
+    # Current Year Round by Round:
+    data_current_year_rd1 = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (masterlist.Draft_Round.astype(str) == 'RD1')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    data_current_year_rd2 = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (masterlist.Draft_Round.astype(str) == 'RD2')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    data_current_year_rd3 = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (masterlist.Draft_Round.astype(str) == 'RD3')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    data_current_year_rd4 = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (masterlist.Draft_Round.astype(str) == 'RD4')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    data_current_year_rd5 = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (masterlist.Draft_Round.astype(str) == 'RD5')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    data_current_year_rd6 = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (masterlist.Draft_Round.astype(str) == 'RD6')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+
+    # Next Year Round by Round:
+    data_next_year_rd1 = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (masterlist.Draft_Round.astype(str) == 'RD1')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    data_next_year_rd2 = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (masterlist.Draft_Round.astype(str) == 'RD2')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    data_next_year_rd3 = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (masterlist.Draft_Round.astype(str) == 'RD3')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    data_next_year_rd4 = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (masterlist.Draft_Round.astype(str) == 'RD4')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    data_next_year_rd5 = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (masterlist.Draft_Round.astype(str) == 'RD5')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    data_next_year_rd6 = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (masterlist.Draft_Round.astype(str) == 'RD6')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+
+    # Order of Entry Table
+    data_order_of_entry = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1))][[
+        'TeamName', 'Overall_Pick', 'Club_Pick_Number']].sort_values(by='Overall_Pick')
+    data_order_of_entry = pd.crosstab(
+        data_order_of_entry.TeamName, data_order_of_entry.Club_Pick_Number, values=data_order_of_entry.Overall_Pick, aggfunc=sum)
+
+    # Draft Assets Graph - Bar Graph
+    data_draft_assets_graph = masterlist.groupby(
+        ['Current_Owner_Short_Name', 'Year'])['AFL_Points_Value'].sum()
+
+    ##### Full List of Draft Picks #####
+    data_full_masterlist = masterlist[['Year', 'Draft_Round', 'Overall_Pick', 'TeamName', 'PickType',
+                                       'Original_Owner', 'Current_Owner', 'Previous_Owner', 'AFL_Points_Value', 'Club_Pick_Number']]
+
+    ##### TRADE ANALYSER WEBPAGE #####
+
+    # Trade Suggestion table (still in development)
+    # Trade Offers
+    if trades.empty:
+        pass
+    else:
+        data_trade_offers = trades[['Trade_Partner', 'Trading_Out',
+                                    'Points_Out', 'Trading_In', 'Points_In', 'Points_Diff', 'Notes']]
+
+    # List of completed trades
+    if transactions.empty:
+        pass
+    else:
+        data_completed_trades = transactions[(
+            transactions.Transaction_Type == 'Trade')]['Transaction_Description']
+
+    ##### DRAFT BOARD WEBPAGE #####
+    if players.empty:
+        pass
+    else:
+
+        # Draft Player List - Would like some fields to be updateable here:
+        data_player_list = players[['FirstName', 'LastName', 'Height', 'Weight',
+                                    'club', 'State', 'Position_1', 'Position_2', 'Rank', 'Tier', 'Notes']]
+        # Draft Tiers
+        data_draft_tier_1 = players[(players.Tier.astype(int) == 1)][[
+            'FirstName', 'LastName', 'club', 'Position_1']]
+        data_draft_tier_2 = players[(players.Tier.astype(int) == 2)][[
+            'FirstName', 'LastName', 'club', 'Position_1']]
+        data_draft_tier_3 = players[(players.Tier.astype(int) == 3)][[
+            'FirstName', 'LastName', 'club', 'Position_1']]
+        data_draft_tier_4 = players[(players.Tier.astype(int) == 4)][[
+            'FirstName', 'LastName', 'club', 'Position_1']]
+        data_draft_tier_5 = players[(players.Tier.astype(int) == 5)][[
+            'FirstName', 'LastName', 'club', 'Position_1']]
+
+        # Ranking View
+        data_dashboard_draftboard = players[[
+            'FirstName', 'LastName', 'Position_1', 'Rank']].sort_values(by='Rank', ascending=True)
+        print(data_dashboard_draftboard)
+        exit()
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 # ##################### Code Done by Abhishek ########################
@@ -3919,9 +4078,25 @@ def add_draftee_player(request, pk):
     serializer.is_valid(raise_exception=True)
     serializer.save()
     last_inserted_id = serializer.data['id']
-
     User.objects.filter(id=last_inserted_id).update(uui=unique_id)
     return Response({'success': 'Player has been Created Successfuly'}, status=status.HTTP_201_CREATED)
+
+
+def add_potential_trade_inputs(request):
+    data = request.data
+    v_team_name = data.get('teamid')
+    Trade_Partner = data.get('Trade_Partner')
+    Trading_Out_Num = data.get('Trading_Out_Num')
+    Trading_Out_Num_Player = data.get('Trading_Out_Num_Player')
+    pick_out_idd = data.get('pick_trading_out')
+    player_trading_out = data.get('player_trading_out')
+    pick_in_id = data.get('pick_trading_in')
+    Trading_In_Num = data.get('Trading_In_Num')
+    Trading_In_Num_Player = data.get('Trading_In_Num_Player')
+    player_trading_in = data.get('player_trading_in')
+    notes = data.get('notes')
+
+    return v_team_name, Trade_Partner, notes, Trading_Out_Num, Trading_Out_Num_Player, pick_out_idd, player_trading_out, pick_in_id, Trading_In_Num, Trading_In_Num_Player, player_trading_in
 
 
 def add_potential_trade(request, pk):
@@ -3930,20 +4105,9 @@ def add_potential_trade(request, pk):
     dfobj = MasterList.objects.filter(projectid=pk).values()
     for df_data in dfobj:
         df.append(df_data)
-
+    v_team_name, Trade_Partner, notes, Trading_Out_Num, Trading_Out_Num_Player, pick_out_idd, player_trading_out, pick_in_id, Trading_In_Num, Trading_In_Num_Player, player_trading_in = add_potential_trade_inputs(
+        request)
     masterlist = pd.DataFrame(df)
-
-    data = request.data
-    v_team_name = data.get('teamid')
-    Trade_Partner = data.get('Trade_Partner')
-    Trading_Out_Num = data.get('Trading_Out_Num')
-    Trading_Out_Num_Player = data.get('Trading_Out_Num_Player')
-    pick_out_idd = data.get('pick_trading_out')
-    player_trading_out = data.get('player_trading_out')
-    Trade_Partner = data.get('pick_trading_in')
-    Trading_In_Num = data.get('Trading_In_Num')
-    Trading_In_Num_Player = data.get('Trading_In_Num_Player')
-    player_trading_in = data.get('player_trading_in')
 
     Trading_Out = {}
     Trading_Out_Simple = []
@@ -3956,7 +4120,7 @@ def add_potential_trade(request, pk):
     Trading_Out_Num_len = int(Trading_Out_Num)
     Trading_In_Num = int(Trading_Out_Num_Player)
     Trading_In_Num_Player_Num = int(Trading_In_Num_Player)
-
+    # pick_in_id = masterlist.loc[masterlist.Display_Name_Detailed == pick_trading_in, 'Unique_Pick_ID'].iloc[0]
     MasterQuerytset = MasterList.objects.filter(
         id__in=[pick_out_idd, pick_in_id]).values()
 
@@ -4026,9 +4190,6 @@ def add_potential_trade(request, pk):
 
     # print("You will be trading out " + str(total_points_out) + "pts out and receiving " + str(total_points_in) + "pts in.")
     total_points_diff = total_points_in - total_points_out
-
-    note = data['notes']
-
     Trading_In_Simple_str = "".join(Trading_In_Simple)
     Trading_In_Out_str = "".join(Trading_Out_Simple)
     Trading_In_str = "".join(Trading_In)
@@ -4038,7 +4199,7 @@ def add_potential_trade(request, pk):
     Trading_Out_as_str = "".join(Trading_Out_list)
 
     trades = pd.DataFrame({'Trade_Partner': Trade_Partner, 'Trading_Out': [Trading_Out_Simple], 'Trading_In': [Trading_In_Simple],
-                           'Points_Out': total_points_out, 'Points_In': total_points_in,  'Points_Diff': total_points_diff,  'Notes': note, 'System_Out': [Trading_Out], 'System_In': [Trading_In]}, index=[0])
+                           'Points_Out': total_points_out, 'Points_In': total_points_in,  'Points_Diff': total_points_diff,  'Notes': notes, 'System_Out': [Trading_Out], 'System_In': [Trading_In]}, index=[0])
 
     # trades = pd.concat([trades,append_df])
 

@@ -58,7 +58,8 @@ from .views import (
     quick_academy_calculator,
     update_ladder,
     add_draftee_player,
-    update_potential_trade
+    update_potential_trade,
+    Visualisations
 )
 
 urlpatterns = [
@@ -92,6 +93,7 @@ urlpatterns = [
     re_path(r'^update_ladder/(?P<pk>[0-9]+)$', update_ladder),
     re_path(r'^add-new-player/(?P<pk>[0-9]+)$', add_draftee_player),
     re_path(r'^update_potential_trade/(?P<pk>[0-9]+)$', update_potential_trade),
+    re_path(r'^Visualisations/(?P<pk>[0-9]+)$', Visualisations),
 
     # #################### Update URL's #################
 
