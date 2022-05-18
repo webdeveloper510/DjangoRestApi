@@ -543,7 +543,6 @@ def add_trade_v2_request(request, pk):
     team1_trades_picks = []
     team1_trades_players = []
 
-    # team2 trading out:
 
     team2_trades_picks = []
     team2_trades_players = []
@@ -551,20 +550,20 @@ def add_trade_v2_request(request, pk):
 
     picks_trading_out_team1 = []
     picks_trading_out_team2 = []
-    # TEAM 1 TRADING OUT ######################## = []
+    # TEAMS  TRADING OUT ######################## = []
     data = request.data
-    team1 = data['Team1']
-    team2 = data['Team2']
-    picks_trading_out_team1_obj = data['Team1_Pick1']
+    team1 = data.get('Team1')
+    team2 = data.get('Team2')
+    picks_trading_out_team1_obj = data.get('Team1_Pick1')
 
-    # picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
-    picks_trading_out_team1 = picks_trading_out_team1_obj
+    picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
+    # picks_trading_out_team2_obj = data['Team2_Pick2']
 
     # players_trading_out_team1_no = data['Team1_Players_no']
-    players_trading_out_team1 = data['Team1_players'] or ''
-    picks_trading_out_team2_obj = data['Team2_Pick2']
-    players_trading_out_team2 = data['Team2_players'] or ''
-    # picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
+    players_trading_out_team1 = data.get('Team1_players') or ''
+    picks_trading_out_team2_obj = data.get('Team2_Pick2')
+    # players_trading_out_team2 = data['Team2_players'] or ''
+    picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
 
     team1obj = Teams.objects.get(id=team1)
     team1name = team1obj.TeamNames
@@ -4955,10 +4954,6 @@ def AddManualRequest(request, pk):
     manual_pick_type = 'Manual Insert'
     df = masterlist
     # #### rename column names because database is returning columns fields with id concatenated
-    df.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
-    df.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
-    df.rename(columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
-    df.rename(columns={'Previous_Owner_id': 'Previous_Owner'}, inplace=True)
 
     rowno = df.index[df['Display_Name_Detailed'].astype(
         str) == str(manual_aligned_pick)][0]
@@ -4991,15 +4986,6 @@ def AddManualRequest(request, pk):
     # #####  Call update masterlist ######################################
 
     updatedf = update_masterlist(df1)
-
-    updatedf.rename(
-        columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
-    updatedf.rename(
-        columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
-    updatedf.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
-    updatedf.rename(
-        columns={'Previous_Owner_id': 'Previous_Owner'}, inplace=True)
-
     iincreament_id = 1
     for index, updaterow in updatedf.iterrows():
 
@@ -5564,6 +5550,7 @@ def trade_optimiser_algorithm(request, pk):
     draft_rounds = trade_optimiser_df['Draft_Round'].to_numpy()
 
     trade_optimiser_df_team = trade_optimiser_df[trade_optimiser_df["Current_Owner"] == v_team_name]
+
     trade_optimiser_df_team.set_index('Display_Name_Detailed', inplace=True)
     trade_optimiser_df_team_dict = trade_optimiser_df_team.to_dict()
     trade_optimiser_df_team.reset_index(inplace=True)
@@ -5670,10 +5657,10 @@ def trade_optimiser_algorithm(request, pk):
 
         #   Constraint 4 - Minimum value to send
 
-            if(c4_type == "Fixed" or c4_type == "Include"):
-                c4 = opt_model.addConstraint(plp.lpSum(trade_out[i]*trade_optimiser_df_team_dict["AFL_Points_Value"][i] for i in owned_picks) >= c4_set,
-                                             name="c4")
-          # Constraint 5 - Minimum value to send
+        if(c4_type == "Fixed" or c4_type == "Include"):
+            c4 = opt_model.addConstraint(plp.lpSum(trade_out[i]*trade_optimiser_df_team_dict["AFL_Points_Value"][i] for i in owned_picks) >= c4_set,
+                                         name="c4")
+        # Constraint 5 - Minimum value to send
         if(c5_type == "Fixed" or c5_type == "Include"):
             c5 = opt_model.addConstraint(plp.lpSum(trade_out[i]*trade_optimiser_df_team_dict["AFL_Points_Value"][i] for i in owned_picks) <= c5_set,
                                          name="c5")
@@ -5866,31 +5853,31 @@ def ConstraintsRquest(request, pk):
     v_team_name = Teamobj.id
 
     df = dataframerequest(request, pk)
-    my_dict = {}
+    _my_dict = {}
 
-    my_dict['constraints_1'] = df[df['Current_Owner'] ==
-                                  v_team_name]['Display_Name_Detailed'].tolist()
-    my_dict['constraints_2'] = df[df['Current_Owner'] ==
-                                  v_team_name]['Year'].unique().tolist()
-    my_dict['constraints_3'] = df[df['Current_Owner'] ==
-                                  v_team_name]['Draft_Round'].unique().tolist()
-    my_dict['constraints_4'] = [0]
-    my_dict['constraints_5'] = [99999999]
-    my_dict['constraints_6'] = df[df['Current_Owner'] !=
-                                  v_team_name]['Current_Owner'].unique().tolist()
-    my_dict['constraints_7'] = df[df['Current_Owner'] !=
-                                  v_team_name]['Display_Name_Detailed'].unique().tolist()
-    my_dict['constraints_8'] = df[df['Current_Owner'] !=
-                                  v_team_name]['Year'].unique().tolist()
-    my_dict['constraints_9'] = df[df['Current_Owner'] !=
-                                  v_team_name]['Draft_Round'].unique().tolist()
-    my_dict['constraints_10'] = [0]
-    my_dict['constraints_11'] = [99999999]
-    my_dict['constraints_12'] = [0.10]
-    my_dict['constraints_13'] = [0]
-    my_dict['constraints_14'] = [10]
+    _my_dict['constraints_1'] = df[df['Current_Owner'] ==
+                                   v_team_name]['Display_Name_Detailed'].tolist()
+    _my_dict['constraints_2'] = df[df['Current_Owner'] ==
+                                   v_team_name]['Year'].unique().tolist()
+    _my_dict['constraints_3'] = df[df['Current_Owner'] ==
+                                   v_team_name]['Draft_Round'].unique().tolist()
+    _my_dict['constraints_4'] = [0]
+    _my_dict['constraints_5'] = [99999999]
+    _my_dict['constraints_6'] = df[df['Current_Owner'] !=
+                                   v_team_name]['Current_Owner'].unique().tolist()
+    _my_dict['constraints_7'] = df[df['Current_Owner'] !=
+                                   v_team_name]['Display_Name_Detailed'].unique().tolist()
+    _my_dict['constraints_8'] = df[df['Current_Owner'] !=
+                                   v_team_name]['Year'].unique().tolist()
+    _my_dict['constraints_9'] = df[df['Current_Owner'] !=
+                                   v_team_name]['Draft_Round'].unique().tolist()
+    _my_dict['constraints_10'] = [0]
+    _my_dict['constraints_11'] = [99999999]
+    _my_dict['constraints_12'] = [0.10]
+    _my_dict['constraints_13'] = [0]
+    _my_dict['constraints_14'] = [10]
 
-    return Response(my_dict, status=status.HTTP_201_CREATED)
+    return Response(_my_dict, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
@@ -5939,7 +5926,10 @@ def Get_Rounds_Pick(request, pk):
     v_current_year = current_date.year
     v_current_year_plus1 = v_current_year+1
 
+    Current_Year_Round = {}
+    Next_Year_Round = {}
     TeamList = []
+
     imgQuery = Teams.objects.all()
     serializer = ListImageSerializer(
         imgQuery, many=True, context={'request': request})
@@ -5951,42 +5941,42 @@ def Get_Rounds_Pick(request, pk):
 
     df = pd.concat([Imgdf, df], axis=1).fillna('')
 
-    data_current_year_rd1 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD1')][[
+    Current_Year_Round['data_current_year_rd1'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD1')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 0]]
 
-    data_current_year_rd2 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD2')][[
+    Current_Year_Round['data_current_year_rd2'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD2')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 0]]
 
-    data_current_year_rd3 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD3')][[
+    Current_Year_Round['data_current_year_rd3'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD3')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
-    data_current_year_rd4 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD4')][[
+    Current_Year_Round['data_current_year_rd4'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD4')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
-    data_current_year_rd5 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD5')][[
+    Current_Year_Round['data_current_year_rd5'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD5')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
-    data_current_year_rd6 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD6')][[
+    Current_Year_Round['data_current_year_rd6'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD6')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
     # Next Year Round by Round:
 
-    data_next_year_rd1 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
+    Next_Year_Round['data_next_year_rd1'] = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
-    data_next_year_rd2 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD2')][[
+    Next_Year_Round['data_next_year_rd2'] = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD2')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
-    data_next_year_rd3 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
+    Next_Year_Round['data_next_year_rd3'] = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
-    data_next_year_rd4 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD4')][[
+    Next_Year_Round['data_next_year_rd4'] = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD4')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
-    data_next_year_rd5 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD5')][[
+    Next_Year_Round['data_next_year_rd5'] = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD5')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
-    data_next_year_rd6 = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
+    Next_Year_Round['data_next_year_rd6'] = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
     # Order of Entry Table
@@ -5996,7 +5986,7 @@ def Get_Rounds_Pick(request, pk):
     for teams in teamobj:
         Teamnames.append(teams['TeamNames'])
     data_order_of_entry = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
-        'TeamName_id', 'Overall_Pick', 'Club_Pick_Number']].sort_values(by='Overall_Pick')
+        'TeamName', 'Overall_Pick', 'Club_Pick_Number']].sort_values(by='Overall_Pick')
 
     # data_order_of_entry = pd.crosstab(data_order_of_entry.TeamName_id, data_order_of_entry.Club_Pick_Number, values=data_order_of_entry.Overall_Pick,aggfunc=sum)
 
@@ -6005,52 +5995,33 @@ def Get_Rounds_Pick(request, pk):
 
     # Draft Assets Graph - Bar Graph
 
-    my_dict = {}
+    _dict = {}
     graph_list = []
     data_draft_assets_graph = df.groupby(['Current_Owner_Short_Name', 'Year'])[
         'AFL_Points_Value'].sum()
     dict = data_draft_assets_graph.items()
     for data in dict:
 
-        my_dict['shortname'] = list(data).pop(0)[0]
-        my_dict['Year'] = list(data).pop(0)[1]
-        my_dict['AFL_POINTS'] = list(data).pop(1)
-        graph_list.append(my_dict)
+        _dict['shortname'] = list(data).pop(0)[0]
+        _dict['Year'] = list(data).pop(0)[1]
+        _dict['AFL_POINTS'] = list(data).pop(1)
+        graph_list.append(_dict)
 
     ##### Full List of Draft Picks #####
 
-    data_full_masterlist = df[['Year', 'Draft_Round', 'Overall_Pick', 'TeamName_id',
-                               'PickType', 'Original_Owner_id', 'Current_Owner_id', 'Previous_Owner_id', 'AFL_Points_Value', 'Club_Pick_Number']]
+    data_full_masterlist = df[['Year', 'Draft_Round', 'Overall_Pick', 'TeamName',
+                               'PickType', 'Original_Owner', 'Current_Owner', 'Previous_Owner', 'AFL_Points_Value', 'Club_Pick_Number']]
 
     dict = data_full_masterlist.items()
     data_full_list = list(dict)
     data_full_masterlist_array = np.array(data_full_list, dtype=object)
-
-    Current_Year_Round = {
-
-        'data_current_year_rd1': data_current_year_rd1,
-        'data_current_year_rd2': data_current_year_rd2,
-        'data_current_year_rd3': data_current_year_rd3,
-        'data_current_year_rd4': data_current_year_rd4,
-        'data_current_year_rd5': data_current_year_rd5,
-        'data_current_year_rd6': data_current_year_rd6
-    }
-
-    Next_Year_Round = {
-        'data_next_year_rd1': data_next_year_rd1,
-        'data_next_year_rd2': data_next_year_rd2,
-        'data_next_year_rd3': data_next_year_rd3,
-        'data_next_year_rd4': data_next_year_rd4,
-        'data_next_year_rd5': data_next_year_rd5,
-        'data_next_year_rd6': data_next_year_rd6
-    }
 
     return Response({'Current_Year_Round': Current_Year_Round, 'Next_Year_Round': Next_Year_Round, 'data_order_of_entry_dict': data_order_of_entry_dict, 'data_full_masterlist_array': data_full_masterlist_array, 'graph_list': graph_list}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def MakeCompanyRequest(request):
+def CreateCompany(request):
 
     Company_obj = request.data
     serializer = MakeCompanySerializer(data=Company_obj)
@@ -6099,8 +6070,7 @@ def add_father_son_input(request):
     data = request.data
     fs_player = data.get('player')
     fs_team = data.get('teamid')
-    fs_team = data.get('pickid')
-
+    fs_bid = data.get('pickid')
     return fs_player, fs_team, fs_bid
 
 
@@ -6125,7 +6095,6 @@ def add_father_son(request, pk):
     for query in queryset:
         list.append(query['Display_Name_Detailed'])
     fs_pick = "".join(list)
-    df.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
 
     fs_pts_value = df.loc[df.Display_Name_Detailed ==
                           fs_pick, 'AFL_Points_Value'].iloc[0]
