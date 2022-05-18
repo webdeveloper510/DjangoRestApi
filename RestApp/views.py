@@ -562,7 +562,7 @@ def add_trade_v2_request(request, pk):
     # players_trading_out_team1_no = data['Team1_Players_no']
     players_trading_out_team1 = data.get('Team1_players') or ''
     picks_trading_out_team2_obj = data.get('Team2_Pick2')
-    # players_trading_out_team2 = data['Team2_players'] or ''
+    players_trading_out_team2 = data.get('Team2_players') or ''
     picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
 
     team1obj = Teams.objects.get(id=team1)
