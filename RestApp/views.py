@@ -78,21 +78,22 @@ pd.set_option('display.max_columns', 500)
 unique_id = uuid.uuid4().hex[:6].upper()
 
 
-class CreateUserAPIView(APIView):
-    # Allow any user (authenticated or not) to access this url
-    def has_permission(self, request, view):
-        return request.method in SAFE_METHODS
+# class CreateUserAPIView(APIView):
+# Allow any user (authenticated or not) to access this url
+# def has_permission(self, request, view):
+#     return request.method in SAFE_METHODS
+@api_view(['POST'])
+@permission_classes([AllowAny, ])
+def CreateUserAPIView(request):
+    C_Name = Company.objects.filter().values('id', 'Name')
+    user = request.data
+    serializer = UserSerializer(data=user)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    last_inserted_id = serializer.data['id']
 
-    def post(self, request):
-        C_Name = Company.objects.filter().values('id', 'Name')
-        user = request.data
-        serializer = UserSerializer(data=user)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        last_inserted_id = serializer.data['id']
-
-        User.objects.filter(id=last_inserted_id).update(uui=unique_id)
-        return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
+    User.objects.filter(id=last_inserted_id).update(uui=unique_id)
+    return Response({'success': 'User Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
 def dataframerequest(request, pk):
@@ -142,6 +143,11 @@ def current_user(request):
     return Response(serializer.data)
 
 
+def call_auth_user(user):
+    print('here', user)
+    return user
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def authenticate_user(request):
@@ -153,11 +159,10 @@ def authenticate_user(request):
         if user:
             request.session['userId'] = user[0].id
             try:
-                token = jwt.encode({'unique_Id': user[0].uui}, SECRET_KEY)
-                payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
                 user_details = {}
                 user_details['username'] = user[0].username
-                user_details['token'] = token
+                call_auth_user(user)
+                # user_details['token'] = token
                 f = open('RestApp/userfile.py', 'w')
                 testfile = File(f)
                 testfile.write(str(user[0].id))
@@ -313,12 +318,13 @@ def CreateMasterListRequest(request, pk):
                     updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
 
                 row1['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
+                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
+                    ' ' + str(Overall_pickk)
 
                 row1['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
                     previous_owner + team.ShortName + \
                     ')' if Original_Owner != Current_Ownerr else team.ShortName
-            
+
                 row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
                     previous_owner + team.ShortName + \
                     ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -1035,7 +1041,8 @@ def PriorityPickrRequest(request):
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(academy_dict['Display_Name'])
 
         academy_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
+            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
+            ' ' + str(Overall_pickk)
 
         academy_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
@@ -1412,9 +1419,9 @@ def add_priority_pick_v2(request, pk):
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(pp_dict['Display_Name'])
 
         pp_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
+            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
+            ' ' + str(Overall_pickk)
 
-    
         pp_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -1849,7 +1856,8 @@ def AcademyBidRequest(request, pk):
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
 
         row1['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
+            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
+            ' ' + str(Overall_pickk)
 
         row1['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
@@ -2309,7 +2317,8 @@ def academy_bid_v2(request, pk):
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(academy_dict['Display_Name'])
 
         academy_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
+            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
+            ' ' + str(Overall_pickk)
 
         academy_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
@@ -2747,7 +2756,8 @@ def add_FA_compansation(request, pk):
         row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
         row1['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
+            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
+            ' ' + str(Overall_pickk)
 
         row1['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
@@ -2874,9 +2884,9 @@ def add_FA_compensation_v2(request, pk):
 
         # Update transactions
         fa_round = 'RD1'
-        # fa_aligned_pick = ''
-        # fa_unique_pick = ''
-        # fa_insert_instructions = ''
+        fa_aligned_pick = ''
+        fa_unique_pick = ''
+        fa_insert_instructions = ''
         fa_dict = {}
         fa_dict['fa_team'] = [fa_pick_type, fa_round, reason,
                               fa_aligned_pick, fa_unique_pick, fa_insert_instructions]
@@ -3168,7 +3178,8 @@ def add_FA_compensation_v2(request, pk):
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(FA_v2_data['Display_Name'])
 
         FA_v2_data['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
+            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
+            ' ' + str(Overall_pickk)
 
         FA_v2_data['Display_Name_Short'] = str(Overall_pickk) + '  ' + str(Current_Ownerr) + ' (Origin: ' + str(Original_Owner) + ', Via: ' + \
             previous_owner + team.ShortName + \
@@ -3329,7 +3340,8 @@ def manual_pick_move(request, pk):
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(manualpickmove_dict['Display_Name'])
 
         manual_move_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
+            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
+            ' ' + str(Overall_pickk)
 
         manualpickmove_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
@@ -3433,12 +3445,9 @@ def Visualisations(request, pk):
     if players.empty:
         pass
     else:
-        data_dashboard_draftboard = {}
-        data_dashboard_draftboard = players[[
+        data_dashboard_draftboard_dict = {}
+        data_dashboard_draftboard_dict['data_dashboard_draftboard'] = players[[
             'FirstName', 'LastName', 'Position_1', 'Rank']].sort_values(by='Rank', ascending=True)
-        data_dashboard_draftboard = {
-            'data_dashboard_draftboard': data_dashboard_draftboard
-        }
 # Dashboard Page trade Offers
     if trades.empty:
         pass
@@ -3563,8 +3572,8 @@ def Visualisations(request, pk):
     data_menu_bar_picks['data_menu_bar_picks'] = masterlist.groupby('Current_Owner_Short_Name')[
         'Display_Name_Detailed'].agg(list).to_dict()
     array = [data_current_year_club_picks, data_next_year_club_picks, data_dashboard_draftboard, data_dashboard_trade_offers, data_transaction_list, current_year_round_dict, next_year_round_dict,
-             data_order_of_entry, data_order_of_entry, data_full_masterlist, data_trade_offers, data_completed_trades, draft_player_dict, comparison_1_club_picks_dict, data_menu_bar_picks]
-    return Response({'response':array}, status.HTTP_201_CREATED)
+             data_order_of_entry, data_full_masterlist, data_trade_offers, data_completed_trades, draft_player_dict, comparison_1_club_picks_dict, data_menu_bar_picks]
+    return Response({'response': array}, status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -3727,7 +3736,8 @@ def add_trade_v3(request, pk):
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(trade_dict['Display_Name'])
 
         trade_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
+            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
+            ' ' + str(Overall_pickk)
 
         trade_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
@@ -4050,7 +4060,8 @@ def update_ladder(request, pk):
             update_ladder_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
                 updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(update_ladder_dict['Display_Name'])
             update_ladder['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
+                None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
+                ' ' + str(Overall_pickk)
 
             update_ladder_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
                 previous_owner + team.ShortName + \
@@ -4116,7 +4127,7 @@ def add_potential_trade(request, pk):
     pick_trading_out_list = []
     pick_trading_in_list = []
 
-    Trading_Out_Num_len = int(Trading_Out_Num)
+    Trading_Out_Num_int = int(Trading_Out_Num)
     Trading_In_Num = int(Trading_Out_Num_Player)
     Trading_In_Num_Player_Num = int(Trading_In_Num_Player)
     # pick_in_id = masterlist.loc[masterlist.Display_Name_Detailed == pick_trading_in, 'Unique_Pick_ID'].iloc[0]
@@ -4135,7 +4146,7 @@ def add_potential_trade(request, pk):
     pick_trading_in = "".join(pick_trading_in_list)
 
     if Trading_Out_Num is not None:
-        for i in range(Trading_Out_Num_len):
+        for i in range(Trading_Out_Num_int):
 
             points_trading_out = masterlist.loc[masterlist.Display_Name_Detailed ==
                                                 pick_trading_out, 'AFL_Points_Value'].iloc[0]
@@ -4189,13 +4200,6 @@ def add_potential_trade(request, pk):
 
     # print("You will be trading out " + str(total_points_out) + "pts out and receiving " + str(total_points_in) + "pts in.")
     total_points_diff = total_points_in - total_points_out
-    Trading_In_Simple_str = "".join(Trading_In_Simple)
-    Trading_In_Out_str = "".join(Trading_Out_Simple)
-    Trading_In_str = "".join(Trading_In)
-    Trading_Out_list = []
-    for trade_out_data in Trading_Out:
-        Trading_Out_list.append(trade_out_data)
-    Trading_Out_as_str = "".join(Trading_Out_list)
 
     trades = pd.DataFrame({'Trade_Partner': Trade_Partner, 'Trading_Out': [Trading_Out_Simple], 'Trading_In': [Trading_In_Simple],
                            'Points_Out': total_points_out, 'Points_In': total_points_in,  'Points_Diff': total_points_diff,  'Notes': notes, 'System_Out': [Trading_Out], 'System_In': [Trading_In]}, index=[0])
@@ -4736,7 +4740,8 @@ def add_nga_bid(request, pk):
             nga_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
                 updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(nga_dict['Display_Name'])
             nga_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
+                None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
+                ' ' + str(Overall_pickk)
 
             nga_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
                 previous_owner + team.ShortName + \
@@ -4874,7 +4879,8 @@ def add_draft_night_selection(request, pk):
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(draft_night_dict['Display_Name'])
 
         draft_night_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
+            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
+            ' ' + str(Overall_pickk)
 
         draft_night_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
@@ -5019,7 +5025,8 @@ def AddManualRequest(request, pk):
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(manual_dict['Display_Name'])
 
         manual_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
+            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
+            ' ' + str(Overall_pickk)
 
         manual_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
@@ -5429,7 +5436,7 @@ def quick_academy_calculator(request, pk):
     # ##############  Abhishek Code end ##########################
 
 
-def ConstraintsRquest_inputs(request, pk):
+def Get_Constraints_inputs(request, pk):
 
     loggeduser_id = ''
     f = open('RestApp/userfile.py', 'r')
@@ -5447,6 +5454,7 @@ def ConstraintsRquest_inputs(request, pk):
     number_possible_solutions = 15
     #### Draft Picks to Be Traded Out ####
     # Constraint 1 - Which exact Picks to include (Display_Name_Detailed)
+
     c1_title = "Picks to include in trade? (leave blank for any)"
     c1_type = "Fixed"
     c1_set = []
@@ -5537,7 +5545,7 @@ def data_trade_suggestion(result_df):
 @permission_classes([AllowAny])
 def trade_optimiser_algorithm(request, pk):
 
-    number_possible_solutions, c1_type, c1_set, c2_type, c2_set, c3_type, c3_set, c4_type, c4_set, c5_type, c5_set, c6_type, c6_set, c7_type, c7_set, c8_type, c8_set, c9_type, c9_set, c10_type, c10_set, c11_type, c11_set, c12_type, c12_set, c13_type, c13_set, c14_type, c14_set, v_team_name, masterlist = ConstraintsRquest_inputs(
+    number_possible_solutions, c1_type, c1_set, c2_type, c2_set, c3_type, c3_set, c4_type, c4_set, c5_type, c5_set, c6_type, c6_set, c7_type, c7_set, c8_type, c8_set, c9_type, c9_set, c10_type, c10_set, c11_type, c11_set, c12_type, c12_set, c13_type, c13_set, c14_type, c14_set, v_team_name, masterlist = Get_Constraints_inputs(
         request, pk)
 
     results_df = pd.DataFrame(columns=[])
@@ -5845,7 +5853,9 @@ def trade_optimiser_algorithm(request, pk):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def ConstraintsRquest(request, pk):
+
     loggeduser_id = ''
+
     f = open('RestApp/userfile.py', 'r')
 
     if f.mode == 'r':
@@ -5856,44 +5866,30 @@ def ConstraintsRquest(request, pk):
     v_team_name = Teamobj.id
 
     df = dataframerequest(request, pk)
+    my_dict = {}
 
-    constraints_1 = df[df['Current_Owner_id'] ==
-                       v_team_name]['Display_Name_Detailed'].tolist()
-    constraints_2 = df[df['Current_Owner_id'] ==
-                       v_team_name]['Year'].unique().tolist()
-    constraints_3 = df[df['Current_Owner_id'] ==
-                       v_team_name]['Draft_Round'].unique().tolist()
-    constraints_4 = [0]
-    constraints_5 = [99999999]
-    constraints_6 = df[df['Current_Owner_id'] !=
-                       v_team_name]['Current_Owner_id'].unique().tolist()
-    constraints_7 = df[df['Current_Owner_id'] !=
-                       v_team_name]['Display_Name_Detailed'].unique().tolist()
-    constraints_8 = df[df['Current_Owner_id'] !=
-                       v_team_name]['Year'].unique().tolist()
-    constraints_9 = df[df['Current_Owner_id'] !=
-                       v_team_name]['Draft_Round'].unique().tolist()
-    constraints_10 = [0]
-    constraints_11 = [99999999]
-    constraints_12 = [0.10]
-    constraints_13 = [0]
-    constraints_14 = [10]
+    my_dict['constraints_1'] = df[df['Current_Owner'] ==
+                                  v_team_name]['Display_Name_Detailed'].tolist()
+    my_dict['constraints_2'] = df[df['Current_Owner'] ==
+                                  v_team_name]['Year'].unique().tolist()
+    my_dict['constraints_3'] = df[df['Current_Owner'] ==
+                                  v_team_name]['Draft_Round'].unique().tolist()
+    my_dict['constraints_4'] = [0]
+    my_dict['constraints_5'] = [99999999]
+    my_dict['constraints_6'] = df[df['Current_Owner'] !=
+                                  v_team_name]['Current_Owner'].unique().tolist()
+    my_dict['constraints_7'] = df[df['Current_Owner'] !=
+                                  v_team_name]['Display_Name_Detailed'].unique().tolist()
+    my_dict['constraints_8'] = df[df['Current_Owner'] !=
+                                  v_team_name]['Year'].unique().tolist()
+    my_dict['constraints_9'] = df[df['Current_Owner'] !=
+                                  v_team_name]['Draft_Round'].unique().tolist()
+    my_dict['constraints_10'] = [0]
+    my_dict['constraints_11'] = [99999999]
+    my_dict['constraints_12'] = [0.10]
+    my_dict['constraints_13'] = [0]
+    my_dict['constraints_14'] = [10]
 
-    my_dict = {"constraints_1": constraints_1,
-               "constraints_2": constraints_2,
-               "constraints_3": constraints_3,
-               "constraints_4": constraints_4,
-               'constraints_5': constraints_5,
-               'constraints_6': constraints_6,
-               'constraints_7': constraints_7,
-               'constraints_8': constraints_8,
-               'constraints_9': constraints_9,
-               'constraints_10': constraints_10,
-               'constraints_11': constraints_11,
-               'constraints_12': constraints_12,
-               'constraints_13': constraints_13,
-               'constraints_14': constraints_14,
-               }
     return Response(my_dict, status=status.HTTP_201_CREATED)
 
 
@@ -6476,7 +6472,8 @@ def add_father_son(request, pk):
         fs_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(fs_dict['Display_Name'])
         fs_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + ' ' + str(Overall_pickk)
+            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
+            ' ' + str(Overall_pickk)
 
         fs_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
@@ -6664,11 +6661,15 @@ def GETMasterListRequest(request, pk):
     offset = int(response['offset'])
     limit = 20
     Masterrecord = []
-    data_dict = MasterList.objects.filter(projectId=pk).values()[
+    data_dict = MasterList.objects.filter(projectid_id=pk).values()[
         offset:offset+limit]
-    data_count = MasterList.objects.filter(projectId=pk).values().count()
+
+    data_count = MasterList.objects.filter(projectid_id=pk).values().count()
+
     PagesCount = data_count/20
+
     Count = math.ceil(PagesCount)
+
     for masterlistdata in data_dict:
         TeamNamesList = Teams.objects.filter(
             id=masterlistdata['TeamName_id']).values('id', 'TeamNames', 'ShortName')
@@ -6677,10 +6678,13 @@ def GETMasterListRequest(request, pk):
         masterlistdata['TeamName_id'] = TeamNamesList[0].copy()
         masterlistdata['Original_Owner_id'] = NamesWithShortNames[0].copy()
         masterlistdata['Current_Owner_id'] = NamesWithShortNames[0].copy()
+
         ProjectQuery = Project.objects.filter(
-            id=masterlistdata['projectId_id']).values('id', 'project_name')
+            id=pk).values('id', 'project_name')
+
         masterlistdata['projectId_id'] = ProjectQuery[0].copy()
         Masterrecord.append(masterlistdata)
+
     return Response({'data': Masterrecord, 'PagesCount': Count}, status=status.HTTP_200_OK)
 
 
