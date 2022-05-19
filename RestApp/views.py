@@ -1410,7 +1410,7 @@ def add_priority_pick_v2(request, pk):
             None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
 
         pp_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
-            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(pp_dict['Display_Name'])
+                updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(pp_dict['Display_Name'])
 
         pp_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
             None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
@@ -3327,7 +3327,7 @@ def manual_pick_move(request, pk):
         manualpickmove_dict['Current_Owner'] = Current_Ownerr
         manualpickmove_dict['projectid'] = Project1
         manualpickmove_dict['Draft_Round_Int'] = Draft_Round_Int
-
+        print(Draft_round_Int)
         manualpickmove_dict['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
             None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
 
@@ -3345,7 +3345,7 @@ def manual_pick_move(request, pk):
         manualpickmove_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
-     
+        
         MasterList.objects.filter(
             id=iincreament_id).update(**manualpickmove_dict)
 
