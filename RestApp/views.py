@@ -3299,12 +3299,9 @@ def manual_pick_move(request, pk):
     # Change the draft round
     pick_destination_round_int = library_round_map.get(pick_destination_round)
 
-    # Make Changes
-    if pick_destination_round_int=='None':
-        pass
-    else:
 
-        df['Draft_Round_Int'].mask(df['Display_Name_Detailed'].astype(str) == str(pick_being_moved_val), pick_destination_round_int, inplace=True)
+
+    draft_round_int =df['Draft_Round_Int'].mask(df['Display_Name_Detailed'].astype(str) == str(pick_being_moved_val), pick_destination_round_int, inplace=True)
 
     df['Draft_Round'].mask(df['Display_Name_Detailed'] ==
                            pick_being_moved_val, pick_destination_round, inplace=True)
@@ -3331,6 +3328,8 @@ def manual_pick_move(request, pk):
         manualpickmove_dict['Original_Owner'] = Original_Owner
         manualpickmove_dict['Current_Owner'] = Current_Ownerr
         manualpickmove_dict['projectid'] = Project1
+
+        manualpickmove_dict['Draft_Round_Int'] if manualpickmove_dict['Draft_Round_Int'] == draft_round_int else manualpickmove_dict =''
  
 
         manualpickmove_dict['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
