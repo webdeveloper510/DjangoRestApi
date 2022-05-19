@@ -159,10 +159,12 @@ def authenticate_user(request):
         if user:
             request.session['userId'] = user[0].id
             try:
+                token = jwt.encode({'unique_Id': user[0].uui}, SECRET_KEY)
+                payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
                 user_details = {}
                 user_details['username'] = user[0].username
                 call_auth_user(user)
-                # user_details['token'] = token
+                user_details['token'] = token
                 f = open('RestApp/userfile.py', 'w')
                 testfile = File(f)
                 testfile.write(str(user[0].id))
