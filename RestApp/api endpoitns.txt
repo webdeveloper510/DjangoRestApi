@@ -267,11 +267,11 @@ Priority pick v2
 manual pick move
 
 {
-   "teamid":"2",
+   "teamid":"3",
    "reason":"testing",
-   "round":"RD2",
-   "pick_being_moved":"2",
-   "pick_moved_to":"3",
+   "round":"RD3",
+   "pick_being_moved":"3",
+   "pick_moved_to":"4",
    "instructions":"Before"
 }
 
