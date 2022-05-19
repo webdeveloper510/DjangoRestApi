@@ -8,7 +8,7 @@ from .views import (
     AddManualRequest,
     authenticate_user,
     LocalLadderRequest,
-    ProjNameDescRequest,
+    Create_Project,
     CreateMasterListRequest,
     update_masterlist,
     GETMasterListRequest,
@@ -16,7 +16,7 @@ from .views import (
     DeleteMasterListRequest,
     DeleteLocalLadderRequest,
     DeleteProjectRequest,
-    MakeCompanyRequest,
+    CreateCompany,
     AddTeamRequest,
     CompanyListRequest,
     UserListRequest,
@@ -59,19 +59,20 @@ from .views import (
     update_ladder,
     add_draftee_player,
     update_potential_trade,
-    Visualisations
+    Visualisations,
+    ConstraintsRquest
 )
 
 urlpatterns = [
 
     # ############# POST URl"S ##########################
-    re_path(r'^create-User/$', CreateUserAPIView.as_view()),
+    re_path(r'^create-User/$', CreateUserAPIView),
     re_path(r'^Auth/$', authenticate_user),
-    re_path(r'^CreateProject/$', ProjNameDescRequest),
+    re_path(r'^CreateProject/$', Create_Project),
     re_path(r'^LocalLadder/$', LocalLadderRequest),
     re_path(r'^MasterList/$', CreateMasterListRequest),
     #re_path(r'^Add-Trade/$', AddTradeRequest),
-    re_path(r'^MakeCompany/$', MakeCompanyRequest),
+    re_path(r'^MakeCompany/$', CreateCompany),
     re_path(r'^add_trade_v2/(?P<pk>[0-9]+)$', add_trade_v2_request),
     re_path(r'^Priority-Pick/$', PriorityPickrRequest),
     re_path(r'^Academy-Bid/(?P<pk>[0-9]+)$', AcademyBidRequest),
@@ -87,9 +88,11 @@ urlpatterns = [
     re_path(r'^add_trade_v3/(?P<pk>[0-9]+)$', add_trade_v3),
     re_path(r'^add_priority_pick_v2/(?P<pk>[0-9]+)$', add_priority_pick_v2),
     re_path(r'^manual_pick_move/(?P<pk>[0-9]+)$', manual_pick_move),
-    re_path(
+    re_path( 
         r'^quick_academy_calculator/(?P<pk>[0-9]+)$', quick_academy_calculator),
-    re_path(r'^Constraint/(?P<pk>[0-9]+)$', trade_optimiser_algorithm),
+    re_path(r'^trade-alogrithm/(?P<pk>[0-9]+)$', trade_optimiser_algorithm),
+    re_path(r'^Constraint/(?P<pk>[0-9]+)$', ConstraintsRquest),
+
     re_path(r'^update_ladder/(?P<pk>[0-9]+)$', update_ladder),
     re_path(r'^add-new-player/(?P<pk>[0-9]+)$', add_draftee_player),
     re_path(r'^update_potential_trade/(?P<pk>[0-9]+)$', update_potential_trade),
