@@ -343,7 +343,7 @@ def CreateMasterListRequest(request, pk):
 
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
-def ProjNameDescRequest(request):
+def Create_Project(request):
     Projectdata = request.data
     serializer = CreateProjectSerializer(data=Projectdata)
     serializer.is_valid(raise_exception=True)
@@ -543,7 +543,6 @@ def add_trade_v2_request(request, pk):
     team1_trades_picks = []
     team1_trades_players = []
 
-
     team2_trades_picks = []
     team2_trades_players = []
     team2_picks = []
@@ -554,16 +553,16 @@ def add_trade_v2_request(request, pk):
     data = request.data
     team1 = data.get('Team1')
     team2 = data.get('Team2')
-    picks_trading_out_team1_obj = data.get('Team1_Pick1')
 
+    picks_trading_out_team1_obj = data.get('Team1_Pick1')
     picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
     # picks_trading_out_team2_obj = data['Team2_Pick2']
-
-    # players_trading_out_team1_no = data['Team1_Players_no']
     players_trading_out_team1 = data.get('Team1_players') or ''
+
+    # picks_trading_out_team2 = data.get('Team2_Pick2')
     picks_trading_out_team2_obj = data.get('Team2_Pick2')
-    players_trading_out_team2 = data.get('Team2_players') or ''
     picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
+    players_trading_out_team2 = data.get('Team2_players') or ''
 
     team1obj = Teams.objects.get(id=team1)
     team1name = team1obj.TeamNames
@@ -571,7 +570,7 @@ def add_trade_v2_request(request, pk):
     team2obj = Teams.objects.get(id=team2)
     team2name = team2obj.TeamNames
 
-    picks_trading_out_team2 = picks_trading_out_team2_obj
+    picks_trading_out_team2 = picks_trading_out_team2
     team2picks = ''
     Masterlistobj = MasterList.objects.filter(
         id=picks_trading_out_team2).values()
@@ -588,7 +587,7 @@ def add_trade_v2_request(request, pk):
                                 == team1]['Display_Name_Detailed'].tolist()
         for i in range(picks_trading_out_team1_len):
             pick_trading_out_team1 = masterlist[masterlist['id'].astype(int) == int(
-                picks_trading_out_team1_obj)]['Display_Name_Detailed'].tolist()
+                picks_trading_out_team1)]['Display_Name_Detailed'].tolist()
             team1_trades_picks.append(pick_trading_out_team1)
     else:
         pass
@@ -610,7 +609,7 @@ def add_trade_v2_request(request, pk):
 
         for i in range(picks_trading_out_team2_len):
             pick_trading_out_team2 = masterlist[masterlist['id'].astype(int) == int(
-                picks_trading_out_team2_obj)]['Display_Name_Detailed'].tolist()
+                picks_trading_out_team2)]['Display_Name_Detailed'].tolist()
             team2_trades_picks.append(pick_trading_out_team2)
     else:
         pass
@@ -4844,13 +4843,6 @@ def add_draft_night_selection(request, pk):
 
     # df = dataframerequest(request,pk)
 
-    masterlist.rename(
-        columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
-    masterlist.rename(
-        columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
-    masterlist.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
-    masterlist.rename(
-        columns={'Previous_Owner_id': 'Previous_Owner'}, inplace=True)
     updatedf = update_masterlist(masterlist)
 
     iincreament_id = 1
@@ -4899,22 +4891,22 @@ def add_draft_night_selection(request, pk):
         ' have selected ' + str(player_taken)
     Projobj = Project.objects.get(id=pk)
     Proj_id = Projobj.id
-    obj = Transactions.objects.latest('id')
-    drafted_player_transaction_details = (
-        {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'Drafted_Player',
-         'Transaction_Details': 'Drafted_Player',
-         'Transaction_Description': drafted_description,
-         'projectId': obj.id
-         })
+
     Transactions.objects.create(
         Transaction_Number='',
         Transaction_DateTime=current_time,
         Transaction_Type='Manual_Insert',
         Transaction_Details=drafted_player_dict,
         Transaction_Description=drafted_description,
-        projectId=obj.id
-
+        projectId=Proj_id
     )
+    obj = Transactions.objects.latest('id')
+    drafted_player_transaction_details = (
+        {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'Drafted_Player',
+         'Transaction_Details': 'Drafted_Player',
+         'Transaction_Description': drafted_description,
+         'projectId': Proj_id
+         })
     Transactions.objects.filter(id=obj.id).update(Transaction_Number=obj.id)
     call_add_draft_night_selection(drafted_player_transaction_details)
     return Response({'success': "Add-draft-Night-Selection created successfully"}, status=status.HTTP_201_CREATED)

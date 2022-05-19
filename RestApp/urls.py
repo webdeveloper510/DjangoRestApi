@@ -8,7 +8,7 @@ from .views import (
     AddManualRequest,
     authenticate_user,
     LocalLadderRequest,
-    ProjNameDescRequest,
+    Create_Project,
     CreateMasterListRequest,
     update_masterlist,
     GETMasterListRequest,
@@ -68,7 +68,7 @@ urlpatterns = [
     # ############# POST URl"S ##########################
     re_path(r'^create-User/$', CreateUserAPIView),
     re_path(r'^Auth/$', authenticate_user),
-    re_path(r'^CreateProject/$', ProjNameDescRequest),
+    re_path(r'^CreateProject/$', Create_Project),
     re_path(r'^LocalLadder/$', LocalLadderRequest),
     re_path(r'^MasterList/$', CreateMasterListRequest),
     #re_path(r'^Add-Trade/$', AddTradeRequest),
