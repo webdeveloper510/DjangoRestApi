@@ -143,11 +143,6 @@ def current_user(request):
     return Response(serializer.data)
 
 
-def call_auth_user(user):
-    print('here', user)
-    return user
-
-
 @api_view(['POST'])
 @permission_classes([AllowAny, ])
 def authenticate_user(request):
@@ -163,7 +158,6 @@ def authenticate_user(request):
                 payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
                 user_details = {}
                 user_details['username'] = user[0].username
-                call_auth_user(user)
                 user_details['token'] = token
                 f = open('RestApp/userfile.py', 'w')
                 testfile = File(f)
@@ -3253,7 +3247,7 @@ def manual_pick_move(request, pk):
     masterlist, pick_move_team, reason, pick_being_moved_val, pick_destination_round, pick_destination_val, pick_move_insert_instructions, pick_being_moved_unique_pick, pick_destination_unique_pick = manual_pick_move_inputs(
         request, pk)
     df = masterlist
-
+    manual_move_dict= {}
     current_date = date.today()
     v_current_year = current_date
 
