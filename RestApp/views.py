@@ -3329,19 +3329,13 @@ def manual_pick_move(request, pk):
         manualpickmove_dict['Original_Owner'] = Original_Owner
         manualpickmove_dict['Current_Owner'] = Current_Ownerr
         manualpickmove_dict['projectid'] = Project1
-<<<<<<< HEAD
-=======
 
-<<<<<<< HEAD
-        manualpickmove_dict['Draft_Round_Int'] if manualpickmove_dict['Draft_Round_Int'] == draft_round_int else manualpickmove_dict =''
+
  
->>>>>>> 93d11df755bf330634afe58add65bf2d248f89eb
-=======
         if manualpickmove_dict['Draft_Round_Int'] ==  None:
             manualpickmove_dict['Draft_Round_Int'] = ''
         else:
             pass 
->>>>>>> 677979f9f0ddd6253e1fe24c16238c6577252fba
 
         manualpickmove_dict['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
             None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
