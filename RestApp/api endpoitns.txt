@@ -125,8 +125,8 @@ AcademyBid
 AcademyBid inputs
 
 {
-   "player":"test",
-   "team":"2",
+   "playerid":"test",
+   "teamid":"2",
    "pickid":"2"
 }
 
@@ -154,7 +154,7 @@ Add FA compansation inputs
    "teamid":"3",
    "pickid":"3",
    "reason":"testing",
-   "type":"End of First Round",
+   "picktype":"End of First Round",
    "instructions":"Before"
 }
 
@@ -227,7 +227,7 @@ update Trade Potential
 add father son
 
 {
-   "player":"1",
+   "playerid":"1",
    "teamid":"2",
    "pickid":"2"
 }
@@ -279,10 +279,10 @@ manual pick move
 quick academy bid calculator
 
 {
-"academy_team":"5",
+"academy_team_id":"5",
 "academy_pick_type":"1",
 "academy_bid":"5",
-"player":"1"
+"playerid":"1"
 }
 
 

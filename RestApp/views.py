@@ -1454,6 +1454,14 @@ def add_priority_pick_v2(request, pk):
 
     return Response({'success': 'Academy-Bid-v2 has been Created'}, status=status.HTTP_201_CREATED)
 
+def academy_bid_inputs(request):
+
+    data = request.data
+    academy_player = data.get('playerid')
+    teamid = data.get('teamid')
+    pick_id = data.get('pickid')
+    return academy_player,teamid,pick_id
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -1464,6 +1472,11 @@ def AcademyBidRequest(request, pk):
     v_current_year_plus1 = v_current_year+1
 
     df = dataframerequest(request, pk)
+    academy_player,teamid,pick_id=academy_bid_inputs()
+    teamQurerySet = Teams.objects.filter(id=teamid).values('id', 'TeamNames')
+    academy_team = teamQurerySet[0]['TeamNames']
+    academy_team_id = teamQurerySet[0]['id']
+    academy_pick_type = 'Academy Bid Match'
 
     transactions = []
 
@@ -1475,21 +1488,6 @@ def AcademyBidRequest(request, pk):
 
     df_original = df.copy()
     df2_original = df2.copy()
-
-    data = request.data
-
-    academy_player = data.get('player')
-
-    teamid = data.get('team')
-
-    teamQurerySet = Teams.objects.filter(id=teamid).values('id', 'TeamNames')
-
-    academy_team = teamQurerySet[0]['TeamNames']
-    academy_team_id = teamQurerySet[0]['id']
-
-    academy_pick_type = 'Academy Bid Match'
-
-    pick_id = data['pickid']
 
     PickQueryset = MasterList.objects.filter(
         id=pick_id).values('Display_Name_Detailed')
@@ -2378,12 +2376,12 @@ def academy_bid_v2(request, pk):
     return Response({'success': 'Academy-Bid-v2 has been Created'}, status=status.HTTP_201_CREATED)
 
 
-def add_FA_compansation_request(request):
+def add_FA_compansation_inputs(request):
 
     data = request.data
     fa_team = data.get('teamid')
     reason = data.get('reason')
-    types = data.get('type')
+    types = data.get('picktype')
     pickId = data.get('pickid')
     fa_insert_instructions = data.get('instructions')
     return fa_team, reason, types, pickId, fa_insert_instructions
@@ -2399,7 +2397,7 @@ def add_FA_compansation(request, pk):
     fa_round = ''
 
     df = dataframerequest(request, pk)
-    fa_team, reason, types, pickId, fa_insert_instructions = add_FA_compansation_request(
+    fa_team, reason, types, pickId, fa_insert_instructions = add_FA_compansation_inputs(
         request)
 
     fa_team_name = []
@@ -3240,12 +3238,12 @@ def manual_pick_move(request, pk):
     masterlist, pick_move_team, reason, pick_being_moved_val, pick_destination_round, pick_destination_val, pick_move_insert_instructions, pick_being_moved_unique_pick, pick_destination_unique_pick = manual_pick_move_inputs(
         request, pk)
     df = masterlist
-    manual_move_dict = {}
-    current_date = date.today()
+    manual_move_dict = {}  
+    current_date = date.today() 
     v_current_year = current_date
 
     manual_pick_move_type = 'Manual Pick Move'
-    # Execute the Pick Move:
+    # Execute the Pick Move: 
 
     # Find row number of pick shuffled
     rowno_pick_being_moved = df.index[df.Display_Name_Detailed ==
@@ -3295,7 +3293,7 @@ def manual_pick_move(request, pk):
     draft_round_int = df['Draft_Round_Int'].mask(df['Display_Name_Detailed'].astype(
         str) == str(pick_being_moved_val), pick_destination_round_int, inplace=True)
 
-    df['Draft_Round'].mask(df['Display_Name_Detailed'] ==
+    df['Draft_Round'].mask(df['Display_Name_Detailed'] ==     
                            pick_being_moved_val, pick_destination_round, inplace=True)
     df['Pick_Group'].mask(df['Display_Name_Detailed'] == pick_being_moved_val, str(
         v_current_year) + '-RD' + pick_destination_round + '-ManualPickMove', inplace=True)
@@ -4807,7 +4805,7 @@ def add_nga_bid(request, pk):
             return Response({'success': 'success'}, status=status.HTTP_201_CREATED)
 
 
-def add_draft_night_selection_request(request):
+def add_draft_night_selection_inputs(request):
     data = request.data
     selected_pick_id = data.get('selected_pick_id')
     player_taken_id = data.get('player_taken_id')
@@ -4820,7 +4818,7 @@ def add_draft_night_selection(request, pk):
     masterlist = dataframerequest(request, pk)
     current_date = date.today()
     v_current_year = current_date.year
-    selected_pick_id, player_taken_id = add_draft_night_selection_request(
+    selected_pick_id, player_taken_id = add_draft_night_selection_inputs(
         request)
 
     pick_obj = MasterList.objects.get(id=selected_pick_id)
@@ -5024,9 +5022,9 @@ def AddManualRequest(request, pk):
         MasterList.objects.filter(id=iincreament_id).update(**manual_dict)
 
         iincreament_id += 1
-
-    manual_dict = {manual_team: [
-        manual_pick_type, manual_round, reason, manual_aligned_pick, manual_insert_unique_pick, manual_insert_instructions]}
+    manual_dictt={}
+    manual_dictt[manual_team] = [ 
+        manual_pick_type, manual_round, reason, manual_aligned_pick, manual_insert_unique_pick, manual_insert_instructions]
     manual_description = manual_team + ' received a ' + manual_pick_type + ' Pick'
 
     current_time = datetime.datetime.now(pytz.timezone(
@@ -5039,10 +5037,9 @@ def AddManualRequest(request, pk):
         Transaction_Number='',
         Transaction_DateTime=current_time,
         Transaction_Type='Manual_Insert',
-        Transaction_Details=manual_dict,
+        Transaction_Details=manual_dictt,
         Transaction_Description=manual_description,
         projectId=pk
-
     )
 
     obj = Transactions.objects.latest('id')
@@ -5051,6 +5048,13 @@ def AddManualRequest(request, pk):
     call_manual_insert(transaction_details)
     return Response({'success': 'Add Manual created Successfully'}, status=status.HTTP_201_CREATED)
 
+def quick_academy_calculator_inputs(request):
+    data = request.data
+    academy_team = data.get('academy_team_id')
+    academy_pick_type = data.get('academy_pick_type')
+    academy_bid = data.get('academy_bid')
+    academy_player = data.get('playerid')
+    return academy_team,academy_pick_type,academy_bid,academy_player
 
 def quick_academy_calculator(request, pk):
     current_date = date.today()
@@ -5062,14 +5066,10 @@ def quick_academy_calculator(request, pk):
     pick_suffled_df = df
     deficit_subset = df.copy()
     pick_deficit_details = []
-
+    academy_team,academy_pick_type,academy_bid,academy_player=quick_academy_calculator_inputs(request)
     library_AFL_Draft_Points = df['AFL_Points_Value']
 
-    data = request.data
-    academy_team = data.get('academy_team')
-    academy_pick_type = data.get('academy_pick_type')
-    academy_bid = data.get('academy_bid')
-    academy_player = data.get('player')
+  
     df.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
 
     academy_pick = df.loc[df.index.astype(int) == int(
@@ -6060,7 +6060,7 @@ def ProjPlayer(request, format=None):
 def add_father_son_input(request):
 
     data = request.data
-    fs_player = data.get('player')
+    fs_player = data.get('playerid')
     fs_team = data.get('teamid')
     fs_bid = data.get('pickid')
     return fs_player, fs_team, fs_bid
