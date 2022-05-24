@@ -3322,13 +3322,8 @@ def manual_pick_move(request, pk):
         manualpickmove_dict['Current_Owner'] = Current_Ownerr
         manualpickmove_dict['projectid'] = Project1
 
-<<<<<<< HEAD
-
- 
-        if manualpickmove_dict['Draft_Round_Int'] ==  None:
-=======
         if manualpickmove_dict['Draft_Round_Int'] == None:
->>>>>>> 6cde595852c01f94cf05e277eead68d715637a91
+
             manualpickmove_dict['Draft_Round_Int'] = ''
         else:
             pass
@@ -3350,11 +3345,7 @@ def manual_pick_move(request, pk):
         manualpickmove_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
-<<<<<<< HEAD
-        
-=======
-
->>>>>>> 6cde595852c01f94cf05e277eead68d715637a91
+    
         MasterList.objects.filter(
             id=iincreament_id).update(**manualpickmove_dict)
 
