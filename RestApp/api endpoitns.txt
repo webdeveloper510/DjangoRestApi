@@ -154,7 +154,7 @@ Add FA compansation inputs
    "teamid":"3",
    "pickid":"3",
    "reason":"testing",
-   "type":"Start of Second Round",
+   "type":"End of First Round",
    "instructions":"Before"
 }
 
@@ -194,7 +194,7 @@ Auth
 }
 
 
-add Manual
+add Manual insert
 
 {
  "pickid":"4",
