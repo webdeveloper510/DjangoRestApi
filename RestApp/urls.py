@@ -66,7 +66,7 @@ from .views import (
 urlpatterns = [
 
     # ############# POST URl"S ##########################
-    re_path(r'^create-User/$', CreateUserAPIView),
+    re_path(r'^create-User/$', CreateUserAPIView.as_view),
     re_path(r'^Auth/$', authenticate_user),
     re_path(r'^CreateProject/$', Create_Project),
     re_path(r'^LocalLadder/$', LocalLadderRequest),
@@ -99,9 +99,9 @@ urlpatterns = [
     re_path(r'^Visualisations/(?P<pk>[0-9]+)$', Visualisations),
 
     # #################### Update URL's #################
-
+  
     re_path(r'^(?P<pk>[0-9]+)$', update_masterlist),
-    re_path(r'^Add-Manual/(?P<pk>[0-9]+)$', AddManualRequest),
+    re_path(r'^Manual-pick-insert/(?P<pk>[0-9]+)$', AddManualRequest),
 
 
     # ####################### GET Urls's ################################
