@@ -1409,7 +1409,7 @@ def add_priority_pick_v2(request, pk):
             None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
 
         pp_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
-            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(pp_dict['Display_Name'])
+                updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(pp_dict['Display_Name'])
 
         pp_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
             None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
@@ -3289,6 +3289,7 @@ def manual_pick_move(request, pk):
     library_round_map = df['Draft_Round']
     # Change the draft round
     pick_destination_round_int = library_round_map.get(pick_destination_round)
+    
 
     draft_round_int = df['Draft_Round_Int'].mask(df['Display_Name_Detailed'].astype(
         str) == str(pick_being_moved_val), pick_destination_round_int, inplace=True)
@@ -3320,6 +3321,7 @@ def manual_pick_move(request, pk):
         manualpickmove_dict['projectid'] = Project1
 
         if manualpickmove_dict['Draft_Round_Int'] == None:
+
             manualpickmove_dict['Draft_Round_Int'] = ''
         else:
             pass
@@ -3341,7 +3343,7 @@ def manual_pick_move(request, pk):
         manualpickmove_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
-
+    
         MasterList.objects.filter(
             id=iincreament_id).update(**manualpickmove_dict)
 
