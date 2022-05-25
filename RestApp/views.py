@@ -6409,8 +6409,7 @@ def add_father_son(request, pk):
     df = df.iloc[rowno]
     df['id'] = rowno
     df['projectid_id'] = pk
-    print(rowno)
-    exit()
+   
     MasterList.objects.filter(id=rowno).update(**df)
 
     ########################## Called Update masterlist ###########################################
