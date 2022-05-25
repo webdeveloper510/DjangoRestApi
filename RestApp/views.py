@@ -709,7 +709,7 @@ def priority_pick_input_v1(request):
     p_type = data.get('pick_type')
     pp_id = data.get('ppid')
     project_Id = data.get('projectId')
-    pp_insert_instructions = data['pp_insert_instructions']
+    pp_insert_instructions = data.get('pp_insert_instructions')
 
     return pp_team_id, p_type, pp_id, project_Id, pp_insert_instructions, reason
 
@@ -1096,16 +1096,16 @@ def add_priority_pick_inputs(request, pk):
     # ask for extra details depending on pick type:
     if pp_pick_type == 'Custom Fixed Position':
 
-        pp_aligned_pick_id = data['pp_aligned_pick_id']
+        pp_aligned_pick_id = data.get('pp_aligned_pick_id')
         pp_pick_obj = MasterList.objects.filter(id=pp_aligned_pick_id).values()
         pp_aligned_pick = pp_pick_obj[0]['Display_Name_Detailed']
-        pp_insert_instructions = data['instructions']
+        pp_insert_instructions = data.get('instructions')
         pp_unique_pick = masterlist.loc[masterlist.Display_Name_Detailed ==
                                         pp_aligned_pick, 'Unique_Pick_ID'].iloc[0]
 
     if pp_pick_type == 'First Round' or pp_pick_type == 'Second Round' or pp_pick_type == 'Third Round':
 
-        pp_aligned_pick_id = data['pp_aligned_pick_id']
+        pp_aligned_pick_id = data.get('pp_aligned_pick_id')
         pp_pick_obj = MasterList.objects.filter(id=pp_aligned_pick_id).values()
         pp_aligned_pick = pp_pick_obj[0]['Display_Name_Detailed']
         pp_insert_instructions = data['instructions']
@@ -2483,7 +2483,7 @@ def add_FA_compansation(request, pk):
             df['projectid_id'] = pk
 
             MasterList.objects.filter(id=rowno+1).update(**df)
-
+ 
         fa_description = {}
         # Update Transactions List
         fa_dict[fa_team] = [fa_pick_type, fa_round, reason,
@@ -2741,6 +2741,7 @@ def add_FA_compansation(request, pk):
 
         row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
+
         row1['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
             None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
             ' ' + str(Overall_pickk)
@@ -2880,7 +2881,9 @@ def add_FA_compensation_v2(request, pk):
         MasterList.objects.filter(id=rowno).update(**df)
 
     if fa_pick_type == 'First Round':
-        # Make the changes to the masterlist:
+
+        # ///////////// Make the changes to the masterlist: /////////////////////////
+
         rowno = df.index[df['Display_Name_Detailed'] == fa_aligned_pick][0]
         fa_unique_pick = df.loc[df.Display_Name_Detailed ==
                                 fa_aligned_pick, 'Unique_Pick_ID'].iloc[0]
@@ -3296,8 +3299,10 @@ def manual_pick_move(request, pk):
 
     df['Draft_Round'].mask(df['Display_Name_Detailed'] ==     
                            pick_being_moved_val, pick_destination_round, inplace=True)
+                           
     df['Pick_Group'].mask(df['Display_Name_Detailed'] == pick_being_moved_val, str(
         v_current_year) + '-RD' + pick_destination_round + '-ManualPickMove', inplace=True)
+
     df['Reason'].mask(df['Display_Name_Detailed'] ==
                       pick_being_moved_val, reason, inplace=True)
 
@@ -6389,7 +6394,6 @@ def add_father_son(request, pk):
     # Make the changes to the masterlist:
 
     rowno = df.index[df['Display_Name_Detailed'] == fs_pick][0]
-
     # create the line to insert:
 
     line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fs_team), 'Position'].iloc[0], 'Year': v_current_year,
@@ -6405,7 +6409,8 @@ def add_father_son(request, pk):
     df = df.iloc[rowno]
     df['id'] = rowno
     df['projectid_id'] = pk
-
+    print(rowno)
+    exit()
     MasterList.objects.filter(id=rowno).update(**df)
 
     ########################## Called Update masterlist ###########################################

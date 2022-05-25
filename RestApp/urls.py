@@ -4,7 +4,7 @@ from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import (
-    # CreateUserAPIView,
+    CreateUserAPIView,
     AddManualRequest,
     authenticate_user,
     LocalLadderRequest,
@@ -65,7 +65,8 @@ from .views import (
 
 urlpatterns = [
 
-    # ############# POST URl"S ##########################
+    #  //////////////// POST URl"S ///////////////////////////
+
     re_path(r'^create-User/$', CreateUserAPIView.as_view),
     re_path(r'^Auth/$', authenticate_user),
     re_path(r'^CreateProject/$', Create_Project),
@@ -88,23 +89,24 @@ urlpatterns = [
     re_path(r'^add_trade_v3/(?P<pk>[0-9]+)$', add_trade_v3),
     re_path(r'^add_priority_pick_v2/(?P<pk>[0-9]+)$', add_priority_pick_v2),
     re_path(r'^manual_pick_move/(?P<pk>[0-9]+)$', manual_pick_move),
-    re_path( 
+    re_path(
         r'^quick_academy_calculator/(?P<pk>[0-9]+)$', quick_academy_calculator),
     re_path(r'^trade-alogrithm/(?P<pk>[0-9]+)$', trade_optimiser_algorithm),
     re_path(r'^Constraint/(?P<pk>[0-9]+)$', ConstraintsRquest),
 
     re_path(r'^update_ladder/(?P<pk>[0-9]+)$', update_ladder),
     re_path(r'^add-new-player/(?P<pk>[0-9]+)$', add_draftee_player),
-    re_path(r'^update_potential_trade/(?P<pk>[0-9]+)$', update_potential_trade),
+    re_path(
+        r'^update_potential_trade/(?P<pk>[0-9]+)$', update_potential_trade),
     re_path(r'^Visualisations/(?P<pk>[0-9]+)$', Visualisations),
 
-    # #################### Update URL's #################
-  
+    # //////////////////////// Update URL's ////////////////////////
+
     re_path(r'^(?P<pk>[0-9]+)$', update_masterlist),
     re_path(r'^Manual-pick-insert/(?P<pk>[0-9]+)$', AddManualRequest),
 
 
-    # ####################### GET Urls's ################################
+    # ///////////////////////// GET Urls's /////////////////////////////////#
 
     re_path(r'^ShowMasterList/(?P<pk>[0-9]+)$', GETMasterListRequest),
     re_path(r'^ShowProject/$', GETProjectRequest),
@@ -128,7 +130,7 @@ urlpatterns = [
     re_path(r'^Get-Flags/$', GetFlagsRequest),
 
 
-    # ################ Delete URL's ##########################
+    # ///////////////////////  Delete URL's /////////////////////////////////
     re_path(r'^Delete-Team/(?P<pk>[0-9]+)$', DeleteTeamRequest),
     re_path(r'^Delete-Company/(?P<pk>[0-9]+)$', DeleteCompanyRequest),
     re_path(r'^DeleteMasterList/(?P<pk>[0-9]+)$', DeleteMasterListRequest),
