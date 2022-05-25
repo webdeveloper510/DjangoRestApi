@@ -5414,7 +5414,7 @@ def quick_academy_calculator(request, pk):
          }
     )
 
-    lastinsertedobj = Transactions.object.latest('id')
+    lastinsertedobj = Transactions.objects.latest('id')
     last_inserted_id = lastinsertedobj.id
     Transactions.objects.filter(id=last_inserted_id).update(
         Transaction_Number=last_inserted_id)
