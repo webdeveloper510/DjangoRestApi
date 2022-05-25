@@ -137,13 +137,11 @@ Add trade v2
 
 
 {
- "Team1":"2",
- "Team1_Pick1":"2",
+ "teamid":"2",
+ "pick_type":"Start of Draft",
  "Team1_players":"1",
-
-  "Team2":"3",
-  "Team2_Pick2":"3",
-   "Team2_players":"1"
+ "reason":"testing",
+  "pp_aligned_pick_id":"3"
 }
 
 

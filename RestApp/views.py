@@ -1073,6 +1073,9 @@ def PriorityPickrRequest(request):
     return Response({'success': 'Priority Pick Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
+def call_priority_pick_v2(transactions):
+    return transactions
+    
 def add_priority_pick_inputs(request, pk):
 
     # Ask for Priority Pick Team
@@ -1114,9 +1117,6 @@ def add_priority_pick_inputs(request, pk):
                                         pp_aligned_pick, 'Unique_Pick_ID'].iloc[0]
     return pp_team, masterlist, pp_pick_type, reason, pp_aligned_pick, pp_unique_pick, pp_insert_instructions
 
-
-def call_priority_pick_v2(transactions):
-    return transactions
 
 
 @api_view(['POST'])
@@ -1452,7 +1452,7 @@ def add_priority_pick_v2(request, pk):
         Transaction_Number=last_inserted_id)
     call_priority_pick_v2(transaction_details)
 
-    return Response({'success': 'Academy-Bid-v2 has been Created'}, status=status.HTTP_201_CREATED)
+    return Response({'success': 'Add Trade has been Created'}, status=status.HTTP_201_CREATED)
 
 def academy_bid_inputs(request):
 
@@ -5063,6 +5063,8 @@ def quick_academy_calculator_inputs(request):
     academy_player = data.get('playerid')
     return academy_team,academy_pick_type,academy_bid,academy_player
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
 def quick_academy_calculator(request, pk):
     current_date = date.today()
     v_current_year = current_date.year
