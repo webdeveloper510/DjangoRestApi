@@ -72,7 +72,7 @@ class MasterList(models.Model):
     Display_Name_Mini = models.TextField()
     Current_Owner_Short_Name = models.CharField(max_length=100, default='')
     Pick_Status = models.TextField()
-    Selected_Player = models.TextField()
+    Selected_Player = models.CharField(max_length=100, default='')
     projectid = models.ForeignKey(
         Project, on_delete=models.CASCADE, default='')
 
