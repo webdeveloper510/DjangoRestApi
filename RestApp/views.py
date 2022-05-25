@@ -5114,7 +5114,8 @@ def quick_academy_calculator(request, pk):
             str(academy_pts_required) + ' draft points to match bid.'
 
     df_subset = df.copy()
-
+    print(academy_bid_pick_no)
+    exit()
     df_subset = df_subset[(df_subset.Current_Owner.astype(int) == int(academy_team)) & (df_subset.Year.astype(
         int) == int(v_current_year)) & (df_subset.Overall_Pick.astype(int) >= int(academy_bid_pick_no))]
 
