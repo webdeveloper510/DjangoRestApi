@@ -141,7 +141,7 @@ Add trade v2
  "pick_type":"Start of Draft",
  "Team1_players":"1",
  "reason":"testing",
-  "pp_aligned_pick_id":"3"
+  "pp_aligned_pick_id":"3",
 }
 
 
