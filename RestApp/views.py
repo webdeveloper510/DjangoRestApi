@@ -1075,7 +1075,8 @@ def PriorityPickrRequest(request):
 
 def call_priority_pick_v2(transactions):
     return transactions
-    
+
+
 def add_priority_pick_inputs(request, pk):
 
     # Ask for Priority Pick Team
@@ -1116,7 +1117,6 @@ def add_priority_pick_inputs(request, pk):
         pp_unique_pick = masterlist.loc[masterlist.Display_Name_Detailed ==
                                         pp_aligned_pick, 'Unique_Pick_ID'].iloc[0]
     return pp_team, masterlist, pp_pick_type, reason, pp_aligned_pick, pp_unique_pick, pp_insert_instructions
-
 
 
 @api_view(['POST'])
@@ -1409,7 +1409,7 @@ def add_priority_pick_v2(request, pk):
             None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
 
         pp_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
-                updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(pp_dict['Display_Name'])
+            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(pp_dict['Display_Name'])
 
         pp_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
             None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
@@ -1454,13 +1454,14 @@ def add_priority_pick_v2(request, pk):
 
     return Response({'success': 'Add Trade has been Created'}, status=status.HTTP_201_CREATED)
 
+
 def academy_bid_inputs(request):
 
     data = request.data
     academy_player = data.get('playerid')
     teamid = data.get('teamid')
     pick_id = data.get('pickid')
-    return academy_player,teamid,pick_id
+    return academy_player, teamid, pick_id
 
 
 @api_view(['POST'])
@@ -1472,7 +1473,7 @@ def AcademyBidRequest(request, pk):
     v_current_year_plus1 = v_current_year+1
 
     df = dataframerequest(request, pk)
-    academy_player,teamid,pick_id=academy_bid_inputs()
+    academy_player, teamid, pick_id = academy_bid_inputs()
     teamQurerySet = Teams.objects.filter(id=teamid).values('id', 'TeamNames')
     academy_team = teamQurerySet[0]['TeamNames']
     academy_team_id = teamQurerySet[0]['id']
@@ -2483,7 +2484,7 @@ def add_FA_compansation(request, pk):
             df['projectid_id'] = pk
 
             MasterList.objects.filter(id=rowno+1).update(**df)
- 
+
         fa_description = {}
         # Update Transactions List
         fa_dict[fa_team] = [fa_pick_type, fa_round, reason,
@@ -3241,12 +3242,12 @@ def manual_pick_move(request, pk):
     masterlist, pick_move_team, reason, pick_being_moved_val, pick_destination_round, pick_destination_val, pick_move_insert_instructions, pick_being_moved_unique_pick, pick_destination_unique_pick = manual_pick_move_inputs(
         request, pk)
     df = masterlist
-    manual_move_dict = {}  
-    current_date = date.today() 
+    manual_move_dict = {}
+    current_date = date.today()
     v_current_year = current_date
 
     manual_pick_move_type = 'Manual Pick Move'
-    # Execute the Pick Move: 
+    # Execute the Pick Move:
 
     # Find row number of pick shuffled
     rowno_pick_being_moved = df.index[df.Display_Name_Detailed ==
@@ -3292,14 +3293,13 @@ def manual_pick_move(request, pk):
     library_round_map = df['Draft_Round']
     # Change the draft round
     pick_destination_round_int = library_round_map.get(pick_destination_round)
-    
 
     draft_round_int = df['Draft_Round_Int'].mask(df['Display_Name_Detailed'].astype(
         str) == str(pick_being_moved_val), pick_destination_round_int, inplace=True)
 
-    df['Draft_Round'].mask(df['Display_Name_Detailed'] ==     
+    df['Draft_Round'].mask(df['Display_Name_Detailed'] ==
                            pick_being_moved_val, pick_destination_round, inplace=True)
-                           
+
     df['Pick_Group'].mask(df['Display_Name_Detailed'] == pick_being_moved_val, str(
         v_current_year) + '-RD' + pick_destination_round + '-ManualPickMove', inplace=True)
 
@@ -3348,7 +3348,7 @@ def manual_pick_move(request, pk):
         manualpickmove_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
-    
+
         MasterList.objects.filter(
             id=iincreament_id).update(**manualpickmove_dict)
 
@@ -5029,8 +5029,8 @@ def AddManualRequest(request, pk):
         MasterList.objects.filter(id=iincreament_id).update(**manual_dict)
 
         iincreament_id += 1
-    manual_dictt={}
-    manual_dictt[manual_team] = [ 
+    manual_dictt = {}
+    manual_dictt[manual_team] = [
         manual_pick_type, manual_round, reason, manual_aligned_pick, manual_insert_unique_pick, manual_insert_instructions]
     manual_description = manual_team + ' received a ' + manual_pick_type + ' Pick'
 
@@ -5055,13 +5055,15 @@ def AddManualRequest(request, pk):
     call_manual_insert(transaction_details)
     return Response({'success': 'Add Manual created Successfully'}, status=status.HTTP_201_CREATED)
 
+
 def quick_academy_calculator_inputs(request):
     data = request.data
     academy_team = data.get('academy_team_id')
     academy_pick_type = data.get('academy_pick_type')
     academy_bid = data.get('academy_bid')
     academy_player = data.get('playerid')
-    return academy_team,academy_pick_type,academy_bid,academy_player
+    return academy_team, academy_pick_type, academy_bid, academy_player
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -5075,10 +5077,10 @@ def quick_academy_calculator(request, pk):
     pick_suffled_df = df
     deficit_subset = df.copy()
     pick_deficit_details = []
-    academy_team,academy_pick_type,academy_bid,academy_player=quick_academy_calculator_inputs(request)
+    academy_team, academy_pick_type, academy_bid, academy_player = quick_academy_calculator_inputs(
+        request)
     library_AFL_Draft_Points = df['AFL_Points_Value']
 
-  
     df.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
 
     academy_pick = df.loc[df.index.astype(int) == int(
@@ -5114,9 +5116,14 @@ def quick_academy_calculator(request, pk):
             str(academy_pts_required) + ' draft points to match bid.'
 
     df_subset = df.copy()
+    if df_subset['Overall_Pick'].hasnans:
+        df_subset['Overall_Pick'] = ''
+    else:
+        df_subset = df_subset[(df.Current_Owner.astype(int) == int(academy_team)) & (df.Year.astype(
+                int) == int(v_current_year)) & (df.Overall_Pick >= academy_bid_pick_no)]
 
-    df_subset = df_subset[(df_subset.Current_Owner.astype(int) == int(academy_team)) & (df_subset.Year.astype(
-        int) == int(v_current_year)) & (df_subset.Overall_Pick.astype(int) >= int(academy_bid_pick_no))]
+    df_subset = df_subset[(df.Current_Owner.astype(int) == int(academy_team)) & (df.Year.astype(
+                int) == int(v_current_year)) & (df.Overall_Pick >= academy_bid_pick_no)]
 
     df_subset['Cumulative_Pts'] = df_subset.groupby(
         'Current_Owner')['AFL_Points_Value'].transform(pd.Series.cumsum)
@@ -5184,11 +5191,11 @@ def quick_academy_calculator(request, pk):
         df = df.reset_index(drop=True)
 
         # Find row number of pick lost
-        rowno_picklost = df.index[df.Display_Name_Detailed == pick][0]
-
+        rowno_picklost = df.index[df['Display_Name_Detailed'].astype(str) == str(pick)][0]
+    
         rowno_startnextyear = df.index[(df.Year.astype(int) == int(
-            v_current_year_plus1)) & (df.Overall_Pick.astype(int) == 1)]
-
+            v_current_year_plus1)) & (df.Overall_Pick.astype(int) == 1)][0]
+            
         df = pd.concat([df.iloc[rowno_startnextyear], df.iloc[[
                        rowno_picklost]], df.iloc[rowno_startnextyear]]).reset_index(drop=True)
 
@@ -6411,7 +6418,7 @@ def add_father_son(request, pk):
     df = df.iloc[rowno]
     df['id'] = rowno
     df['projectid_id'] = pk
-   
+
     MasterList.objects.filter(id=rowno).update(**df)
 
     ########################## Called Update masterlist ###########################################
