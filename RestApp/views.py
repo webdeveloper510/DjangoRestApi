@@ -5059,10 +5059,10 @@ def AddManualRequest(request, pk):
 def quick_academy_calculator_inputs(request):
     data = request.data
     academy_team = data.get('academy_team_id')
-    academy_pick_type = data.get('academy_pick_type')
+    academy_pick_type ='Academy Bid Match'
     academy_bid = data.get('academy_bid')
-    academy_player = data.get('playerid')
-    return academy_team, academy_pick_type, academy_bid, academy_player
+    academy_player = data.get('academy_player')
+    return academy_team, academy_pick_type, academy_bid,academy_player
 
 
 @api_view(['POST'])
@@ -5077,11 +5077,9 @@ def quick_academy_calculator(request, pk):
     pick_suffled_df = df
     deficit_subset = df.copy()
     pick_deficit_details = []
-    academy_team, academy_pick_type, academy_bid, academy_player = quick_academy_calculator_inputs(
+    academy_team, academy_pick_type, academy_bid,academy_player = quick_academy_calculator_inputs(
         request)
     library_AFL_Draft_Points = df['AFL_Points_Value']
-
-    df.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
 
     academy_pick = df.loc[df.index.astype(int) == int(
         academy_bid), 'Display_Name_Detailed'].iloc[0]
@@ -5107,29 +5105,32 @@ def quick_academy_calculator(request, pk):
 
     if academy_bid_round == 'RD1':
         academy_pts_required = float(academy_pts_value) * .8
-        sum_line2 = academy_team + ' will require ' + \
+        sum_line2 = academy_bid_teamname + ' will require ' + \
             str(academy_pts_required) + ' draft points to match bid.'
 
     else:
         academy_pts_required = float(academy_pts_value) - 197
-        sum_line2 = academy_team + ' will require ' + \
+        sum_line2 = academy_bid_teamname + ' will require ' + \
             str(academy_pts_required) + ' draft points to match bid.'
 
-    df_subset = df.copy()
-    if df_subset['Overall_Pick'].hasnans:
-        df_subset['Overall_Pick'] = ''
+    df_subset = dataframerequest(request, pk)
+    if df_subset['Overall_Pick'].isnull().any():
+        df_subset['Overall_Pick'] = 1
     else:
-        df_subset = df_subset[(df.Current_Owner.astype(int) == int(academy_team)) & (df.Year.astype(
-                int) == int(v_current_year)) & (df.Overall_Pick >= academy_bid_pick_no)]
 
-    df_subset = df_subset[(df.Current_Owner.astype(int) == int(academy_team)) & (df.Year.astype(
-                int) == int(v_current_year)) & (df.Overall_Pick >= academy_bid_pick_no)]
+        df_subset = df_subset[(df_subset.Current_Owner.astype(int) == int(academy_team)) & (df_subset.Year.astype(int) == int(v_current_year)) & (7 >= int(academy_bid_pick_no))]
+    
+    df_subset['Cumulative_Pts'] = df_subset.groupby('Current_Owner')['AFL_Points_Value'].transform(pd.Series.cumsum)
+    commulative_pts = df_subset['Cumulative_Pts']
 
-    df_subset['Cumulative_Pts'] = df_subset.groupby(
-        'Current_Owner')['AFL_Points_Value'].transform(pd.Series.cumsum)
+    df_subset['Payoff_Diff'] = ''
 
-    df_subset['Payoff_Diff'] = df_subset['Cumulative_Pts'].astype(
-        float) - academy_pts_required
+    if commulative_pts.isnull().any() == False:
+        df_subset['Payoff_Diff'] = 0.0
+    else:
+
+        df_subset['Payoff_Diff'] = df_subset['Cumulative_Pts'].astype(
+            float) - float(academy_pts_required)
 
     df_subset['AFL_Pts_Left'] = np.where(
         df_subset['Payoff_Diff'].astype(float) <= 0,
@@ -5186,54 +5187,81 @@ def quick_academy_calculator(request, pk):
         pick_lost_details = pd.DataFrame(
             columns=['Pick', 'Moves_To', 'New_Points_Value'])
 
-    for pick in picks_lost:
-        # Reset the index
-        df = df.reset_index(drop=True)
+    overall_pick = df['Overall_Pick']
+    rowno_picklost = ''
+    rowno_startnextyear = ''
+    if len(picks_lost) > 0:
+            pick_lost_details = pd.DataFrame(columns=['Pick', 'Moves_To', 'New_Points_Value'])
 
-        # Find row number of pick lost
-        rowno_picklost = df.index[df['Display_Name_Detailed'].astype(str) == str(pick)][0]
-    
-        rowno_startnextyear = df.index[(df.Year.astype(int) == int(
-            v_current_year_plus1)) & (df.Overall_Pick.astype(int) == 1)][0]
-            
-        df = pd.concat([df.iloc[rowno_startnextyear], df.iloc[[
-                       rowno_picklost]], df.iloc[rowno_startnextyear]]).reset_index(drop=True)
 
-        rowno_delete = df.index[df.Display_Name_Detailed == pick][0]
 
-        df.drop(rowno_delete, axis=0, inplace=True)
+            for pick in picks_lost:
+                # Reset the index
+                df = df.reset_index(drop=True)
 
-        df['System_Note'].mask(df['Display_Name_Detailed'] == pick,
-                               'Academy bid match: pick lost to back of draft', inplace=True)
+                #Find row number of pick lost
+                rowno_picklost = df.index[df.Display_Name_Detailed.astype(str) == str(pick)][0]
+                print(rowno_picklost)
+                exit()
 
-        df['Draft_Round'].mask(df['Display_Name_Detailed']
-                               == pick, 'BOD', inplace=True)
-        df['Draft_Round_Int'].mask(
-            df['Display_Name_Detailed'] == pick, 99, inplace=True)
-        df['Pick_Group'].mask(df['Display_Name_Detailed'].astype(
-            str) == pick, str(v_current_year) + '-Back of Draft', inplace=True)
+                #Find row number of the first pick in the next year
+                rowno_startnextyear = df.index[(df.Year.astype(int) == int(v_current_year_plus1)) & (df.Overall_Pick.astype(int) == 1)][0]
+                #print(rowno_startnextyear)
 
-        # Reset points value
-        df['AFL_Points_Value'].mask(
-            df['Display_Name_Detailed'] == pick, 0, inplace=True)
+    # for pick in picks_lost:
+    #     # Reset the index
+    #     df = df.reset_index(drop=True)
+    #     if df['Display_Name_Detailed'].isnull().any() == False:
+    #         rowno_picklost = df.index[df['Display_Name_Detailed'].astype(str) == str(pick) ][0]
+    #     else:
+    #         rowno_picklost = df.index[df['Display_Name_Detailed'].astype(str) == str(pick) ][0]
 
-        # If needing to update pick moves before the inserts
-        df['Overall_Pick'] = df.groupby('Year').cumcount() + 1
-        df['AFL_Points_Value'] = df['Overall_Pick'].map(
-            library_AFL_Draft_Points).fillna(0)
+    #     if df['Overall_Pick'].isnull().any():
+    #         df['Overall_Pick'] = df['Overall_Pick'].fillna(1)
 
-        # Reset index Again
-        df = df.reset_index(drop=True)
+    #         rowno_startnextyear = df.index[(df['Year'].astype(int) == int(v_current_year_plus1)) & (df['Overall_Pick'].astype(int) == 1)]
+    #     else:
+    #         rowno_startnextyear = df.index[((df['Year'].astype(int)) == int(v_current_year_plus1)) & (df['Overall_Pick'].astype(int) == 1)]
+    #     rowno_startnextyear = rowno_startnextyear[1]
 
-        # One line summary:
-        # print(pick + ' has been lost to the back of the draft.')
+            df = pd.concat([df.iloc[:rowno_startnextyear], df.iloc[[
+                        rowno_picklost]], df.iloc[rowno_startnextyear]]).reset_index(drop=True)
 
-        # Update picks lost details df
-        pick_lost_details_loop = pd.DataFrame({'Pick': pick,
-                                               'Moves_To': 'End of Draft',
-                                               'New_Points_Value': 0}, index=[0])
+            rowno_delete = df.index[df.Display_Name_Detailed == pick][0]
 
-        pick_lost_details = pick_lost_details.append(pick_lost_details_loop)
+            df.drop(rowno_delete, axis=0, inplace=True)
+
+            df['System_Note'].mask(df['Display_Name_Detailed'] == pick,
+                                'Academy bid match: pick lost to back of draft', inplace=True)
+
+            df['Draft_Round'].mask(df['Display_Name_Detailed']
+                                == pick, 'BOD', inplace=True)
+            df['Draft_Round_Int'].mask(
+                df['Display_Name_Detailed'] == pick, 99, inplace=True)
+            df['Pick_Group'].mask(df['Display_Name_Detailed'].astype(
+                str) == pick, str(v_current_year) + '-Back of Draft', inplace=True)
+
+            # Reset points value
+            df['AFL_Points_Value'].mask(
+                df['Display_Name_Detailed'] == pick, 0, inplace=True)
+
+            # If needing to update pick moves before the inserts
+            df['Overall_Pick'] = df.groupby('Year').cumcount() + 1
+            df['AFL_Points_Value'] = df['Overall_Pick'].map(
+                library_AFL_Draft_Points).fillna(0)
+
+            # Reset index Again
+            df = df.reset_index(drop=True)
+
+            # One line summary:
+            # print(pick + ' has been lost to the back of the draft.')
+
+            # Update picks lost details df
+            pick_lost_details_loop = pd.DataFrame({'Pick': pick,
+                                                'Moves_To': 'End of Draft',
+                                                'New_Points_Value': 0}, index=[0])
+
+            pick_lost_details = pick_lost_details.append(pick_lost_details_loop)
 
     else:
         pick_lost_details = pd.DataFrame(
@@ -5287,7 +5315,7 @@ def quick_academy_calculator(request, pk):
     else:
         pick_shuffle_details = []
 
-        # Step 3: Applying the deficit to next year:
+    # Step 3: Applying the deficit to next year:
 
     if len(pick_deficit) > 0:
 
@@ -5419,6 +5447,15 @@ def quick_academy_calculator(request, pk):
          'Transaction_Description': academy_description,
          'projectId': Project_id
          }
+    )
+
+    Transactions.objects.create(
+        Transaction_Number='',
+        Transaction_DateTime=current_time,
+        Transaction_Type='Academy_Bid_Match',
+        Transaction_Details=academy_dict,
+        Transaction_Description=academy_description,
+        projectId=pk
     )
 
     lastinsertedobj = Transactions.objects.latest('id')
@@ -5685,7 +5722,7 @@ def trade_optimiser_algorithm(request, pk):
                                                name="".format(i))
                   for i in trade_optimiser_df_to_buy_list}
 
-         # Constraint 7 - Which Display_Name_Detailed to receive
+        # Constraint 7 - Which Display_Name_Detailed to receive
 
         if(len(c7_set) > 0):
             trade_optimiser_df_to_trade_in_df = trade_optimiser_df_to_trade_in[
@@ -5701,7 +5738,7 @@ def trade_optimiser_algorithm(request, pk):
                         opt_model.addConstraint(trade_in[i] == 0,
                                                 name="".format(i))
                         for i in to_trade_in_picks if i not in trade_optimiser_df_to_buy_list}
-         # Constraint 8 - Which Season to receive
+        # Constraint 8 - Which Season to receive
 
         if(len(c8_set) > 0):
             trade_optimiser_df_to_trade_in_df = trade_optimiser_df_to_trade_in[trade_optimiser_df_to_trade_in['Year'].isin(
@@ -5736,7 +5773,7 @@ def trade_optimiser_algorithm(request, pk):
                                                 name="".format(i))
                         for i in to_trade_in_picks if i not in trade_optimiser_df_to_buy_list}
 
-         # Constraint 10 - Minimum value to receive
+        # Constraint 10 - Minimum value to receive
         if(c10_type == "Fixed" or c10_type == "Include"):
             c10 = opt_model.addConstraint(plp.lpSum(trade_in[i]*trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i] for i in to_trade_in_picks) >= c10_set,
                                           name="c10")
