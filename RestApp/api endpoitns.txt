@@ -179,8 +179,8 @@ add nga bid inputs
 create project
 
 {
-"project_name":"test1",
- "project_desc":"test1 desc"
+"project_name":"test2",
+ "project_desc":"test2 desc"
 }
 
 
@@ -277,10 +277,9 @@ manual pick move
 quick academy bid calculator
 
 {
-"academy_team_id":"5",
-"academy_pick_type":"1",
-"academy_bid":"5",
-"playerid":"1"
+"academy_team_id":"8",
+"academy_bid":"8",
+"academy_player":""
 }
 
 
