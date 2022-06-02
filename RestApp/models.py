@@ -218,3 +218,7 @@ class Trades(models.Model):
     System_In = models.CharField(max_length=255, default='')
     Warning = models.CharField(max_length=255, default='')
     projectid = models.IntegerField(null=True)
+
+
+class Update_ladder_teams(models.Model):
+    updated_ladderlist_TeamName = models.CharField(max_length=255, default='')
