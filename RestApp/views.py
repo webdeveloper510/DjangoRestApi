@@ -51,6 +51,7 @@ from .models import (
     PriorityTransactions,
     TradePotentialAnalyser,
     Trades,
+    Update_ladder_teams
 
 )
 from django.core.serializers import serialize
@@ -70,6 +71,7 @@ import sys
 import ast
 import jwt
 import pulp as plp
+import requests
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', 500)
@@ -87,7 +89,7 @@ class CreateUserAPIView(APIView):
 
     @api_view(['POST'])
     @permission_classes([AllowAny, ])
-    def CreateUserAPIView(request):
+    def post(request):
         C_Name = Company.objects.filter().values('id', 'Name')
         user = request.data
         serializer = UserSerializer(data=user)
@@ -360,7 +362,7 @@ def import_ladder_dragdrop(library_team_dropdown_list, library_AFL_Team_Names, v
     ladder_current_year = ladder_current_year[['TeamName', 'Year', 'Position']]
 
     ladder_current_year_plus1 = ladder_current_year.copy()
-    print(library_team_dropdown_list)
+
     return ladder_current_year, ladder_current_year_plus1
 
 
@@ -693,12 +695,6 @@ def call_add_trade(transactions):
 
 # Complete
 # Two of the inputs for this functions are styatic lists that i am hoping will be a drag and drop list on the settings page:
-updated_ladderlist_current_year = ['Melbourne', 'Port Adelaide', 'Geelong Cats',
-                                   'Brisbane Lions', 'Western Bulldogs', 'Sydney Swans', 'GWS Giants', 'Essendon', 'West Coast Eagles', 'St Kilda', 'Fremantle', 'Richmond', 'Carlton', 'Hawthorn', 'Adelaide Crows',
-                                   'Collingwood', 'Gold Coast Suns', 'North Melbourne']
-updated_ladderlist_current_year_plus1 = ['Melbourne', 'Port Adelaide', 'Geelong Cats',
-                                         'Brisbane Lions', 'Western Bulldogs', 'Sydney Swans', 'GWS Giants', 'Essendon', 'West Coast Eagles', 'St Kilda', 'Fremantle', 'Richmond', 'Carlton', 'Hawthorn', 'Adelaide Crows',
-                                         'Collingwood', 'Gold Coast Suns', 'North Melbourne']
 
 
 def priority_pick_input_v1(request):
@@ -1063,7 +1059,6 @@ def PriorityPickrRequest(request):
         Transaction_Details=pp_dict,
         Transaction_Description=pp_description,
         projectId=obj.id
-
     )
     last_inserted_obj = Transactions.objects.latest('id')
     last_inserted_id = last_inserted_obj.id
@@ -3793,7 +3788,7 @@ def add_trade_v3(request, pk):
     return Response({'success': 'Add-Trade-v3 Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes([AllowAny, ])
 def update_ladder(request, pk):
     ################ CREATING MASTERLIST FROM SCRATCH #######################
@@ -3801,7 +3796,17 @@ def update_ladder(request, pk):
     current_day = date.today()
     v_current_year = current_day.year
     v_current_year_plus1 = v_current_year+1
+    updated_ladderlist_current_year = ''
+    updated_ladderlist_current_year_plus1 = []
+    data = request.data
+    update_ladder_teamid = data.get('update_ladder_teamid')
     df = dataframerequest(request, pk)
+    Query = Update_ladder_teams.objects.filter(
+        id=update_ladder_teamid).values()
+    for data in Query:
+        updated_ladderlist_current_year = data['updated_ladderlist_TeamName']
+    updated_ladderlist_current_year_plus1 = updated_ladderlist_current_year
+
     library_AFL_Team_Names = df['TeamName']
     updated_ladder_current_year, updated_ladder_current_year_plus1 = import_ladder_dragdrop_V2(
         updated_ladderlist_current_year, updated_ladderlist_current_year_plus1, library_AFL_Team_Names, v_current_year, v_current_year_plus1)
@@ -4089,6 +4094,15 @@ def update_ladder(request, pk):
         return Response({'success': 'success'}, status=status.HTTP_201_CREATED)
 
 
+def update_ladder_teams(request):
+    data = request.data
+    teamid = data.get('teamid')
+    team_value = data.get('team_val')
+    Update_ladder_teams.objects.filter(id=teamid).update(
+        updated_ladderlist_TeamName=team_value)
+    return Response({'success': 'Team Name updated Successfully'}, status=status.HTTP_201_CREATED)
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def add_draftee_player(request, pk):
@@ -4119,7 +4133,7 @@ def add_potential_trade_inputs(request):
     return v_team_name, Trade_Partner, notes, Trading_Out_Num, Trading_Out_Num_Player, pick_out_idd, player_trading_out, pick_in_id, Trading_In_Num, Trading_In_Num_Player, player_trading_in
 
 
-def add_potential_trade(request, pk):
+def add_trade_offer(request, pk):
 
     df = []
     dfobj = MasterList.objects.filter(projectid=pk).values()
@@ -4208,7 +4222,9 @@ def add_potential_trade(request, pk):
     for v in Trading_In.values():
         total_points_in += int(v[1])
 
-    # print("You will be trading out " + str(total_points_out) + "pts out and receiving " + str(total_points_in) + "pts in.")
+    print("You will be trading out " + str(total_points_out) +
+          "pts out and receiving " + str(total_points_in) + "pts in.")
+
     total_points_diff = total_points_in - total_points_out
 
     trades = pd.DataFrame({'Trade_Partner': Trade_Partner, 'Trading_Out': [Trading_Out_Simple], 'Trading_In': [Trading_In_Simple],
@@ -4221,9 +4237,9 @@ def add_potential_trade(request, pk):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def update_potential_trade(request, pk):
+def update_trade_offers(request, pk):
     trades_updated = ''
-    trades, masterlist, v_team_name = add_potential_trade(request, pk)
+    trades, masterlist, v_team_name = add_trade_offer(request, pk)
     if trades.empty:
         pass
     else:
@@ -4231,14 +4247,12 @@ def update_potential_trade(request, pk):
         trades_updated = pd.DataFrame(columns=['Trade_Partner', 'Trading_Out',
                                                'Trading_In', 'Points_Out', 'Points_In', 'Points_Diff',  'Notes', 'System_Out', 'System_In', 'Warning'])
         # looping over each row to extract the keys and return their current position & value:
-
+        Trading_Out = dict()
+        Trading_In = dict()
+        Trading_Out_Simple = []
+        Trading_In_Simple = []
+        Trade_Warning = []
         for _, row in trades.iterrows():
-
-            Trading_Out = dict()
-            Trading_In = dict()
-            Trading_Out_Simple = []
-            Trading_In_Simple = []
-            Trade_Warning = []
 
             Trade_Partner = row.Trade_Partner
             Notes = row.Notes
@@ -4287,41 +4301,39 @@ def update_potential_trade(request, pk):
 
                     Trading_In_Simple.append(updated_pick_name)
 
-            total_points_out = 0
-            total_points_in = 0
+                total_points_out = 0
+                total_points_in = 0
 
-            # loop to get the points for each pick going out
-            for v in Trading_Out.values():
-                total_points_out += int(v[1])
+                # loop to get the points for each pick going out
+                for v in Trading_Out.values():
+                    total_points_out += int(v[1])
 
-            # loop to get the points for each pick coming in
-            for v in Trading_In.values():
-                total_points_in += int(v[1])
+                # loop to get the points for each pick coming in
+                for v in Trading_In.values():
+                    total_points_in += int(v[1])
 
-            # Calculations for pick difference
-            total_points_diff = total_points_in - total_points_out
+                # Calculations for pick difference
+                total_points_diff = total_points_in - total_points_out
 
-            Trading_In_Simple_str = "".join(Trading_In_Simple)
-            Trading_In_Out_str = "".join(Trading_Out_Simple)
-            Trading_In_str = "".join(Trading_In)
-            Trade_Warning_as_str = "".join(Trade_Warning)
-            Trading_Out_list = []
-            for trade_out_data in Trading_Out:
-                Trading_Out_list.append(trade_out_data)
-            Trading_Out_as_str = "".join(Trading_Out_list)
+                Trading_Out_list = []
+                for trade_out_data in Trading_Out:
+                    Trading_Out_list.append(trade_out_data)
+                Trading_Out_as_str = "".join(Trading_Out_list)
 
-            # Creating a new row to add to the updated trad
-    append_df = pd.DataFrame({'Trade_Partner': Trade_Partner, 'Trading_Out': Trading_In_Out_str, 'Trading_In': Trading_In_Simple_str,
-                              'Points_Out': total_points_out, 'Points_In': total_points_in,  'Points_Diff': total_points_diff,  'Notes': Notes, 'System_Out': Trading_Out_as_str, 'System_In': Trading_In_str, 'Warning': Trade_Warning_as_str}, index=[0])
+                # Creating a new row to add to the updated trad
+        obj = Project.objects.get(id=pk)
 
-    # trades_updated = pd.concat([trades_updated,append_df])
+        append_df = pd.DataFrame({'Trade_Partner': Trade_Partner, 'Trading_Out': [Trading_Out_Simple], 'Trading_In': Trading_In_Simple,
+                                  'Points_Out': total_points_out, 'Points_In': total_points_in,  'Points_Diff': total_points_diff,  'Notes': Notes, 'System_Out': [Trading_Out], 'System_In': [Trading_In], 'Warning': Trade_Warning, 'projectid': obj.id}, index=[0])
+
+        trades_updated = pd.concat([trades_updated, append_df])
     # print(trades_updated)
     Tarde_dict = {}
     for index, updaterow in append_df.iterrows():
         Tarde_dict = dict(updaterow)
-    # Trades(**Tarde_dict).save()
 
-    return Response("You will be trading out " + str(total_points_out) + "pts out and receiving " + str(total_points_in) + "pts in.", status=status.HTTP_200_OK)
+    Trades(**Tarde_dict).save()
+    return Response({'success': 'success'}, status=status.HTTP_201_CREATED)
 
 
 def add_nga_bid_inputs(request):
@@ -5059,10 +5071,10 @@ def AddManualRequest(request, pk):
 def quick_academy_calculator_inputs(request):
     data = request.data
     academy_team = data.get('academy_team_id')
-    academy_pick_type ='Academy Bid Match'
+    academy_pick_type = 'Academy Bid Match'
     academy_bid = data.get('academy_bid')
     academy_player = data.get('academy_player')
-    return academy_team, academy_pick_type, academy_bid,academy_player
+    return academy_team, academy_pick_type, academy_bid, academy_player
 
 
 @api_view(['POST'])
@@ -5077,7 +5089,7 @@ def quick_academy_calculator(request, pk):
     pick_suffled_df = df
     deficit_subset = df.copy()
     pick_deficit_details = []
-    academy_team, academy_pick_type, academy_bid,academy_player = quick_academy_calculator_inputs(
+    academy_team, academy_pick_type, academy_bid, academy_player = quick_academy_calculator_inputs(
         request)
     library_AFL_Draft_Points = df['AFL_Points_Value']
 
@@ -5114,13 +5126,16 @@ def quick_academy_calculator(request, pk):
             str(academy_pts_required) + ' draft points to match bid.'
 
     df_subset = dataframerequest(request, pk)
+
     if df_subset['Overall_Pick'].isnull().any():
         df_subset['Overall_Pick'] = 1
     else:
 
-        df_subset = df_subset[(df_subset.Current_Owner.astype(int) == int(academy_team)) & (df_subset.Year.astype(int) == int(v_current_year)) & (7 >= int(academy_bid_pick_no))]
-    
-    df_subset['Cumulative_Pts'] = df_subset.groupby('Current_Owner')['AFL_Points_Value'].transform(pd.Series.cumsum)
+        df_subset = df_subset[(df_subset.Current_Owner.astype(int) == int(academy_team)) & (
+            df_subset.Year.astype(int) == int(v_current_year)) & (7 >= int(academy_bid_pick_no))]
+
+    df_subset['Cumulative_Pts'] = df_subset.groupby(
+        'Current_Owner')['AFL_Points_Value'].transform(pd.Series.cumsum)
     commulative_pts = df_subset['Cumulative_Pts']
 
     df_subset['Payoff_Diff'] = ''
@@ -5191,22 +5206,21 @@ def quick_academy_calculator(request, pk):
     rowno_picklost = ''
     rowno_startnextyear = ''
     if len(picks_lost) > 0:
-            pick_lost_details = pd.DataFrame(columns=['Pick', 'Moves_To', 'New_Points_Value'])
+        pick_lost_details = pd.DataFrame(
+            columns=['Pick', 'Moves_To', 'New_Points_Value'])
 
+        for pick in picks_lost:
+            # Reset the index
+            df = df.reset_index(drop=True)
 
+            # Find row number of pick lost
+            rowno_picklost = df.index[df.Display_Name_Detailed.astype(
+                str) == str(pick)][0]
 
-            for pick in picks_lost:
-                # Reset the index
-                df = df.reset_index(drop=True)
-
-                #Find row number of pick lost
-                rowno_picklost = df.index[df.Display_Name_Detailed.astype(str) == str(pick)][0]
-                print(rowno_picklost)
-                exit()
-
-                #Find row number of the first pick in the next year
-                rowno_startnextyear = df.index[(df.Year.astype(int) == int(v_current_year_plus1)) & (df.Overall_Pick.astype(int) == 1)][0]
-                #print(rowno_startnextyear)
+            # Find row number of the first pick in the next year
+            rowno_startnextyear = df.index[(df.Year.astype(int) == int(
+                v_current_year_plus1)) & (df.Overall_Pick.astype(int) == 1)][0]
+            # print(rowno_startnextyear)
 
     # for pick in picks_lost:
     #     # Reset the index
@@ -5224,44 +5238,44 @@ def quick_academy_calculator(request, pk):
     #         rowno_startnextyear = df.index[((df['Year'].astype(int)) == int(v_current_year_plus1)) & (df['Overall_Pick'].astype(int) == 1)]
     #     rowno_startnextyear = rowno_startnextyear[1]
 
-            df = pd.concat([df.iloc[:rowno_startnextyear], df.iloc[[
-                        rowno_picklost]], df.iloc[rowno_startnextyear]]).reset_index(drop=True)
+        df = pd.concat([df.iloc[:rowno_startnextyear], df.iloc[[
+            rowno_picklost]], df.iloc[rowno_startnextyear]]).reset_index(drop=True)
 
-            rowno_delete = df.index[df.Display_Name_Detailed == pick][0]
+        rowno_delete = df.index[df.Display_Name_Detailed == pick][0]
 
-            df.drop(rowno_delete, axis=0, inplace=True)
+        df.drop(rowno_delete, axis=0, inplace=True)
 
-            df['System_Note'].mask(df['Display_Name_Detailed'] == pick,
-                                'Academy bid match: pick lost to back of draft', inplace=True)
+        df['System_Note'].mask(df['Display_Name_Detailed'] == pick,
+                               'Academy bid match: pick lost to back of draft', inplace=True)
 
-            df['Draft_Round'].mask(df['Display_Name_Detailed']
-                                == pick, 'BOD', inplace=True)
-            df['Draft_Round_Int'].mask(
-                df['Display_Name_Detailed'] == pick, 99, inplace=True)
-            df['Pick_Group'].mask(df['Display_Name_Detailed'].astype(
-                str) == pick, str(v_current_year) + '-Back of Draft', inplace=True)
+        df['Draft_Round'].mask(df['Display_Name_Detailed']
+                               == pick, 'BOD', inplace=True)
+        df['Draft_Round_Int'].mask(
+            df['Display_Name_Detailed'] == pick, 99, inplace=True)
+        df['Pick_Group'].mask(df['Display_Name_Detailed'].astype(
+            str) == pick, str(v_current_year) + '-Back of Draft', inplace=True)
 
-            # Reset points value
-            df['AFL_Points_Value'].mask(
-                df['Display_Name_Detailed'] == pick, 0, inplace=True)
+        # Reset points value
+        df['AFL_Points_Value'].mask(
+            df['Display_Name_Detailed'] == pick, 0, inplace=True)
 
-            # If needing to update pick moves before the inserts
-            df['Overall_Pick'] = df.groupby('Year').cumcount() + 1
-            df['AFL_Points_Value'] = df['Overall_Pick'].map(
-                library_AFL_Draft_Points).fillna(0)
+        # If needing to update pick moves before the inserts
+        df['Overall_Pick'] = df.groupby('Year').cumcount() + 1
+        df['AFL_Points_Value'] = df['Overall_Pick'].map(
+            library_AFL_Draft_Points).fillna(0)
 
-            # Reset index Again
-            df = df.reset_index(drop=True)
+        # Reset index Again
+        df = df.reset_index(drop=True)
 
-            # One line summary:
-            # print(pick + ' has been lost to the back of the draft.')
+        # One line summary:
+        # print(pick + ' has been lost to the back of the draft.')
 
-            # Update picks lost details df
-            pick_lost_details_loop = pd.DataFrame({'Pick': pick,
-                                                'Moves_To': 'End of Draft',
-                                                'New_Points_Value': 0}, index=[0])
+        # Update picks lost details df
+        pick_lost_details_loop = pd.DataFrame({'Pick': pick,
+                                               'Moves_To': 'End of Draft',
+                                               'New_Points_Value': 0}, index=[0])
 
-            pick_lost_details = pick_lost_details.append(pick_lost_details_loop)
+        pick_lost_details = pick_lost_details.append(pick_lost_details_loop)
 
     else:
         pick_lost_details = pd.DataFrame(
@@ -5469,11 +5483,8 @@ def quick_academy_calculator(request, pk):
 
 def Get_Constraints_inputs(request, pk):
 
-    loggeduser_id = ''
-    f = open('RestApp/userfile.py', 'r')
-
-    if f.mode == 'r':
-        loggeduser_id = f.read()
+    data = request.data
+    loggeduser_id = data.get('user_id')
     Userobj = User.objects.get(id=loggeduser_id)
     Teamid = Userobj.Teams.id
     Teamobj = Teams.objects.get(id=Teamid)
@@ -5572,7 +5583,7 @@ def data_trade_suggestion(result_df):
     return result_df
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes([AllowAny])
 def trade_optimiser_algorithm(request, pk):
 
@@ -5601,7 +5612,8 @@ def trade_optimiser_algorithm(request, pk):
     trade_optimiser_df_team.reset_index(inplace=True)
 
     owned_picks = trade_optimiser_df_team['Display_Name_Detailed'].to_numpy()
-    value_owned_team = trade_optimiser_df_team["AFL_Points_Value"].sum()
+
+    value_owned_team = trade_optimiser_df_team["AFL_Points_Value"]
 
     trade_optimiser_df_to_trade_in = trade_optimiser_df[
         trade_optimiser_df["Current_Owner"] != v_team_name]
@@ -5626,17 +5638,19 @@ def trade_optimiser_algorithm(request, pk):
         # Importing the docplex.mp.model from the CPLEX as Model
         opt_model = plp.LpProblem(name="MIP Model")
 
-        trade_out = {(i): plp.LpVariable(cat=plp.LpBinary, name="trade_out_{0}".format(i))
-                     for i in owned_picks}
+        trade_out = {(i, j): plp.LpVariable(cat=plp.LpBinary, name="{0}".format(j))
+                     for i in owned_picks for j in value_owned_team}
+
+        # trade_out_picks = dict((value , key) for value, key in trade_out)
+        # print(trade_out_picks)
 
         trade_in = {(i): plp.LpVariable(cat=plp.LpBinary, name="trade_in_{0}".format(i))
                     for i in to_trade_in_picks}
         team_trade_in = {(i): plp.LpVariable(cat=plp.LpBinary,
                                              name="team_trade_in_{0}".format(i))
                          for i in teams_to_trade_with}
-
-        objective = plp.lpSum(
-            trade_out[i] for i in owned_picks) + plp.lpSum(trade_in[i] for i in to_trade_in_picks)
+        for x in trade_out.keys():
+            objective =  plp.lpSum(trade_out[x] for i in owned_picks) + plp.lpSum(trade_in[i] for i in to_trade_in_picks)
 
         # Defines what wallet is chosen
 
@@ -5702,15 +5716,17 @@ def trade_optimiser_algorithm(request, pk):
 
         #   Constraint 4 - Minimum value to send
 
-        if(c4_type == "Fixed" or c4_type == "Include"):
-            c4 = opt_model.addConstraint(plp.lpSum(trade_out[i]*trade_optimiser_df_team_dict["AFL_Points_Value"][i] for i in owned_picks) >= c4_set,
-                                         name="c4")
+        for x in trade_out.keys():
+            if(c4_type == "Fixed" or c4_type == "Include"):
+                c4 = opt_model.addConstraint(plp.lpSum(trade_out[x]*int(trade_optimiser_df_team_dict["AFL_Points_Value"][i]) for i in owned_picks) >= c4_set,
+                                             name="")
         # Constraint 5 - Minimum value to send
-        if(c5_type == "Fixed" or c5_type == "Include"):
-            c5 = opt_model.addConstraint(plp.lpSum(trade_out[i]*trade_optimiser_df_team_dict["AFL_Points_Value"][i] for i in owned_picks) <= c5_set,
-                                         name="c5")
+        for x in trade_out.keys():
+            if(c5_type == "Fixed" or c5_type == "Include"):
+                c5 = opt_model.addConstraint(plp.lpSum(trade_out[x]*int(trade_optimiser_df_team_dict["AFL_Points_Value"][i]) for i in owned_picks) <= c5_set,
+                                             name="")
 
-        #   Constraint 6 - Current_Owner to receive from
+            #   Constraint 6 - Current_Owner to receive from
 
         if(len(c6_set) > 0):
             trade_optimiser_df_to_trade_in_df = trade_optimiser_df_to_trade_in[trade_optimiser_df_to_trade_in['Current_Owner'].isin(
@@ -5774,26 +5790,30 @@ def trade_optimiser_algorithm(request, pk):
                         for i in to_trade_in_picks if i not in trade_optimiser_df_to_buy_list}
 
         # Constraint 10 - Minimum value to receive
-        if(c10_type == "Fixed" or c10_type == "Include"):
-            c10 = opt_model.addConstraint(plp.lpSum(trade_in[i]*trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i] for i in to_trade_in_picks) >= c10_set,
-                                          name="c10")
+        for x in trade_in.keys():
+
+            if(c10_type == "Fixed" or c10_type == "Include"):
+                c10 = opt_model.addConstraint(plp.lpSum(trade_in[i]*int(trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i]) for i in to_trade_in_picks) >= c10_set,
+                                              name="")
 
            # Constraint 11 - Maximum AFL_Points_Value to receive
-        if(c11_type == "Fixed" or c11_type == "Include"):
-            c11 = opt_model.addConstraint(plp.lpSum(trade_in[i]*trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i] for i in to_trade_in_picks) <= c11_set,
-                                          name="c11")
+            if(c11_type == "Fixed" or c11_type == "Include"):
+                c11 = opt_model.addConstraint(plp.lpSum(trade_in[i]*int(trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i]) for i in to_trade_in_picks) <= c11_set,
+                                              name="")
 
-          # Constraint 12 - Max difference of total value
-        if(c12_type == "Fixed" or c12_type == "Include"):
-            c12_1 = opt_model.addConstraint(plp.lpSum(trade_out[i]*trade_optimiser_df_team_dict["AFL_Points_Value"][i] for i in owned_picks) <=
-                                            (1 + c12_set)*plp.lpSum(
-                                                trade_in[i]*trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i] for i in to_trade_in_picks),
-                                            name="c12_1")
+        # Constraint 12 - Max difference of total value
+        for x in trade_in.keys() and trade_out.keys():
+            if(c12_type == "Fixed" or c12_type == "Include"):
 
-            c12_2 = opt_model.addConstraint((1 + c12_set)*plp.lpSum(trade_out[i]*trade_optimiser_df_team_dict["AFL_Points_Value"][i] for i in owned_picks) >=
-                                            plp.lpSum(
-                                                trade_in[i]*trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i] for i in to_trade_in_picks),
-                                            name="c12_2")
+                c12_1 = opt_model.addConstraint(plp.lpSum(trade_out[x]*int(trade_optimiser_df_team_dict["AFL_Points_Value"][i]) for i in owned_picks) <=
+                                                (1 + c12_set)*plp.lpSum(
+                    trade_in[i]*int(trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i]) for i in to_trade_in_picks),
+                    name="")
+
+                c12_2 = opt_model.addConstraint((1 + c12_set)*plp.lpSum(trade_out[x]*int(trade_optimiser_df_team_dict["AFL_Points_Value"][i]) for i in owned_picks) >=
+                                                plp.lpSum(
+                                                    trade_in[i]*int(trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i]) for i in to_trade_in_picks),
+                                                name="")
 
         c_aux = {(ct):
                  opt_model.addConstraint(plp.lpSum(trade_out[i] for i in trade_out_solutions[ct]) + plp.lpSum(trade_in[i] for i in trade_in_solutions[ct])
@@ -5803,8 +5823,8 @@ def trade_optimiser_algorithm(request, pk):
         # Getting the solution
         opt_model.sense = plp.LpMinimize
         opt_model.setObjective(objective)
-
-        # opt_model.solve(plp.PULP_CBC_CMD(msg=False))
+        # opt_model.solve(COIN_CMD (msg=1))
+      
         opt_model.solve()
 
         if(plp.LpStatus[opt_model.status] == 'Optimal'):
@@ -5879,6 +5899,7 @@ def trade_optimiser_algorithm(request, pk):
     results_df['Points_Diff'] = np.array(
         results_df['Points In']) - np.array(results_df['Points Out'])
     data_trade_suggestion(results_df)
+    print(results_df)
     return results_df
 
 
@@ -5970,24 +5991,27 @@ def Get_Rounds_Pick(request, pk):
     Current_Year_Round = {}
     Next_Year_Round = {}
     TeamList = []
+    _shortnames = []
     shortname = df['Display_Name_Short']
     df_first_18 = df.head(18)
     df_short_name = df_first_18['Display_Name_Short']
 
-    imgQuery = Teams.objects.filter(ShortName__in=df_short_name).values()
+    imgQuery = Teams.objects.filter().values()
     serializer = ListImageSerializer(
         imgQuery, many=True, context={'request': request})
     data = serializer.data
     for values in imgQuery:
+        _shortnames.append(values['ShortName'])
         base_url = request.build_absolute_uri('/').strip("/")
         image_with_path = base_url+'/'+'media'+'/'+values['Image']
         TeamList.append(image_with_path)
+
     Imgdf = pd.DataFrame(TeamList)
 
     df = pd.concat([Imgdf, df], axis=1).fillna('')
-    Current_Year_Round['images'] = Imgdf
+
     Current_Year_Round['data_current_year_rd1'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD1')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 0]]
 
     Current_Year_Round['data_current_year_rd2'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD2')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
@@ -6005,9 +6029,10 @@ def Get_Rounds_Pick(request, pk):
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
     # Next Year Round by Round:
-    Next_Year_Round['images'] = Imgdf
     Next_Year_Round['data_next_year_rd1'] = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 0]]
+    Next_Year_Round['data_next_year_rd1'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD2')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 0]]
 
     Next_Year_Round['data_next_year_rd2'] = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD2')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]

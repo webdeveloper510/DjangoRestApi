@@ -300,3 +300,16 @@ add_draftee_player
    "Notes":"test player",
    "projectId":"1"
 }
+
+update Ladder
+
+{
+  "update_ladder_teamid":"5"
+}
+
+
+trade optimiser algorithm
+
+{
+   "user_id":"1"
+}

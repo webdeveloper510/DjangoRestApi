@@ -51,14 +51,13 @@ from .views import (
     dataframerequest,
     add_father_son,
     add_draft_night_selection,
-    add_potential_trade,
     add_trade_v3,
     add_priority_pick_v2,
     manual_pick_move,
     quick_academy_calculator,
     update_ladder,
     add_draftee_player,
-    update_potential_trade,
+    update_trade_offers,
     Visualisations,
     ConstraintsRquest
 )
@@ -67,7 +66,7 @@ urlpatterns = [
 
     #  //////////////// POST URl"S ///////////////////////////
 
-    re_path(r'^create-User/$', CreateUserAPIView.as_view),
+    re_path(r'^create-User/$', CreateUserAPIView.as_view()),
     re_path(r'^Auth/$', authenticate_user),
     re_path(r'^CreateProject/$', Create_Project),
     re_path(r'^LocalLadder/$', LocalLadderRequest),
@@ -97,7 +96,7 @@ urlpatterns = [
     re_path(r'^update_ladder/(?P<pk>[0-9]+)$', update_ladder),
     re_path(r'^add-new-player/(?P<pk>[0-9]+)$', add_draftee_player),
     re_path(
-        r'^update_potential_trade/(?P<pk>[0-9]+)$', update_potential_trade),
+        r'^Update_Trade_Offer/(?P<pk>[0-9]+)$', update_trade_offers),
     re_path(r'^Visualisations/(?P<pk>[0-9]+)$', Visualisations),
 
     # //////////////////////// Update URL's ////////////////////////
