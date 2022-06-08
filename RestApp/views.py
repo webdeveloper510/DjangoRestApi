@@ -4823,7 +4823,7 @@ def add_nga_bid(request, pk):
             Transactions.objects.filter(id=last_obj.id).update(
                 Transaction_Number=last_obj.id)
             call_nga_bid(transaction_details)
-            return Response({'success': 'success'}, status=status.HTTP_201_CREATED)
+            return Response({'success': 'NGA Bid Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
 def add_draft_night_selection_inputs(request):
