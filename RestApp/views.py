@@ -6146,7 +6146,7 @@ def add_father_son_input(request):
 
     data = request.data
     fs_player = data.get('playerid')
-    fs_team = data.get('teamid')
+    fs_teamm = data.get('fs_team')
     fs_bid = data.get('pickid')
     return fs_player, fs_team, fs_bid
 
@@ -6160,7 +6160,7 @@ def add_father_son(request, pk):
 
     fs_player, fs_team, fs_bid = add_father_son_input(request)
 
-    teamobj = Teams.objects.get(id=fs_team)
+    teamobj = Teams.objects.get(id=fs_teamm)
     fs_teamname = teamobj.TeamNames
 
     df = dataframerequest(request, pk)
