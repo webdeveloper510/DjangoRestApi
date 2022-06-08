@@ -216,7 +216,7 @@ add father son
 
 {
    "playerid":"1",
-   "teamid":"2",
+   "fs_team":"2",
    "pickid":"2"
 }
 
