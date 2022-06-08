@@ -1468,7 +1468,7 @@ def AcademyBidRequest(request, pk):
     v_current_year_plus1 = v_current_year+1
 
     df = dataframerequest(request, pk)
-    academy_player, teamid, pick_id = academy_bid_inputs()
+    academy_player, teamid, pick_id = academy_bid_inputs(request)
     teamQurerySet = Teams.objects.filter(id=teamid).values('id', 'TeamNames')
     academy_team = teamQurerySet[0]['TeamNames']
     academy_team_id = teamQurerySet[0]['id']
