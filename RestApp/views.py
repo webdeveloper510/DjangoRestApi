@@ -3404,7 +3404,8 @@ def call_manual_pick_move(transactions):
 @permission_classes([AllowAny])
 def Visualisations(request, pk):
     # call masterlist dataframe
-    masterlist = dataframerequest(request, pk)
+    df = dataframerequest(request, pk)
+    masterlist = df.fillna('')
     # call players dataframe
     players = playerdataframe(request, pk)
     # call trade dataframe
@@ -3564,9 +3565,10 @@ def Visualisations(request, pk):
     data_menu_bar_picks = {}
     data_menu_bar_picks['data_menu_bar_picks'] = masterlist.groupby('Current_Owner_Short_Name')[
         'Display_Name_Detailed'].agg(list).to_dict()
-    array = [data_current_year_club_picks, data_next_year_club_picks, data_dashboard_draftboard, data_dashboard_trade_offers, data_transaction_list, current_year_round_dict, next_year_round_dict,
+    visualisations_data = [data_current_year_club_picks, data_next_year_club_picks, data_dashboard_draftboard, data_dashboard_trade_offers, data_transaction_list, current_year_round_dict, next_year_round_dict,
              data_order_of_entry, data_full_masterlist, data_trade_offers, data_completed_trades, draft_player_dict, comparison_1_club_picks_dict, data_menu_bar_picks]
-    return Response({'response': array}, status.HTTP_201_CREATED)
+
+    return Response({'response': visualisations_data}, status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
