@@ -1450,11 +1450,12 @@ def add_priority_pick_v2(request, pk):
     return Response({'success': 'Add Trade has been Created'}, status=status.HTTP_201_CREATED)
 
 
-def academy_bid_inputs(request):
+def academy_bid_v1_inputs(request):
 
     data = request.data
     academy_player = data.get('playerid')
-    teamid = data.get('teamid')
+
+    teamid = data.get('academy_team')
     pick_id = data.get('pickid')
     return academy_player, teamid, pick_id
 
@@ -1462,13 +1463,13 @@ def academy_bid_inputs(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def AcademyBidRequest(request, pk):
+    academy_player, teamid, pick_id = academy_bid_v1_inputs(request)
     projectid = pk
     current_date = date.today()
     v_current_year = current_date.year
     v_current_year_plus1 = v_current_year+1
 
     df = dataframerequest(request, pk)
-    academy_player, teamid, pick_id = academy_bid_inputs(request)
     teamQurerySet = Teams.objects.filter(id=teamid).values('id', 'TeamNames')
     academy_team = teamQurerySet[0]['TeamNames']
     academy_team_id = teamQurerySet[0]['id']
@@ -1887,7 +1888,7 @@ def AcademyBidRequest(request, pk):
     academy_dict = {academy_team: [
         academy_pick_type, academy_bid, academy_bid_pick_no, academy_player]}
 
-    instance_obj = Project.objects.get(id=pk)
+    project_obj = Project.objects.get(id=pk)
 
     Transactions.objects.create(
         Transaction_Number='',
@@ -1895,7 +1896,7 @@ def AcademyBidRequest(request, pk):
         Transaction_Type='Academy_Bid_Match',
         Transaction_Details=academy_dict,
         Transaction_Description=academy_summaries_list,
-        projectId=obj.id
+        projectId=project_obj.id
 
     )
     obj = Transactions.objects.latest('id')

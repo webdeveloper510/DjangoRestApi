@@ -112,21 +112,11 @@ Priority pick
 
 
 
-AcademyBid  
-
-{
-   "player":"test",
-   "team":"2",
-   "pickid":"1"
-
-}
-
-
 AcademyBid inputs
 
 {
    "playerid":"test",
-   "teamid":"2",
+   "academy_team":"2",
    "pickid":"2"
 }
 
