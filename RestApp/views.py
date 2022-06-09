@@ -5891,13 +5891,13 @@ def trade_optimiser_algorithm(request, pk, userid):
         suggestion = idx + 1
         #     print(suggestion)
         for v in k.keys():
-            trade_optimiser_df1 = trade_optimiser_df.dropna()
-            # if trade_optimiser_df1.isnull().values.any() == True:
-            #     trade_optimiser_df1['AFL_Points_Value'] = trade_optimiser_df1['AFL_Points_Value'].fillna(
-            #         '')
-            # else:
-            #     pass
-            pick_pts = trade_optimiser_df1.loc[trade_optimiser_df1.Display_Name_Detailed ==
+            # trade_optimiser_df1 = trade_optimiser_df.dropna()
+            if trade_optimiser_df1.isnull().values.any() == True:
+                trade_optimiser_df1['AFL_Points_Value'] = trade_optimiser_df1['AFL_Points_Value'].fillna(
+                    '')
+            else:
+                pass
+            pick_pts = trade_optimiser_df1.loc[trade_optimiser_df1.Display_Name_Detailed.astype(str) ==
                                                v, 'AFL_Points_Value'].iloc[0]
 
             total_pts = int(pick_pts) + int(total_pts)
