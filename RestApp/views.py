@@ -5881,28 +5881,23 @@ def trade_optimiser_algorithm(request, pk, userid):
                                               v, 'AFL_Points_Value'].iloc[0]
             print(pick_pts)
 
-            total_pts = int(pick_pts) + int(total_pts)
+            total_ptss = int(pick_pts) + int(total_pts)
             # print(total_pts)
-            AFL_Points_Out.append(total_pts)
+            AFL_Points_Out.append(total_ptss)
 
     # Trade In Points:
     for idx, k in enumerate(trade_in_solutions):
+        
         total_pts = 0
         suggestion = idx + 1
         #     print(suggestion)
         for v in k.keys():
 
-            if trade_optimiser_df.isnull().values.any() == True:
-                trade_optimiser_df['AFL_Points_Value'] = trade_optimiser_df['AFL_Points_Value'].fillna(
-                    '')
-            else:
-                pass
             pick_pts = trade_optimiser_df.loc[trade_optimiser_df.Display_Name_Detailed.astype(str) ==
-                                               v, 'AFL_Points_Value'].iloc[0]
+                                              v, 'AFL_Points_Value'].iloc[0]
+            total_ptss = int(pick_pts) + int(total_pts)
 
-            total_pts = int(pick_pts) + int(total_pts)
-
-            AFL_Points_In.append(total_pts)
+            AFL_Points_In.append(total_ptss)
 
     # Add Columns
     results_df = {}
