@@ -5633,9 +5633,9 @@ def trade_optimiser_algorithm(request, pk, userid):
     teams_to_trade_with = list(
         set(trade_optimiser_df_to_trade_in['Current_Owner'].to_numpy()))
 
-    trade_out_solutions = [{} for i in range(0, number_possible_solutions)]
+    trade_out_solutions = [{i} for i in range(0, number_possible_solutions)]
 
-    trade_in_solutions = [{} for i in range(0, number_possible_solutions)]
+    trade_in_solutions = [{i} for i in range(0, number_possible_solutions)]
 
     count_solution = [0 for i in range(0, number_possible_solutions)]
 
@@ -5658,10 +5658,10 @@ def trade_optimiser_algorithm(request, pk, userid):
 
         # Defines what wallet is chosen
 
-        # c0 = {(i, j):
-        #       opt_model.addConstraint(
-        #           team_trade_in[i] >= trade_in[j], name="c0_"+str({0}).format(i, j))
-        #       for i in teams_to_trade_with for j in to_trade_in_picks if trade_optimiser_df_to_trade_in_dict['Current_Owner'][j] == i}
+        c0 = {(i, j):
+              opt_model.addConstraint(
+                  team_trade_in[i] >= trade_in[j], name="".format(i, j))
+              for i in teams_to_trade_with for j in to_trade_in_picks if trade_optimiser_df_to_trade_in_dict['Current_Owner'][j] == i}
 
         c0_1 = opt_model.addConstraint(plp.lpSum(team_trade_in[i] for i in teams_to_trade_with) == 1,
                                        name="c0_1_"+str({0}))
@@ -5820,9 +5820,9 @@ def trade_optimiser_algorithm(request, pk, userid):
                     name="c12_2_"+str({0}))
 
         c_aux = {(ct):
-                 opt_model.addConstraint(plp.lpSum(trade_out[i] for i in trade_out_solutions[ct]) + plp.lpSum(trade_in[i] for i in trade_in_solutions[ct])
+                 opt_model.addConstraint(plp.lpSum(trade_out for i in trade_out_solutions[ct]) + plp.lpSum(trade_in for i in trade_in_solutions)
                                          <= count_solution[ct] - 1,
-                                         name="c_aux_"+str({0}).format(ct))
+                                         name="c_aux_{0}".format(ct))
                  for ct in range(0, sol)}
         # Getting the solution
         opt_model.sense = plp.LpMinimize
@@ -5848,7 +5848,7 @@ def trade_optimiser_algorithm(request, pk, userid):
             trade_in_sol = ""
             for i in to_trade_in_picks:
                 if(trade_in[i].varValue == 0):
-                    trade_in_solutions[sol][i] = 1
+                    # trade_in_solutions[sol][i] = 1
                     count_solution[sol] += 1
                     if(trade_in_sol == ""):
                         trade_in_sol += i
@@ -5865,39 +5865,35 @@ def trade_optimiser_algorithm(request, pk, userid):
     results_df["Trade Out"] = trade_out_vec
     results_df["Trade In"] = trade_in_vec
 
-    # Calculations of Points differences
+    #Calculations of Points differences
     # Defining points lists
     AFL_Points_Out = []
     AFL_Points_In = []
 
     # Trade Out Points:
-    for idx, k in enumerate(trade_out_solutions):
+    for k in trade_out_solutions:
         total_pts = 0
-        suggestion = idx + 1
-
-        for v in k.keys():
-
+ 
+        for v in k:
             pick_pts = trade_optimiser_df.loc[trade_optimiser_df.Display_Name_Detailed ==
-                                              v, 'AFL_Points_Value'].iloc[0]
-            print(pick_pts)
+                                              picks, 'AFL_Points_Value'].iloc[0]
 
-            total_ptss = int(float(pick_pts)) + int(float(total_pts))
+            total_ptss = int(pick_pts) + int(total_pts)
             # print(total_pts)
             AFL_Points_Out.append(total_ptss)
 
     # Trade In Points:
-    for idx, k in enumerate(trade_in_solutions):
+
+    for  k in trade_in_solutions:
         
         total_pts = 0
-        suggestion = idx + 1
-        #     print(suggestion)
-        for v in k.keys():
+        for v in k:
             if trade_optimiser_df['AFL_Points_Value'].isnull().values.any():
                 trade_optimiser_df['AFL_Points_Value'] = trade_optimiser_df['AFL_Points_Value'].fillna(0)
             else:
                 pass
             pick_pts = trade_optimiser_df.loc[trade_optimiser_df.Display_Name_Detailed.astype(str) ==
-                                              v, 'AFL_Points_Value'].iloc[0]
+                                              picks, 'AFL_Points_Value'].iloc[0]
   
             total_ptss = int(pick_pts) + int(total_pts)
 
