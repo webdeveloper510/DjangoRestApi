@@ -5598,7 +5598,7 @@ def trade_optimiser_algorithm(request, pk):
     trade_in_vec = []
     trade_out_vec = []
     sol_index = []
-
+    df = masterlist.fillna(0)
     trade_optimiser_df = masterlist
 
     # Get set of nodes
