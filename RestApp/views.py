@@ -6399,7 +6399,7 @@ def add_father_son(request, pk):
 
     if len(pick_deficit) > 0:
         deficit_subset = df.copy()
-        deficit_subset = deficit_subset[(deficit_subset.Current_Owner.astype(int) == fs_team) & (
+        deficit_subset = deficit_subset[(deficit_subset.Current_Owner.astype(int) == fs_teamm) & (
             deficit_subset.Year.astype(int) == v_current_year_plus1) & (deficit_subset.Draft_Round_Int >= fs_bid_round_int)]
 
         # Finding the first pick in the round to take the points off (and rowno)
@@ -6487,8 +6487,8 @@ def add_father_son(request, pk):
     rowno = df.index[df['Display_Name_Detailed'] == fs_pick][0]
     # create the line to insert:
 
-    line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fs_team), 'Position'].iloc[0], 'Year': v_current_year,
-                         'TeamName': fs_team, 'PickType': 'FS_BidMatch', 'Original_Owner': fs_team, 'Current_Owner': fs_team,
+    line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fs_teamm), 'Position'].iloc[0], 'Year': v_current_year,
+                         'TeamName': fs_teamm, 'PickType': 'FS_BidMatch', 'Original_Owner': fs_teamm, 'Current_Owner': fs_teamm,
                          'Previous_Owner': '', 'Draft_Round': fs_bid_round, 'Draft_Round_Int': fs_bid_round_int,
                          'Pick_Group': str(v_current_year) + '-' + fs_bid_round + '-FSBidMatch', 'Reason': 'FS Bid Match',
                          'Pick_Status': 'Used', 'Selected_Player': fs_player}, index=[rowno])
@@ -6562,7 +6562,7 @@ def add_father_son(request, pk):
     ######### Exporting Transaction Details: ###############
     current_time = datetime.datetime.now(pytz.timezone(
         'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
-    fs_dict = {fs_team: [fs_pick_type, fs_bid, fs_bid_pick_no, fs_player]}
+    fs_dict = {fs_teamm: [fs_pick_type, fs_bid, fs_bid_pick_no, fs_player]}
 
     # Create Simple description.
     fs_description = 'Father Son Bid Match: Pick ' + \
