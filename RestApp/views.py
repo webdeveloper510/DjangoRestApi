@@ -5893,7 +5893,7 @@ def trade_optimiser_algorithm(request, pk,userid):
         for v in k.keys():
             trade_optimiser_df1 = trade_optimiser_df.fillna(0)
             if trade_optimiser_df1.isnull().values.any() == False:
-                pick_pts = trade_optimiser_df['AFL_Points_Value'].fillna('')
+                trade_optimiser_df['AFL_Points_Value'] = trade_optimiser_df['AFL_Points_Value'].fillna('')
             else:
                 pass
             pick_pts = trade_optimiser_df1.loc[trade_optimiser_df1.Display_Name_Detailed ==
