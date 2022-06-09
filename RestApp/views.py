@@ -5485,7 +5485,7 @@ def quick_academy_calculator(request, pk):
     # ##############  Abhishek Code end ##########################
 
 
-def Get_Constraints_inputs(request, pk,userid):
+def Get_Constraints_inputs(request, pk, userid):
 
     data = request.data
     # userid = data.get('userid')
@@ -5589,10 +5589,10 @@ def data_trade_suggestion(result_df):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def trade_optimiser_algorithm(request, pk,userid):
+def trade_optimiser_algorithm(request, pk, userid):
 
     number_possible_solutions, c1_type, c1_set, c2_type, c2_set, c3_type, c3_set, c4_type, c4_set, c5_type, c5_set, c6_type, c6_set, c7_type, c7_set, c8_type, c8_set, c9_type, c9_set, c10_type, c10_set, c11_type, c11_set, c12_type, c12_set, c13_type, c13_set, c14_type, c14_set, v_team_name, masterlist = Get_Constraints_inputs(
-        request, pk,userid)
+        request, pk, userid)
 
     results_df = pd.DataFrame(columns=[])
     trade_in_vec = []
@@ -5891,14 +5891,15 @@ def trade_optimiser_algorithm(request, pk,userid):
         suggestion = idx + 1
         #     print(suggestion)
         for v in k.keys():
-            trade_optimiser_df1 = trade_optimiser_df.fillna(0)
-            if trade_optimiser_df1.isnull().values.any() == False:
-                trade_optimiser_df['AFL_Points_Value'] = trade_optimiser_df['AFL_Points_Value'].fillna('')
-            else:
-                pass
+            trade_optimiser_df1 = trade_optimiser_df.dropna()
+            # if trade_optimiser_df1.isnull().values.any() == True:
+            #     trade_optimiser_df1['AFL_Points_Value'] = trade_optimiser_df1['AFL_Points_Value'].fillna(
+            #         '')
+            # else:
+            #     pass
             pick_pts = trade_optimiser_df1.loc[trade_optimiser_df1.Display_Name_Detailed ==
-                                              v, 'AFL_Points_Value'].iloc[0]
-             
+                                               v, 'AFL_Points_Value'].iloc[0]
+
             total_pts = int(pick_pts) + int(total_pts)
         #     print(total_pts)
             AFL_Points_In.append(total_pts)
@@ -5920,7 +5921,7 @@ def trade_optimiser_algorithm(request, pk,userid):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def ConstraintsRquest(request, pk,userid):
+def ConstraintsRquest(request, pk, userid):
 
     data = request.data
     # userid = data.get('user_id')
