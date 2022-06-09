@@ -5803,18 +5803,21 @@ def trade_optimiser_algorithm(request, pk,userid):
                                               name="c11_"+str({0}))
 
         # Constraint 12 - Max difference of total value
+        if trade_optimiser_df_to_trade_in["AFL_Points_Value"].isnull().values.any() == False:
+            pass
+        else:
 
-        if(c12_type == "Fixed" or c12_type == "Include"):
+            if(c12_type == "Fixed" or c12_type == "Include"):
 
-            c12_1 = opt_model.addConstraint(plp.lpSum(trade_out[i]*int(trade_optimiser_df_team_dict["AFL_Points_Value"][i]) for i in owned_picks) <=
-                                            (1 + c12_set)*plp.lpSum(
-                trade_in[i]*int(trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i]) for i in to_trade_in_picks),
-                name="c12_1_"+str({0}))
+                c12_1 = opt_model.addConstraint(plp.lpSum(trade_out[i]*int(trade_optimiser_df_team_dict["AFL_Points_Value"][i]) for i in owned_picks) <=
+                                                (1 + c12_set)*plp.lpSum(
+                    trade_in[i]*int(trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i]) for i in to_trade_in_picks),
+                    name="c12_1_"+str({0}))
 
-            c12_2 = opt_model.addConstraint((1 + c12_set)*plp.lpSum(trade_out[i]*int(trade_optimiser_df_team_dict["AFL_Points_Value"][i]) for i in owned_picks) >=
-                                            plp.lpSum(
-                trade_in[i]*int(trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i]) for i in to_trade_in_picks),
-                name="c12_2_"+str({0}))
+                c12_2 = opt_model.addConstraint((1 + c12_set)*plp.lpSum(trade_out[i]*int(trade_optimiser_df_team_dict["AFL_Points_Value"][i]) for i in owned_picks) >=
+                                                plp.lpSum(
+                    trade_in[i]*int(trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i]) for i in to_trade_in_picks),
+                    name="c12_2_"+str({0}))
 
         c_aux = {(ct):
                  opt_model.addConstraint(plp.lpSum(trade_out[i] for i in trade_out_solutions[ct]) + plp.lpSum(trade_in[i] for i in trade_in_solutions[ct])
