@@ -6148,7 +6148,7 @@ def add_father_son_input(request):
     fs_player = data.get('playerid')
     fs_teamm = data.get('fs_team')
     fs_bid = data.get('pickid')
-    return fs_player, fs_team, fs_bid
+    return fs_player, fs_teamm, fs_bid
 
 
 @api_view(['POST'])
@@ -6158,7 +6158,7 @@ def add_father_son(request, pk):
     v_current_year = current_date.year
     v_current_year_plus1 = v_current_year+1
 
-    fs_player, fs_team, fs_bid = add_father_son_input(request)
+    fs_player, fs_teamm, fs_bid = add_father_son_input(request)
 
     teamobj = Teams.objects.get(id=fs_teamm)
     fs_teamname = teamobj.TeamNames
