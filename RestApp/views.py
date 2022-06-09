@@ -5485,11 +5485,11 @@ def quick_academy_calculator(request, pk):
     # ##############  Abhishek Code end ##########################
 
 
-def Get_Constraints_inputs(request, pk):
+def Get_Constraints_inputs(request, pk,userid):
 
     data = request.data
-    loggeduser_id = data.get('user_id')
-    Userobj = User.objects.get(id=loggeduser_id)
+    # userid = data.get('userid')
+    Userobj = User.objects.get(id=userid)
     Teamid = Userobj.Teams.id
     Teamobj = Teams.objects.get(id=Teamid)
     v_team_name = Teamobj.id
@@ -5587,12 +5587,12 @@ def data_trade_suggestion(result_df):
     return result_df
 
 
-@api_view(['POST'])
+@api_view(['GET'])
 @permission_classes([AllowAny])
-def trade_optimiser_algorithm(request, pk):
+def trade_optimiser_algorithm(request, pk,userid):
 
     number_possible_solutions, c1_type, c1_set, c2_type, c2_set, c3_type, c3_set, c4_type, c4_set, c5_type, c5_set, c6_type, c6_set, c7_type, c7_set, c8_type, c8_set, c9_type, c9_set, c10_type, c10_set, c11_type, c11_set, c12_type, c12_set, c13_type, c13_set, c14_type, c14_set, v_team_name, masterlist = Get_Constraints_inputs(
-        request, pk)
+        request, pk,userid)
 
     results_df = pd.DataFrame(columns=[])
     trade_in_vec = []
