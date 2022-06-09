@@ -6186,7 +6186,7 @@ def add_father_son(request, pk):
 
     fs_pick_type = 'Father Son Bid Match'
 
-    sum_line1 = str(fs_bid_team) + ' have placed a bid on a ' + str(fs_team) + \
+    sum_line1 = str(fs_bid_team) + ' have placed a bid on a ' + str(fs_teamm) + \
         ' Father Son player at pick ' + \
         str(fs_bid_pick_no) + ' in ' + fs_bid_round
 
@@ -6205,10 +6205,10 @@ def add_father_son(request, pk):
     Overall_pick = (df_subset.Overall_Pick).fillna(0)
     if Overall_pick.isnull().values.any() == False:
 
-        df_subset = df_subset[(df_subset.Current_Owner.astype(int) == int(fs_team)) & (df_subset.Year.astype(
+        df_subset = df_subset[(df_subset.Current_Owner.astype(int) == int(fs_teamm)) & (df_subset.Year.astype(
             int) == int(v_current_year))]
     else:
-            df_subset = df_subset[(df_subset.Current_Owner.astype(int) == int(fs_team)) & (df_subset.Year.astype(
+            df_subset = df_subset[(df_subset.Current_Owner.astype(int) == int(fs_teamm)) & (df_subset.Year.astype(
             int) == int(v_current_year)) & (Overall_pick.astype(int) >= int(fs_bid_pick_no))]
 
     # Creating the cumulative calculations to determine how the points are repaid:
@@ -6594,7 +6594,7 @@ def add_father_son(request, pk):
     ########## EXPORT TRANSACTION OF DRAFT SELECTION ###########
     # Create Drafted Player dict
 
-    drafted_player_dict = {fs_team: [fs_bid_round, fs_bid_pick_no, fs_player]}
+    drafted_player_dict = {fs_teamm: [fs_bid_round, fs_bid_pick_no, fs_player]}
     drafted_description = 'With pick ' + \
         str(fs_bid_pick_no) + ' ' + str(fs_teamname) + \
         ' have selected ' + str(fs_player)
