@@ -5892,6 +5892,7 @@ def trade_optimiser_algorithm(request, pk, userid):
         #     print(suggestion)
         for v in k.keys():
             # trade_optimiser_df1 = trade_optimiser_df.dropna()
+            trade_optimiser_df['AFL_Points_Value'] = pd.to_numeric(trade_optimiser_df['AFL_Points_Value'], errors='coerce')
             if trade_optimiser_df.isnull().values.any() == True:
                 trade_optimiser_df['AFL_Points_Value'] = trade_optimiser_df['AFL_Points_Value'].fillna(
                     '')
