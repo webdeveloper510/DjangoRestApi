@@ -5901,8 +5901,7 @@ def trade_optimiser_algorithm(request, pk, userid):
                                                v, 'AFL_Points_Value'].iloc[0]
 
             total_pts = int(pick_pts) + int(total_pts)
-            print(total_pts)
-            exit()
+
             AFL_Points_In.append(total_pts)
 
     # Add Columns
