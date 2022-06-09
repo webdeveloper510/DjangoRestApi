@@ -5865,38 +5865,36 @@ def trade_optimiser_algorithm(request, pk, userid):
     results_df["Trade Out"] = trade_out_vec
     results_df["Trade In"] = trade_in_vec
 
-    #Calculations of Points differences
+    # Calculations of Points differences
     # Defining points lists
     AFL_Points_Out = []
     AFL_Points_In = []
 
-    # Trade Out Points:
-    for k in trade_out_solutions:
+    for idx, k in enumerate(trade_out_solutions):
         total_pts = 0
- 
-        for v in k:
-            pick_pts = trade_optimiser_df.loc[trade_optimiser_df.Display_Name_Detailed ==
-                                              picks, 'AFL_Points_Value'].iloc[0]
-
-            total_ptss = int(pick_pts) + int(total_pts)
-            # print(total_pts)
-            AFL_Points_Out.append(total_ptss)
-
-    # Trade In Points:
-
-    for  k in trade_in_solutions:
-        
-        total_pts = 0
-        for v in k:
+        suggestion = idx + 1
+        for v in sorted(k):
             if trade_optimiser_df['AFL_Points_Value'].isnull().values.any():
                 trade_optimiser_df['AFL_Points_Value'] = trade_optimiser_df['AFL_Points_Value'].fillna(0)
             else:
                 pass
-            pick_pts = trade_optimiser_df.loc[trade_optimiser_df.Display_Name_Detailed.astype(str) ==
-                                              picks, 'AFL_Points_Value'].iloc[0]
-  
+            pick_pts = trade_optimiser_df.loc[trade_optimiser_df.Display_Name_Detailed ==
+                                              picks[v], 'AFL_Points_Value'].iloc[0]
             total_ptss = int(pick_pts) + int(total_pts)
+            AFL_Points_Out.append(total_ptss)
 
+    # Trade In Points:
+
+    for idx, k in enumerate(trade_in_solutions):
+        suggestion = idx + 1
+        for v in sorted(k):
+            if trade_optimiser_df['AFL_Points_Value'].isnull().values.any():
+                trade_optimiser_df['AFL_Points_Value'] = trade_optimiser_df['AFL_Points_Value'].fillna(0)
+            else:
+                pass 
+            pick_pts = trade_optimiser_df.loc[trade_optimiser_df.Display_Name_Detailed ==
+                                              picks[v], 'AFL_Points_Value'].iloc[0]
+            total_ptss = int(pick_pts) + int(total_pts)
             AFL_Points_In.append(total_ptss)
 
     # Add Columns
@@ -5910,7 +5908,6 @@ def trade_optimiser_algorithm(request, pk, userid):
     results_df['Points_Diff'] = np.array(
         results_df['Points In']) - np.array(results_df['Points Out']).shape
     data_trade_suggestion(results_df)
-    # print(results_df)
     return Response({'trade_algorithm': results_df}, status=status.HTTP_201_CREATED)
 
 
