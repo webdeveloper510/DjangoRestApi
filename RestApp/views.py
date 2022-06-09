@@ -5898,7 +5898,7 @@ def trade_optimiser_algorithm(request, pk, userid):
                 pass
             pick_pts = trade_optimiser_df.loc[trade_optimiser_df.Display_Name_Detailed.astype(str) ==
                                               v, 'AFL_Points_Value'].iloc[0]
-            total_ptss = int(float(pick_pts)) + int(float(total_pts))
+            total_ptss = float(pick_pts) + float(total_pts)
 
             AFL_Points_In.append(total_ptss)
 
