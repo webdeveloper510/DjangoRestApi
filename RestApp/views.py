@@ -3567,7 +3567,7 @@ def Visualisations(request, pk):
     data_menu_bar_picks['data_menu_bar_picks'] = masterlist.groupby('Current_Owner_Short_Name')[
         'Display_Name_Detailed'].agg(list).to_dict()
     visualisations_data = [data_current_year_club_picks, data_next_year_club_picks, data_dashboard_draftboard, data_dashboard_trade_offers, data_transaction_list, current_year_round_dict, next_year_round_dict,
-             data_order_of_entry, data_full_masterlist, data_trade_offers, data_completed_trades, draft_player_dict, comparison_1_club_picks_dict, data_menu_bar_picks]
+                           data_order_of_entry, data_full_masterlist, data_trade_offers, data_completed_trades, draft_player_dict, comparison_1_club_picks_dict, data_menu_bar_picks]
 
     return Response({'response': visualisations_data}, status.HTTP_201_CREATED)
 
@@ -4941,8 +4941,8 @@ def add_draft_night_selection(request, pk):
 
 
 def call_manual_insert(transactions):
-    return transactions 
- 
+    return transactions
+
 
 def add_manual_inputs(request, pk):
 
@@ -5181,7 +5181,7 @@ def quick_academy_calculator(request, pk):
                                                'Points Deficit', 'Deficit_Amount'].iloc[0]
     except:
         academy_points_deficit = []
-  
+
     picks_lost = df_subset.loc[df_subset.Action ==
                                'Pick lost to back of draft', 'Display_Name_Detailed'].to_list()
 
@@ -5652,10 +5652,10 @@ def trade_optimiser_algorithm(request, pk):
         team_trade_in = {(i): plp.LpVariable(cat=plp.LpBinary,
                                              name="team_trade_in_"+str({0}).format(i))
                          for i in teams_to_trade_with}
-        
+
         objective = plp.lpSum(
-                trade_out[i] for i in owned_picks) + plp.lpSum(trade_in[i] for i in to_trade_in_picks)
-      
+            trade_out[i] for i in owned_picks) + plp.lpSum(trade_in[i] for i in to_trade_in_picks)
+
         # Defines what wallet is chosen
 
         # c0 = {(i, j):
@@ -5910,12 +5910,12 @@ def trade_optimiser_algorithm(request, pk):
     return Response({'trade_algorithm': results_df}, status=status.HTTP_201_CREATED)
 
 
-@api_view(['POST'])
+@api_view(['GET'])
 @permission_classes([AllowAny])
-def ConstraintsRquest(request, pk):
+def ConstraintsRquest(request, pk,userid):
 
     data = request.data
-    userid = data.get('user_id')
+    # userid = data.get('user_id')
     Userobj = User.objects.get(id=userid)
     Teamid = Userobj.Teams.id
     Teamobj = Teams.objects.get(id=Teamid)
@@ -6201,14 +6201,14 @@ def add_father_son(request, pk):
         sum_line2 = str(fs_teamname) + ' will require ' + \
             str(fs_pts_required) + ' draft points to match bid.'
     df_subset = df.copy()
-  
+
     Overall_pick = (df_subset.Overall_Pick).fillna(0)
     if Overall_pick.isnull().values.any() == False:
 
         df_subset = df_subset[(df_subset.Current_Owner.astype(int) == int(fs_teamm)) & (df_subset.Year.astype(
             int) == int(v_current_year))]
     else:
-            df_subset = df_subset[(df_subset.Current_Owner.astype(int) == int(fs_teamm)) & (df_subset.Year.astype(
+        df_subset = df_subset[(df_subset.Current_Owner.astype(int) == int(fs_teamm)) & (df_subset.Year.astype(
             int) == int(v_current_year)) & (Overall_pick.astype(int) >= int(fs_bid_pick_no))]
 
     # Creating the cumulative calculations to determine how the points are repaid:
@@ -6478,7 +6478,7 @@ def add_father_son(request, pk):
     else:
         pick_deficit_details = []
 
-    #////////////////////////  EXECUTE INSERT OF PICK TO THE SPOT OF THE BID ///////////////////////////////////
+    # ////////////////////////  EXECUTE INSERT OF PICK TO THE SPOT OF THE BID ///////////////////////////////////
 
     # inserting pick above fs_bid
 
@@ -6503,7 +6503,7 @@ def add_father_son(request, pk):
 
     MasterList.objects.filter(id=rowno).update(**df)
 
-    #/////////////////////////// Called Update masterlist //////////////////////////////////////
+    # /////////////////////////// Called Update masterlist //////////////////////////////////////
 
     df = dataframerequest(request, pk)
     updatedf = update_masterlist(df)
@@ -6621,8 +6621,8 @@ def add_father_son(request, pk):
     call_drafted_player(drafted_player_transaction_details)
     return Response("Success", status=status.HTTP_201_CREATED)
 
+    #  //////////////////////////////////  GET Requests ///////////////////////////////////////////
 
-                #  //////////////////////////////////  GET Requests ///////////////////////////////////////////
 
 @ api_view(['GET'])
 @ permission_classes([AllowAny])
@@ -6639,7 +6639,7 @@ def LogoutRequest(request):
     if request.session['userId']:
         # ///url = request.build_absolute_uri()
         request.session['userId'] = 0
-        #/ ////return HttpResponseRedirect(redirect_to='')
+        # / ////return HttpResponseRedirect(redirect_to='')
         res = "You have been logged out !"
         return Response(res, status=status.HTTP_403_FORBIDDEN)
 
