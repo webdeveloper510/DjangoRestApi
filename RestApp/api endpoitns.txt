@@ -303,3 +303,10 @@ trade optimiser algorithm
 {
    "user_id":"1"
 }
+
+constraints
+
+
+{
+   "user_id":"1"
+}

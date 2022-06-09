@@ -5658,13 +5658,13 @@ def trade_optimiser_algorithm(request, pk):
       
         # Defines what wallet is chosen
 
-        c0 = {(i, j):
-              opt_model.addConstraint(
-                  team_trade_in[i] >= trade_in[j], name="c0_"+str({0}).format(i, j))
-              for i in teams_to_trade_with for j in to_trade_in_picks if trade_optimiser_df_to_trade_in_dict['Current_Owner'][j] == i}
+        # c0 = {(i, j):
+        #       opt_model.addConstraint(
+        #           team_trade_in[i] >= trade_in[j], name="c0_"+str({0}).format(i, j))
+        #       for i in teams_to_trade_with for j in to_trade_in_picks if trade_optimiser_df_to_trade_in_dict['Current_Owner'][j] == i}
 
         c0_1 = opt_model.addConstraint(plp.lpSum(team_trade_in[i] for i in teams_to_trade_with) == 1,
-                                       name="c0_1")
+                                       name="c0_1_"+str({0}))
 
         # Constraint 1 - Which Display_Name_Detailed to include
 
@@ -5907,7 +5907,7 @@ def trade_optimiser_algorithm(request, pk):
         results_df['Points In']) - np.array(results_df['Points Out']).shape
     data_trade_suggestion(results_df)
     # print(results_df)
-    return results_df
+    return Response({'trade_algorithm': results_df}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
