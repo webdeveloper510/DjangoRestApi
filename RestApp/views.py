@@ -5501,7 +5501,6 @@ def Get_Constraints_inputs(request, pk, userid):
     #### Draft Picks to Be Traded Out ####
     # Constraint 1 - Which exact Picks to include (Display_Name_Detailed)
 
-    c1_title = "Picks to include in trade? (leave blank for any)"
     c1_type = "Fixed"
     c1_set = []
     c1_dropdown = masterlist[masterlist['Current_Owner']
@@ -5880,7 +5879,7 @@ def trade_optimiser_algorithm(request, pk, userid):
                 pass
             pick_pts = trade_optimiser_df.loc[trade_optimiser_df.Display_Name_Detailed ==
                                               picks[v], 'AFL_Points_Value'].iloc[0]
-            total_ptss = int(pick_pts) + int(total_pts)
+            total_ptss = int(pick_pts) + int(total_pts) 
             AFL_Points_Out.append(total_ptss)
 
     # Trade In Points:
@@ -5898,7 +5897,7 @@ def trade_optimiser_algorithm(request, pk, userid):
             AFL_Points_In.append(total_ptss)
 
     # Add Columns
-    results_df = {}
+    # results_df = {}
     results_df['Points Out'] = AFL_Points_Out
 
     results_df['Points In'] = AFL_Points_In
