@@ -5834,15 +5834,15 @@ def trade_optimiser_algorithm(request, pk, userid):
             trade_out_picks_sol = ""
             for i in owned_picks:
 
-                if(trade_out[i].varValue == 1):
+                if(trade_out[i].varValue == 0):
 
-                    trade_out_solutions[sol][i] = 1
+                    # trade_out_solutions[sol][i] = 1
                     count_solution[sol] += 1
                     if(trade_out_picks_sol == ""):
                         trade_out_picks_sol += i
                     else:
                         trade_out_picks_sol += ", " + i
-
+                    
             trade_out_vec.append(trade_out_picks_sol)
             trade_in_sol = ""
             for i in to_trade_in_picks:
