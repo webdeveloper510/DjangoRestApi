@@ -308,5 +308,71 @@ constraints
 
 
 {
-   "user_id":"1"
+   "c1_set":"",
+   "c1_type":"Fixed",
+   "c2_set":"",
+   "c2_type":"Fixed",
+   "c3_set":"",
+   "c3_type":"Fixed",
+   "c4_set":"0",
+   "c4_type":"Fixed",
+   "c5_set":"99999999",
+   "c5_type":"Fixed",
+   "c6_set":"",
+   "c6_type":"Fixed",
+   "c7_set":"",
+   "c7_type":"Fixed",
+   "c8_set":"",
+   "c8_type":"Fixed",
+   "c9_set":"",
+   "c9_type":"Fixed",
+   "c10_set":"0",
+   "c10_type":"Fixed",
+   "c11_set":"99999999",
+   "c11_type":"Fixed",
+   "c12_set":"0.10",
+    "c12_type":"Fixed",
+   "c13_set":"0",
+    "c13_type":"Fixed",
+   "c14_set":"10",
+   "c14_type":"Fixed",
+   "number_possible_solutions":"15",
+   "userid":"1"
+}
+
+
+
+
+
+{
+   "c1_set":"2022-RD2-Pick18-Adelaide Crows",
+   "c1_type":"Fixed",
+   "c2_set":"2022",
+   "c2_type":"Fixed",
+   "c3_set":"RD2",
+   "c3_type":"Fixed",
+   "c4_set":"0",
+   "c4_type":"Fixed",
+   "c5_set":"99999999",
+   "c5_type":"Fixed",
+   "c6_set":"2",
+   "c6_type":"Fixed",
+   "c7_set":"2022-RD1-Pick1-Brisbane Lions",
+   "c7_type":"Fixed",
+   "c8_set":"2022",
+   "c8_type":"Fixed",
+   "c9_set":"RD1",
+   "c9_type":"Fixed",
+   "c10_set":"0",
+   "c10_type":"Fixed",
+   "c11_set":"99999999",
+   "c11_type":"Fixed",
+   "c12_set":"0.10",
+    "c12_type":"Fixed",
+   "c13_set":"0",
+    "c13_type":"Fixed",
+   "c14_set":"10",
+   "c14_type":"Fixed",
+   "number_possible_solutions":"15",
+   "userid":"1"
 }

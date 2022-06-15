@@ -1831,7 +1831,6 @@ def AcademyBidRequest(request, pk):
 
         Project1 = Project.objects.get(id=pk)
         row1['Previous_Owner'] = team
-        team = Teams.objects.get(id=updaterow.TeamName)
         row1['TeamName'] = team
         row1['Original_Owner'] = Original_Owner
         row1['Current_Owner'] = Current_Ownerr
@@ -5485,10 +5484,11 @@ def quick_academy_calculator(request, pk):
     # ##############  Abhishek Code end ##########################
 
 
-def Get_Constraints_inputs(request, pk, userid):
+def Get_Constraints_inputs(request, pk):
 
     data = request.data
     # userid = data.get('userid')
+    userid = data.get('userid')
     Userobj = User.objects.get(id=userid)
     Teamid = Userobj.Teams.id
     Teamobj = Teams.objects.get(id=Teamid)
@@ -5497,101 +5497,83 @@ def Get_Constraints_inputs(request, pk, userid):
     df = dataframerequest(request, pk)
     masterlist = df
     # inputs for Function:
-    number_possible_solutions = 15
+    data = request.data
+    number_possible_solutions = data.get('number_possible_solutions')
     #### Draft Picks to Be Traded Out ####
     # Constraint 1 - Which exact Picks to include (Display_Name_Detailed)
 
-    c1_type = "Fixed"
-    c1_set = []
-    c1_dropdown = masterlist[masterlist['Current_Owner']
-                             == v_team_name]['Display_Name_Detailed'].tolist()
+    c1_type = data.get('c1_type')
+    c1_set = data.get('c1_set')
+
     # Constraint 2 - Which Season to picks are from
-    c2_title = "Season to include in trade? (leave blank for any)"
-    c2_type = "Fixed"
-    c2_set = []
-    c2_dropdown = masterlist[masterlist['Current_Owner']
-                             == v_team_name]['Year'].unique().tolist()
+    c2_type = data.get('c2_type')
+    c2_set = data.get('c2_set')
 
     # Constraint 3 - Which Draft_Round to send
-    c3_title = "Rounds to include in trade? (leave blank for any)"
-    c3_type = "Fixed"
-    c3_set = []
-    c3_dropdown = masterlist[masterlist['Current_Owner']
-                             == v_team_name]['Draft_Round'].unique().tolist()
+
+    c3_type = data.get('c3_type')
+    c3_set = data.get('c3_set')
 
     # Constraint 4 - Minimum draft points value to send
-    c4_title = "Minimum Draft Points to send"
-    c4_type = "Fixed"
-    c4_set = 0
+
+    c4_type = data.get('c4_type')
+    c4_set = data.get('c4_set')
 
     # Constraint 5 - Maximum draft points value to send
-    c5_title = "Maximum Draft Points to send"
-    c5_type = "Fixed"
-    c5_set = 99999999
+
+    c5_type = data.get('c5_type')
+    c5_set = data.get('c5_set')
     #### Draft Picks to be traded in ####
     # Constraint 6 - Which team/s to receive from
-    c6_title = "Select teams to trade with (leave blank for any)"
-    c6_type = "Fixed"
-    c6_set = []
-    c6_dropdown = masterlist[masterlist['Current_Owner']
-                             != v_team_name]['Current_Owner'].unique().tolist()
+
+    c6_type = data.get('c6_type')
+    c6_set = data.get('c6_set')
 
     # Constraint 7 - Which pick (Display_Name_Detailed) to receive
-    c7_title = "Picks to receive in trade? (leave blank for any)"
-    c7_type = "Fixed"
-    c7_set = []
-    c7_dropdown = masterlist[masterlist['Current_Owner'] !=
-                             v_team_name]['Display_Name_Detailed'].unique().tolist()
+
+    c7_type = data.get('c7_type')
+    c7_set = data.get('c7_set')
 
     # Constraint 8 - Which Season to receive
-    c8_title = "Season to receive in trade? (leave blank for any)"
-    c8_type = "Fixed"
-    c8_set = []
-    c8_dropdown = masterlist[masterlist['Current_Owner']
-                             != v_team_name]['Year'].unique().tolist()
+
+    c8_type = data.get('c8_type')
+    c8_set = data.get('c8_set')
 
     # Constraint 9 - Which Draft_Round to receive
-    c9_title = "Rounds to receive in trade? (leave blank for any)"
-    c9_type = "Fixed"
-    c9_set = []
-    c9_dropdown = masterlist[masterlist['Current_Owner']
-                             != v_team_name]['Draft_Round'].unique().tolist()
+
+    c9_type = data.get('c9_type')
+    c9_set = data.get('c9_set')
 
     # Constraint 10 - Minimum AFL_Points_Value to receive
-    c10_title = "Minimum Draft Points to receive"
-    c10_type = "Fixed"
-    c10_set = 0
+
+    c10_type = data.get('c10_type')
+    c10_set = data.get('c10_set')
 
     # Constraint 11 - Maximum AFL_Points_Value to receive
-    c11_title = "Maximum Draft Points to receive"
-    c11_type = "Fixed"
-    c11_set = 99999999
+
+    c11_type = data.get('c11_type')
+    c11_set = data.get('c11_set')
     # Constraint 12 - Max difference of total AFL_Points_Value (Percentage)
-    c12_title = "Enter the maximum difference between Draft Points (Percentage)"
-    c12_type = "Fixed"
-    c12_set = 0.10
+
+    c12_type = data.get('c12_type')
+    c12_set = data.get('c12_set')
     # Constraint 13 - Minimum number of draft picks to receive
-    c13_title = "Enter the minumum number of picks to receive"
-    c13_type = "Fixed"
-    c13_set = 0
-    # Constraint 14 - Maximum number of draft picks to receive
-    c14_title = "Enter the maximum number of picks to receive"
-    c14_type = "Fixed"
-    c14_set = 10
 
-    return number_possible_solutions, c1_type, c1_set, c2_type, c2_set, c3_type, c3_set, c4_type, c4_set, c5_type, c5_set, c6_type, c6_set, c7_type, c7_set, c8_type, c8_set, c9_type, c9_set, c10_type, c10_set, c11_type, c11_set, c12_type, c12_set, c13_type, c13_set, c14_type, c14_set, v_team_name, masterlist
+    c13_type = data.get('c13_type')
+    c13_set = data.get('c13_set')
+    # Constraint 14 - Maximum number of draft picks to receive"
+    c14_type = data.get('c14_type')
+    c14_set = data.get('c14_set')
 
-
-def data_trade_suggestion(result_df):
-    return result_df
+    return number_possible_solutions, c1_type, c1_set, c2_type, c2_set, c3_type, c3_set, c4_type, c4_set, c5_type, c5_set, c6_type, c6_set, c7_type, c7_set, c8_type, c8_set, c9_type, c9_set, c10_type, c10_set, c11_type, c11_set, c12_type, c12_set, c13_type, c13_set, c14_type, c14_set, v_team_name, masterlist, userid
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes([AllowAny])
-def trade_optimiser_algorithm(request, pk, userid):
+def trade_optimiser_algorithm(request, pk):
 
-    number_possible_solutions, c1_type, c1_set, c2_type, c2_set, c3_type, c3_set, c4_type, c4_set, c5_type, c5_set, c6_type, c6_set, c7_type, c7_set, c8_type, c8_set, c9_type, c9_set, c10_type, c10_set, c11_type, c11_set, c12_type, c12_set, c13_type, c13_set, c14_type, c14_set, v_team_name, masterlist = Get_Constraints_inputs(
-        request, pk, userid)
+    number_possible_solutions, c1_type, c1_set, c2_type, c2_set, c3_type, c3_set, c4_type, c4_set, c5_type, c5_set, c6_type, c6_set, c7_type, c7_set, c8_type, c8_set, c9_type, c9_set, c10_type, c10_set, c11_type, c11_set, c12_type, c12_set, c13_type, c13_set, c14_type, c14_set, v_team_name, masterlist, userid = Get_Constraints_inputs(
+        request, pk)
 
     results_df = pd.DataFrame(columns=[])
     trade_in_vec = []
@@ -5632,13 +5614,15 @@ def trade_optimiser_algorithm(request, pk, userid):
     teams_to_trade_with = list(
         set(trade_optimiser_df_to_trade_in['Current_Owner'].to_numpy()))
 
-    trade_out_solutions = [{i} for i in range(0, number_possible_solutions)]
+    trade_out_solutions = [{i}
+                           for i in range(0, int(number_possible_solutions))]
 
-    trade_in_solutions = [{i} for i in range(0, number_possible_solutions)]
+    trade_in_solutions = [{i}
+                          for i in range(0, int(number_possible_solutions))]
 
-    count_solution = [0 for i in range(0, number_possible_solutions)]
+    count_solution = [0 for i in range(0, int(number_possible_solutions))]
 
-    for sol in range(0, number_possible_solutions):
+    for sol in range(0, int(number_possible_solutions)):
 
         # Importing the docplex.mp.model from the CPLEX as Model
         opt_model = plp.LpProblem(name="MIP Model")
@@ -5669,7 +5653,7 @@ def trade_optimiser_algorithm(request, pk, userid):
 
         if(len(c1_set) > 0):
             picks_to_trade_out_df = trade_optimiser_df_team[trade_optimiser_df_team['Display_Name_Detailed'].isin(
-                c1_set)]
+                list(c1_set))]
             picks_to_trade_out = picks_to_trade_out_df['Display_Name_Detailed'].to_numpy(
             )
 
@@ -5720,12 +5704,13 @@ def trade_optimiser_algorithm(request, pk, userid):
         #   Constraint 4 - Minimum value to send
 
         if(c4_type == "Fixed" or c4_type == "Include"):
-            c4 = opt_model.addConstraint(plp.lpSum(trade_out[i]*int(trade_optimiser_df_team_dict["AFL_Points_Value"][i]) for i in owned_picks) >= c4_set,
-                                         name="c4")
+            c4 = opt_model.addConstraint(plp.lpSum(trade_out[i]*int(trade_optimiser_df_team_dict["AFL_Points_Value"][i]) for i in owned_picks) >= int(c4_set),
+                                         name="c4_"+str({0}))
+
         # Constraint 5 - Minimum value to send
 
         if(c5_type == "Fixed" or c5_type == "Include"):
-            c5 = opt_model.addConstraint(plp.lpSum(trade_out[i]*int(trade_optimiser_df_team_dict["AFL_Points_Value"][i]) for i in owned_picks) <= c5_set,
+            c5 = opt_model.addConstraint(plp.lpSum(trade_out[i]*int(trade_optimiser_df_team_dict["AFL_Points_Value"][i]) for i in owned_picks) <= int(c5_set),
                                          name="c5_"+str({0}))
 
             #   Constraint 6 - Current_Owner to receive from
@@ -5793,12 +5778,12 @@ def trade_optimiser_algorithm(request, pk, userid):
 
         # Constraint 10 - Minimum value to receive
             if(c10_type == "Fixed" or c10_type == "Include"):
-                c10 = opt_model.addConstraint(plp.lpSum(trade_in[i]*int(trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i]) for i in to_trade_in_picks) >= c10_set,
+                c10 = opt_model.addConstraint(plp.lpSum(trade_in[i]*int(trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i]) for i in to_trade_in_picks) >= int(c10_set),
                                               name="c10_"+str({0}))
 
            # Constraint 11 - Maximum AFL_Points_Value to receive
             if(c11_type == "Fixed" or c11_type == "Include"):
-                c11 = opt_model.addConstraint(plp.lpSum(trade_in[i]*int(trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i]) for i in to_trade_in_picks) <= c11_set,
+                c11 = opt_model.addConstraint(plp.lpSum(trade_in[i]*int(trade_optimiser_df_to_trade_in_dict["AFL_Points_Value"][i]) for i in to_trade_in_picks) <= int(c11_set),
                                               name="c11_"+str({0}))
 
         # Constraint 12 - Max difference of total value
@@ -5842,7 +5827,7 @@ def trade_optimiser_algorithm(request, pk, userid):
                         trade_out_picks_sol += i
                     else:
                         trade_out_picks_sol += ", " + i
-                    
+                    set(trade_out_picks_sol)
             trade_out_vec.append(trade_out_picks_sol)
             trade_in_sol = ""
             for i in to_trade_in_picks:
@@ -5854,7 +5839,6 @@ def trade_optimiser_algorithm(request, pk, userid):
                     else:
                         trade_in_sol += ", " + i
             trade_in_vec.append(trade_in_sol)
-
             sol_index.append(sol+1)
         else:
             print("Problem is infeasible")
@@ -5874,12 +5858,13 @@ def trade_optimiser_algorithm(request, pk, userid):
         suggestion = idx + 1
         for v in sorted(k):
             if trade_optimiser_df['AFL_Points_Value'].isnull().values.any():
-                trade_optimiser_df['AFL_Points_Value'] = trade_optimiser_df['AFL_Points_Value'].fillna(0)
+                trade_optimiser_df['AFL_Points_Value'] = trade_optimiser_df['AFL_Points_Value'].fillna(
+                    0)
             else:
                 pass
             pick_pts = trade_optimiser_df.loc[trade_optimiser_df.Display_Name_Detailed ==
                                               picks[v], 'AFL_Points_Value'].iloc[0]
-            total_ptss = int(pick_pts) + int(total_pts) 
+            total_ptss = int(pick_pts) + int(total_pts)
             AFL_Points_Out.append(total_ptss)
 
     # Trade In Points:
@@ -5888,9 +5873,10 @@ def trade_optimiser_algorithm(request, pk, userid):
         suggestion = idx + 1
         for v in sorted(k):
             if trade_optimiser_df['AFL_Points_Value'].isnull().values.any():
-                trade_optimiser_df['AFL_Points_Value'] = trade_optimiser_df['AFL_Points_Value'].fillna(0)
+                trade_optimiser_df['AFL_Points_Value'] = trade_optimiser_df['AFL_Points_Value'].fillna(
+                    0)
             else:
-                pass 
+                pass
             pick_pts = trade_optimiser_df.loc[trade_optimiser_df.Display_Name_Detailed ==
                                               picks[v], 'AFL_Points_Value'].iloc[0]
             total_ptss = int(pick_pts) + int(total_pts)
@@ -5910,41 +5896,59 @@ def trade_optimiser_algorithm(request, pk, userid):
     return Response({'trade_algorithm': results_df}, status=status.HTTP_201_CREATED)
 
 
+def data_trade_suggestion(results_df):
+    return results_df
+
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def ConstraintsRquest(request, pk, userid):
 
-    data = request.data
     # userid = data.get('user_id')
     Userobj = User.objects.get(id=userid)
     Teamid = Userobj.Teams.id
     Teamobj = Teams.objects.get(id=Teamid)
     v_team_name = Teamobj.id
 
-    df = dataframerequest(request, pk)
+    masterlist = dataframerequest(request, pk)
     _my_dict = {}
 
-    _my_dict['constraints_1'] = df[df['Current_Owner'] ==
-                                   v_team_name]['Display_Name_Detailed'].tolist()
-    _my_dict['constraints_2'] = df[df['Current_Owner'] ==
-                                   v_team_name]['Year'].unique().tolist()
-    _my_dict['constraints_3'] = df[df['Current_Owner'] ==
-                                   v_team_name]['Draft_Round'].unique().tolist()
+    _my_dict['constraints_1'] = masterlist[masterlist['Current_Owner'].astype(
+        int) == int(v_team_name)]['Display_Name_Detailed'].tolist()
+
+    _my_dict['c1_type'] = "Fixed"
+    _my_dict['constraints_2'] = masterlist[masterlist['Current_Owner'].astype(
+        int) == int(v_team_name)]['Year'].unique().tolist()
+    _my_dict['c2_type'] = "Fixed"
+    _my_dict['constraints_3'] = masterlist[masterlist['Current_Owner'].astype(
+        int) == int(v_team_name)]['Draft_Round'].unique().tolist()
+    _my_dict['c3_type'] = "Fixed"
     _my_dict['constraints_4'] = [0]
+    _my_dict['c4_type'] = "Fixed"
     _my_dict['constraints_5'] = [99999999]
-    _my_dict['constraints_6'] = df[df['Current_Owner'] !=
-                                   v_team_name]['Current_Owner'].unique().tolist()
-    _my_dict['constraints_7'] = df[df['Current_Owner'] !=
-                                   v_team_name]['Display_Name_Detailed'].unique().tolist()
-    _my_dict['constraints_8'] = df[df['Current_Owner'] !=
-                                   v_team_name]['Year'].unique().tolist()
-    _my_dict['constraints_9'] = df[df['Current_Owner'] !=
-                                   v_team_name]['Draft_Round'].unique().tolist()
+    _my_dict['c5_type'] = "Fixed"
+    _my_dict['constraints_6'] = masterlist[masterlist['Current_Owner'].astype(
+        int) != int(v_team_name)]['Current_Owner'].unique().tolist()
+    _my_dict['c6_type'] = "Fixed"
+    _my_dict['constraints_7'] = masterlist[masterlist['Current_Owner'].astype(
+        int) != int(v_team_name)]['Display_Name_Detailed'].unique().tolist()
+    _my_dict['c7_type'] = "Fixed"
+    _my_dict['constraints_8'] = masterlist[masterlist['Current_Owner'].astype(
+        int) != int(v_team_name)]['Year'].unique().tolist()
+    _my_dict['c8_type'] = "Fixed"
+    _my_dict['constraints_9'] = masterlist[masterlist['Current_Owner'].astype(
+        int) != int(v_team_name)]['Draft_Round'].unique().tolist()
+    _my_dict['c9_type'] = "Fixed"
     _my_dict['constraints_10'] = [0]
+    _my_dict['c10_type'] = "Fixed"
     _my_dict['constraints_11'] = [99999999]
+    _my_dict['c11_type'] = "Fixed"
     _my_dict['constraints_12'] = [0.10]
+    _my_dict['c12_type'] = "Fixed"
     _my_dict['constraints_13'] = [0]
+    _my_dict['c13_type'] = "Fixed"
     _my_dict['constraints_14'] = [10]
+    _my_dict['c14_type'] = "Fixed"
 
     return Response(_my_dict, status=status.HTTP_201_CREATED)
 
@@ -5980,6 +5984,19 @@ def GetRounds(request):
     return Response({'roundslist': roundslist}, status=status.HTTP_201_CREATED)
 
 
+def get_images(request, shortnames):
+    Get_images = []
+    sliced_shortnames = shortnames[1:18]
+
+    _queryset = Teams.objects.filter(ShortName__in=sliced_shortnames).values()
+    for data in _queryset:
+        base_url = request.build_absolute_uri('/').strip("/")
+        image_with_path = base_url+'/'+'media'+'/' + data['Image']
+        Get_images.append(image_with_path)
+    Images = tuple(Get_images)
+    return Images
+
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def Get_Rounds_Pick(request, pk):
@@ -5997,31 +6014,19 @@ def Get_Rounds_Pick(request, pk):
 
     Current_Year_Round = {}
     Next_Year_Round = {}
-    TeamList = []
-    _shortnames = []
-    shortname = df['Display_Name_Short']
-    df_first_18 = df.head(18)
-    df_short_name = df_first_18['Display_Name_Short']
-
-    imgQuery = Teams.objects.filter().values()
-    serializer = ListImageSerializer(
-        imgQuery, many=True, context={'request': request})
-    data = serializer.data
-    for values in imgQuery:
-        _shortnames.append(values['ShortName'])
-        base_url = request.build_absolute_uri('/').strip("/")
-        image_with_path = base_url+'/'+'media'+'/'+values['Image']
-        TeamList.append(image_with_path)
-
-    Imgdf = pd.DataFrame(TeamList)
-
-    df = pd.concat([Imgdf, df], axis=1).fillna('')
-
+    img = tuple()
+    shortnames = df['Display_Name_Short']
+    img = get_images(request, shortnames)
+    img_df = pd.Series(img)
+    img_df = img_df.head(18)
+    img_df = img_df.dropna()
+    df['new_col'] = img_df
+    df = df.append(img_df, ignore_index=True)
+    df = df.fillna(0)
     Current_Year_Round['data_current_year_rd1'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD1')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 0]]
-
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'new_col']]
     Current_Year_Round['data_current_year_rd2'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD2')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'new_col']]
 
     Current_Year_Round['data_current_year_rd3'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD3')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
@@ -6036,24 +6041,24 @@ def Get_Rounds_Pick(request, pk):
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
     # Next Year Round by Round:
-    Next_Year_Round['data_next_year_rd1'] = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 0]]
+    Next_Year_Round['data_next_year_rd1'] = df[(df.Year.astype(int) == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
     Next_Year_Round['data_next_year_rd1'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD2')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 0]]
-
-    Next_Year_Round['data_next_year_rd2'] = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD2')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
-    Next_Year_Round['data_next_year_rd3'] = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
+    Next_Year_Round['data_next_year_rd2'] = df[(df.Year.astype(int) == v_current_year_plus1) & (df.Draft_Round == 'RD2')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
-    Next_Year_Round['data_next_year_rd4'] = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD4')][[
+    Next_Year_Round['data_next_year_rd3'] = df[(df.Year.astype(int) == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
-    Next_Year_Round['data_next_year_rd5'] = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD5')][[
+    Next_Year_Round['data_next_year_rd4'] = df[(df.Year.astype(int) == v_current_year_plus1) & (df.Draft_Round == 'RD4')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
-    Next_Year_Round['data_next_year_rd6'] = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
+    Next_Year_Round['data_next_year_rd5'] = df[(df.Year.astype(int) == v_current_year_plus1) & (df.Draft_Round == 'RD5')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+
+    Next_Year_Round['data_next_year_rd6'] = df[(df.Year.astype(int) == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
     # Order of Entry Table
@@ -6062,7 +6067,7 @@ def Get_Rounds_Pick(request, pk):
     teamobj = Teams.objects.filter(id=pk).values()
     for teams in teamobj:
         Teamnames.append(teams['TeamNames'])
-    data_order_of_entry = df[(int(df.Year[0])+1 == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
+    data_order_of_entry = df[(df.Year == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
         'TeamName', 'Overall_Pick', 'Club_Pick_Number']].sort_values(by='Overall_Pick')
 
     # data_order_of_entry = pd.crosstab(data_order_of_entry.TeamName_id, data_order_of_entry.Club_Pick_Number, values=data_order_of_entry.Overall_Pick,aggfunc=sum)
