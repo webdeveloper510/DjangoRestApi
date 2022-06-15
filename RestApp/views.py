@@ -3891,12 +3891,12 @@ def update_ladder(request, pk):
                 # now need to use the unique pick name to then find the aligned pick in the new_masterlist:
                 # Now find the new aligned pick name from the unique pick id if there is an aligned pick:
         
-                if pp_unique_pick != '':
-                    pp_aligned_pick = new_masterlist.loc[new_masterlist.Display_Name_Detailed.astype(
-                        str) == str(pp_unique_pick), 'Display_Name_Detailed'].iloc[0]
+                # if pp_unique_pick != '':
+                #     pp_aligned_pick = new_masterlist.loc[new_masterlist.Display_Name_Detailed.astype(
+                #         str) == str(pp_unique_pick), 'Display_Name_Detailed'].iloc[0]
 
-                else:
-                    pass
+                # else:
+                #     pass
                 # Execute Function and add to the transaction list:
                 new_transactions = call_priority_pick_v2(transactions)
 
