@@ -92,7 +92,7 @@ urlpatterns = [
         r'^quick_academy_calculator/(?P<pk>[0-9]+)$', quick_academy_calculator),
     # re_path(r'^trade-alogrithm/(?P<pk>[0-9]+)$', trade_optimiser_algorithm),
     re_path(r'^Constraint/(?P<pk>\w+)/(?P<userid>[\w-]+)/$', ConstraintsRquest),
-    re_path(r'^trade-alogrithm/(?P<pk>\w+)/(?P<userid>[\w-]+)/$', trade_optimiser_algorithm),
+    re_path(r'^trade-alogrithm/(?P<pk>\w+)', trade_optimiser_algorithm),
     re_path(r'^update_ladder/(?P<pk>[0-9]+)$', update_ladder),
     re_path(r'^add-new-player/(?P<pk>[0-9]+)$', add_draftee_player),
     re_path(
