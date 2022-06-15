@@ -208,7 +208,7 @@ update Trade Potential
 "Trading_In_Num_Player":"1",
 "player_trading_in":"1",
 "notes":"testing",
-"projectid":""
+"projectid":"1"
 }
 
 

@@ -4338,12 +4338,11 @@ def update_trade_offers(request, pk):
 
         trades_updated = pd.concat([trades_updated, append_df])
     # print(trades_updated)
-        Tarde_dict = {}
-        for index, updaterow in append_df.iterrows():
-            Tarde_dict = dict(updaterow)
-        print(Tarde_dict)
-        exit()
-        Trades(**Tarde_dict).save()
+    Tarde_dict = {}
+    for index, updaterow in append_df.iterrows():
+        Tarde_dict = dict(updaterow)
+
+    Trades(**Tarde_dict).save()
     return Response({'success': 'success'}, status=status.HTTP_201_CREATED)
 
 
