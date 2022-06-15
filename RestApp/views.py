@@ -3798,6 +3798,8 @@ def update_ladder(request, pk):
     # First stage bringing in the ordered ladder list which will be generated from the Settings page:
     current_day = date.today()
     v_current_year = current_day.year
+    ladder_list_current_yr = v_current_year
+    ladder_list_current_yr_plus1 = ladder_list_current_yr+1
     v_current_year_plus1 = v_current_year+1
     updated_ladderlist_current_year = ''
     updated_ladderlist_current_year_plus1 = []
@@ -3812,7 +3814,7 @@ def update_ladder(request, pk):
 
     library_AFL_Team_Names = df['TeamName']
     updated_ladder_current_year, updated_ladder_current_year_plus1 = import_ladder_dragdrop_V2(
-        updated_ladderlist_current_year, updated_ladderlist_current_year_plus1, library_AFL_Team_Names, v_current_year, v_current_year_plus1)
+        ladder_list_current_yr, ladder_list_current_yr_plus1, library_AFL_Team_Names, v_current_year, v_current_year_plus1)
     masterlist = df
     library_round_map = masterlist['Draft_Round']
     # Using the create masterlist code with the updated ladders as inputs:
