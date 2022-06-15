@@ -3890,10 +3890,9 @@ def update_ladder(request, pk):
 
                 # now need to use the unique pick name to then find the aligned pick in the new_masterlist:
                 # Now find the new aligned pick name from the unique pick id if there is an aligned pick:
-                print(pp_unique_pick)
-                exit()
+        
                 if pp_unique_pick != '':
-                    pp_aligned_pick = new_masterlist.loc[new_masterlist.Unique_Pick_ID.astype(
+                    pp_aligned_pick = new_masterlist.loc[new_masterlist.Display_Name_Detailed.astype(
                         str) == str(pp_unique_pick), 'Display_Name_Detailed'].iloc[0]
 
                 else:
