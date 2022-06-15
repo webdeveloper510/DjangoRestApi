@@ -210,10 +210,10 @@ def update_masterlist(df):
 
         library_AFL_Draft_Pointss.append(pointss['points'])
 
-    df.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
-    df.rename(columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
-    df.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
-    df.rename(columns={'Previous_Owner_id': 'Previous_Owner'}, inplace=True)
+    # df.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
+    # df.rename(columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
+    # df.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
+    # df.rename(columns={'Previous_Owner_id': 'Previous_Owner'}, inplace=True)
 
     df['Overall_Pick'] = df.groupby('Year').cumcount() + 1
 
@@ -300,7 +300,8 @@ def CreateMasterListRequest(request, pk):
                 Overall_pickk = row1['Overall_Pick']
 
                 Project1 = Project.objects.get(id=updaterow.projectid)
-                df['Previous_Owner'] = previous_owner
+
+                row1['Previous_Owner_id'] = previous_owner.id
                 team = Teams.objects.get(id=updaterow.TeamName)
                 row1['TeamName'] = team
                 row1['Original_Owner'] = Original_Owner
@@ -4118,7 +4119,7 @@ def add_draftee_player(request, pk):
     return Response({'success': 'Player has been Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
-def add_potential_trade_inputs(request):
+def add_trade_offer_inputs(request):
     data = request.data
     v_team_name = data.get('teamid')
     Trade_Partner = data.get('Trade_Partner')
@@ -4141,7 +4142,7 @@ def add_trade_offer(request, pk):
     dfobj = MasterList.objects.filter(projectid=pk).values()
     for df_data in dfobj:
         df.append(df_data)
-    v_team_name, Trade_Partner, notes, Trading_Out_Num, Trading_Out_Num_Player, pick_out_idd, player_trading_out, pick_in_id, Trading_In_Num, Trading_In_Num_Player, player_trading_in = add_potential_trade_inputs(
+    v_team_name, Trade_Partner, notes, Trading_Out_Num, Trading_Out_Num_Player, pick_out_idd, player_trading_out, pick_in_id, Trading_In_Num, Trading_In_Num_Player, player_trading_in = add_trade_offer_inputs(
         request)
     masterlist = pd.DataFrame(df)
 
@@ -4232,7 +4233,11 @@ def add_trade_offer(request, pk):
     trades = pd.DataFrame({'Trade_Partner': Trade_Partner, 'Trading_Out': [Trading_Out_Simple], 'Trading_In': [Trading_In_Simple],
                            'Points_Out': total_points_out, 'Points_In': total_points_in,  'Points_Diff': total_points_diff,  'Notes': notes, 'System_Out': [Trading_Out], 'System_In': [Trading_In]}, index=[0])
 
-    # trades = pd.concat([trades,append_df])
+    # Append to the trades dataframe
+    append_df = pd.DataFrame({'Trade_Partner': Trade_Partner, 'Trading_Out': [Trading_Out_Simple], 'Trading_In': [Trading_In_Simple],
+                              'Points_Out': total_points_out, 'Points_In': total_points_in,  'Points_Diff': total_points_diff,  'Notes': notes, 'System_Out': [Trading_Out], 'System_In': [Trading_In]}, index=[0]).shape
+
+    # trades = pd.concat([append_df])
 
     return trades, masterlist, v_team_name
 
@@ -6627,6 +6632,47 @@ def add_father_son(request, pk):
     return Response("Success", status=status.HTTP_201_CREATED)
 
     #  //////////////////////////////////  GET Requests ///////////////////////////////////////////
+
+
+# ///////////////////////// webpage dashbaord api //////////////////////////////////////////////
+
+@ api_view(['GET'])
+@ permission_classes([AllowAny])
+def dashboard_request(request, pk):
+    _dashboard = {}
+    masterlist = dataframerequest(request, pk)
+    players = playerdataframe(request, pk)
+    trades = tradesdataframe(request, pk)
+
+    transactions = transactionsdataframe(request, pk)
+    current_day = date.today()
+    proj_obj = Project.objects.get(id=pk)
+    v_team_name = proj_obj.teamid
+    v_current_year = current_day.year
+    v_current_year_plus1 = v_current_year+1
+
+    # Current Year Picks to a List:
+    _dashboard['data_current_year_club_picks'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (
+        masterlist.Current_Owner.astype(int) == int(v_team_name))].Display_Name_Mini.to_list()
+    # Next Year Picks to a List:
+    _dashboard['data_next_year_club_picks'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (
+        masterlist.Current_Owner.astype(int) == int(v_team_name))].Display_Name_Mini.to_list()
+
+    # Dashboard Page masterlist:
+    _dashboard['data_dashboard_masterlist'] = masterlist[[
+        'Year', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    _dashboard['data_dashboard_draftboard'] = players[['FirstName', 'LastName',
+                                                      'Position_1', 'Rank']].sort_values(by='Rank', ascending=True)
+    _dashboard['data_dashboard_trade_offers'] = trades[[
+        'Trade_Partner', 'Trading_Out', 'Trading_In', 'Points_Diff', 'Notes']]
+    # Dashboard Page Transactions
+    _dashboard['data_transaction_list'] = transactions[[
+        'Transaction_Number', 'Transaction_Type', 'Transaction_Description']]
+    next_team_to_pick1 = masterlist[(
+        masterlist.Pick_Status != 'Used')]['Current_Owner'].iloc[0]
+    Team_Obj = Teams.objects.get(id=next_team_to_pick1)
+    _dashboard['next_team_to_pick'] = Team_Obj.TeamNames
+    return Response({'data': _dashboard}, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
