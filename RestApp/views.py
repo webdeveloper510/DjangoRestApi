@@ -4341,7 +4341,8 @@ def update_trade_offers(request, pk):
         Tarde_dict = {}
         for index, updaterow in append_df.iterrows():
             Tarde_dict = dict(updaterow)
-
+        print(Tarde_dict)
+        exit()
         Trades(**Tarde_dict).save()
     return Response({'success': 'success'}, status=status.HTTP_201_CREATED)
 
