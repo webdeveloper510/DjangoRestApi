@@ -8,6 +8,7 @@ from django.utils import timezone
 class Project(models.Model):
     project_name = models.CharField(max_length=100)
     project_desc = models.CharField(max_length=200)
+    teamid = models.CharField(max_length=100,default='')
 
     def __str__(self):
         return f"{self.project_name}"

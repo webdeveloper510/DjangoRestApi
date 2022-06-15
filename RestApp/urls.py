@@ -59,7 +59,8 @@ from .views import (
     add_draftee_player,
     update_trade_offers,
     Visualisations,
-    ConstraintsRquest
+    ConstraintsRquest,
+    dashboard_request
 )
 
 urlpatterns = [
@@ -127,6 +128,7 @@ urlpatterns = [
     re_path(r'^Get-Rounds/$', GetRounds),
     re_path(r'^Get-FlagPicks/(?P<pk>[0-9]+)$', GetFlagPicks),
     re_path(r'^Get-Flags/$', GetFlagsRequest),
+    re_path(r'^dashboard-api/(?P<pk>[0-9]+)$', dashboard_request),
 
 
     # ///////////////////////  Delete URL's /////////////////////////////////

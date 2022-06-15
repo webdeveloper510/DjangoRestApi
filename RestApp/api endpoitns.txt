@@ -167,10 +167,10 @@ add nga bid inputs
 
 
 create project
-
 {
 "project_name":"test1",
- "project_desc":"test1 desc"
+ "project_desc":"test1 desc",
+ "teamid":"1"
 }
 
 
