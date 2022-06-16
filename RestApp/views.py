@@ -6,6 +6,7 @@ from doctest import master
 # from locale import D_FMT
 # from locale import D_T_FMT
 from logging import raiseExceptions
+from optparse import Values
 from re import M, T
 # from socket import MSG_EOR
 from tabnanny import verbose
@@ -6071,14 +6072,22 @@ def Get_Rounds_Pick(request, pk):
 
     # Order of Entry Table
 
-    Teamnames = []
-    teamobj = Teams.objects.filter(id=pk).values()
-    for teams in teamobj:
-        Teamnames.append(teams['TeamNames'])
-    data_order_of_entry = df[(df.Year == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
+    data_order_of_entry_list = []
+    data_order_of_entry = df[(df.Year.astype(int) == int(v_current_year_plus1)) & (df.Draft_Round == 'RD6')][[
         'TeamName', 'Overall_Pick', 'Club_Pick_Number']].sort_values(by='Overall_Pick')
-
-    # data_order_of_entry = pd.crosstab(data_order_of_entry.TeamName_id, data_order_of_entry.Club_Pick_Number, values=data_order_of_entry.Overall_Pick,aggfunc=sum)
+    TeamIds = data_order_of_entry['TeamName'].astype(
+        int).values.flatten().tolist()
+    k = list(TeamIds)
+    for ids in k:
+        queryset = Teams.objects.filter(id=ids).values()
+        for data in queryset:
+            for key, value in data_order_of_entry.iterrows():
+                data_order_dict = {}
+                data_order_dict['TeamName'] = data['TeamNames']
+                data_order_dict['Overall_Pick'] = value['Overall_Pick']
+                data_order_dict['Club_Pick_Number'] = value['Club_Pick_Number']
+                data_order_of_entry_list.append(data_order_dict.copy())
+    # data_order_of_entry = pd.crosstab(data_order_of_entry.TeamName, data_order_of_entry.Club_Pick_Number, values=data_order_of_entry.Overall_Pick,aggfunc=sum)
 
     data_order_of_entry.reset_index(drop=True, inplace=True)
     data_order_of_entry_dict = data_order_of_entry.to_dict(orient="index")
@@ -6098,15 +6107,33 @@ def Get_Rounds_Pick(request, pk):
         graph_list.append(_dict)
 
     ##### Full List of Draft Picks #####
-
+    data_full_masterlist_list = []
     data_full_masterlist = df[['Year', 'Draft_Round', 'Overall_Pick', 'TeamName',
                                'PickType', 'Original_Owner', 'Current_Owner', 'Previous_Owner', 'AFL_Points_Value', 'Club_Pick_Number']]
 
-    dict = data_full_masterlist.items()
-    data_full_list = list(dict)
-    data_full_masterlist_array = np.array(data_full_list, dtype=object)
+    TeamIds = data_full_masterlist['TeamName'].astype(
+        int).values.flatten().tolist()
+    k = list(TeamIds)
+    for ids in k:
+        queryset = Teams.objects.filter(id=ids).values()
+        for data in queryset:
 
-    return Response({'Current_Year_Round': Current_Year_Round, 'Next_Year_Round': Next_Year_Round, 'data_order_of_entry_dict': data_order_of_entry_dict, 'data_full_masterlist_array': data_full_masterlist_array, 'graph_list': graph_list}, status=status.HTTP_201_CREATED)
+            for key, values in data_full_masterlist.iterrows():
+
+                masterlist_full_dict = {}
+                masterlist_full_dict['Year'] = values['Year']
+                masterlist_full_dict['Draft_Round'] = values['Draft_Round']
+                masterlist_full_dict['Overall_Pick'] = values['Overall_Pick']
+                masterlist_full_dict['TeamName'] = data['TeamNames']
+                masterlist_full_dict['PickType'] = values['PickType']
+                masterlist_full_dict['Original_Owner'] = data['TeamNames']
+                masterlist_full_dict['Current_Owner'] = data['TeamNames']
+                masterlist_full_dict['Previous_Owner'] = data['TeamNames']
+                masterlist_full_dict['AFL_Points_Value'] = values['AFL_Points_Value']
+                masterlist_full_dict['Club_Pick_Number'] = values['Club_Pick_Number']
+                data_full_masterlist_list.append(masterlist_full_dict.copy())
+                break
+    return Response({'Current_Year_Round': Current_Year_Round, 'Next_Year_Round': Next_Year_Round, 'data_order_of_entry': data_order_of_entry_list, 'data_full_masterlist_array': data_full_masterlist_list, 'graph_list': graph_list}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -6662,9 +6689,10 @@ def dashboard_request(request, pk):
         masterlist.Current_Owner.astype(int) == int(v_team_name))].Display_Name_Mini.to_dict().values()
 
     # Dashboard Page masterlist:
-    data_dashboard_masterlist=[]
-    data_dashboard_masterlist_data = masterlist[['Year', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    for key,value in data_dashboard_masterlist_data.iterrows():
+    data_dashboard_masterlist = []
+    data_dashboard_masterlist_data = masterlist[[
+        'Year', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    for key, value in data_dashboard_masterlist_data.iterrows():
         dict = {}
         dict['Year'] = value['Year']
         dict['Overall_Pick'] = value['Overall_Pick']
@@ -6673,42 +6701,42 @@ def dashboard_request(request, pk):
 
     data_dashboard_draftboard = []
     data_dashboard_draftboard_data = players[['FirstName', 'LastName',
-                                                      'Position_1', 'Rank']].sort_values(by='Rank', ascending=True)
-    for key,value in data_dashboard_draftboard_data.iterrows():
+                                              'Position_1', 'Rank']].sort_values(by='Rank', ascending=True)
+    for key, value in data_dashboard_draftboard_data.iterrows():
         dict['FirstName'] = value['FirstName']
         dict['LastName'] = value['LastName']
         dict['Position_1'] = value['Position_1']
-        dict['Position_1']= value['Rank']
+        dict['Position_1'] = value['Rank']
         data_dashboard_draftboard.append(dict.copy())
-    data_dashboard_trade_offers=[]
+    data_dashboard_trade_offers = []
     data_dashboard_trade_offers_data = trades[[
         'Trade_Partner', 'Trading_Out', 'Trading_In', 'Points_Diff', 'Points_Diff']]
-    for key,value in data_dashboard_trade_offers_data.iterrows():
-        dict={}
+    for key, value in data_dashboard_trade_offers_data.iterrows():
+        dict = {}
         dict['Trade_Partner'] = value['Trade_Partner']
         dict['Trading_Out'] = value['Trading_Out']
         dict['Trading_In'] = value['Trading_In']
-        dict['Points_Diff']= value['Points_Diff']
+        dict['Points_Diff'] = value['Points_Diff']
         data_dashboard_trade_offers.append(dict.copy())
 
     # Dashboard Page Transactions
-    transaction_list = [] 
-    data_transaction_list = transactions[[    
+    transaction_list = []
+    data_transaction_list = transactions[[
         'Transaction_Number', 'Transaction_Type', 'Transaction_Description']]
-    for key,value in  data_transaction_list.iterrows():
+    for key, value in data_transaction_list.iterrows():
         dict = {}
 
         dict['Transaction_Number'] = value['Transaction_Number']
         dict['Transaction_Type'] = value['Transaction_Type']
-        dict['Transaction_Description'] =value['Transaction_Description']
+        dict['Transaction_Description'] = value['Transaction_Description']
         transaction_list.append(dict.copy())
-    
+
     next_team_to_pick1 = masterlist[(
         masterlist.Pick_Status != 'Used')]['Current_Owner'].iloc[0]
 
     Team_Obj = Teams.objects.get(id=next_team_to_pick1)
     _dashboard['next_team_to_pick'] = Team_Obj.TeamNames
-    return Response({'data':_dashboard,'transaction_list':transaction_list,'data_dashboard_masterlist':data_dashboard_masterlist,'data_dashboard_draftboard':data_dashboard_draftboard,'data_dashboard_trade_offers':data_dashboard_trade_offers}, status=status.HTTP_200_OK)
+    return Response({'data': _dashboard, 'transaction_list': transaction_list, 'data_dashboard_masterlist': data_dashboard_masterlist, 'data_dashboard_draftboard': data_dashboard_draftboard, 'data_dashboard_trade_offers': data_dashboard_trade_offers}, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
