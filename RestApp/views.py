@@ -3890,7 +3890,7 @@ def update_ladder(request, pk):
 
                 # now need to use the unique pick name to then find the aligned pick in the new_masterlist:
                 # Now find the new aligned pick name from the unique pick id if there is an aligned pick:
-        
+
                 # if pp_unique_pick != '':
                 #     pp_aligned_pick = new_masterlist.loc[new_masterlist.Display_Name_Detailed.astype(
                 #         str) == str(pp_unique_pick), 'Display_Name_Detailed'].iloc[0]
@@ -6655,27 +6655,60 @@ def dashboard_request(request, pk):
     v_current_year_plus1 = v_current_year+1
 
     # Current Year Picks to a List:
-    _dashboard['data_current_year_club_picks'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (
+    _dashboard['data_current_year_club_picks_data'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (
         masterlist.Current_Owner.astype(int) == int(v_team_name))].Display_Name_Mini.to_list()
     # Next Year Picks to a List:
     _dashboard['data_next_year_club_picks'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (
-        masterlist.Current_Owner.astype(int) == int(v_team_name))].Display_Name_Mini.to_list()
+        masterlist.Current_Owner.astype(int) == int(v_team_name))].Display_Name_Mini.to_dict().values()
 
     # Dashboard Page masterlist:
-    _dashboard['data_dashboard_masterlist'] = masterlist[[
-        'Year', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    _dashboard['data_dashboard_draftboard'] = players[['FirstName', 'LastName',
+    data_dashboard_masterlist=[]
+    data_dashboard_masterlist_data = masterlist[['Year', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    for key,value in data_dashboard_masterlist_data.iterrows():
+        dict = {}
+        dict['Year'] = value['Year']
+        dict['Overall_Pick'] = value['Overall_Pick']
+        dict['Display_Name_Short'] = value['AFL_Points_Value']
+        data_dashboard_masterlist.append(dict.copy())
+
+    data_dashboard_draftboard = []
+    data_dashboard_draftboard_data = players[['FirstName', 'LastName',
                                                       'Position_1', 'Rank']].sort_values(by='Rank', ascending=True)
-    _dashboard['data_dashboard_trade_offers'] = trades[[
-        'Trade_Partner', 'Trading_Out', 'Trading_In', 'Points_Diff', 'Notes']]
+    for key,value in data_dashboard_draftboard_data.iterrows():
+        dict['FirstName'] = value['FirstName']
+        dict['LastName'] = value['LastName']
+        dict['Position_1'] = value['Position_1']
+        dict['Position_1']= value['Rank']
+        data_dashboard_draftboard.append(dict.copy())
+    data_dashboard_trade_offers=[]
+    data_dashboard_trade_offers_data = trades[[
+        'Trade_Partner', 'Trading_Out', 'Trading_In', 'Points_Diff', 'Points_Diff']]
+    for key,value in data_dashboard_trade_offers_data.iterrows():
+        dict={}
+        dict['Trade_Partner'] = value['Trade_Partner']
+        dict['Trading_Out'] = value['Trading_Out']
+        dict['Trading_In'] = value['Trading_In']
+        dict['Points_Diff']= value['Points_Diff']
+        data_dashboard_trade_offers.append(dict.copy())
+
     # Dashboard Page Transactions
-    _dashboard['data_transaction_list'] = transactions[[
+    transaction_list = [] 
+    data_transaction_list = transactions[[    
         'Transaction_Number', 'Transaction_Type', 'Transaction_Description']]
+    for key,value in  data_transaction_list.iterrows():
+        dict = {}
+
+        dict['Transaction_Number'] = value['Transaction_Number']
+        dict['Transaction_Type'] = value['Transaction_Type']
+        dict['Transaction_Description'] =value['Transaction_Description']
+        transaction_list.append(dict.copy())
+    
     next_team_to_pick1 = masterlist[(
         masterlist.Pick_Status != 'Used')]['Current_Owner'].iloc[0]
+
     Team_Obj = Teams.objects.get(id=next_team_to_pick1)
     _dashboard['next_team_to_pick'] = Team_Obj.TeamNames
-    return Response({'data': _dashboard}, status=status.HTTP_200_OK)
+    return Response({'data':_dashboard,'transaction_list':transaction_list,'data_dashboard_masterlist':data_dashboard_masterlist,'data_dashboard_draftboard':data_dashboard_draftboard,'data_dashboard_trade_offers':data_dashboard_trade_offers}, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
