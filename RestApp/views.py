@@ -6012,10 +6012,11 @@ def Get_Rounds_Pick(request, pk):
 
     df = dataframerequest(request, pk)
 
-    df['column'] = np.zeros(len(df))
-    df['column'].describe()
-    df = df[~df.isin([np.nan, np.inf, -np.inf]).any(1)]
-
+    # df['column'] = np.zeros(len(df))
+    # df['column'].describe()
+    # df = df[~df.isin([np.nan, np.inf, -np.inf]).any(1)]
+    # print( df['column'])
+    # exit()
     current_date = date.today()
 
     v_current_year = current_date.year
@@ -6024,51 +6025,253 @@ def Get_Rounds_Pick(request, pk):
     Current_Year_Round = {}
     Next_Year_Round = {}
     img = tuple()
-    shortnames = df['Display_Name_Short']
-    img = get_images(request, shortnames)
-    img_df = pd.Series(img)
-    img_df = img_df.head(18)
-    img_df = img_df.dropna()
-    df['new_col'] = img_df
-    df = df.append(img_df, ignore_index=True)
-    df = df.fillna(0)
-    Current_Year_Round['data_current_year_rd1'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD1')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'new_col']]
-    Current_Year_Round['data_current_year_rd2'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD2')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'new_col']]
+    df["Images"] = ""
+    # Current Year list
+    data_current_year_rd1_list = []
+    data_current_year_rd2_list = []
+    data_current_year_rd3_list = []
+    data_current_year_rd4_list = []
+    data_current_year_rd5_list = []
+    data_current_year_rd6_list = []
 
-    Current_Year_Round['data_current_year_rd3'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD3')][[
+    # Next year list
+    data_next_year_rd1_list = []
+    data_next_year_rd2_list = []
+    data_next_year_rd3_list = []
+    data_next_year_rd4_list = []
+    data_next_year_rd5_list = []
+    data_next_year_rd6_list = []
+
+    data_current_year_rd1 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD1')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'Images']]
+    Display_Name_Short = data_current_year_rd1['Display_Name_Short'].astype(
+        str).values.flatten().tolist()
+    short_name = list(Display_Name_Short)
+
+    for k in short_name:
+        query = Teams.objects.filter(ShortName=k).values('Image')
+        for data in query:
+            for key, values in data_current_year_rd1.iterrows():
+                data_current_year_rd1_dict = {}
+                base_url = request.build_absolute_uri('/').strip("/")
+                image_with_path = base_url+'/'+'media'+'/' + data['Image']
+                data_current_year_rd1_dict['Images'] = image_with_path
+                data_current_year_rd1_dict['Draft_Round'] = values['Draft_Round']
+                data_current_year_rd1_dict['Overall_Pick'] = values['Overall_Pick']
+                data_current_year_rd1_dict['Display_Name_Short'] = k
+                data_current_year_rd1_list.append(
+                    data_current_year_rd1_dict.copy())
+                break
+
+    data_current_year_rd2 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD2')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+    Display_Name_Short_rd2 = data_current_year_rd2['Display_Name_Short'].astype(
+        str).values.flatten().tolist()
+    for k in Display_Name_Short_rd2:
+        query = Teams.objects.filter(ShortName=k).values('Image')
+        for data in query:
+            for key, values in data_current_year_rd2.iterrows():
+                data_current_year_rd2_dict = {}
+                base_url = request.build_absolute_uri('/').strip("/")
+                image_with_path = base_url+'/'+'media'+'/' + data['Image']
+                data_current_year_rd2_dict['Images'] = image_with_path
+                data_current_year_rd2_dict['Draft_Round'] = values['Draft_Round']
+                data_current_year_rd2_dict['Overall_Pick'] = values['Overall_Pick']
+                data_current_year_rd2_dict['Display_Name_Short'] = k
+                data_current_year_rd2_list.append(
+                    data_current_year_rd2_dict.copy())
+                break
+
+    data_current_year_rd3 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD3')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+    Display_Name_Short_rd3 = data_current_year_rd3['Display_Name_Short'].astype(
+        str).values.flatten().tolist()
+    for k in Display_Name_Short_rd3:
+        query = Teams.objects.filter(ShortName=k).values('Image')
+        for data in query:
+            for key, values in data_current_year_rd3.iterrows():
+                data_current_year_rd3_dict = {}
+                base_url = request.build_absolute_uri('/').strip("/")
+                image_with_path = base_url+'/'+'media'+'/' + data['Image']
+                data_current_year_rd3_dict['Images'] = image_with_path
+                data_current_year_rd3_dict['Draft_Round'] = values['Draft_Round']
+                data_current_year_rd3_dict['Overall_Pick'] = values['Overall_Pick']
+                data_current_year_rd3_dict['Display_Name_Short'] = k
+                data_current_year_rd3_list.append(
+                    data_current_year_rd3_dict.copy())
+                break
+    data_current_year_rd4 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD4')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+    Display_Name_Short_rd4 = data_current_year_rd4['Display_Name_Short'].astype(
+        str).values.flatten().tolist()
+    for k in Display_Name_Short_rd4:
+        query = Teams.objects.filter(ShortName=k).values('Image')
+        for data in query:
+            for key, values in data_current_year_rd4.iterrows():
+                data_current_year_rd4_dict = {}
+                base_url = request.build_absolute_uri('/').strip("/")
+                image_with_path = base_url+'/'+'media'+'/' + data['Image']
+                data_current_year_rd4_dict['Images'] = image_with_path
+                data_current_year_rd4_dict['Draft_Round'] = values['Draft_Round']
+                data_current_year_rd4_dict['Overall_Pick'] = values['Overall_Pick']
+                data_current_year_rd4_dict['Display_Name_Short'] = k
+                data_current_year_rd4_list.append(
+                    data_current_year_rd4_dict.copy())
+                break
+
+    data_current_year_rd5 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD5')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
-    Current_Year_Round['data_current_year_rd4'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD4')][[
+    Display_Name_Short_rd5 = data_current_year_rd5['Display_Name_Short'].astype(
+        str).values.flatten().tolist()
+    for k in Display_Name_Short_rd5:
+        query = Teams.objects.filter(ShortName=k).values('Image')
+        for data in query:
+            for key, values in data_current_year_rd5.iterrows():
+                data_current_year_rd5_dict = {}
+                base_url = request.build_absolute_uri('/').strip("/")
+                image_with_path = base_url+'/'+'media'+'/' + data['Image']
+                data_current_year_rd5_dict['Images'] = image_with_path
+                data_current_year_rd5_dict['Draft_Round'] = values['Draft_Round']
+                data_current_year_rd5_dict['Overall_Pick'] = values['Overall_Pick']
+                data_current_year_rd5_dict['Display_Name_Short'] = k
+                data_current_year_rd5_list.append(
+                    data_current_year_rd5_dict.copy())
+                break
+    data_current_year_rd6 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD6')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+    Display_Name_Short_rd6 = data_current_year_rd6['Display_Name_Short'].astype(
+        str).values.flatten().tolist()
+    for k in Display_Name_Short_rd6:
 
-    Current_Year_Round['data_current_year_rd5'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD5')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+        query = Teams.objects.filter(ShortName=k).values('Image')
+        for data in query:
 
-    Current_Year_Round['data_current_year_rd6'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD6')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+            for key, values in data_current_year_rd6.iterrows():
+
+                data_current_year_rd6_dict = {}
+                base_url = request.build_absolute_uri('/').strip("/")
+                image_with_path = base_url+'/'+'media'+'/' + data['Image']
+                data_current_year_rd6_dict['Images'] = image_with_path
+                data_current_year_rd6_dict['Draft_Round'] = values['Draft_Round']
+                data_current_year_rd6_dict['Overall_Pick'] = values['Overall_Pick']
+                data_current_year_rd6_dict['Display_Name_Short'] = k
+                data_current_year_rd6_list.append(
+                    data_current_year_rd6_dict.copy())
+                break
 
     # Next Year Round by Round:
-    Next_Year_Round['data_next_year_rd1'] = df[(df.Year.astype(int) == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
-    Next_Year_Round['data_next_year_rd1'] = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD2')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
 
-    Next_Year_Round['data_next_year_rd2'] = df[(df.Year.astype(int) == v_current_year_plus1) & (df.Draft_Round == 'RD2')][[
+    data_next_year_rd1 = df[(df.Year.astype(int) == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+    Display_Name_Short_rd1_nextyear = data_next_year_rd1['Display_Name_Short'].astype(
+        str).values.flatten().tolist()
+    for k in Display_Name_Short_rd1_nextyear:
+        query = Teams.objects.filter(ShortName=k).values('Image')
+        for data in query:
+            for key, values in data_current_year_rd5.iterrows():
+                data_next_year_rd1_dict = {}
+                base_url = request.build_absolute_uri('/').strip("/")
+                image_with_path = base_url+'/'+'media'+'/' + data['Image']
+                data_next_year_rd1_dict['Images'] = image_with_path
+                data_next_year_rd1_dict['Draft_Round'] = values['Draft_Round']
+                data_next_year_rd1_dict['Overall_Pick'] = values['Overall_Pick']
+                data_next_year_rd1_dict['Display_Name_Short'] = k
+                data_next_year_rd1_list.append(
+                    data_next_year_rd1_dict.copy())
+                break
+    data_next_year_rd2 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD2')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+    Display_Name_Short_rd2_nextyear = data_next_year_rd2['Display_Name_Short'].astype(
+        str).values.flatten().tolist()
+    for k in Display_Name_Short_rd2_nextyear:
+        query = Teams.objects.filter(ShortName=k).values('Image')
+        for data in query:
+            for key, values in data_current_year_rd5.iterrows():
+                data_next_year_rd2_dict = {}
+                base_url = request.build_absolute_uri('/').strip("/")
+                image_with_path = base_url+'/'+'media'+'/' + data['Image']
+                data_next_year_rd2_dict['Images'] = image_with_path
+                data_next_year_rd2_dict['Draft_Round'] = values['Draft_Round']
+                data_next_year_rd2_dict['Overall_Pick'] = values['Overall_Pick']
+                data_next_year_rd2_dict['Display_Name_Short'] = k
+                data_next_year_rd2_list.append(
+                    data_next_year_rd2_dict.copy())
+                break
 
-    Next_Year_Round['data_next_year_rd3'] = df[(df.Year.astype(int) == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
+    data_next_year_rd3 = df[(df.Year.astype(int) == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+    Display_Name_Short_rd3_nextyear = data_next_year_rd3['Display_Name_Short'].astype(
+        str).values.flatten().tolist()
+    for k in Display_Name_Short_rd3_nextyear:
+        query = Teams.objects.filter(ShortName=k).values('Image')
+        for data in query:
+            for key, values in data_current_year_rd5.iterrows():
+                data_next_year_rd3_dict = {}
+                base_url = request.build_absolute_uri('/').strip("/")
+                image_with_path = base_url+'/'+'media'+'/' + data['Image']
+                data_next_year_rd3_dict['Images'] = image_with_path
+                data_next_year_rd3_dict['Draft_Round'] = values['Draft_Round']
+                data_next_year_rd3_dict['Overall_Pick'] = values['Overall_Pick']
+                data_next_year_rd3_dict['Display_Name_Short'] = k
+                data_next_year_rd3_list.append(
+                    data_next_year_rd3_dict.copy())
+                break
+    data_next_year_rd4 = df[(df.Year.astype(int) == v_current_year_plus1) & (df.Draft_Round == 'RD4')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+    Display_Name_Short_rd4_nextyear = data_next_year_rd4['Display_Name_Short'].astype(
+        str).values.flatten().tolist()
+    for k in Display_Name_Short_rd4_nextyear:
+        query = Teams.objects.filter(ShortName=k).values('Image')
+        for data in query:
+            for key, values in data_current_year_rd5.iterrows():
+                data_next_year_rd4_dict = {}
+                base_url = request.build_absolute_uri('/').strip("/")
+                image_with_path = base_url+'/'+'media'+'/' + data['Image']
+                data_next_year_rd4_dict['Images'] = image_with_path
+                data_next_year_rd4_dict['Draft_Round'] = values['Draft_Round']
+                data_next_year_rd4_dict['Overall_Pick'] = values['Overall_Pick']
+                data_next_year_rd4_dict['Display_Name_Short'] = k
+                data_next_year_rd4_list.append(
+                    data_next_year_rd4_dict.copy())
+                break
 
-    Next_Year_Round['data_next_year_rd4'] = df[(df.Year.astype(int) == v_current_year_plus1) & (df.Draft_Round == 'RD4')][[
+    data_next_year_rd5 = df[(df.Year.astype(int) == v_current_year_plus1) & (df.Draft_Round == 'RD5')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
-
-    Next_Year_Round['data_next_year_rd5'] = df[(df.Year.astype(int) == v_current_year_plus1) & (df.Draft_Round == 'RD5')][[
+    Display_Name_Short_rd5_nextyear = data_next_year_rd5['Display_Name_Short'].astype(
+        str).values.flatten().tolist()
+    for k in Display_Name_Short_rd5_nextyear:
+        query = Teams.objects.filter(ShortName=k).values('Image')
+        for data in query:
+            for key, values in data_current_year_rd5.iterrows():
+                data_next_year_rd5_dict = {}
+                base_url = request.build_absolute_uri('/').strip("/")
+                image_with_path = base_url+'/'+'media'+'/' + data['Image']
+                data_next_year_rd5_dict['Images'] = image_with_path
+                data_next_year_rd5_dict['Draft_Round'] = values['Draft_Round']
+                data_next_year_rd5_dict['Overall_Pick'] = values['Overall_Pick']
+                data_next_year_rd5_dict['Display_Name_Short'] = k
+                data_next_year_rd5_list.append(
+                    data_next_year_rd5_dict.copy())
+                break
+    data_next_year_rd6 = df[(df.Year.astype(int) == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
-
-    Next_Year_Round['data_next_year_rd6'] = df[(df.Year.astype(int) == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+    data_next_year_rd6 = data_next_year_rd6['Display_Name_Short'].astype(
+        str).values.flatten().tolist()
+    for k in data_next_year_rd6:
+        query = Teams.objects.filter(ShortName=k).values('Image')
+        for data in query:
+            for key, values in data_current_year_rd5.iterrows():
+                data_next_year_rd6_dict = {}
+                base_url = request.build_absolute_uri('/').strip("/")
+                image_with_path = base_url+'/'+'media'+'/' + data['Image']
+                data_next_year_rd6_dict['Images'] = image_with_path
+                data_next_year_rd6_dict['Draft_Round'] = values['Draft_Round']
+                data_next_year_rd6_dict['Overall_Pick'] = values['Overall_Pick']
+                data_next_year_rd6_dict['Display_Name_Short'] = k
+                data_next_year_rd6_list.append(
+                    data_next_year_rd6_dict.copy())
+                break
 
     # Order of Entry Table
 
@@ -6133,7 +6336,7 @@ def Get_Rounds_Pick(request, pk):
                 masterlist_full_dict['Club_Pick_Number'] = values['Club_Pick_Number']
                 data_full_masterlist_list.append(masterlist_full_dict.copy())
                 break
-    return Response({'Current_Year_Round': Current_Year_Round, 'Next_Year_Round': Next_Year_Round, 'data_order_of_entry': data_order_of_entry_list, 'data_full_masterlist_array': data_full_masterlist_list, 'graph_list': graph_list}, status=status.HTTP_201_CREATED)
+    return Response({'data_current_year_rd1_list': data_current_year_rd1_list, 'data_current_year_rd2': data_current_year_rd2_list, 'data_current_year_rd3': data_current_year_rd3_list, 'data_current_year_rd4': data_current_year_rd4_list, 'data_current_year_rd6': data_current_year_rd6_list, 'data_next_year_rd1': data_next_year_rd1_list, 'data_next_year_rd2': data_next_year_rd2_list, 'data_next_year_rd3': data_next_year_rd3_list, 'data_next_year_rd4': data_next_year_rd4_list, 'data_next_year_rd5': data_next_year_rd5_list, 'data_next_year_rd6': data_next_year_rd6_list, 'graph_list': graph_list}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
