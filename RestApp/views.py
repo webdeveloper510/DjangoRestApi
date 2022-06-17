@@ -6351,7 +6351,7 @@ def Get_Rounds_Pick(request, pk):
         for data in queryset:
             for key, value in data_order_of_entry.iterrows():
                 if key >= i:
-                    i+=0
+                    i += 0
                     data_order_dict = {}
                     data_order_dict['TeamName'] = data['TeamNames']
                     data_order_dict['Overall_Pick'] = value['Overall_Pick']
@@ -6404,7 +6404,7 @@ def Get_Rounds_Pick(request, pk):
                 data_full_masterlist_list.append(
                     masterlist_full_dict.copy())
                 break
-    return Response({'data_current_year_rd1_list': data_current_year_rd1_list, 'data_current_year_rd2': data_current_year_rd2_list, 'data_current_year_rd3': data_current_year_rd3_list, 'data_current_year_rd4': data_current_year_rd4_list, 'data_current_year_rd6': data_current_year_rd6_list, 'data_next_year_rd1': data_next_year_rd1_list, 'data_next_year_rd2': data_next_year_rd2_list, 'data_next_year_rd3': data_next_year_rd3_list, 'data_next_year_rd4': data_next_year_rd4_list, 'data_next_year_rd5': data_next_year_rd5_list, 'data_next_year_rd6': data_next_year_rd6_list, 'data_full_masterlist': data_full_masterlist_list, 'data_order_of_entry': data_order_of_entry_list, 'graph_list': graph_list}, status=status.HTTP_201_CREATED)
+    return Response({'data_current_year_rd1_list': data_current_year_rd1_list, 'data_current_year_rd2': data_current_year_rd2_list, 'data_current_year_rd3': data_current_year_rd3_list, 'data_current_year_rd4': data_current_year_rd4_list,'data_current_year_rd5':data_current_year_rd5_list, 'data_current_year_rd6': data_current_year_rd6_list, 'data_next_year_rd1': data_next_year_rd1_list, 'data_next_year_rd2': data_next_year_rd2_list, 'data_next_year_rd3': data_next_year_rd3_list, 'data_next_year_rd4': data_next_year_rd4_list, 'data_next_year_rd5': data_next_year_rd5_list, 'data_next_year_rd6': data_next_year_rd6_list, 'data_full_masterlist': data_full_masterlist_list, 'data_order_of_entry': data_order_of_entry_list, 'graph_list': graph_list}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -6960,16 +6960,20 @@ def dashboard_request(request, pk):
         masterlist.Current_Owner.astype(int) == int(v_team_name))].Display_Name_Mini.to_dict().values()
 
     # Dashboard Page masterlist:
-    data_dashboard_masterlist = []
-    data_dashboard_masterlist_data = masterlist[[
-        'Year', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    for key, value in data_dashboard_masterlist_data.iterrows():
 
-        dict['Year'] = value['Year']
-        dict['Overall_Pick'] = value['Overall_Pick']
-        dict['Display_Name_Short'] = value['Display_Name_Short']
-        dict['AFL_Points_Value'] = value['AFL_Points_Value']
-        data_dashboard_masterlist.append(dict.copy())
+    data_dashboard_masterlist = []
+    Draft_Round_Int = masterlist.Draft_Round_Int
+    if masterlist['Draft_Round_Int'] <= str(5) :
+
+        data_dashboard_masterlist_data = masterlist[[
+            'Year', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+        for key, value in data_dashboard_masterlist_data.iterrows():
+
+            dict['Year'] = value['Year']
+            dict['Overall_Pick'] = value['Overall_Pick']
+            dict['Display_Name_Short'] = value['Display_Name_Short']
+            dict['AFL_Points_Value'] = value['AFL_Points_Value']
+            data_dashboard_masterlist.append(dict.copy())
 
     data_dashboard_draftboard = []
     data_dashboard_draftboard_data = players[['FirstName', 'LastName',
