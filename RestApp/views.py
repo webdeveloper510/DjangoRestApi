@@ -1,8 +1,9 @@
 from array import array
-from ast import Add
+from ast import Add, Break
 from dataclasses import replace
 from distutils.command.config import dump_file
 from doctest import master
+from http.client import CONTINUE
 # from locale import D_FMT
 # from locale import D_T_FMT
 from logging import raiseExceptions
@@ -6047,21 +6048,29 @@ def Get_Rounds_Pick(request, pk):
     Display_Name_Short = data_current_year_rd1['Display_Name_Short'].astype(
         str).values.flatten().tolist()
     short_name = list(Display_Name_Short)
+    overall_pick = data_current_year_rd1['Overall_Pick'].astype(
+        str).values.flatten().tolist()
 
+    overall_pick = [x for x in overall_pick]
+    i = 0
     for k in short_name:
+
         query = Teams.objects.filter(ShortName=k).values('Image')
+
         for data in query:
             for key, values in data_current_year_rd1.iterrows():
-                data_current_year_rd1_dict = {}
-                base_url = request.build_absolute_uri('/').strip("/")
-                image_with_path = base_url+'/'+'media'+'/' + data['Image']
-                data_current_year_rd1_dict['Images'] = image_with_path
-                data_current_year_rd1_dict['Draft_Round'] = values['Draft_Round']
-                data_current_year_rd1_dict['Overall_Pick'] = values['Overall_Pick']
-                data_current_year_rd1_dict['Display_Name_Short'] = k
-                data_current_year_rd1_list.append(
-                    data_current_year_rd1_dict.copy())
-                break
+                if key == i:
+                    i += 1
+                    data_current_year_rd1_dict = {}
+                    base_url = request.build_absolute_uri('/').strip("/")
+                    image_with_path = base_url+'/'+'media'+'/' + data['Image']
+                    data_current_year_rd1_dict['Images'] = image_with_path
+                    data_current_year_rd1_dict['Draft_Round'] = values['Draft_Round']
+                    data_current_year_rd1_dict['Overall_Pick'] = values['Overall_Pick']
+                    data_current_year_rd1_dict['Display_Name_Short'] = k
+                    data_current_year_rd1_list.append(
+                        data_current_year_rd1_dict.copy())
+                    break
 
     data_current_year_rd2 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD2')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
@@ -6071,16 +6080,19 @@ def Get_Rounds_Pick(request, pk):
         query = Teams.objects.filter(ShortName=k).values('Image')
         for data in query:
             for key, values in data_current_year_rd2.iterrows():
-                data_current_year_rd2_dict = {}
-                base_url = request.build_absolute_uri('/').strip("/")
-                image_with_path = base_url+'/'+'media'+'/' + data['Image']
-                data_current_year_rd2_dict['Images'] = image_with_path
-                data_current_year_rd2_dict['Draft_Round'] = values['Draft_Round']
-                data_current_year_rd2_dict['Overall_Pick'] = values['Overall_Pick']
-                data_current_year_rd2_dict['Display_Name_Short'] = k
-                data_current_year_rd2_list.append(
-                    data_current_year_rd2_dict.copy())
-                break
+                if key == i:
+                    i += 1
+                    data_current_year_rd2_dict = {}
+                    base_url = request.build_absolute_uri('/').strip("/")
+                    image_with_path = base_url+'/'+'media'+'/' + data['Image']
+                    data_current_year_rd2_dict['Images'] = image_with_path
+                    data_current_year_rd2_dict['Draft_Round'] = values['Draft_Round']
+                    data_current_year_rd2_dict['Overall_Pick'] = values['Overall_Pick']
+                    data_current_year_rd2_dict['Display_Name_Short'] = values['Display_Name_Short']
+                    data_current_year_rd2_list.append(
+                        data_current_year_rd2_dict.copy())
+
+                    break
 
     data_current_year_rd3 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD3')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
@@ -6090,16 +6102,19 @@ def Get_Rounds_Pick(request, pk):
         query = Teams.objects.filter(ShortName=k).values('Image')
         for data in query:
             for key, values in data_current_year_rd3.iterrows():
-                data_current_year_rd3_dict = {}
-                base_url = request.build_absolute_uri('/').strip("/")
-                image_with_path = base_url+'/'+'media'+'/' + data['Image']
-                data_current_year_rd3_dict['Images'] = image_with_path
-                data_current_year_rd3_dict['Draft_Round'] = values['Draft_Round']
-                data_current_year_rd3_dict['Overall_Pick'] = values['Overall_Pick']
-                data_current_year_rd3_dict['Display_Name_Short'] = k
-                data_current_year_rd3_list.append(
-                    data_current_year_rd3_dict.copy())
-                break
+                if key == i:
+                    i += 1
+                    data_current_year_rd3_dict = {}
+                    base_url = request.build_absolute_uri('/').strip("/")
+                    image_with_path = base_url+'/'+'media'+'/' + data['Image']
+                    data_current_year_rd3_dict['Images'] = image_with_path
+                    data_current_year_rd3_dict['Draft_Round'] = values['Draft_Round']
+                    data_current_year_rd3_dict['Overall_Pick'] = values['Overall_Pick']
+                    data_current_year_rd3_dict['Display_Name_Short'] = values['Display_Name_Short']
+                    data_current_year_rd3_list.append(
+                        data_current_year_rd3_dict.copy())
+                    break
+
     data_current_year_rd4 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD4')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
     Display_Name_Short_rd4 = data_current_year_rd4['Display_Name_Short'].astype(
@@ -6108,16 +6123,18 @@ def Get_Rounds_Pick(request, pk):
         query = Teams.objects.filter(ShortName=k).values('Image')
         for data in query:
             for key, values in data_current_year_rd4.iterrows():
-                data_current_year_rd4_dict = {}
-                base_url = request.build_absolute_uri('/').strip("/")
-                image_with_path = base_url+'/'+'media'+'/' + data['Image']
-                data_current_year_rd4_dict['Images'] = image_with_path
-                data_current_year_rd4_dict['Draft_Round'] = values['Draft_Round']
-                data_current_year_rd4_dict['Overall_Pick'] = values['Overall_Pick']
-                data_current_year_rd4_dict['Display_Name_Short'] = k
-                data_current_year_rd4_list.append(
-                    data_current_year_rd4_dict.copy())
-                break
+                if key == i:
+                    i += 1
+                    data_current_year_rd4_dict = {}
+                    base_url = request.build_absolute_uri('/').strip("/")
+                    image_with_path = base_url+'/'+'media'+'/' + data['Image']
+                    data_current_year_rd4_dict['Images'] = image_with_path
+                    data_current_year_rd4_dict['Draft_Round'] = values['Draft_Round']
+                    data_current_year_rd4_dict['Overall_Pick'] = values['Overall_Pick']
+                    data_current_year_rd4_dict['Display_Name_Short'] = values['Display_Name_Short']
+                    data_current_year_rd4_list.append(
+                        data_current_year_rd4_dict.copy())
+                    break
 
     data_current_year_rd5 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD5')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
@@ -6128,20 +6145,24 @@ def Get_Rounds_Pick(request, pk):
         query = Teams.objects.filter(ShortName=k).values('Image')
         for data in query:
             for key, values in data_current_year_rd5.iterrows():
-                data_current_year_rd5_dict = {}
-                base_url = request.build_absolute_uri('/').strip("/")
-                image_with_path = base_url+'/'+'media'+'/' + data['Image']
-                data_current_year_rd5_dict['Images'] = image_with_path
-                data_current_year_rd5_dict['Draft_Round'] = values['Draft_Round']
-                data_current_year_rd5_dict['Overall_Pick'] = values['Overall_Pick']
-                data_current_year_rd5_dict['Display_Name_Short'] = k
-                data_current_year_rd5_list.append(
-                    data_current_year_rd5_dict.copy())
-                break
+                if key == i:
+                    i += 1
+                    data_current_year_rd5_dict = {}
+                    base_url = request.build_absolute_uri('/').strip("/")
+                    image_with_path = base_url+'/'+'media'+'/' + data['Image']
+                    data_current_year_rd5_dict['Images'] = image_with_path
+                    data_current_year_rd5_dict['Draft_Round'] = values['Draft_Round']
+                    data_current_year_rd5_dict['Overall_Pick'] = values['Overall_Pick']
+                    data_current_year_rd5_dict['Display_Name_Short'] = values['Display_Name_Short']
+                    data_current_year_rd5_list.append(
+                        data_current_year_rd5_dict.copy())
+                    break
+
     data_current_year_rd6 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD6')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
     Display_Name_Short_rd6 = data_current_year_rd6['Display_Name_Short'].astype(
         str).values.flatten().tolist()
+
     for k in Display_Name_Short_rd6:
 
         query = Teams.objects.filter(ShortName=k).values('Image')
@@ -6149,129 +6170,173 @@ def Get_Rounds_Pick(request, pk):
 
             for key, values in data_current_year_rd6.iterrows():
 
-                data_current_year_rd6_dict = {}
-                base_url = request.build_absolute_uri('/').strip("/")
-                image_with_path = base_url+'/'+'media'+'/' + data['Image']
-                data_current_year_rd6_dict['Images'] = image_with_path
-                data_current_year_rd6_dict['Draft_Round'] = values['Draft_Round']
-                data_current_year_rd6_dict['Overall_Pick'] = values['Overall_Pick']
-                data_current_year_rd6_dict['Display_Name_Short'] = k
-                data_current_year_rd6_list.append(
-                    data_current_year_rd6_dict.copy())
-                break
+                if key == i:
+                    i += 1
+                    data_current_year_rd6_dict = {}
+                    base_url = request.build_absolute_uri('/').strip("/")
+                    image_with_path = base_url+'/'+'media'+'/' + data['Image']
+                    data_current_year_rd6_dict['Images'] = image_with_path
+                    data_current_year_rd6_dict['Draft_Round'] = values['Draft_Round']
+                    data_current_year_rd6_dict['Overall_Pick'] = values['Overall_Pick']
+                    data_current_year_rd6_dict['Display_Name_Short'] = values['Display_Name_Short']
+                    data_current_year_rd6_list.append(
+                        data_current_year_rd6_dict.copy())
+                    break
 
-    # Next Year Round by Round:
+        # Next Year Round by Round:
 
+    next_year_rd1_images = []
+    next_year_rd2_images = []
+    next_year_rd3_images = []
+    next_year_rd4_images = []
+    next_year_rd5_images = []
+    next_year_rd6_images = []
     data_next_year_rd1 = df[(df.Year.astype(int) == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
     Display_Name_Short_rd1_nextyear = data_next_year_rd1['Display_Name_Short'].astype(
         str).values.flatten().tolist()
+
     for k in Display_Name_Short_rd1_nextyear:
-        query = Teams.objects.filter(ShortName=k).values('Image')
+        query = Teams.objects.filter(ShortName=k).values('Image', 'ShortName')
         for data in query:
-            for key, values in data_current_year_rd5.iterrows():
+            dict = {}
+            dict['ShortName'] = data['ShortName']
+            base_url = request.build_absolute_uri('/').strip("/")
+            dict['image_with_path'] = base_url+'/'+'media'+'/' + data['Image']
+            next_year_rd1_images.append(dict.copy())
+
+    for key, values in data_current_year_rd5.iterrows():
+        for img in next_year_rd1_images:
+            if img['ShortName'] == values['Display_Name_Short']:
                 data_next_year_rd1_dict = {}
-                base_url = request.build_absolute_uri('/').strip("/")
-                image_with_path = base_url+'/'+'media'+'/' + data['Image']
-                data_next_year_rd1_dict['Images'] = image_with_path
+                data_next_year_rd1_dict['Images'] = img['image_with_path']
                 data_next_year_rd1_dict['Draft_Round'] = values['Draft_Round']
                 data_next_year_rd1_dict['Overall_Pick'] = values['Overall_Pick']
-                data_next_year_rd1_dict['Display_Name_Short'] = k
+                data_next_year_rd1_dict['Display_Name_Short'] = values['Display_Name_Short']
                 data_next_year_rd1_list.append(
                     data_next_year_rd1_dict.copy())
-                break
+
     data_next_year_rd2 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD2')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
     Display_Name_Short_rd2_nextyear = data_next_year_rd2['Display_Name_Short'].astype(
         str).values.flatten().tolist()
     for k in Display_Name_Short_rd2_nextyear:
-        query = Teams.objects.filter(ShortName=k).values('Image')
+        query = Teams.objects.filter(ShortName=k).values('Image', 'ShortName')
         for data in query:
-            for key, values in data_current_year_rd5.iterrows():
+            dict = {}
+            dict['ShortName'] = data['ShortName']
+            base_url = request.build_absolute_uri('/').strip("/")
+            dict['image_with_path'] = base_url+'/'+'media'+'/' + data['Image']
+            next_year_rd2_images.append(dict.copy())
+
+    for key, values in data_next_year_rd2.iterrows():
+        for img in next_year_rd2_images:
+            if img['ShortName'] == values['Display_Name_Short']:
                 data_next_year_rd2_dict = {}
-                base_url = request.build_absolute_uri('/').strip("/")
-                image_with_path = base_url+'/'+'media'+'/' + data['Image']
-                data_next_year_rd2_dict['Images'] = image_with_path
+                data_next_year_rd2_dict['Images'] = img['image_with_path']
                 data_next_year_rd2_dict['Draft_Round'] = values['Draft_Round']
                 data_next_year_rd2_dict['Overall_Pick'] = values['Overall_Pick']
-                data_next_year_rd2_dict['Display_Name_Short'] = k
+                data_next_year_rd2_dict['Display_Name_Short'] = values['Display_Name_Short']
                 data_next_year_rd2_list.append(
                     data_next_year_rd2_dict.copy())
-                break
 
     data_next_year_rd3 = df[(df.Year.astype(int) == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
     Display_Name_Short_rd3_nextyear = data_next_year_rd3['Display_Name_Short'].astype(
         str).values.flatten().tolist()
     for k in Display_Name_Short_rd3_nextyear:
-        query = Teams.objects.filter(ShortName=k).values('Image')
+        query = Teams.objects.filter(ShortName=k).values('Image', 'ShortName')
         for data in query:
-            for key, values in data_current_year_rd5.iterrows():
+            dict = {}
+            dict['ShortName'] = data['ShortName']
+            base_url = request.build_absolute_uri('/').strip("/")
+            dict['image_with_path'] = base_url+'/'+'media'+'/' + data['Image']
+            next_year_rd3_images.append(dict.copy())
+
+    for key, values in data_current_year_rd5.iterrows():
+        for img in next_year_rd2_images:
+            if img['ShortName'] == values['Display_Name_Short']:
                 data_next_year_rd3_dict = {}
-                base_url = request.build_absolute_uri('/').strip("/")
-                image_with_path = base_url+'/'+'media'+'/' + data['Image']
-                data_next_year_rd3_dict['Images'] = image_with_path
+                data_next_year_rd3_dict['Images'] = img['image_with_path']
                 data_next_year_rd3_dict['Draft_Round'] = values['Draft_Round']
                 data_next_year_rd3_dict['Overall_Pick'] = values['Overall_Pick']
-                data_next_year_rd3_dict['Display_Name_Short'] = k
+                data_next_year_rd3_dict['Display_Name_Short'] = values['Display_Name_Short']
                 data_next_year_rd3_list.append(
                     data_next_year_rd3_dict.copy())
-                break
+
     data_next_year_rd4 = df[(df.Year.astype(int) == v_current_year_plus1) & (df.Draft_Round == 'RD4')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
     Display_Name_Short_rd4_nextyear = data_next_year_rd4['Display_Name_Short'].astype(
         str).values.flatten().tolist()
     for k in Display_Name_Short_rd4_nextyear:
-        query = Teams.objects.filter(ShortName=k).values('Image')
+        query = Teams.objects.filter(ShortName=k).values('Image', 'ShortName')
         for data in query:
-            for key, values in data_current_year_rd5.iterrows():
+            dict = {}
+            dict['ShortName'] = data['ShortName']
+            base_url = request.build_absolute_uri('/').strip("/")
+            dict['image_with_path'] = base_url+'/'+'media'+'/' + data['Image']
+            next_year_rd4_images.append(dict.copy())
+
+    for key, values in data_current_year_rd5.iterrows():
+
+        for img in next_year_rd2_images:
+            if img['ShortName'] == values['Display_Name_Short']:
                 data_next_year_rd4_dict = {}
-                base_url = request.build_absolute_uri('/').strip("/")
-                image_with_path = base_url+'/'+'media'+'/' + data['Image']
-                data_next_year_rd4_dict['Images'] = image_with_path
+                data_next_year_rd4_dict['Images'] = img['image_with_path']
                 data_next_year_rd4_dict['Draft_Round'] = values['Draft_Round']
                 data_next_year_rd4_dict['Overall_Pick'] = values['Overall_Pick']
-                data_next_year_rd4_dict['Display_Name_Short'] = k
+                data_next_year_rd4_dict['Display_Name_Short'] = values['Display_Name_Short']
                 data_next_year_rd4_list.append(
                     data_next_year_rd4_dict.copy())
-                break
-
     data_next_year_rd5 = df[(df.Year.astype(int) == v_current_year_plus1) & (df.Draft_Round == 'RD5')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
     Display_Name_Short_rd5_nextyear = data_next_year_rd5['Display_Name_Short'].astype(
         str).values.flatten().tolist()
     for k in Display_Name_Short_rd5_nextyear:
-        query = Teams.objects.filter(ShortName=k).values('Image')
+        query = Teams.objects.filter(ShortName=k).values('Image', 'ShortName')
         for data in query:
-            for key, values in data_current_year_rd5.iterrows():
+            dict = {}
+            dict['ShortName'] = data['ShortName']
+            base_url = request.build_absolute_uri('/').strip("/")
+            dict['image_with_path'] = base_url+'/'+'media'+'/' + data['Image']
+            next_year_rd5_images.append(dict.copy())
+
+    for key, values in data_current_year_rd5.iterrows():
+        for img in next_year_rd2_images:
+            if img['ShortName'] == values['Display_Name_Short']:
                 data_next_year_rd5_dict = {}
-                base_url = request.build_absolute_uri('/').strip("/")
-                image_with_path = base_url+'/'+'media'+'/' + data['Image']
-                data_next_year_rd5_dict['Images'] = image_with_path
+                data_next_year_rd5_dict['Images'] = img['image_with_path']
                 data_next_year_rd5_dict['Draft_Round'] = values['Draft_Round']
                 data_next_year_rd5_dict['Overall_Pick'] = values['Overall_Pick']
-                data_next_year_rd5_dict['Display_Name_Short'] = k
+                data_next_year_rd5_dict['Display_Name_Short'] = values['Display_Name_Short']
                 data_next_year_rd5_list.append(
                     data_next_year_rd5_dict.copy())
-                break
+
     data_next_year_rd6 = df[(df.Year.astype(int) == v_current_year_plus1) & (df.Draft_Round == 'RD6')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
     data_next_year_rd6 = data_next_year_rd6['Display_Name_Short'].astype(
         str).values.flatten().tolist()
     for k in data_next_year_rd6:
-        query = Teams.objects.filter(ShortName=k).values('Image')
+        query = Teams.objects.filter(ShortName=k).values('Image', 'ShortName')
         for data in query:
-            for key, values in data_current_year_rd5.iterrows():
+            dict = {}
+            dict['ShortName'] = data['ShortName']
+            base_url = request.build_absolute_uri('/').strip("/")
+            dict['image_with_path'] = base_url+'/'+'media'+'/' + data['Image']
+            next_year_rd6_images.append(dict.copy())
+
+    for key, values in data_current_year_rd5.iterrows():
+        for img in next_year_rd2_images:
+
+            if img['ShortName'] == values['Display_Name_Short']:
+
                 data_next_year_rd6_dict = {}
-                base_url = request.build_absolute_uri('/').strip("/")
-                image_with_path = base_url+'/'+'media'+'/' + data['Image']
-                data_next_year_rd6_dict['Images'] = image_with_path
+                data_next_year_rd6_dict['Images'] = img['image_with_path']
                 data_next_year_rd6_dict['Draft_Round'] = values['Draft_Round']
                 data_next_year_rd6_dict['Overall_Pick'] = values['Overall_Pick']
-                data_next_year_rd6_dict['Display_Name_Short'] = k
+                data_next_year_rd6_dict['Display_Name_Short'] = values['Display_Name_Short']
                 data_next_year_rd6_list.append(
                     data_next_year_rd6_dict.copy())
-                break
 
     # Order of Entry Table
 
@@ -6285,11 +6350,13 @@ def Get_Rounds_Pick(request, pk):
         queryset = Teams.objects.filter(id=ids).values()
         for data in queryset:
             for key, value in data_order_of_entry.iterrows():
-                data_order_dict = {}
-                data_order_dict['TeamName'] = data['TeamNames']
-                data_order_dict['Overall_Pick'] = value['Overall_Pick']
-                data_order_dict['Club_Pick_Number'] = value['Club_Pick_Number']
-                data_order_of_entry_list.append(data_order_dict.copy())
+                if key >= i:
+                    i+=0
+                    data_order_dict = {}
+                    data_order_dict['TeamName'] = data['TeamNames']
+                    data_order_dict['Overall_Pick'] = value['Overall_Pick']
+                    data_order_dict['Club_Pick_Number'] = value['Club_Pick_Number']
+                    data_order_of_entry_list.append(data_order_dict.copy())
     # data_order_of_entry = pd.crosstab(data_order_of_entry.TeamName, data_order_of_entry.Club_Pick_Number, values=data_order_of_entry.Overall_Pick,aggfunc=sum)
 
     data_order_of_entry.reset_index(drop=True, inplace=True)
@@ -6334,9 +6401,10 @@ def Get_Rounds_Pick(request, pk):
                 masterlist_full_dict['Previous_Owner'] = data['TeamNames']
                 masterlist_full_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                 masterlist_full_dict['Club_Pick_Number'] = values['Club_Pick_Number']
-                data_full_masterlist_list.append(masterlist_full_dict.copy())
+                data_full_masterlist_list.append(
+                    masterlist_full_dict.copy())
                 break
-    return Response({'data_current_year_rd1_list': data_current_year_rd1_list, 'data_current_year_rd2': data_current_year_rd2_list, 'data_current_year_rd3': data_current_year_rd3_list, 'data_current_year_rd4': data_current_year_rd4_list, 'data_current_year_rd6': data_current_year_rd6_list, 'data_next_year_rd1': data_next_year_rd1_list, 'data_next_year_rd2': data_next_year_rd2_list, 'data_next_year_rd3': data_next_year_rd3_list, 'data_next_year_rd4': data_next_year_rd4_list, 'data_next_year_rd5': data_next_year_rd5_list, 'data_next_year_rd6': data_next_year_rd6_list, 'graph_list': graph_list}, status=status.HTTP_201_CREATED)
+    return Response({'data_current_year_rd1_list': data_current_year_rd1_list, 'data_current_year_rd2': data_current_year_rd2_list, 'data_current_year_rd3': data_current_year_rd3_list, 'data_current_year_rd4': data_current_year_rd4_list, 'data_current_year_rd6': data_current_year_rd6_list, 'data_next_year_rd1': data_next_year_rd1_list, 'data_next_year_rd2': data_next_year_rd2_list, 'data_next_year_rd3': data_next_year_rd3_list, 'data_next_year_rd4': data_next_year_rd4_list, 'data_next_year_rd5': data_next_year_rd5_list, 'data_next_year_rd6': data_next_year_rd6_list, 'data_full_masterlist': data_full_masterlist_list, 'data_order_of_entry': data_order_of_entry_list, 'graph_list': graph_list}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -6883,7 +6951,7 @@ def dashboard_request(request, pk):
     v_team_name = proj_obj.teamid
     v_current_year = current_day.year
     v_current_year_plus1 = v_current_year+1
-
+    dict = {}
     # Current Year Picks to a List:
     _dashboard['data_current_year_club_picks_data'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (
         masterlist.Current_Owner.astype(int) == int(v_team_name))].Display_Name_Mini.to_list()
@@ -6896,10 +6964,11 @@ def dashboard_request(request, pk):
     data_dashboard_masterlist_data = masterlist[[
         'Year', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
     for key, value in data_dashboard_masterlist_data.iterrows():
-        dict = {}
+
         dict['Year'] = value['Year']
         dict['Overall_Pick'] = value['Overall_Pick']
-        dict['Display_Name_Short'] = value['AFL_Points_Value']
+        dict['Display_Name_Short'] = value['Display_Name_Short']
+        dict['AFL_Points_Value'] = value['AFL_Points_Value']
         data_dashboard_masterlist.append(dict.copy())
 
     data_dashboard_draftboard = []
@@ -6909,19 +6978,19 @@ def dashboard_request(request, pk):
         dict['FirstName'] = value['FirstName']
         dict['LastName'] = value['LastName']
         dict['Position_1'] = value['Position_1']
-        dict['Position_1'] = value['Rank']
+        dict['Rank'] = value['Rank']
         data_dashboard_draftboard.append(dict.copy())
-    data_dashboard_trade_offers = []
-    data_dashboard_trade_offers_data = trades[[
-        'Trade_Partner', 'Trading_Out', 'Trading_In', 'Points_Diff', 'Points_Diff']]
-    for key, value in data_dashboard_trade_offers_data.iterrows():
-        dict = {}
-        dict['Trade_Partner'] = value['Trade_Partner']
-        dict['Trading_Out'] = value['Trading_Out']
-        dict['Trading_In'] = value['Trading_In']
-        dict['Points_Diff'] = value['Points_Diff']
-        data_dashboard_trade_offers.append(dict.copy())
 
+    data_dashboard_trade_offers_list = []
+    data_dashboard_trade_offers_data = trades[[
+        'Trade_Partner', 'Trading_Out', 'Trading_In', 'Points_Diff']]
+    for key, values in data_dashboard_trade_offers_data.iterrows():
+        dict = {}
+        dict['Trade_Partner'] = values['Trade_Partner']
+        dict['Trading_Out'] = values['Trading_Out']
+        dict['Trading_In'] = values['Trading_In']
+        dict['Points_Diff'] = values['Points_Diff']
+        data_dashboard_trade_offers_list.append(dict.copy())
     # Dashboard Page Transactions
     transaction_list = []
     data_transaction_list = transactions[[
@@ -6939,7 +7008,7 @@ def dashboard_request(request, pk):
 
     Team_Obj = Teams.objects.get(id=next_team_to_pick1)
     _dashboard['next_team_to_pick'] = Team_Obj.TeamNames
-    return Response({'data': _dashboard, 'transaction_list': transaction_list, 'data_dashboard_masterlist': data_dashboard_masterlist, 'data_dashboard_draftboard': data_dashboard_draftboard, 'data_dashboard_trade_offers': data_dashboard_trade_offers}, status=status.HTTP_200_OK)
+    return Response({'data': _dashboard, 'transaction_list': transaction_list, 'data_dashboard_masterlist': data_dashboard_masterlist, 'data_dashboard_draftboard': data_dashboard_draftboard, 'data_dashboard_trade_offers': data_dashboard_trade_offers_list}, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
