@@ -6962,18 +6962,24 @@ def dashboard_request(request, pk):
     # Dashboard Page masterlist:
 
     data_dashboard_masterlist = []
-    Draft_Round_Int = masterlist.Draft_Round_Int
-    if masterlist['Draft_Round_Int'] <= str(5) :
+    Draft_Round_Int = []
+    queryset = MasterList.objects.filter(Draft_Round_Int__in=['1','2','3','4','5']).values()
+    for k in queryset:
+        Draft_Round_Int = k['id']  
 
-        data_dashboard_masterlist_data = masterlist[[
-            'Year', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-        for key, value in data_dashboard_masterlist_data.iterrows():
+    data_dashboard_masterlist_data = masterlist[[
+                'Year', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
 
-            dict['Year'] = value['Year']
-            dict['Overall_Pick'] = value['Overall_Pick']
-            dict['Display_Name_Short'] = value['Display_Name_Short']
-            dict['AFL_Points_Value'] = value['AFL_Points_Value']
-            data_dashboard_masterlist.append(dict.copy())
+
+
+    for key,value in data_dashboard_masterlist_data.iterrows():
+
+        
+        dict['Year'] = value['Year']
+        dict['Overall_Pick'] = value['Overall_Pick']
+        dict['Display_Name_Short'] = value['Display_Name_Short']
+        dict['AFL_Points_Value'] = value['AFL_Points_Value']
+        data_dashboard_masterlist.append(dict.copy())
 
     data_dashboard_draftboard = []
     data_dashboard_draftboard_data = players[['FirstName', 'LastName',
