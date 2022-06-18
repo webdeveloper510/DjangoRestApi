@@ -4956,21 +4956,25 @@ def call_manual_insert(transactions):
 def add_manual_inputs(request, pk):
 
     data = request.data
-    pick_id = data.get('pickid')
-    manual_team = data.get('teamid')
-    manual_round = data.get('round')
+    manual_team = data.get('manual_team')
+    manual_round = data.get('manual_round')
     manual_insert_instructions = data.get('instructions')
+    manual_aligned_pick_id = data.get('manual_aligned_pick')
     reason = data.get('reason')
-    manual_pick_type = 'Manual Insert'
 
     manual_aligned_pick = []
-    pickqueryset = MasterList.objects.filter(id=pick_id).values()
+    pickqueryset = MasterList.objects.filter(id=manual_aligned_pick_id).values()
     manual_aligned_pick = pickqueryset[0]['Display_Name_Detailed']
     df = dataframerequest(request, pk)
+
     masterlist = df
+
+
+
+
     manual_insert_unique_pick = masterlist.loc[masterlist.Display_Name_Detailed ==
                                                manual_aligned_pick, 'Unique_Pick_ID'].iloc[0]
-    return masterlist, manual_team, reason, manual_round, manual_aligned_pick, manual_insert_instructions, manual_insert_unique_pick
+    return manual_team,manual_round,manual_insert_instructions,manual_aligned_pick,reason,masterlist,manual_insert_unique_pick
 
 
 @api_view(['POST'])
@@ -4978,7 +4982,7 @@ def add_manual_inputs(request, pk):
 def AddManualRequest(request, pk):
     current_date = date.today()
     v_current_year = current_date.year
-    masterlist, manual_team, reason, manual_round, manual_aligned_pick, manual_insert_instructions, manual_insert_unique_pick = add_manual_inputs(
+    manual_team,manual_round,manual_insert_instructions,manual_aligned_pick,reason,masterlist,manual_insert_unique_pick = add_manual_inputs(
         request, pk)
     manual_pick_type = 'Manual Insert'
     df = masterlist

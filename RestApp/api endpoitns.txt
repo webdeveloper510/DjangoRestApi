@@ -185,11 +185,11 @@ Auth
 add Manual insert
 
 {
- "pickid":"4",
-"teamid":"4",
-"round": "RD1",
-"instructions":"Before",
-"reason":"testing"
+   "manual_team":"1",
+   "reason":"testing",
+   "manual_round":"RD1",
+   "manual_aligned_pick":"1",
+   "manual_insert_instructions":"Before"
 }
 
 
