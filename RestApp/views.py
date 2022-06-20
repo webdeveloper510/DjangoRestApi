@@ -6272,6 +6272,7 @@ def Get_Rounds_Pick(request, pk):
             next_year_rd3_images.append(dict.copy())
 
     for key, values in data_current_year_rd5.iterrows():
+
         for img in next_year_rd2_images:
             if img['ShortName'] == values['Display_Name_Short']:
                 data_next_year_rd3_dict = {}
@@ -6993,16 +6994,32 @@ def dashboard_request(request, pk):
     data_dashboard_masterlist_data = masterlist[[
                 'Year', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
 
+    Display_Name_Short = data_dashboard_masterlist_data['Display_Name_Short'].astype(
+        str).values.flatten().tolist()
+    images_data = []
+    for k in Display_Name_Short:
+        query = Teams.objects.filter(ShortName=k).values('Image','ShortName')
+
+        for data in query:
+            team_dict={}
+            base_url = request.build_absolute_uri('/').strip("/")
+            team_dict['image_with_path'] = base_url+'/'+'media'+'/' + data['Image']
+            team_dict['ShortName'] = data['ShortName']
+            images_data.append(team_dict.copy())
 
 
     for key,value in data_dashboard_masterlist_data.iterrows():
+        if value.all() not in data_dashboard_masterlist:
 
-        
-        dict['Year'] = value['Year']
-        dict['Overall_Pick'] = value['Overall_Pick']
-        dict['Display_Name_Short'] = value['Display_Name_Short']
-        dict['AFL_Points_Value'] = value['AFL_Points_Value']
-        data_dashboard_masterlist.append(dict.copy())
+            for img in images_data:
+                if img['ShortName'] == value['Display_Name_Short']:
+                    dict['Year'] = value['Year']
+                    dict['Overall_Pick'] = value['Overall_Pick']
+                    dict['Display_Name_Short'] = value['Display_Name_Short']
+                    print( dict['Display_Name_Short'])
+                    dict['AFL_Points_Value'] = value['AFL_Points_Value']
+                    dict['Images'] = img['image_with_path']
+                    data_dashboard_masterlist.append(dict.copy())
 
     data_dashboard_draftboard = []
     data_dashboard_draftboard_data = players[['FirstName', 'LastName',
