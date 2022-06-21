@@ -4748,7 +4748,7 @@ def add_nga_bid(request, pk):
         # create the line to insert:
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(nga_team_id), 'Position'].iloc[0], 'Year': v_current_year,
                             'TeamName': nga_team_id, 'PickType': 'NGA_BidMatch', 'Original_Owner': nga_team_id, 'Current_Owner': nga_team_id,
-                             'Previous_Owner': '', 'Draft_Round': nga_bid_round, 'Draft_Round_Int': nga_bid_round_int,
+                             'Previous_Owner': nga_team_id, 'Draft_Round': nga_bid_round, 'Draft_Round_Int': nga_bid_round_int,
                              'Pick_Group': str(v_current_year) + '-' + nga_bid_round + '-NGABidMatch', 'Reason': 'NGA Bid Match',
                              'Pick_Status': 'Used', 'Selected_Player': nga_player}, index=[rowno])
 
