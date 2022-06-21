@@ -6377,8 +6377,8 @@ def Get_Rounds_Pick(request, pk):
                 data_next_year_rd6_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                 data_next_year_rd6_list.append(
                     data_next_year_rd6_dict.copy())
-    print('data_next_year_rd6_list',)
-    exit()
+    print('data_next_year_rd6_list',data_next_year_rd6_list)
+
     # Order of Entry Table
     masterlist = dataframerequest(request,pk)
     data_order_of_entry_list = []
@@ -6399,6 +6399,8 @@ def Get_Rounds_Pick(request, pk):
                 data_order_of_entry_list.append(data_order_dict.copy())
                 
     unique_dict = [k for j, k in enumerate(data_order_of_entry_list) if k not in data_order_of_entry_list[j + 1:]]
+    print(unique_dict)
+    exit()
     #print(len(data_order_of_entry))
     # for  value in data_order_of_entry.keys():
     #     #print(key)  
