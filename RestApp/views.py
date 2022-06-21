@@ -2810,7 +2810,7 @@ def add_FA_compensation_inputs_request(request, pk):
 
     # Ask for team Name:
     fa_team = data.get('teamid')
-    fa_pick_type = data.get('type')
+    fa_pick_type = data.get('picktype')
     reason = data.get('reason')
     fa_round = data.get('round')
     pick_id = data.get('pickid')
@@ -3015,7 +3015,7 @@ def add_FA_compensation_v2(request, pk):
         # create the line to insert:
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team, 'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
-                             'Previous_Owner': '', 'Draft_Round': 'RD2', 'Draft_Round_Int': 2,
+                             'Previous_Owner': fa_team, 'Draft_Round': 'RD2', 'Draft_Round_Int': 2,
                              'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + fa_pick_type, 'Reason': reason},
                             index=[rowno])
         # Execute Insert
@@ -3055,7 +3055,7 @@ def add_FA_compensation_v2(request, pk):
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team, 'PickType': 'FA_Compensation',
-                             'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': '',
+                             'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': fa_team,
                              'Draft_Round': 'RD2', 'Draft_Round_Int': 2,
                              'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + fa_pick_type, 'Reason': reason}, index=[rowno])
         # Execute Insert below the rowno
@@ -3086,7 +3086,7 @@ def add_FA_compensation_v2(request, pk):
         # create the line to insert:
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team, 'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
-                             'Previous_Owner': '', 'Draft_Round': 'RD3', 'Draft_Round_Int': 3,
+                             'Previous_Owner': fa_team, 'Draft_Round': 'RD3', 'Draft_Round_Int': 3,
                              'Pick_Group': str(v_current_year) + '-' + 'RD3-Priority-' + fa_pick_type, 'Reason': reason},
                             index=[rowno])
 
@@ -3128,7 +3128,7 @@ def add_FA_compensation_v2(request, pk):
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team, 'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
-                             'Previous_Owner': '', 'Draft_Round': fa_round,
+                             'Previous_Owner': fa_team, 'Draft_Round': fa_round,
                              'Pick_Group': str(v_current_year) + '-' + fa_round + '-Priority-' + fa_pick_type, 'Reason': reason},
                             index=[rowno])
         # Execute Insert
