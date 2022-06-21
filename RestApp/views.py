@@ -2528,7 +2528,7 @@ def add_FA_compansation(request, pk):
 
         df['id'] = rowno+1
         df['projectid_id'] = pk
-        df['Previous_Owner']=None
+        # df['Previous_Owner']=None
 
         MasterList.objects.filter(id=rowno+1).update(**df)
 
