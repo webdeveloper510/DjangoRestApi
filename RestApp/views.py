@@ -6858,10 +6858,11 @@ def add_father_son(request, pk):
     # i.e stacks 3 dataframes on top of each other
     df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
                    ).reset_index(drop=True)
+    del df['Previous_Owner_id']
     df = df.iloc[rowno]
     df['id'] = rowno
     df['projectid_id'] = pk
-
+    
     MasterList.objects.filter(id=rowno).update(**df)
 
     # /////////////////////////// Called Update masterlist //////////////////////////////////////
