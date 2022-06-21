@@ -151,7 +151,7 @@ Add FA compansation type v2
 {
    "teamid":"4",
    "reason":"testing",
-   "type":"Custom Fixed Position",
+   "picktype":"Custom Fixed Position",
    "round":"RD1",
    "pickid":"4",
    "instructions":"After"
