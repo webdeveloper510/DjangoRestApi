@@ -6850,7 +6850,7 @@ def add_father_son(request, pk):
 
     line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fs_teamm), 'Position'].iloc[0], 'Year': v_current_year,
                          'TeamName': fs_teamm, 'PickType': 'FS_BidMatch', 'Original_Owner': fs_teamm, 'Current_Owner': fs_teamm,
-                         'Previous_Owner': '', 'Draft_Round': fs_bid_round, 'Draft_Round_Int': fs_bid_round_int,
+                         'Previous_Owner': fs_teamm, 'Draft_Round': fs_bid_round, 'Draft_Round_Int': fs_bid_round_int,
                          'Pick_Group': str(v_current_year) + '-' + fs_bid_round + '-FSBidMatch', 'Reason': 'FS Bid Match',
                          'Pick_Status': 'Used', 'Selected_Player': fs_player}, index=[rowno])
 
