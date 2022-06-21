@@ -6399,8 +6399,7 @@ def Get_Rounds_Pick(request, pk):
                 data_order_of_entry_list.append(data_order_dict.copy())
                 
     unique_dict = [k for j, k in enumerate(data_order_of_entry_list) if k not in data_order_of_entry_list[j + 1:]]
-    print(unique_dict)
-    exit()
+
     #print(len(data_order_of_entry))
     # for  value in data_order_of_entry.keys():
     #     #print(key)  
@@ -6458,6 +6457,8 @@ def Get_Rounds_Pick(request, pk):
                 data_full_masterlist_list.append(
                     masterlist_full_dict.copy())
                 break
+    print(data_full_masterlist_list)
+    exit()
     return Response({'this_year': this_year, 'next_year': next_year, 'data_current_year_rd1_list': data_current_year_rd1_list, 'data_current_year_rd2': data_current_year_rd2_list, 'data_current_year_rd3': data_current_year_rd3_list, 'data_current_year_rd4': data_current_year_rd4_list, 'data_current_year_rd5': data_current_year_rd5_list, 'data_current_year_rd6': data_current_year_rd6_list, 'data_next_year_rd1': data_next_year_rd1_list, 'data_next_year_rd2': data_next_year_rd2_list, 'data_next_year_rd3': data_next_year_rd3_list, 'data_next_year_rd4': data_next_year_rd4_list, 'data_next_year_rd5': data_next_year_rd5_list, 'data_next_year_rd6': data_next_year_rd6_list, 'data_full_masterlist': data_full_masterlist_list, 'data_order_of_entry': unique_dict, 'graph_list': graph_list}, status=status.HTTP_201_CREATED)
 
 
