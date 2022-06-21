@@ -6142,8 +6142,7 @@ def Get_Rounds_Pick(request, pk):
                     data_current_year_rd3_list.append(
                         data_current_year_rd3_dict.copy())
                     break
-    print('data_current_year_rd3_dict',data_current_year_rd3_list)
-    exit()
+
     data_current_year_rd4 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD4')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
     Display_Name_Short_rd4 = data_current_year_rd4['Display_Name_Short'].astype(
@@ -6189,6 +6188,7 @@ def Get_Rounds_Pick(request, pk):
                         data_current_year_rd5_dict.copy())
                     break
     print('data_current_year_rd4_dict',data_current_year_rd5_list)   
+
     data_current_year_rd6 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD6')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
     Display_Name_Short_rd6 = data_current_year_rd6['Display_Name_Short'].astype(
@@ -6214,7 +6214,8 @@ def Get_Rounds_Pick(request, pk):
                     data_current_year_rd6_list.append(
                         data_current_year_rd6_dict.copy())
                     break
-
+    print('data_current_year_rd6_list',data_current_year_rd6_list)
+    exit()
         # Next Year Round by Round:
 
     next_year_rd1_images = []
