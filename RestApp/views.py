@@ -6214,8 +6214,7 @@ def Get_Rounds_Pick(request, pk):
                     data_current_year_rd6_list.append(
                         data_current_year_rd6_dict.copy())
                     break
-    print('data_current_year_rd6_list',data_current_year_rd6_list)
-    exit()
+
         # Next Year Round by Round:
 
     next_year_rd1_images = []
@@ -6376,9 +6375,10 @@ def Get_Rounds_Pick(request, pk):
                 data_next_year_rd6_dict['Overall_Pick'] = values['Overall_Pick']
                 data_next_year_rd6_dict['Display_Name_Short'] = values['Display_Name_Short']
                 data_next_year_rd6_dict['AFL_Points_Value'] = values['AFL_Points_Value']
-                data_next_year_rd6_list.append(
+                .append(
                     data_next_year_rd6_dict.copy())
-
+    print('data_next_year_rd6_list',data_next_year_rd6_list)
+    exit()
     # Order of Entry Table
     masterlist = dataframerequest(request,pk)
     data_order_of_entry_list = []
