@@ -6120,8 +6120,7 @@ def Get_Rounds_Pick(request, pk):
                         data_current_year_rd2_dict.copy())
 
                     break
-    print('data_current_year_rd2_dict',data_current_year_rd2_list)
-    exit()
+
     data_current_year_rd3 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD3')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
     Display_Name_Short_rd3 = data_current_year_rd3['Display_Name_Short'].astype(
@@ -6144,6 +6143,7 @@ def Get_Rounds_Pick(request, pk):
                         data_current_year_rd3_dict.copy())
                     break
     print('data_current_year_rd3_dict',data_current_year_rd3_list)
+    exit()
     data_current_year_rd4 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD4')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
     Display_Name_Short_rd4 = data_current_year_rd4['Display_Name_Short'].astype(
