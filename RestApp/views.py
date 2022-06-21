@@ -753,7 +753,7 @@ def PriorityPickrRequest(request):
             str(v_current_year) + '-RD1-Standard')][0]
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(pp_team_id), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': pp_team_id, 'PickType': 'Priority',
-                             'Original_Owner': pp_team_id, 'Current_Owner': pp_team_id, 'Previous_Owner': '',
+                             'Original_Owner': pp_team_id, 'Current_Owner': pp_team_id, 'Previous_Owner': pp_team_id,
                              'Draft_Round': 'RD1',
                              'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + pp_pick_type, 'Reason': reason}, index=[rowno])
 
@@ -780,7 +780,7 @@ def PriorityPickrRequest(request):
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(pp_team_id), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': pp_team_id, 'PickType': 'Priority', 'Original_Owner': pp_team_id, 'Current_Owner': pp_team_id,
-                             'Previous_Owner': '', 'Draft_Round': pp_round,
+                             'Previous_Owner': pp_team_id, 'Draft_Round': pp_round,
                              'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + pp_pick_type},
                             index=[rowno])
         if pp_insert_instructions == 'Before':
@@ -815,7 +815,7 @@ def PriorityPickrRequest(request):
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(pp_team_id), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': int(pp_team_id), 'PickType': 'Priority',
-                             'Original_Owner': int(pp_team_id), 'Current_Owner': int(pp_team_id), 'Previous_Owner': '',
+                             'Original_Owner': int(pp_team_id), 'Current_Owner': int(pp_team_id), 'Previous_Owner': pp_team_id,
                              'Draft_Round': 'RD1',
                              'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + pp_pick_type}, index=[rowno])
 
@@ -854,7 +854,7 @@ def PriorityPickrRequest(request):
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(pp_team_id), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': pp_team_id, 'PickType': 'Priority',
-                             'Original_Owner': pp_team_id, 'Current_Owner': pp_team_id, 'Previous_Owner': '',
+                             'Original_Owner': pp_team_id, 'Current_Owner': pp_team_id, 'Previous_Owner': pp_team_id,
                              'Draft_Round': 'RD2',
                              'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + pp_pick_type}, index=[rowno])
         df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
@@ -882,7 +882,7 @@ def PriorityPickrRequest(request):
         rowno = df.index[df['Display_Name_Detailed'] == pp_aligned_pick][0]
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(pp_team_id), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': pp_team_id, 'PickType': 'Priority', 'Original_Owner': pp_team_id, 'Current_Owner': pp_team_id,
-                             'Previous_Owner': '', 'Draft_Round': pp_round,
+                             'Previous_Owner': pp_team_id, 'Draft_Round': pp_round,
                              'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + pp_pick_type},
                             index=[rowno])
 
@@ -923,7 +923,7 @@ def PriorityPickrRequest(request):
             str(v_current_year) + '-RD2-Standard')][-1]
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(pp_team_id), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': pp_team_id, 'PickType': 'Priority',
-                             'Original_Owner': pp_team_id, 'Current_Owner': pp_team_id, 'Previous_Owner': '',
+                             'Original_Owner': pp_team_id, 'Current_Owner': pp_team_id, 'Previous_Owner': pp_team_id,
                              'Draft_Round': 'RD2',
                              'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + pp_pick_type}, index=[rowno])
 
@@ -952,7 +952,7 @@ def PriorityPickrRequest(request):
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(pp_team_id), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': pp_team_id, 'PickType': 'Priority', 'Original_Owner': pp_team_id, 'Current_Owner': pp_team_id,
-                             'Previous_Owner': '', 'Draft_Round': pp_round,
+                             'Previous_Owner':pp_team_id ,'Draft_Round': pp_round,
                              'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + pp_pick_type},
                             index=[rowno])
         if pp_insert_instructions == 'Before':
@@ -994,7 +994,7 @@ def PriorityPickrRequest(request):
         # create the line to insert
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(pp_team_id), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': pp_team_id, 'PickType': 'Priority', 'Original_Owner': pp_team_id, 'Current_Owner': pp_team_id,
-                             'Previous_Owner': '', 'Draft_Round': 'RD3',
+                             'Previous_Owner': pp_team_id, 'Draft_Round': 'RD3',
                              'Pick_Group': str(v_current_year) + '-' + pp_round + '-Priority-' + pp_pick_type},
                             index=[rowno])
         # Execute Insert
@@ -2548,7 +2548,7 @@ def add_FA_compansation(request, pk):
         # create the line to insert:
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team, 'PickType': 'FA_Compensation',
-                             'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': '',
+                             'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': fa_team,
                              'Draft_Round': 'RD2',
                              'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + fa_pick_type, 'Reason': reason}, index=[rowno])
 
@@ -2586,7 +2586,7 @@ def add_FA_compansation(request, pk):
         # create the line to insert:
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                             'TeamName': fa_team, 'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
-                             'Previous_Owner': '', 'Draft_Round': fa_round, 'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + fa_pick_type, 'Reason': reason},
+                             'Previous_Owner': fa_team, 'Draft_Round': fa_round, 'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + fa_pick_type, 'Reason': reason},
                             index=[rowno])
 
         # Execute Insert
@@ -2623,7 +2623,7 @@ def add_FA_compansation(request, pk):
         # create the line to insert:
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team, 'PickType': 'FA_Compensation',
-                             'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': '',
+                             'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': fa_team,
                              'Draft_Round': 'RD2', 'Draft_Round_Int': 2,
                              'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + fa_pick_type, 'Reason': reason}, index=[rowno])
         # Execute Insert below the rowno
@@ -2659,7 +2659,7 @@ def add_FA_compansation(request, pk):
         # create the line to insert:
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team, 'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
-                             'Previous_Owner': '', 'Draft_Round': fa_round, 'Pick_Group': str(v_current_year) + '-' + 'RD3-Priority-' + fa_pick_type, 'Reason': reason},
+                             'Previous_Owner': fa_team, 'Draft_Round': fa_round, 'Pick_Group': str(v_current_year) + '-' + 'RD3-Priority-' + fa_pick_type, 'Reason': reason},
                             index=[rowno])
 
         # Execute Insert
@@ -2701,7 +2701,7 @@ def add_FA_compansation(request, pk):
         # create the line to insert:
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': int(fa_team), 'PickType': 'FA_Compensation', 'Original_Owner': int(fa_team), 'Current_Owner': int(fa_team),
-                             'Previous_Owner': '', 'Draft_Round': fa_round,
+                             'Previous_Owner': fa_team, 'Draft_Round': fa_round,
                              'Pick_Group': str(v_current_year) + '-' + fa_round + '-Priority-' + fa_pick_type, 'Reason': reason},
                             index=[rowno])
 
