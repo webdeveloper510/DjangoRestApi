@@ -3655,7 +3655,7 @@ def add_trade_v3_inputs(request, pk):
         pass
 
     picks_trading_out_team2 = data.get('pickid2')
-    players_trading_out_team2 = str(len(data.get('player2')))
+    players_trading_out_team2 = str(data.get('player2'))
 
     if int(picks_trading_out_team2) > 0:
 

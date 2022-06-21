@@ -110,6 +110,16 @@ Priority pick
     "ppid":"24"
  }
 
+add trade v3
+{
+   "teamid1":"1",
+   "teamid2":"2",
+   "pickid1":"3",
+   "player1":"1",
+   "pickid2":"2",
+   "player2":"1"
+}
+
 
 
 AcademyBid inputs
