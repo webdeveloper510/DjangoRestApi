@@ -825,7 +825,7 @@ def PriorityPickrRequest(request):
 
         df['id'] = rowno
         df['projectid_id'] = project_Id
-        df['Previous_Owner_id'] = None
+        # df['Previous_Owner_id'] = None
     
         MasterList.objects.filter(id=rowno).update(**df)
 
@@ -863,7 +863,7 @@ def PriorityPickrRequest(request):
 
         df['id'] = rowno
         df['projectid_id'] = project_Id
-        df['Previous_Owner_id'] = None
+        # df['Previous_Owner_id'] = None
 
         # Update transactions
         pp_round = 'RD2'
@@ -893,7 +893,7 @@ def PriorityPickrRequest(request):
             df = df.iloc[rowno]
             df['id'] = rowno
             df['projectid_id'] = project_Id
-            df['Previous_Owner'] = None
+            # df['Previous_Owner'] = None
 
             MasterList.objects.filter(id=rowno).update(**df)
 
@@ -904,7 +904,7 @@ def PriorityPickrRequest(request):
 
             df['id'] = rowno+1
             df['projectid_id'] = project_Id
-            df['Previous_Owner_id'] = None
+            # df['Previous_Owner_id'] = None
 
             MasterList.objects.filter(id=rowno+1).update(**df)
 
@@ -933,7 +933,7 @@ def PriorityPickrRequest(request):
 
         df['id'] = rowno+1
         df['projectid_id'] = project_Id
-        df['Previous_Owner_id'] = None
+        # df['Previous_Owner_id'] = None
         MasterList.objects.filter(id=rowno).update(**df)
 
         # Update transactions
@@ -961,7 +961,7 @@ def PriorityPickrRequest(request):
             df = df.iloc[rowno]
             df['id'] = rowno
             df['projectid_id'] = project_Id
-            df['Previous_Owner_id'] = None
+            # df['Previous_Owner_id'] = None
             MasterList.objects.filter(id=rowno).update(**df)
 
             pp_dict = [pp_team] + [pp_pick_type, pp_round,
@@ -976,7 +976,7 @@ def PriorityPickrRequest(request):
 
             df['id'] = rowno+1
             df['projectid_id'] = project_Id
-            df['Previous_Owner_id'] = None
+            # df['Previous_Owner_id'] = None
 
             MasterList.objects.filter(id=rowno+1).update(**df)
             # Update transactions
@@ -1004,7 +1004,7 @@ def PriorityPickrRequest(request):
             df = df.iloc[rowno]
             df['id'] = rowno+1
             df['projectid_id'] = project_Id
-            df['Previous_Owner_id'] = None
+            # df['Previous_Owner_id'] = None
             MasterList.objects.filter(id=rowno+1).update(**df)
         else:
             df = pd.concat([df.iloc[:rowno + 1], line,
@@ -1012,7 +1012,7 @@ def PriorityPickrRequest(request):
             df = df.iloc[rowno+1]
             df['id'] = rowno+1
             df['projectid_id'] = project_Id
-            df['Previous_Owner_id'] = None
+            # df['Previous_Owner_id'] = None
 
             MasterList.objects.filter(id=rowno+1).update(**df)
             # Update Transactions List
