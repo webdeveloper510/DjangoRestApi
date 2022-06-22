@@ -3663,6 +3663,8 @@ def add_trade_v3_inputs(request, pk):
     players_trading_out_team2_id = str(data.get('player2')) or ''
     player_id2 = ''
     if players_trading_out_team2_id != '':
+        print(players_trading_out_team2_id)
+        exit()
         player_obj = Players.objects.get(Full_Name=players_trading_out_team2_id)
         player_id2 = player_obj.id
 
