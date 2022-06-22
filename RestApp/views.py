@@ -7115,7 +7115,7 @@ def dashboard_request(request, pk):
             for img in images_data:
                 if img['ShortName'] == value['Display_Name_Short']:
                     dict['Year'] = value['Year']
-                    dict['Overall_Pick'] = value['Overall_Pick']
+                    dict['Overall_Pick'] = int(value['Overall_Pick'])+1
                     dict['Display_Name_Short'] = value['Display_Name_Short']
                     dict['AFL_Points_Value'] = value['AFL_Points_Value']
                     dict['Images'] = img['image_with_path']
