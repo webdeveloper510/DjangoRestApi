@@ -6108,7 +6108,7 @@ def Get_Rounds_Pick(request, pk):
                     image_with_path = base_url+'/'+'media'+'/' + data['Image']
                     data_current_year_rd1_dict['Images'] = image_with_path
                     data_current_year_rd1_dict['Draft_Round'] = values['Draft_Round']
-                    data_current_year_rd1_dict['Overall_Pick'] = values['Overall_Pick']+1
+                    data_current_year_rd1_dict['Overall_Pick'] = values['Overall_Pick']+str(1)
                     data_current_year_rd1_dict['Display_Name_Short'] = values['Display_Name_Short']
                     data_current_year_rd1_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                     data_current_rd1_list.append(
