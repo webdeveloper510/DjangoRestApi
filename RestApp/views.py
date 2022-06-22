@@ -3634,7 +3634,7 @@ def add_trade_v3_inputs(request, pk):
 
     if int(picks_trading_out_team1) > 0:
         # Priniting the available picks for team 1 to trade out
-        for i in range(picks_trading_out_team1):
+        for i in range(picks_trading_out_team1 or 0):
            
             # get unique pick name
             pick_trading_out_team1_str = masterlist.loc[masterlist.Current_Owner.astype(int) == int(picks_trading_out_team1), 'Display_Name_Detailed']
@@ -3645,14 +3645,14 @@ def add_trade_v3_inputs(request, pk):
         pass
 
     # Getting the pick(s) name for the pick(s) traded out:
-    if player_id is not  None:
+    if player_id !='':
         # Priniting the available picks for team 1 to trade out
         for i in range(int(player_id)):
 
             player_trading_out_team1_obj = Players.objects.filter(
                 id=player_id).values()
 
-        for i in range(int(player_id)):
+        for i in range(int(player_id) or 0):
             for k in player_trading_out_team1_obj:
                 team1_trades_players.append(k['Full_Name'])
     else:
@@ -3666,7 +3666,7 @@ def add_trade_v3_inputs(request, pk):
         player_obj = Players.objects.get(FirstName=players_trading_out_team2_id)
         player_id2 = player_obj.id
 
-    if player_id2 is not None:
+    if player_id2 !='':
         # Priniting the available picks for team 1 to trade out
         for i in range (picks_trading_out_team2):
 
