@@ -6343,7 +6343,7 @@ def Get_Rounds_Pick(request, pk):
             dict['image_with_path'] = base_url+'/'+'media'+'/' + data['Image']
             next_year_rd3_images.append(dict.copy())
 
-    for key, values in data_current_year_rd5.iterrows():
+    for key, values in data_next_year_rd3.iterrows():
 
         for img in next_year_rd2_images:
             if img['ShortName'] == values['Display_Name_Short']:
@@ -6370,9 +6370,9 @@ def Get_Rounds_Pick(request, pk):
             dict['image_with_path'] = base_url+'/'+'media'+'/' + data['Image']
             next_year_rd4_images.append(dict.copy())
 
-    for key, values in data_current_year_rd5.iterrows():
+    for key, values in data_next_year_rd4.iterrows():
 
-        for img in next_year_rd2_images:
+        for img in next_year_rd4_images:
             if img['ShortName'] == values['Display_Name_Short']:
                 data_next_year_rd4_dict = {}
                 data_next_year_rd4_dict['Images'] = img['image_with_path']
@@ -6397,8 +6397,8 @@ def Get_Rounds_Pick(request, pk):
             dict['image_with_path'] = base_url+'/'+'media'+'/' + data['Image']
             next_year_rd5_images.append(dict.copy())
 
-    for key, values in data_current_year_rd5.iterrows():
-        for img in next_year_rd2_images:
+    for key, values in data_next_year_rd5.iterrows():
+        for img in next_year_rd5_images:
             if img['ShortName'] == values['Display_Name_Short']:
                 data_next_year_rd5_dict = {}
                 data_next_year_rd5_dict['Images'] = img['image_with_path']
@@ -6423,8 +6423,8 @@ def Get_Rounds_Pick(request, pk):
             dict['image_with_path'] = base_url+'/'+'media'+'/' + data['Image']
             next_year_rd6_images.append(dict.copy())
 
-    for key, values in data_current_year_rd5.iterrows():
-        for img in next_year_rd2_images:
+    for key, values in data_next_year_rd6.iterrows():
+        for img in next_year_rd6_images:
 
             if img['ShortName'] == values['Display_Name_Short']:
 
