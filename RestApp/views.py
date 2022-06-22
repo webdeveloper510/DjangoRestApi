@@ -3628,6 +3628,9 @@ def add_trade_v3_inputs(request, pk):
   
 
     # Getting the pick(s) name for the pick(s) traded out:
+    print(picks_trading_out_team1)
+    print(type(picks_trading_out_team1))
+    exit()
     if int(picks_trading_out_team1) > 0:
         # Priniting the available picks for team 1 to trade out
         for i in range(int(picks_trading_out_team1)):
