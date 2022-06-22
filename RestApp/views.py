@@ -6278,7 +6278,7 @@ def Get_Rounds_Pick(request, pk):
     next_year_rd6_images = []
     next_year = this_year+1
     data_next_year_rd1 = df[(df.Year.astype(int) == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short']]
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short','AFL_Points_Value']]
     Display_Name_Short_rd1_nextyear = data_next_year_rd1['Display_Name_Short'].astype(
         str).values.flatten().tolist()
 
