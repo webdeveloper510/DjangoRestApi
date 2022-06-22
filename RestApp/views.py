@@ -3645,7 +3645,7 @@ def add_trade_v3_inputs(request, pk):
         pass
 
     # Getting the pick(s) name for the pick(s) traded out:
-    if float(int((player_id))) > 0 or player_id is None:
+    if player_id is not  None:
         # Priniting the available picks for team 1 to trade out
         for i in range(int(player_id)):
 
@@ -3665,8 +3665,8 @@ def add_trade_v3_inputs(request, pk):
     if players_trading_out_team2_id is not None:
         player_obj = Players.objects.get(FirstName=players_trading_out_team2_id)
         player_id2 = player_obj.id
-    if int(player_id2) > 0:
 
+    if player_id2 is not None:
         # Priniting the available picks for team 1 to trade out
         for i in range (picks_trading_out_team2):
 
