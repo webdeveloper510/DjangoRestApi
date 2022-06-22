@@ -3662,7 +3662,7 @@ def add_trade_v3_inputs(request, pk):
     picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
     players_trading_out_team2 = str(data.get('player2')) or ''
     player_id2 = ''
-    if players_trading_out_team2 is not None:
+    if players_trading_out_team2 !='':
         player_obj = Players.objects.get(FirstName=players_trading_out_team2)
         player_id2 = player_obj.id
 
