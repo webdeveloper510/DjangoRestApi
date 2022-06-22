@@ -6087,9 +6087,11 @@ def Get_Rounds_Pick(request, pk):
             team_dict['Image'] = data['Image']
             team_dict['ShortName'] = data['ShortName']
             current_rd1_team_list.append(team_dict.copy())
+    
+
         for key, values in data_current_year_rd1.iterrows():
             for data in current_rd1_team_list:
-                if data['ShortName'] == values['AFL_Points_Value']:
+                if data['ShortName'] == values['Display_Name_Short']:
                     data_current_year_rd1_dict = {}
                     base_url = request.build_absolute_uri('/').strip("/")
                     image_with_path = base_url+'/'+'media'+'/' + data['Image']
@@ -6098,9 +6100,9 @@ def Get_Rounds_Pick(request, pk):
                     data_current_year_rd1_dict['Overall_Pick'] = values['Overall_Pick']
                     data_current_year_rd1_dict['Display_Name_Short'] = k
                     data_current_year_rd1_dict['AFL_Points_Value'] = values['AFL_Points_Value']
-                    data_current_year_rd1_list.append(
-                        data_current_year_rd1_dict.copy())
+                    data_current_year_rd1_list.append(data_current_year_rd1_dict.copy())
                     break
+ 
     current_rd2_team_list=[]
     data_current_year_rd2 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD2')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
@@ -6116,7 +6118,7 @@ def Get_Rounds_Pick(request, pk):
         for key, values in data_current_year_rd2.iterrows():
             for data in current_rd2_team_list:
                 if data['ShortName'] == values['Display_Name_Short']:
-                    
+
                     data_current_year_rd2_dict = {}
                     base_url = request.build_absolute_uri('/').strip("/")
                     image_with_path = base_url+'/'+'media'+'/' + data['Image']
