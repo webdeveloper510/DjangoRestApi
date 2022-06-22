@@ -3628,15 +3628,14 @@ def add_trade_v3_inputs(request, pk):
     player_id = ''
     if players_trading_out_team1 is not None:
         for i in range(int(players_trading_out_team1)):
-            player_obj = Players.objects.get(id=players_trading_out_team1)
+            player_obj = Players.objects.get(FirstName=players_trading_out_team1)
             player_id = player_obj.id
     # Getting the pick(s) name for the pick(s) traded out:
 
     if int(picks_trading_out_team1) > 0:
         # Priniting the available picks for team 1 to trade out
         for i in range(picks_trading_out_team1):
-            pick_trading_out_team1 = data.get('pickid1')
-            team1_trades_picks.append(pick_trading_out_team1)
+           
             # get unique pick name
             pick_trading_out_team1_str = masterlist.loc[masterlist.Current_Owner.astype(int) == int(picks_trading_out_team1), 'Display_Name_Detailed']
             unique_name = masterlist.loc[masterlist.Display_Name_Detailed.astype(
@@ -3646,14 +3645,14 @@ def add_trade_v3_inputs(request, pk):
         pass
 
     # Getting the pick(s) name for the pick(s) traded out:
-    if int(players_trading_out_team1) > 0 or '':
+    if int(player_id) > 0 or '':
         # Priniting the available picks for team 1 to trade out
-        for i in range(int(players_trading_out_team1)):
-            player1 = data.get('player1')
-            player_trading_out_team1_obj = Players.objects.filter(
-                id__in=[player1]).values()
+        for i in range(int(player_id)):
 
-        for i in range(int(players_trading_out_team1)):
+            player_trading_out_team1_obj = Players.objects.filter(
+                id=player_id).values()
+
+        for i in range(int(player_id)):
             for k in player_trading_out_team1_obj:
                 team1_trades_players.append(k['Full_Name'])
     else:
@@ -3664,9 +3663,9 @@ def add_trade_v3_inputs(request, pk):
     players_trading_out_team2_id = str(data.get('player2')) or ''
     player_id2 = ''
     if players_trading_out_team2_id is not None:
-        player_obj = Players.objects.get(id=players_trading_out_team2_id)
+        player_obj = Players.objects.get(FirstName=players_trading_out_team2_id)
         player_id2 = player_obj.id
-    if int(picks_trading_out_team2) > 0:
+    if int(player_id2) > 0:
 
         # Priniting the available picks for team 1 to trade out
         for i in range (picks_trading_out_team2):
@@ -3691,7 +3690,7 @@ def add_trade_v3_inputs(request, pk):
         for i in range(int(player_id)):
             player2 = data.get('player2')
             player_trading_out_team2 = Players.objects.filter(
-                id__in=[player2]).values()
+                id=player_id).values()
             for i in range(int(player_id)):
                 for k in player_trading_out_team2:
                     team2_trades_players.append(k['Full_Name'])
