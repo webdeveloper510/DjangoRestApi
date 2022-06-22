@@ -3623,10 +3623,10 @@ def add_trade_v3_inputs(request, pk):
     df = dataframerequest(request, pk)
     masterlist = df
     picks_trading_out_team1 = data.get('pickid1')
-    print(picks_trading_out_team1)
+    print(picks_trading_out_team1[0]['value'])
+    players_trading_out_team1 = str(len(data.get('player1')))
     print(players_trading_out_team1)
     exit()
-    players_trading_out_team1 = str(len(data.get('player1')))
 
     # Getting the pick(s) name for the pick(s) traded out:
     if int(picks_trading_out_team1) > 0:
