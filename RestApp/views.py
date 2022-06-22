@@ -218,7 +218,7 @@ def update_masterlist(df):
     # df.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
     # df.rename(columns={'Previous_Owner_id': 'Previous_Owner'}, inplace=True)
 
-    df['Overall_Pick'] = df.groupby('Year').cumcount() + 1
+    df['Overall_Pick'] = df.groupby('Year').cumcount()
 
     ss = enumerate(library_AFL_Draft_Pointss)
     library_AFL_Draf = dict(ss)
