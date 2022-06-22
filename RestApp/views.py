@@ -3631,7 +3631,7 @@ def add_trade_v3_inputs(request, pk):
 
     if int(picks_trading_out_team1) > 0:
         # Priniting the available picks for team 1 to trade out
-        for i in range(int(picks_trading_out_team1)):
+        for i in range(picks_trading_out_team1):
             pick_trading_out_team1 = data.get('pickid1')
             team1_trades_picks.append(pick_trading_out_team1)
             # get unique pick name
@@ -3663,7 +3663,7 @@ def add_trade_v3_inputs(request, pk):
     if int(picks_trading_out_team2) > 0:
 
         # Priniting the available picks for team 1 to trade out
-        for i in range(len(picks_trading_out_team2)):
+        for i in range (picks_trading_out_team2):
 
             team2picks = masterlist[masterlist['Current_Owner'].astype(
                 int) == int(team2)]['Display_Name_Detailed'].tolist()
