@@ -3662,10 +3662,8 @@ def add_trade_v3_inputs(request, pk):
     picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
     players_trading_out_team2_id = str(data.get('player2')) or ''
     player_id2 = ''
-    if players_trading_out_team2_id != '':
-        print(players_trading_out_team2_id)
-        exit()
-        player_obj = Players.objects.get(Full_Name=players_trading_out_team2_id)
+    if players_trading_out_team2 is not None:
+        player_obj = Players.objects.get(FirstName=players_trading_out_team2)
         player_id2 = player_obj.id
 
     if player_id2 !='':
@@ -3674,6 +3672,7 @@ def add_trade_v3_inputs(request, pk):
 
             team2picks = masterlist[masterlist['Current_Owner'].astype(
                 int) == int(team2)]['Display_Name_Detailed'].tolist()
+                
             for i in range(int(picks_trading_out_team2)):
                 pick_trading_out_team2 = data.get('pickid2')
                 team2_trades_picks.append(pick_trading_out_team2)
