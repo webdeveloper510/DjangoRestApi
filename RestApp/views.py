@@ -6291,13 +6291,13 @@ def Get_Rounds_Pick(request, pk):
             dict['image_with_path'] = base_url+'/'+'media'+'/' + data['Image']
             next_year_rd1_images.append(dict.copy())
 
-    for key, values in data_current_year_rd5.iterrows():
+    for key, values in data_next_year_rd1.iterrows():
         for img in next_year_rd1_images:
             if img['ShortName'] == values['Display_Name_Short']:
                 data_next_year_rd1_dict = {}
                 data_next_year_rd1_dict['Images'] = img['image_with_path']
                 data_next_year_rd1_dict['Draft_Round'] = values['Draft_Round']
-                data_next_year_rd1_dict['Overall_Pick'] = values['Overall_Pick']
+                data_next_year_rd1_dict['Overall_Pick'] = int(values['Overall_Pick'])+1
                 data_next_year_rd1_dict['Display_Name_Short'] = values['Display_Name_Short']
                 data_next_year_rd1_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                 data_next_rd1_list.append(
