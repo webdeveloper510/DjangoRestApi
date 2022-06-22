@@ -3622,11 +3622,10 @@ def add_trade_v3_inputs(request, pk):
 
     df = dataframerequest(request, pk)
     masterlist = df
-    picks_trading_out_team1 = data.get('pickid1')
-    print(picks_trading_out_team1[0]['value'])
+    picks_trading_out_team1_obj = data.get('pickid1')
+    picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
     players_trading_out_team1 = str(len(data.get('player1')))
-    print(players_trading_out_team1)
-    exit()
+  
 
     # Getting the pick(s) name for the pick(s) traded out:
     if int(picks_trading_out_team1) > 0:
@@ -3657,7 +3656,8 @@ def add_trade_v3_inputs(request, pk):
     else:
         pass
 
-    picks_trading_out_team2 = data.get('pickid2')
+    picks_trading_out_team2_obj = data.get('pickid2')
+    picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
     players_trading_out_team2 = str(data.get('player2'))
 
     if int(picks_trading_out_team2) > 0:
