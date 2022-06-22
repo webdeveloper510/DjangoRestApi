@@ -3635,7 +3635,7 @@ def add_trade_v3_inputs(request, pk):
             team1_trades_picks.append(pick_trading_out_team1)
             # get unique pick name
             pick_trading_out_team1_str = masterlist.loc[masterlist.Current_Owner.astype(
-                int) == int(pick_trading_out_team1), 'Display_Name_Detailed'].iloc[0]
+                int) == int(picks_trading_out_team1), 'Display_Name_Detailed'].iloc[0]
             unique_name = masterlist.loc[masterlist.Display_Name_Detailed.astype(
                 str) == str(pick_trading_out_team1_str), 'Unique_Pick_ID']
             team1_trades_pick_names.append(unique_name)
@@ -3671,7 +3671,7 @@ def add_trade_v3_inputs(request, pk):
                 pick_trading_out_team2 = data.get('pickid2')
                 team2_trades_picks.append(pick_trading_out_team2)
                 pick_trading_out_team2_str = masterlist.loc[masterlist.Current_Owner.astype(
-                    int) == int(pick_trading_out_team2), 'Display_Name_Detailed'].iloc[0]
+                    int) == int(picks_trading_out_team2), 'Display_Name_Detailed'].iloc[0]
                 # get unique pick name
                 unique_name = masterlist.loc[masterlist.Display_Name_Detailed.astype(
                     str) == str(pick_trading_out_team2_str), 'Unique_Pick_ID'].iloc[0]
