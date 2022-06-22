@@ -110,7 +110,6 @@ def dataframerequest(request, pk):
     for df_val in df_re:
         list.append(df_val)
     df = pd.DataFrame(list)
-  
     # #### rename column names because database is returning columns fields with id concatenated
     df.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
     df.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
@@ -6067,8 +6066,7 @@ def Get_Rounds_Pick(request, pk):
 
     current_day = date.today()
     this_year = current_day.year
-    print(df)
-    exit()
+    
     data_current_year_rd1 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD1')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'Images', 'AFL_Points_Value']]
     Display_Name_Short = data_current_year_rd1['Display_Name_Short'].astype(
