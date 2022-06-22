@@ -3689,7 +3689,7 @@ def add_trade_v3_inputs(request, pk):
 
     # Getting the pick(s) name for the pick(s) traded out:
  
-    if int(player_id2) > 0 or '':
+    if player_id2 !='':
         # Priniting the available picks for team 1 to trade out
         for i in range(int(player_id),0):
     
