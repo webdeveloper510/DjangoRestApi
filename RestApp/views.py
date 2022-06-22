@@ -110,6 +110,7 @@ def dataframerequest(request, pk):
     for df_val in df_re:
         list.append(df_val)
     df = pd.DataFrame(list)
+  
     # #### rename column names because database is returning columns fields with id concatenated
     df.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
     df.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
@@ -218,11 +219,11 @@ def update_masterlist(df):
     # df.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
     # df.rename(columns={'Previous_Owner_id': 'Previous_Owner'}, inplace=True)
 
-    df['Overall_Pick'] = df.groupby('Year').cumcount() + 1
+    df['Overall_Pick'] = df.groupby('Year').cumcount() 
 
     ss = enumerate(library_AFL_Draft_Pointss)
     library_AFL_Draf = dict(ss)
-    df['AFL_Points_Value'] = df['Overall_Pick'].map(library_AFL_Draf).fillna(0)
+    df['AFL_Points_Value'] = df['Overall_Pick'].map(library_AFL_Draf)
 
     df['Unique_Pick_ID'] = df['Year'].astype(str) + '-' + df['Draft_Round'].astype(str) \
         + '-' + df['PickType'].astype(str) + '-' + \
@@ -6066,7 +6067,8 @@ def Get_Rounds_Pick(request, pk):
 
     current_day = date.today()
     this_year = current_day.year
-
+    print(df)
+    exit()
     data_current_year_rd1 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD1')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'Images', 'AFL_Points_Value']]
     Display_Name_Short = data_current_year_rd1['Display_Name_Short'].astype(
@@ -6077,17 +6079,16 @@ def Get_Rounds_Pick(request, pk):
         str).values.flatten().tolist()
 
     overall_pick = [x for x in overall_pick]
-    current_rd1_team_list=[]
+    current_rd1_team_list = []
     for k in short_name:
 
-        query = Teams.objects.filter(ShortName=k).values('Image','ShortName')
+        query = Teams.objects.filter(ShortName=k).values('Image', 'ShortName')
 
         for data in query:
             team_dict = {}
             team_dict['Image'] = data['Image']
             team_dict['ShortName'] = data['ShortName']
             current_rd1_team_list.append(team_dict.copy())
-    
 
         for key, values in data_current_year_rd1.iterrows():
             for data in current_rd1_team_list:
@@ -6100,18 +6101,19 @@ def Get_Rounds_Pick(request, pk):
                     data_current_year_rd1_dict['Overall_Pick'] = values['Overall_Pick']
                     data_current_year_rd1_dict['Display_Name_Short'] = values['Display_Name_Short']
                     data_current_year_rd1_dict['AFL_Points_Value'] = values['AFL_Points_Value']
-                    data_current_rd1_list.append(data_current_year_rd1_dict.copy())
+                    data_current_rd1_list.append(
+                        data_current_year_rd1_dict.copy())
                     break
     data_current_year_rd1_list = [k for j, k in enumerate(
         data_current_rd1_list) if k not in data_current_rd1_list[j + 1:]]
-  
-    current_rd2_team_list=[]
+
+    current_rd2_team_list = []
     data_current_year_rd2 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD2')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
     Display_Name_Short_rd2 = data_current_year_rd2['Display_Name_Short'].astype(
         str).values.flatten().tolist()
     for k in Display_Name_Short_rd2:
-        query = Teams.objects.filter(ShortName=k).values('Image','ShortName')
+        query = Teams.objects.filter(ShortName=k).values('Image', 'ShortName')
         for data in query:
             team_dict = {}
             team_dict['Image'] = data['Image']
@@ -6256,7 +6258,7 @@ def Get_Rounds_Pick(request, pk):
                     break
     data_current_year_rd6_list = [k for j, k in enumerate(
         data_current_rd6_list) if k not in data_current_rd6_list[j + 1:]]
-        # Next Year Round by Round:
+    # Next Year Round by Round:
 
     next_year_rd1_images = []
     next_year_rd2_images = []

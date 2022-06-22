@@ -1,43 +1,4 @@
-{
- "Team1":"1",
-  "Team1_Pick1":"test Team1_Pick1",
-  "Team1_Pick2":"test Team1_Pick2",
-  "Team1_Pick3":"test Team1_Pick3",
-   "Team2":"1",
-   "Team2_Pick1":"test Team2_Pick1",
-   "Team2_Pick2":"test Team2_Pick2",
-   "Team2_Pick3":"test Team2_Pick3"
 
-}
-
-
-{
-  "AcademyTeam":"test AcademyTeam",
-   "AcademyPickType":"test AcademyPickType",
-   "AcademyBid":"test AcademyBid"
-}
-
-{
-"PriorityTeam":"1",
- "PriorityPickType":"test PriorityPickType",
-  "PriorityAlignedPick":"test PriorityAlignedPick",
-   "PriorityPickInstructions":"testPriorityPickInstructions"
-
-}
-
-{
-   "Fa_Team":"1",
-  "Fa_PickType":"test Fa_PickType"
-
-}
-
-{
-  "ManualTeam":"1",
-   "ManualRound":"test ManualRound",
-   "ManualAlignedPick":"test ManualAlignedPick",
-   "ManualInstructions":"test ManualInstructions"
-
-}
 
 
 masterist
@@ -180,8 +141,8 @@ add nga bid inputs
 
 create project
 {
-"project_name":"test1",
- "project_desc":"test1 desc",
+"project_name":"test2",
+ "project_desc":"test2 desc",
  "teamid":"1"
 }
 
