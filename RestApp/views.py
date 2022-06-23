@@ -6198,8 +6198,7 @@ def Get_Rounds_Pick(request, pk):
 
                 data_current_year_rd4_dict = {}
                 base_url = request.build_absolute_uri('/').strip("/")
-                image_with_path = base_url+'/'+'media'+'/' + data['Image']
-                data_current_year_rd4_dict['Images'] = image_with_path
+                data_current_year_rd4_dict['Images'] = data['image_with_path']
                 data_current_year_rd4_dict['Draft_Round'] = values['Draft_Round']
                 data_current_year_rd4_dict['Overall_Pick'] = values['Overall_Pick']
                 data_current_year_rd4_dict['Display_Name_Short'] = values['Display_Name_Short']
