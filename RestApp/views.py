@@ -6380,8 +6380,8 @@ def Get_Rounds_Pick(request, pk):
                 data_next_year_rd4_dict['Overall_Pick'] = values['Overall_Pick']
                 data_next_year_rd4_dict['Display_Name_Short'] = values['Display_Name_Short']
                 data_next_year_rd4_dict['AFL_Points_Value'] = values['AFL_Points_Value']
-                data_next_rd4_list.append(
-                    data_next_year_rd4_dict.copy())
+                data_next_rd4_list.append(data_next_year_rd4_dict.copy())
+
     data_next_year_rd4_list = [k for j, k in enumerate(
         data_next_rd4_list) if k not in data_next_rd4_list[j + 1:]]
         
@@ -6437,6 +6437,7 @@ def Get_Rounds_Pick(request, pk):
                 data_next_year_rd6_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                 data_next_rd6_list.append(
                     data_next_year_rd6_dict.copy())
+                break
     data_next_year_rd6_list = [k for j, k in enumerate(
         data_next_rd6_list) if k not in data_next_rd6_list[j + 1:]]
     # Order of Entry Table
