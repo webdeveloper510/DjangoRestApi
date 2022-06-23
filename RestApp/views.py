@@ -6179,7 +6179,7 @@ def Get_Rounds_Pick(request, pk):
         data_current_rd3_list) if k not in data_current_rd3_list[j + 1:]]
     current_rd_4_team_list = []
     current_year_rd4_images = []
-    data_next_year_rd4 = df[(df.Year.astype(int) == v_current_year_plus) & (df.Draft_Round == 'RD4')][[
+    data_current_year_rd4 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD4')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
     Display_Name_Short_rd4_nextyear = data_next_year_rd4['Display_Name_Short'].astype(
         str).values.flatten().tolist()
