@@ -6189,10 +6189,10 @@ def Get_Rounds_Pick(request, pk):
     for k in Display_Name_Short_rd4:
         query = Teams.objects.filter(ShortName=k).values('Image', 'ShortName')
         for data in query:
-            teams_dict = {}
-            teams_dict['Image'] = data['Image']
+            team_dict = {}
+            team_dict['Image'] = data['Image']
             team_dict['ShortName'] = data['ShortName']
-            current_rd_4_team_list.append(team_dict.copy())
+            teams.append(team_dict.copy())
     print(current_rd_4_team_list)
     exit()
     for key, values in data_current_year_rd4.iterrows():
