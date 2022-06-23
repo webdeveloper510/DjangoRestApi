@@ -2866,8 +2866,7 @@ def add_FA_compensation_v2(request, pk):
         rowno = df.index[df.Unique_Pick_ID.str.contains(
             str(v_current_year) + '-RD1-Standard')][0]
        
-        print(df.TeamName)
-        exit() 
+  
         # create the line to insert:
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': int(fa_team), 'PickType': 'FA_Compensation',
@@ -2875,7 +2874,7 @@ def add_FA_compensation_v2(request, pk):
                              'Draft_Round': 'RD1', 'Draft_Round_Int': 1,
                              'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + fa_pick_type, 'Reason': reason}, index=[rowno])
         print(line)
-        exit()
+
         # Execute Insert above the rowno
         df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
                        )
@@ -2896,7 +2895,7 @@ def add_FA_compensation_v2(request, pk):
                               fa_aligned_pick, fa_unique_pick, fa_insert_instructions]
         fa_description = str(fa_team) + ' received a ' + str(fa_pick_type) + \
             ' FA Compensation Pick' + '(' + str(reason) + ')'
-        MasterList.objects.filter(id=rowno).update(**df)
+        MasterList.objects.filter(id=rowno+1).update(**df)
 
     if fa_pick_type == 'First Round':
 
