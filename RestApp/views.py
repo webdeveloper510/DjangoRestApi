@@ -2863,7 +2863,7 @@ def add_FA_compensation_v2(request, pk):
     if fa_pick_type == 'Start of Draft':
         # Find the first row that is a standard pick:
         rowno = df.index[df.Unique_Pick_ID.str.contains(
-            str(v_current_year) + '-RD1-Standard')]
+            str(v_current_year) + '-RD1-Standard')][0]
         print(rowno)
         
         # create the line to insert:
