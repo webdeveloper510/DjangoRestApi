@@ -2866,7 +2866,7 @@ def add_FA_compensation_v2(request, pk):
         rowno = df.index[df.Unique_Pick_ID.str.contains(
             str(v_current_year) + '-RD1-Standard')][0]
        
-        print(fa_team)
+        print(df.TeamName)
         exit() 
         # create the line to insert:
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
