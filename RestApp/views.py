@@ -218,7 +218,7 @@ def update_masterlist(df):
     # df.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
     # df.rename(columns={'Previous_Owner_id': 'Previous_Owner'}, inplace=True)
 
-    df['Overall_Pick'] = df.groupby('Year').cumcount()
+    df['Overall_Pick'] = df.groupby('Year').cumcount() 
 
     ss = enumerate(library_AFL_Draft_Pointss)
     library_AFL_Draf = dict(ss)
@@ -734,6 +734,7 @@ def PriorityPickrRequest(request):
     pp_team = pp_team_obj.TeamNames
     pp_team_id = pp_team_obj.id
     Pickobj = MasterList.objects.filter(id=pp_id).values()
+ 
     pp_aligned_pick = Pickobj[0]['Display_Name_Detailed']
 
     pp_description = ''
@@ -762,7 +763,6 @@ def PriorityPickrRequest(request):
         df = df.iloc[1]
         df['id'] = rowno+1
         df['projectid_id'] = project_Id
-        df['Previous_Owner_id'] = None
 
         MasterList.objects.filter(id=rowno+1).update(**df)
         # Update transactions
@@ -790,7 +790,7 @@ def PriorityPickrRequest(request):
             df = df.iloc[rowno]
             df['id'] = rowno
             df['projectid_id'] = project_Id
-            df['Previous_Owner'] = None
+
 
             MasterList.objects.filter(id=rowno).update(**df)
         else:
@@ -799,7 +799,6 @@ def PriorityPickrRequest(request):
             df = df.iloc[rowno+1]
             df['id'] = rowno+1
             df['projectid_id'] = project_Id
-            df['Previous_Owner_id'] = None
             MasterList.objects.filter(id=rowno+1).update(**df)
 
         pp_unique_pick = df1.loc[df1.Display_Name_Detailed ==
@@ -893,7 +892,7 @@ def PriorityPickrRequest(request):
             df = df.iloc[rowno]
             df['id'] = rowno
             df['projectid_id'] = project_Id
-            # df['Previous_Owner'] = None
+
 
             MasterList.objects.filter(id=rowno).update(**df)
 
@@ -904,7 +903,7 @@ def PriorityPickrRequest(request):
 
             df['id'] = rowno+1
             df['projectid_id'] = project_Id
-            # df['Previous_Owner_id'] = None
+
 
             MasterList.objects.filter(id=rowno+1).update(**df)
 
@@ -961,7 +960,6 @@ def PriorityPickrRequest(request):
             df = df.iloc[rowno]
             df['id'] = rowno
             df['projectid_id'] = project_Id
-            # df['Previous_Owner_id'] = None
             MasterList.objects.filter(id=rowno).update(**df)
 
             pp_dict = [pp_team] + [pp_pick_type, pp_round,
@@ -976,7 +974,6 @@ def PriorityPickrRequest(request):
 
             df['id'] = rowno+1
             df['projectid_id'] = project_Id
-            # df['Previous_Owner_id'] = None
 
             MasterList.objects.filter(id=rowno+1).update(**df)
             # Update transactions
@@ -1004,7 +1001,7 @@ def PriorityPickrRequest(request):
             df = df.iloc[rowno]
             df['id'] = rowno+1
             df['projectid_id'] = project_Id
-            # df['Previous_Owner_id'] = None
+
             MasterList.objects.filter(id=rowno+1).update(**df)
         else:
             df = pd.concat([df.iloc[:rowno + 1], line,
@@ -1012,7 +1009,6 @@ def PriorityPickrRequest(request):
             df = df.iloc[rowno+1]
             df['id'] = rowno+1
             df['projectid_id'] = project_Id
-            # df['Previous_Owner_id'] = None
 
             MasterList.objects.filter(id=rowno+1).update(**df)
             # Update Transactions List
@@ -3628,16 +3624,18 @@ def add_trade_v3_inputs(request, pk):
     player_id = ''
     if players_trading_out_team1 is not None:
         for i in range(int(players_trading_out_team1)):
-            player_obj = Players.objects.get(FirstName=players_trading_out_team1)
+            player_obj = Players.objects.get(
+                FirstName=players_trading_out_team1)
             player_id = player_obj.id
     # Getting the pick(s) name for the pick(s) traded out:
 
     if int(picks_trading_out_team1) > 0:
         # Priniting the available picks for team 1 to trade out
         for i in range(picks_trading_out_team1 or 0):
-           
+
             # get unique pick name
-            pick_trading_out_team1_str = masterlist.loc[masterlist.Current_Owner.astype(int) == int(picks_trading_out_team1), 'Display_Name_Detailed']
+            pick_trading_out_team1_str = masterlist.loc[masterlist.Current_Owner.astype(
+                int) == int(picks_trading_out_team1), 'Display_Name_Detailed']
             unique_name = masterlist.loc[masterlist.Display_Name_Detailed.astype(
                 str) == str(pick_trading_out_team1_str), 'Unique_Pick_ID']
             team1_trades_pick_names.append(unique_name)
@@ -3645,7 +3643,7 @@ def add_trade_v3_inputs(request, pk):
         pass
 
     # Getting the pick(s) name for the pick(s) traded out:
-    if player_id !='':
+    if player_id != '':
         # Priniting the available picks for team 1 to trade out
         for i in range(int(player_id)):
 
@@ -3663,12 +3661,13 @@ def add_trade_v3_inputs(request, pk):
     players_trading_out_team2 = str(data.get('player2')) or ''
     player_id2 = ''
 
-    if int(picks_trading_out_team2) >0:
+    if int(picks_trading_out_team2) > 0:
         for i in range(int(players_trading_out_team1)):
-            player_obj = Players.objects.get(FirstName=players_trading_out_team2)
+            player_obj = Players.objects.get(
+                FirstName=players_trading_out_team2)
             player_id = player_obj.id
 
-    if picks_trading_out_team2 or picks_trading_out_team2 =='' :
+    if picks_trading_out_team2 or picks_trading_out_team2 == '':
 
         # Priniting the available picks for team 1 to trade out
 
@@ -3679,7 +3678,8 @@ def add_trade_v3_inputs(request, pk):
 
             team2_trades_picks.append(picks_trading_out_team2)
 
-            pick_trading_out_team2_str = masterlist.loc[masterlist.Current_Owner.astype(int) == int(picks_trading_out_team2), 'Display_Name_Detailed']
+            pick_trading_out_team2_str = masterlist.loc[masterlist.Current_Owner.astype(
+                int) == int(picks_trading_out_team2), 'Display_Name_Detailed']
             # get unique pick name
             unique_name = masterlist.loc[masterlist.Display_Name_Detailed.astype(
                 str) == str(pick_trading_out_team2_str), 'Unique_Pick_ID']
@@ -3688,11 +3688,11 @@ def add_trade_v3_inputs(request, pk):
         pass
 
     # Getting the pick(s) name for the pick(s) traded out:
- 
-    if player_id2 !='':
+
+    if player_id2 != '':
         # Priniting the available picks for team 1 to trade out
-        for i in range(int(player_id),0):
-    
+        for i in range(int(player_id), 0):
+
             player_trading_out_team2 = Players.objects.filter(
                 id=player_id).values()
             for i in range(int(player_id)):
@@ -3858,6 +3858,7 @@ def update_ladder(request, pk):
     for transactions_data in Get_Transactions_obj:
         transactions.append(transactions_data)
     new_transactions = pd.DataFrame(transactions)
+
     if len(transactions) == 0:
         pass
     else:
@@ -6108,7 +6109,8 @@ def Get_Rounds_Pick(request, pk):
                     image_with_path = base_url+'/'+'media'+'/' + data['Image']
                     data_current_year_rd1_dict['Images'] = image_with_path
                     data_current_year_rd1_dict['Draft_Round'] = values['Draft_Round']
-                    data_current_year_rd1_dict['Overall_Pick'] = int(values['Overall_Pick'])+1
+                    data_current_year_rd1_dict['Overall_Pick'] = int(
+                        values['Overall_Pick'])+1
                     data_current_year_rd1_dict['Display_Name_Short'] = values['Display_Name_Short']
                     data_current_year_rd1_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                     data_current_rd1_list.append(
@@ -6149,6 +6151,7 @@ def Get_Rounds_Pick(request, pk):
         data_current_rd2_list) if k not in data_current_rd2_list[j + 1:]]
     data_current_year_rd3 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD3')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+
     teams = []
     Display_Name_Short_rd3 = data_current_year_rd3['Display_Name_Short'].astype(
         str).values.flatten().tolist()
@@ -6279,7 +6282,7 @@ def Get_Rounds_Pick(request, pk):
     next_year_rd6_images = []
     next_year = this_year+1
     data_next_year_rd1 = df[(df.Year.astype(int) == v_current_year_plus1) & (df['Draft_Round'] == 'RD1')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short','AFL_Points_Value']]
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
     Display_Name_Short_rd1_nextyear = data_next_year_rd1['Display_Name_Short'].astype(
         str).values.flatten().tolist()
 
@@ -6298,7 +6301,8 @@ def Get_Rounds_Pick(request, pk):
                 data_next_year_rd1_dict = {}
                 data_next_year_rd1_dict['Images'] = img['image_with_path']
                 data_next_year_rd1_dict['Draft_Round'] = values['Draft_Round']
-                data_next_year_rd1_dict['Overall_Pick'] = int(values['Overall_Pick'])+1
+                data_next_year_rd1_dict['Overall_Pick'] = int(
+                    values['Overall_Pick'])+1
                 data_next_year_rd1_dict['Display_Name_Short'] = values['Display_Name_Short']
                 data_next_year_rd1_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                 data_next_rd1_list.append(
@@ -6351,7 +6355,8 @@ def Get_Rounds_Pick(request, pk):
                 data_next_year_rd3_dict = {}
                 data_next_year_rd3_dict['Images'] = img['image_with_path']
                 data_next_year_rd3_dict['Draft_Round'] = values['Draft_Round']
-                data_next_year_rd3_dict['Overall_Pick'] = int(values['Overall_Pick'])+1
+                data_next_year_rd3_dict['Overall_Pick'] = int(
+                    values['Overall_Pick'])+1
                 data_next_year_rd3_dict['Display_Name_Short'] = values['Display_Name_Short']
                 data_next_year_rd3_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                 data_next_rd3_list.append(

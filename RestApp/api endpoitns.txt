@@ -140,6 +140,7 @@ add nga bid inputs
 
 
 create project
+
 {
 "project_name":"test2",
  "project_desc":"test2 desc",
