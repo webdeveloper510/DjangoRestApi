@@ -6181,7 +6181,7 @@ def Get_Rounds_Pick(request, pk):
     current_year_rd4_images = []
     data_current_year_rd4 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD4')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    Display_Name_Short_rd4_nextyear = data_next_year_rd4['Display_Name_Short'].astype(
+    Display_Name_Short_rd4_nextyear = data_current_year_rd4['Display_Name_Short'].astype(
         str).values.flatten().tolist()
     for k in Display_Name_Short_rd4_nextyear:
         query = Teams.objects.filter(ShortName=k).values('Image', 'ShortName')
