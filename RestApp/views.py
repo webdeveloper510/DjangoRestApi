@@ -320,7 +320,7 @@ def CreateMasterListRequest(request, pk):
 
                 row1['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
                     None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
-                    ' ' + str(Overall_pickk)
+                    ' ' + str(int(Overall_pickk)+1)
 
                 row1['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
                     previous_owner + team.ShortName + \
