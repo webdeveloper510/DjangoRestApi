@@ -6186,18 +6186,19 @@ def Get_Rounds_Pick(request, pk):
         query = Teams.objects.filter(ShortName=k).values('Image', 'ShortName')
         for data in query:
             teams_dict = {}
-            teams_dict['Image'] = data['Image']
+            base_url = request.build_absolute_uri('/').strip("/")
+            image_with_path = base_url+'/'+'media'+'/' + data['Image']
+            teams_dict['Image_with_path'] = image_with_path
             team_dict['ShortName'] = data['ShortName']
             current_rd_4_team_list.append(team_dict.copy())
 
     for key, values in data_current_year_rd4.iterrows():
-        for data in current_rd_4_team_list:
-            if data['ShortName'] == values['Display_Name_Short']:
+        for img in current_rd_4_team_list:
+            if img['ShortName'] == values['Display_Name_Short']:
 
                 data_current_year_rd4_dict = {}
-                base_url = request.build_absolute_uri('/').strip("/")
-                image_with_path = base_url+'/'+'media'+'/' + data['Image']
-                data_current_year_rd4_dict['Images'] = image_with_path
+ 
+                data_current_year_rd4_dict['Images'] = img['Image_with_path']
                 data_current_year_rd4_dict['Draft_Round'] = values['Draft_Round']
                 data_current_year_rd4_dict['Overall_Pick'] = values['Overall_Pick']
                 data_current_year_rd4_dict['Display_Name_Short'] = values['Display_Name_Short']
