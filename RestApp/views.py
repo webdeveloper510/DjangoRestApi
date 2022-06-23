@@ -6181,7 +6181,7 @@ def Get_Rounds_Pick(request, pk):
 
 
     current_rd_4_team_list = []
-    data_current_year_rd4 = df[(df.Year.astype(int) == v_current_year) & (df.Draft_Round == 'RD4')][[
+    data_current_year_rd4 = df[(df.Year.astype(int) == int(v_current_year)) & (df.Draft_Round == 'RD4')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
 
     Display_Name_Short_rd4 = data_current_year_rd4['Display_Name_Short'].astype(
