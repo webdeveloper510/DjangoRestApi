@@ -115,7 +115,7 @@ Add FA compansation inputs
    "teamid":"3",
    "pickid":"3",
    "reason":"testing",
-   "picktype":"End of First Round",
+   "picktype":"Start of Draft",
    "instructions":"Before"
 }
 
