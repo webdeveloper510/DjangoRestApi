@@ -218,7 +218,7 @@ def update_masterlist(df):
     # df.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
     # df.rename(columns={'Previous_Owner_id': 'Previous_Owner'}, inplace=True)
 
-    df['Overall_Pick'] = df.groupby('Year').cumcount() 
+    df['Overall_Pick'] = df.groupby('Year').cumcount()
 
     ss = enumerate(library_AFL_Draft_Pointss)
     library_AFL_Draf = dict(ss)
@@ -734,7 +734,7 @@ def PriorityPickrRequest(request):
     pp_team = pp_team_obj.TeamNames
     pp_team_id = pp_team_obj.id
     Pickobj = MasterList.objects.filter(id=pp_id).values()
- 
+
     pp_aligned_pick = Pickobj[0]['Display_Name_Detailed']
 
     pp_description = ''
@@ -790,7 +790,6 @@ def PriorityPickrRequest(request):
             df = df.iloc[rowno]
             df['id'] = rowno
             df['projectid_id'] = project_Id
-
 
             MasterList.objects.filter(id=rowno).update(**df)
         else:
@@ -893,7 +892,6 @@ def PriorityPickrRequest(request):
             df['id'] = rowno
             df['projectid_id'] = project_Id
 
-
             MasterList.objects.filter(id=rowno).update(**df)
 
         else:
@@ -903,7 +901,6 @@ def PriorityPickrRequest(request):
 
             df['id'] = rowno+1
             df['projectid_id'] = project_Id
-
 
             MasterList.objects.filter(id=rowno+1).update(**df)
 
@@ -2435,7 +2432,7 @@ def add_FA_compansation(request, pk):
 
         rowno = df.index[df.Unique_Pick_ID.str.contains(
             str(v_current_year) + '-RD1-Standard')][0]
- 
+
         # create the line to insert:
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year, 'TeamName': fa_team,  'PickType': 'FA_Compensation',
@@ -2861,13 +2858,15 @@ def add_FA_compensation_v2(request, pk):
     df = masterlist
 
     if fa_pick_type == 'Start of Draft':
-       
+
         # Find the first row that is a standard pick:
         rowno = df.index[df.Unique_Pick_ID.str.contains(
             str(v_current_year) + '-RD1-Standard')][0]
-       
-  
+
         # create the line to insert:
+        line  = df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0]
+        print(line)
+        exit()
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': int(fa_team), 'PickType': 'FA_Compensation',
                              'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': fa_team,
@@ -2949,7 +2948,7 @@ def add_FA_compensation_v2(request, pk):
             str(v_current_year) + '-RD1-Standard')][-1]
 
         # create the line to insert:
-        line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(str) == str(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+        line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team, 'PickType': 'FA_Compensation',
                              'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': '',
                              'Draft_Round': 'RD1', 'Draft_Round_Int': 1,
@@ -3782,7 +3781,7 @@ def add_trade_v3(request, pk):
         MasterList.objects.filter(id=incremented_id).update(**trade_dict)
         incremented_id += 1
     ################### RECORDING TRANSACTION ############################
-    # Summarising what each team traded out:
+    # Summarising what each team traded out: 
     team1_out = team1_trades_players + team1_trades_picks
     team2_out = team2_trades_players + team2_trades_picks
 
@@ -6049,12 +6048,6 @@ def get_images(request, shortnames):
 def Get_Rounds_Pick(request, pk):
 
     df = dataframerequest(request, pk)
-
-    # df['column'] = np.zeros(len(df))
-    # df['column'].describe()
-    # df = df[~df.isin([np.nan, np.inf, -np.inf]).any(1)]
-    # print( df['column'])
-    # exit()
     current_date = date.today()
 
     v_current_year = current_date.year
