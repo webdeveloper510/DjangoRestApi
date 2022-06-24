@@ -321,7 +321,7 @@ def CreateMasterListRequest(request, pk):
 
                 row1['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
                     None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
-                    ' ' + str(int(Overall_pickk)+1)
+                    ' ' + str(int(Overall_pickk))
 
                 row1['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
                     previous_owner + team.ShortName + \
@@ -7082,8 +7082,10 @@ def dashboard_request(request, pk):
     v_current_year_plus1 = v_current_year+1
     dict = {}
     # Current Year Picks to a List:
+
     _dashboard['data_current_year_club_picks_data'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (
         masterlist.Current_Owner.astype(int) == int(v_team_name))].Display_Name_Mini.to_list()
+
     # Next Year Picks to a List:
     _dashboard['data_next_year_club_picks'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (
         masterlist.Current_Owner.astype(int) == int(v_team_name))].Display_Name_Mini.to_dict().values()
@@ -7124,7 +7126,7 @@ def dashboard_request(request, pk):
             for img in images_data:
                 if img['ShortName'] == value['Display_Name_Short']:
                     dict['Year'] = value['Year']
-                    dict['Overall_Pick'] = int(value['Overall_Pick'])+1
+                    dict['Overall_Pick'] = value['Overall_Pick']
                     dict['Display_Name_Short'] = value['Display_Name_Short']
                     dict['AFL_Points_Value'] = value['AFL_Points_Value']
                     dict['Images'] = img['image_with_path']
