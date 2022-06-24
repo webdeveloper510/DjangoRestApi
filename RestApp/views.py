@@ -4650,8 +4650,12 @@ def add_nga_bid(request, pk):
             # Make Changes
             df['Draft_Round_Int'].mask(
                 df['Display_Name_Detailed'] == picks_shuffled_str, new_rd_no, inplace=True)
-            df['Draft_Round'].mask(df['Display_Name_Detailed'] ==
-                                   picks_shuffled_str, 'RD' + str(int(new_rd_no)), inplace=True)
+            if new_rd_no == 'nan':
+                pass
+            else:
+
+                df['Draft_Round'].mask(df['Display_Name_Detailed'] ==
+                                    picks_shuffled_str, 'RD' + str(int(new_rd_no)), inplace=True)
             df['Pick_Group'].mask(df['Display_Name_Detailed'] == picks_shuffled_str, str(
                 v_current_year) + '-RD' + new_rd_no + '-ShuffledBack', inplace=True)
 
