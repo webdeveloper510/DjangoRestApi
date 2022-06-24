@@ -4669,8 +4669,13 @@ def add_nga_bid(request, pk):
             # print(picks_shuffled + ' will be shuffled back to pick ' + new_shuffled_pick_no.astype(str) + ' in RD' + str(int(new_rd_no)))
 
             # Summary Dataframe
-            pick_shuffle_details = pd.DataFrame(
-                {'Pick': picks_shuffled_str, 'Moves_To': 'RD' + str(int(new_rd_no)) + '-Pick' + new_shuffled_pick_no.astype(str), 'New_Points_Value': picks_shuffled_points_value}, index=[0])
+            pick_shuffle_details = []
+            if new_rd_no == 'nan':
+                pass
+            else:
+                
+                pick_shuffle_details = pd.DataFrame(
+                    {'Pick': picks_shuffled_str, 'Moves_To': 'RD' + str(int(new_rd_no)) + '-Pick' + new_shuffled_pick_no.astype(str), 'New_Points_Value': picks_shuffled_points_value}, index=[0])
 
         else:
             pick_shuffle_details = []
