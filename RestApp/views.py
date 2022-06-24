@@ -2870,7 +2870,6 @@ def add_FA_compensation_v2(request, pk):
                              'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': fa_team,
                              'Draft_Round': 'RD1', 'Draft_Round_Int': 1,
                              'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + fa_pick_type, 'Reason': reason}, index=[rowno])
-        print(line)
 
         # Execute Insert above the rowno
         df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
@@ -3779,7 +3778,7 @@ def add_trade_v3(request, pk):
         MasterList.objects.filter(id=incremented_id).update(**trade_dict)
         incremented_id += 1
     ################### RECORDING TRANSACTION ############################
-    # Summarising what each team traded out: 
+    # Summarising what each team traded out:
     team1_out = team1_trades_players + team1_trades_picks
     team2_out = team2_trades_players + team2_trades_picks
 
@@ -4865,7 +4864,7 @@ def add_nga_bid(request, pk):
             Transactions.objects.filter(id=last_obj.id).update(
                 Transaction_Number=last_obj.id)
             call_nga_bid(transaction_details)
-            return Response({'success': 'NGA Bid Created Successfuly'}, status=status.HTTP_201_CREATED)
+            return Response({'success':'NGA Bid created Successfully'}, status=status.HTTP_200_OK)
 
 
 def add_draft_night_selection_inputs(request):
