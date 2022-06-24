@@ -223,6 +223,7 @@ def update_masterlist(df):
     ss = enumerate(library_AFL_Draft_Pointss)
     library_AFL_Draf = dict(ss)
     df['AFL_Points_Value'] = df['Overall_Pick'].map(library_AFL_Draf).fillna(0)
+    df['Overall_Pick'] = df.groupby('Year').cumcount()+1
 
     df['Unique_Pick_ID'] = df['Year'].astype(str) + '-' + df['Draft_Round'].astype(str) \
         + '-' + df['PickType'].astype(str) + '-' + \
@@ -7128,6 +7129,7 @@ def dashboard_request(request, pk):
                     dict['AFL_Points_Value'] = value['AFL_Points_Value']
                     dict['Images'] = img['image_with_path']
                     data_dashboard_masterlist.append(dict.copy())
+    
     unique_dict = [k for j, k in enumerate(
         data_dashboard_masterlist) if k not in data_dashboard_masterlist[j + 1:]]
 
