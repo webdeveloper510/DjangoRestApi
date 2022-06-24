@@ -2864,7 +2864,7 @@ def add_FA_compensation_v2(request, pk):
             str(v_current_year) + '-RD1-Standard')][0]
 
         # create the line to insert:
-        line  = df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0]
+        line  = df.loc[df.TeamName.astype(int) == int(fa_team), 'Position']
         print(line)
         exit()
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
