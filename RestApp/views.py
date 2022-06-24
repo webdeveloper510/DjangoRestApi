@@ -2864,12 +2864,7 @@ def add_FA_compensation_v2(request, pk):
             str(v_current_year) + '-RD1-Standard')][0]
 
         # create the line to insert:
-        print(fa_team)
-        print(type(fa_team))
-        print(df['TeamName'])
-        line  = df.loc[df['TeamName'].astype(int) != int(20), 'Position'].iloc[0]
-        print(line)
-        exit()
+
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': int(fa_team), 'PickType': 'FA_Compensation',
                              'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': fa_team,
