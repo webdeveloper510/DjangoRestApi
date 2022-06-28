@@ -60,7 +60,8 @@ from .views import (
     update_trade_offers,
     Visualisations,
     ConstraintsRquest,
-    dashboard_request
+    dashboard_request,
+    delete_last_transaction_request
 )
 
 urlpatterns = [
@@ -139,5 +140,7 @@ urlpatterns = [
     re_path(r'^DeleteProject/(?P<pk>[0-9]+)$', DeleteProjectRequest),
     re_path(r'^DeleteLadder/(?P<pk>[0-9]+)$', DeleteLadderRecordRequest),
     re_path(r'^DeleteTrade/(?P<pk>[0-9]+)$', DeleteAddTradeRequest),
+    re_path(r'^delete_last_transaction/(?P<pk>[0-9]+)$', delete_last_transaction_request),
+
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

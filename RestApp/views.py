@@ -1,5 +1,5 @@
 from array import array
-from ast import Add, Break
+from ast import Add, Break, Return
 from dataclasses import replace
 from distutils.command.config import dump_file
 from doctest import master
@@ -3205,7 +3205,7 @@ def add_FA_compensation_v2(request, pk):
     FA_v2_transaction_details = (
         {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'FA_Compensation', 'Transaction_Details': fa_dict, 'Transaction_Description': fa_description, 'projectId': pk})
 
-    obj = Transactions.objects.latest('id')
+    obj = Project.objects.latest('id')
     Transactions.objects.create(
         Transaction_Number='',
         Transaction_DateTime=current_time,
@@ -3824,8 +3824,8 @@ def add_trade_v3(request, pk):
     return Response({'success': 'Add-Trade-v3 Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
-@api_view(['POST'])
-@permission_classes([AllowAny, ])
+# @api_view(['POST'])
+# @permission_classes([AllowAny, ])
 def update_ladder(request, pk):
     ################ CREATING MASTERLIST FROM SCRATCH #######################
     # First stage bringing in the ordered ladder list which will be generated from the Settings page:
@@ -3951,11 +3951,11 @@ def update_ladder(request, pk):
 
                     else:
                         # Extract the rest of the values:
-                        fa_pick_type, fa_round, reason, fa_uniquepick, fa_insert_instructions = details_dict[
+                        fa_pick_type, fa_round, reason, fa_aligned_pick, fa_unique_pick, fa_insert_instructions = details_dict[
                             fa_team]
 
                         fa_aligned_pick = new_masterlist.loc[new_masterlist.Unique_Pick_ID ==
-                                                             fa_uniquepick, 'Display_Name_Detailed']
+                                                             fa_unique_pick, 'Display_Name_Detailed']
                         #
                     # Execute Function and add to the transaction list:
                     new_transactions = call_FA_Compensation(
@@ -4130,8 +4130,9 @@ def update_ladder(request, pk):
                 id=iincreament_id).update(**update_ladder_dict)
 
             iincreament_id += 1
-
-        return Response({'success': 'success'}, status=status.HTTP_201_CREATED)
+        return new_masterlist, new_transactions, details
+        # update_ladder_info(new_transactions,new_masterlist)
+        # return Response({'success': 'success'}, status=status.HTTP_201_CREATED)
 
 
 def update_ladder_teams(request):
@@ -4656,7 +4657,7 @@ def add_nga_bid(request, pk):
             else:
 
                 df['Draft_Round'].mask(df['Display_Name_Detailed'] ==
-                                    picks_shuffled_str, 'RD' + str(int(new_rd_no)), inplace=True)
+                                       picks_shuffled_str, 'RD' + str(int(new_rd_no)), inplace=True)
             df['Pick_Group'].mask(df['Display_Name_Detailed'] == picks_shuffled_str, str(
                 v_current_year) + '-RD' + new_rd_no + '-ShuffledBack', inplace=True)
 
@@ -4674,7 +4675,7 @@ def add_nga_bid(request, pk):
             if new_rd_no == 'nan':
                 pass
             else:
-                
+
                 pick_shuffle_details = pd.DataFrame(
                     {'Pick': picks_shuffled_str, 'Moves_To': 'RD' + str(int(new_rd_no)) + '-Pick' + new_shuffled_pick_no.astype(str), 'New_Points_Value': picks_shuffled_points_value}, index=[0])
 
@@ -4874,7 +4875,7 @@ def add_nga_bid(request, pk):
             Transactions.objects.filter(id=last_obj.id).update(
                 Transaction_Number=last_obj.id)
             call_nga_bid(transaction_details)
-            return Response({'success':'NGA Bid created Successfully'}, status=status.HTTP_200_OK)
+            return Response({'success': 'NGA Bid created Successfully'}, status=status.HTTP_200_OK)
 
 
 def add_draft_night_selection_inputs(request):
@@ -7131,7 +7132,7 @@ def dashboard_request(request, pk):
                     dict['AFL_Points_Value'] = value['AFL_Points_Value']
                     dict['Images'] = img['image_with_path']
                     data_dashboard_masterlist.append(dict.copy())
-    
+
     unique_dict = [k for j, k in enumerate(
         data_dashboard_masterlist) if k not in data_dashboard_masterlist[j + 1:]]
 
@@ -7173,6 +7174,95 @@ def dashboard_request(request, pk):
     Team_Obj = Teams.objects.get(id=next_team_to_pick1)
     _dashboard['next_team_to_pick'] = Team_Obj.TeamNames
     return Response({'data': _dashboard, 'transaction_list': transaction_list, 'data_dashboard_masterlist': unique_dict, 'data_dashboard_draftboard': data_dashboard_draftboard, 'data_dashboard_trade_offers': data_dashboard_trade_offers_list}, status=status.HTTP_200_OK)
+
+
+# ///////////// Delete last transaction api ///////////////////////////////
+
+
+@api_view(['GET'])
+@ permission_classes([AllowAny])
+def delete_last_transaction_request(request, pk):
+
+    data = request.data
+    masterlist = dataframerequest(request, pk)
+
+    current_day = date.today()
+    v_current_year = current_day.year
+    v_current_year_plus1 = v_current_year+1
+
+    # Instructions: When using this function, must the run the update_ladder function straight afterwards.
+    # get current ladder for both years
+
+    updated_ladderlist_current_year = masterlist[(masterlist['Draft_Round'].astype(str) == "RD10") & (masterlist['Year'].astype(
+        int) == int(v_current_year)) & (masterlist['PickType'].astype(str) == 'Standard')]['Original_Owner'].tolist()
+    updated_ladderlist_current_year_plus1 = masterlist[(masterlist['Draft_Round'].astype(str) == "RD10") & (masterlist['Year'].astype(
+        int) == v_current_year_plus1) & (masterlist['PickType'].astype(str) == 'Standard')]['Original_Owner'].tolist()
+    # Reverse the lists to get the team on top first:
+    updated_ladderlist_current_year.reverse()
+
+    updated_ladderlist_current_year_plus1.reverse()
+
+    new_masterlist, new_transactions, details = update_ladder(request, pk)
+    iincreament_id = 1
+
+    for index, updaterow in new_masterlist.iterrows():
+        update_ladder_dict = dict(updaterow)
+        team = Teams.objects.get(id=updaterow.TeamName)
+        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
+        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
+        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
+        Overall_pickk = update_ladder_dict['Overall_Pick']
+
+        Project1 = Project.objects.get(id=pk)
+        update_ladder_dict['Previous_Owner'] = previous_owner
+        team = Teams.objects.get(id=updaterow.TeamName)
+        update_ladder_dict['TeamName'] = team
+        update_ladder_dict['Original_Owner'] = Original_Owner
+        update_ladder_dict['Current_Owner'] = Current_Ownerr
+        update_ladder_dict['projectid'] = Project1
+
+        update_ladder_dict['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+            None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
+
+        update_ladder_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
+            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(update_ladder_dict['Display_Name'])
+
+        update_ladder_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
+            ' ' + str(Overall_pickk)
+
+        update_ladder_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+            previous_owner + team.ShortName + \
+            ')' if Original_Owner != Current_Ownerr else team.ShortName
+
+        update_ladder_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+            previous_owner + team.ShortName + \
+            ')' if Original_Owner != Current_Ownerr else team.ShortName
+
+        MasterList.objects.filter(
+            id=iincreament_id).update(**update_ladder_dict)
+
+        iincreament_id += 1
+    # remove last row of transactions dataframe
+    transactions = transactionsdataframe(request, pk)
+    i_tranaction_id = 1
+    # remove last row of transactions dataframe
+    k = transactions.iloc[-1]
+    Transactions.objects.filter(id=k['id']).delete()
+    for index, transactions_data in transactions.iterrows():
+
+        transactions_dict = dict(transactions_data)
+        transactions_dict['id'] = transactions_dict['id']
+        transactions_dict['projectId'] = transactions_dict['projectId']
+        transactions_dict['Transaction_DateTime'] = transactions_dict['Transaction_DateTime']
+        transactions_dict['Transaction_Type'] = transactions_dict['Transaction_Type']
+        transactions_dict['Transaction_Details'] = transactions_dict['Transaction_Details']
+        transactions_dict['Transaction_Description'] = transactions_dict['Transaction_Description']
+
+        Transactions.objects.filter(
+            id=i_tranaction_id).update(**transactions_dict)
+        i_tranaction_id += 1
+        return Response({'success': 'Last Transaction deleted '}, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
