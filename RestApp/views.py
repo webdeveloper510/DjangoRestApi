@@ -6456,21 +6456,21 @@ def Get_Rounds_Pick(request, pk):
     data_order_of_entry = pd.crosstab(
         data_order_of_entry.TeamName, data_order_of_entry.Club_Pick_Number, values=data_order_of_entry.Overall_Pick, aggfunc=sum)
     data_order_of_entry_list = []
-    array = np.array(data_order_of_entry)
+    data_order_of_entry1 = data_order_of_entry[:1]
+
+    array = np.array(data_order_of_entry1)
 
     draft_pick_list = []
-
     for j in data_order_of_entry.keys():
         draft_pick_list.append(j)
 
     queryset = Teams.objects.filter().values()
     for k in queryset:
+        teamname = k['TeamNames']
         for val in array:
             for data in val:
                 data_order_dict = {}
-                teamname = k['TeamNames']
-                data_order_dict[teamname] = str(
-                    data) + "," + str(draft_pick_list)
+                data_order_dict[teamname] = data_order_of_entry1
                 data_order_of_entry_list.append(data_order_dict.copy())
 
     unique_dict = [k for j, k in enumerate(
@@ -6525,15 +6525,14 @@ def Get_Rounds_Pick(request, pk):
                 masterlist_full_dict['Overall_Pick'] = values['Overall_Pick']
                 masterlist_full_dict['TeamName'] = data['TeamNames']
                 masterlist_full_dict['PickType'] = values['PickType']
-                masterlist_full_dict['Original_Owner'] = data['TeamNames']
-                masterlist_full_dict['Current_Owner'] = data['TeamNames']
-                masterlist_full_dict['Previous_Owner'] = data['TeamNames']
+
                 masterlist_full_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                 masterlist_full_dict['Club_Pick_Number'] = values['Club_Pick_Number']
                 data_full_masterlist_list.append(
                     masterlist_full_dict.copy())
                 break
     return Response({'this_year': this_year, 'next_year': next_year, 'data_current_year_rd1_list': data_current_year_rd1_list, 'data_current_year_rd2': data_current_year_rd2_list, 'data_current_year_rd3': data_current_year_rd3_list, 'data_current_year_rd4': data_current_year_rd4_list, 'data_current_year_rd5': data_current_year_rd5_list, 'data_current_year_rd6': data_current_year_rd6_list, 'data_next_year_rd1': data_next_year_rd1_list, 'data_next_year_rd2': data_next_year_rd2_list, 'data_next_year_rd3': data_next_year_rd3_list, 'data_next_year_rd4': data_next_year_rd4_list, 'data_next_year_rd5': data_next_year_rd5_list, 'data_next_year_rd6': data_next_year_rd6_list, 'data_full_masterlist': data_full_masterlist_list, 'data_order_of_entry': unique_dict, 'graph_list': graph_list}, status=status.HTTP_201_CREATED)
+    # return Response(unique_dict)
 
 
 @api_view(['POST'])
