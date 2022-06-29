@@ -4897,7 +4897,11 @@ def add_draft_night_selection(request, pk):
 
     pick_obj = MasterList.objects.get(id=selected_pick_id)
     selected_pick = pick_obj.Display_Name_Detailed
-    player_obj = Players.objects.get(id=player_taken_id)
+    if Players.objects.get_or_create(id=player_taken_id):
+
+        player_obj = Players.objects.get(id=player_taken_id)
+    else:
+        player_obj = ''
     player_taken = player_obj.Full_Name
     masterlist['Pick_Status'].mask(
         masterlist['Display_Name_Detailed'] == selected_pick, 'Used', inplace=True)
@@ -6475,19 +6479,6 @@ def Get_Rounds_Pick(request, pk):
 
     unique_dict = [k for j, k in enumerate(
         data_order_of_entry_list) if k not in data_order_of_entry_list[j + 1:]]
-
-    # print(len(data_order_of_entry))
-    # for  value in data_order_of_entry.keys():
-    #     #print(key)
-    #     data_order_dict = {}
-    #     # data_order_dict['TeamName'] = team_name['TeamNames']
-    #     # data_order_dict['Overall_Pick'] = value['Overall_Pick']
-    #     data_order_dict['Club_Pick_Number'] = value['Club_Pick_Number']
-    #     data_order_of_entry_list.append(data_order_dict.copy())
-    # print(data_order_of_entry_list)
-
-    # data_order_of_entry = pd.crosstab(data_order_of_entry.TeamName, data_order_of_entry.Club_Pick_Number, values=data_order_of_entry.Overall_Pick,aggfunc=sum)
-
     data_order_of_entry.reset_index(drop=True, inplace=True)
     data_order_of_entry_dict = data_order_of_entry.to_dict(orient="index")
 
