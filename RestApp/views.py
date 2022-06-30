@@ -3959,10 +3959,10 @@ def add_trade_v3(request, pk):
         # Changing the previous owner name
 
         masterlist['Previous_Owner'].mask(
-            masterlist['Display_Name_Detailed'] == team2pickout, masterlist['Current_Owner'], inplace=True)
+            masterlist['Unique_Pick_ID'].astype(str) == str(team2pickout), masterlist['Current_Owner'], inplace=True)
         # Executing change of ownership
         masterlist['Current_Owner'].mask(
-            masterlist['Display_Name_Detailed'] == team2pickout, team1, inplace=True)
+            masterlist['Unique_Pick_ID'].astype(str) == str(team2pickout), team1, inplace=True)
 
         ##### Team 2 receiving from Team 1 #####
         # Loop for each pick that team 1 is trading out to team 2:
@@ -3971,11 +3971,11 @@ def add_trade_v3(request, pk):
         # Changing the previous owner name
 
         masterlist['Previous_Owner'].mask(
-            masterlist['Display_Name_Detailed'].astype(str) == str(team1pickout), masterlist['Current_Owner'], inplace=True)
+            masterlist['Unique_Pick_ID'].astype(str) == str(team1pickout), masterlist['Current_Owner'], inplace=True)
         #print( masterlist['Previous_Owner'])
         # Executing change of ownership
         masterlist['Current_Owner'].mask(
-            masterlist['Display_Name_Detailed'].astype(str) == str(team1pickout), team2, inplace=True)
+            masterlist['Unique_Pick_ID'].astype(str) == str(team1pickout), team2, inplace=True)
     # ###########  Call Update masterlist ############
     udpatedf = update_masterlist(masterlist)
     incremented_id = 1
