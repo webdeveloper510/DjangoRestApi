@@ -3842,7 +3842,7 @@ def add_trade_v3_inputs(request, pk):
     obj1  = Teams.objects.get(id = team1)
     obj2  = Teams.objects.get(id = team1)
     Team1_name = obj1.TeamNames
-    Team2_name = obj1.TeamNames
+    Team2_name = obj2.TeamNames
     df = dataframerequest(request, pk)
     masterlist = df
     picks_trading_out_team1_obj = data.get('pickid1')
@@ -3863,7 +3863,8 @@ def add_trade_v3_inputs(request, pk):
 
     if int(picks_trading_out_team1) > 0:
         # Priniting the available picks for team 1 to trade out
-        pick_trading_out_team1_str = masterlist.loc[masterlist.id.astype(int) == int(picks_trading_out_team1), 'Display_Name_Detailed']
+        pick_trading_out_team1_str = masterlist.loc[masterlist.Current_Owner.astype(
+            int) == int(picks_trading_out_team1), 'Display_Name_Detailed']
         team1_trades_picks.append(pick_trading_out_team1_str)
         for i in range(int(picks_trading_out_team1) or 0):
 
