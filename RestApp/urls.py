@@ -91,7 +91,8 @@ urlpatterns = [
     re_path(r'^manual_pick_move/(?P<pk>[0-9]+)$', manual_pick_move),
     re_path(
         r'^quick_academy_calculator/(?P<pk>[0-9]+)$', quick_academy_calculator),
-    re_path(r'^Constraint/(?P<pk>\w+)/(?P<userid>[\w-]+)/$', ConstraintsRquest),
+    re_path(
+        r'^Constraint/(?P<pk>\w+)/(?P<userid>[\w-]+)/$', ConstraintsRquest),
     re_path(r'^trade-alogrithm/(?P<pk>\w+)', trade_optimiser_algorithm),
     re_path(r'^update_ladder/(?P<pk>[0-9]+)$', update_ladder),
     re_path(r'^add-new-player/(?P<pk>[0-9]+)$', add_draftee_player),
@@ -138,7 +139,8 @@ urlpatterns = [
     re_path(r'^DeleteProject/(?P<pk>[0-9]+)$', DeleteProjectRequest),
     re_path(r'^DeleteLadder/(?P<pk>[0-9]+)$', DeleteLadderRecordRequest),
     re_path(r'^DeleteTrade/(?P<pk>[0-9]+)$', DeleteAddTradeRequest),
-    re_path(r'^delete_last_transaction/(?P<pk>[0-9]+)$', delete_last_transaction_request),
+    re_path(
+        r'^delete_last_transaction/(?P<pk>[0-9]+)$', delete_last_transaction_request),
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

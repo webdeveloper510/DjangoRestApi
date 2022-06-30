@@ -776,7 +776,7 @@ def PriorityPickrRequest(request):
         pp_description = pp_team + 'received a ' + pp_pick_type + ' Priority Pick'
 
     if pp_pick_type == 'First Round':
-
+        pp_round = 'RD1'
         rowno = df.index[df['Display_Name_Detailed'] == pp_aligned_pick][0]
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(pp_team_id), 'Position'].iloc[0], 'Year': v_current_year,
@@ -3441,87 +3441,232 @@ def Visualisations(request, pk):
     data_transaction_list = {}
     data_completed_trades = {}
     draft_player_dict = {}
-    data_dashboard_draftboard = {}
 
     # Current Year Picks to a List:
-    data_current_year_club_picks['data_current_year_club_picks'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (
+    data_current_year_club_picks = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (
         masterlist.Current_Owner.astype(int) == v_team_name.astype(int))].Display_Name_Mini.to_dict()
 
     # Current Year Picks to a List:
     data_next_year_club_picks = {}
 
-    data_next_year_club_picks['data_next_year_club_picks'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (
+    data_next_year_club_picks = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (
         masterlist.Current_Owner.astype(int) == v_team_name.astype(int))].Display_Name_Mini.to_dict()
 
     # Dashboard page Draft Board
+    data_dashboard_draftboard = list()
     if players.empty:
         pass
     else:
-        data_dashboard_draftboard_dict = {}
-        data_dashboard_draftboard_dict['data_dashboard_draftboard'] = players[[
+
+        data_dashboard_draftboard_data = players[[
             'FirstName', 'LastName', 'Position_1', 'Rank']].sort_values(by='Rank', ascending=True)
+        for key, value in data_dashboard_draftboard_data.iterrows():
+            dict = {}
+            dict['FirstName'] = value['FirstName']
+            dict['LastName'] = value['LastName']
+            dict['Position_1'] = value['Position_1']
+            dict['Rank'] = value['Rank']
+            data_dashboard_draftboard.append(dict.copy())
+            print(data_dashboard_draftboard)
+            exit()
 # Dashboard Page trade Offers
+    data_dashboard_trade_offers = list()
     if trades.empty:
         pass
     else:
-        data_dashboard_trade_offers['data_dashboard_trade_offers'] = trades[[
+        data_dashboard_trade_offers_data = trades[[
             'Trade_Partner', 'Trading_Out', 'Trading_In', 'Points_Diff', 'Notes']]
+        for key, value in data_dashboard_trade_offers_data.iterrows():
+            dict = {}
+            dict['Trade_Partner'] = value['Trade_Partner']
+            dict['Trading_Out'] = value['Trading_Out']
+            dict['Trading_In'] = value['Trading_In']
+            dict['Points_Diff'] = value['Points_Diff']
+            dict['Notes'] = value['Notes']
+            data_dashboard_trade_offers.append(dict.copy())
+
     # Dashboard Page Transactions
+    data_transaction_list = list()
     if transactions.empty:
         pass
     else:
-
-        data_transaction_list['data_transaction_list'] = transactions[[
+        data_transaction_list_data = transactions[[
             'Transaction_Number', 'Transaction_Type', 'Transaction_Description']]
+
+        for key, value in data_transaction_list_data.iterrows():
+
+            dict = {}
+            dict['Transaction_Number'] = value['Transaction_Number']
+            dict['Transaction_Type'] = value['Transaction_Type']
+            dict['Transaction_Description'] = value['Transaction_Description']
+            data_transaction_list.append(dict.copy())
+
     ##### DRAFT PICKS WEBPAGE #####
 
     # Current Year Round by Round:
-    current_year_round_dict = {}
-    current_year_round_dict['data_current_year_rd1'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (masterlist.Draft_Round.astype(str) == 'RD1')][[
+    data_current_year_rd1 = list()
+    data_current_year_rd1_data = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (masterlist.Draft_Round.astype(str) == 'RD1')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    current_year_round_dict['data_current_year_rd2'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (masterlist.Draft_Round.astype(str) == 'RD2')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    current_year_round_dict['data_current_year_rd3'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (masterlist.Draft_Round.astype(str) == 'RD3')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    current_year_round_dict['data_current_year_rd4'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (masterlist.Draft_Round.astype(str) == 'RD4')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    current_year_round_dict['data_current_year_rd5'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (masterlist.Draft_Round.astype(str) == 'RD5')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    current_year_round_dict['data_current_year_rd6'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (masterlist.Draft_Round.astype(str) == 'RD6')][[
-        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    for key, value in data_current_year_rd1_data.iterrows():
+        dict = {}
+        dict['Draft_Round'] = value['Draft_Round']
+        dict['Overall_Pick'] = value['Overall_Pick']
+        dict['Display_Name_Short'] = value['Display_Name_Short']
+        dict['AFL_Points_Value'] = value['AFL_Points_Value']
+        data_current_year_rd1.append(dict.copy())
 
+    data_current_year_rd2 = list()
+    data_current_year_rd2_data = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (masterlist.Draft_Round.astype(str) == 'RD2')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    for key, value in data_current_year_rd2_data.iterrows():
+        dict = {}
+        dict['Draft_Round'] = value['Draft_Round']
+        dict['Overall_Pick'] = value['Overall_Pick']
+        dict['Display_Name_Short'] = value['Display_Name_Short']
+        dict['AFL_Points_Value'] = value['AFL_Points_Value']
+        data_current_year_rd2.append(dict.copy())
+    data_current_year_rd3 = list()
+    data_current_year_rd3_data = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (masterlist.Draft_Round.astype(str) == 'RD3')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    for key, value in data_current_year_rd3_data.iterrows():
+        dict = {}
+        dict['Draft_Round'] = value['Draft_Round']
+        dict['Overall_Pick'] = value['Overall_Pick']
+        dict['Display_Name_Short'] = value['Display_Name_Short']
+        dict['AFL_Points_Value'] = value['AFL_Points_Value']
+        data_current_year_rd3.append(dict.copy())
+    data_current_year_rd4 = list()
+    data_current_year_rd4_data = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (masterlist.Draft_Round.astype(str) == 'RD4')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    for key, value in data_current_year_rd4_data.iterrows():
+        dict = {}
+        dict['Draft_Round'] = value['Draft_Round']
+        dict['Overall_Pick'] = value['Overall_Pick']
+        dict['Display_Name_Short'] = value['Display_Name_Short']
+        dict['AFL_Points_Value'] = value['AFL_Points_Value']
+        data_current_year_rd4.append(dict.copy())
+    data_current_year_rd5 = list()
+    data_current_year_rd5_data = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (masterlist.Draft_Round.astype(str) == 'RD5')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    for key, value in data_current_year_rd5_data.iterrows():
+        dict = {}
+        dict['Draft_Round'] = value['Draft_Round']
+        dict['Overall_Pick'] = value['Overall_Pick']
+        dict['Display_Name_Short'] = value['Display_Name_Short']
+        dict['AFL_Points_Value'] = value['AFL_Points_Value']
+        data_current_year_rd5.append(dict.copy())
+    data_current_year_rd6 = list()
+    data_current_year_rd6_data = masterlist[(masterlist.Year.astype(int) == int(v_current_year)) & (masterlist.Draft_Round.astype(str) == 'RD6')][[
+        'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    for key, value in data_current_year_rd6_data.iterrows():
+        dict = {}
+        dict['Draft_Round'] = value['Draft_Round']
+        dict['Overall_Pick'] = value['Overall_Pick']
+        dict['Display_Name_Short'] = value['Display_Name_Short']
+        dict['AFL_Points_Value'] = value['AFL_Points_Value']
+        data_current_year_rd6.append(dict.copy())
     # Next Year Round by Round:
-    next_year_round_dict = {}
-    next_year_round_dict['data_next_year_rd1'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (masterlist.Draft_Round.astype(str) == 'RD1')][[
+    data_next_year_rd1 = list()
+    data_next_year_rd1_data = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (masterlist.Draft_Round.astype(str) == 'RD1')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    next_year_round_dict['data_next_year_rd2'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (masterlist.Draft_Round.astype(str) == 'RD2')][[
+    for key, value in data_next_year_rd1_data.iterrows():
+        dict = {}
+        dict['Draft_Round'] = value['Draft_Round']
+        dict['Overall_Pick'] = value['Overall_Pick']
+        dict['Display_Name_Short'] = value['Display_Name_Short']
+        dict['AFL_Points_Value'] = value['AFL_Points_Value']
+        data_next_year_rd1.append(dict.copy())
+    data_next_year_rd2 = list()
+    data_next_year_rd2_data = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (masterlist.Draft_Round.astype(str) == 'RD2')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    next_year_round_dict['data_next_year_rd3'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (masterlist.Draft_Round.astype(str) == 'RD3')][[
+    for key, value in data_next_year_rd2_data.iterrows():
+        dict = {}
+        dict['Draft_Round'] = value['Draft_Round']
+        dict['Overall_Pick'] = value['Overall_Pick']
+        dict['Display_Name_Short'] = value['Display_Name_Short']
+        dict['AFL_Points_Value'] = value['AFL_Points_Value']
+        data_next_year_rd2.append(dict.copy())
+    data_next_year_rd3 = list()
+    data_next_year_rd3_data = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (masterlist.Draft_Round.astype(str) == 'RD3')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    next_year_round_dict['data_next_year_rd4'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (masterlist.Draft_Round.astype(str) == 'RD4')][[
+    for key, value in data_next_year_rd3_data.iterrows():
+        dict = {}
+        dict['Draft_Round'] = value['Draft_Round']
+        dict['Overall_Pick'] = value['Overall_Pick']
+        dict['Display_Name_Short'] = value['Display_Name_Short']
+        dict['AFL_Points_Value'] = value['AFL_Points_Value']
+        data_next_year_rd3.append(dict.copy())
+    data_next_year_rd4 = list()
+    data_next_year_rd4_data = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (masterlist.Draft_Round.astype(str) == 'RD4')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    next_year_round_dict['data_next_year_rd5'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (masterlist.Draft_Round.astype(str) == 'RD5')][[
+    for key, value in data_next_year_rd4_data.iterrows():
+        dict = {}
+        dict['Draft_Round'] = value['Draft_Round']
+        dict['Overall_Pick'] = value['Overall_Pick']
+        dict['Display_Name_Short'] = value['Display_Name_Short']
+        dict['AFL_Points_Value'] = value['AFL_Points_Value']
+        data_next_year_rd4.append(dict.copy())
+    data_next_year_rd5 = list()
+    data_next_year_rd5_data = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (masterlist.Draft_Round.astype(str) == 'RD5')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-    next_year_round_dict['data_next_year_rd6'] = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (masterlist.Draft_Round.astype(str) == 'RD6')][[
+    for key, value in data_next_year_rd5_data.iterrows():
+        dict = {}
+        dict['Draft_Round'] = value['Draft_Round']
+        dict['Overall_Pick'] = value['Overall_Pick']
+        dict['Display_Name_Short'] = value['Display_Name_Short']
+        dict['AFL_Points_Value'] = value['AFL_Points_Value']
+        data_next_year_rd5.append(dict.copy())
+    data_next_year_rd6 = list()
+    data_next_year_rd6_data = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1)) & (masterlist.Draft_Round.astype(str) == 'RD6')][[
         'Draft_Round', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
-
+    for key, value in data_next_year_rd6_data.iterrows():
+        dict = {}
+        dict['Draft_Round'] = value['Draft_Round']
+        dict['Overall_Pick'] = value['Overall_Pick']
+        dict['Display_Name_Short'] = value['Display_Name_Short']
+        dict['AFL_Points_Value'] = value['AFL_Points_Value']
+        data_next_year_rd6.append(dict.copy())
     # Order of Entry Table
     data_order_of_entry = {}
-    data_order_of_entry['data_order_of_entry'] = masterlist[(masterlist.Year.astype(int) == int(
-        v_current_year_plus1))][['TeamName', 'Overall_Pick', 'Club_Pick_Number', 'AFL_Points_Value']].sort_values(by='Overall_Pick')
-    data_order_of_entry['data_order_of_entry'] = pd.crosstab(
-        data_order_of_entry['data_order_of_entry']['TeamName'], data_order_of_entry['data_order_of_entry']['Club_Pick_Number'], values=data_order_of_entry['data_order_of_entry']['Overall_Pick'], aggfunc=sum)
+
+    data_order_of_entry = list()
+    data_order_of_entry_data = masterlist[(masterlist.Year.astype(int) == int(v_current_year_plus1))][[
+        'TeamName', 'Overall_Pick', 'Club_Pick_Number']].sort_values(by='Overall_Pick')
+
+    data_order_of_entry_data = pd.crosstab(
+        data_order_of_entry_data.TeamName, data_order_of_entry_data.Club_Pick_Number, values=data_order_of_entry_data.Overall_Pick, aggfunc=sum)
+    np_array = np.array(data_order_of_entry_data)
+    data_order_of_entry_data1 = data_order_of_entry_data[:10]
+    queryset = Teams.objects.filter().values()
+    for teamnames in queryset:
+        teamnames = teamnames['TeamNames']
+        for data in np_array:
+            dict = {}
+            dict[teamnames] = data_order_of_entry_data1
+            data_order_of_entry.append(dict.copy())
+            break
 
     # Draft Assets Graph - Bar Graph
-    data_draft_assets_graph = {}
-    data_draft_assets_graph['data_draft_assets_graph'] = masterlist.groupby(
+
+    data_draft_assets_graph = masterlist.groupby(
         ['Current_Owner_Short_Name', 'Year'])['AFL_Points_Value'].sum()
 
     ##### Full List of Draft Picks #####
-    data_full_masterlist = {}
-    data_full_masterlist['data_full_masterlist'] = masterlist[['Year', 'Draft_Round', 'Overall_Pick', 'TeamName', 'PickType',
-                                                               'Original_Owner', 'Current_Owner', 'Previous_Owner', 'AFL_Points_Value', 'Club_Pick_Number']]
-
+    data_full_masterlist = list()
+    data_full_masterlist_data = masterlist[['Year', 'Draft_Round', 'Overall_Pick', 'TeamName', 'PickType',
+                                           'Original_Owner', 'Current_Owner', 'Previous_Owner', 'AFL_Points_Value', 'Club_Pick_Number']]
+    for key, value in data_full_masterlist_data.iterrows():
+        dict = {}
+        dict['Year'] = value['Year']
+        dict['Draft_Round'] = value['Draft_Round']
+        dict['Overall_Pick'] = value['Overall_Pick']
+        dict['TeamName'] = value['TeamName']
+        dict['PickType'] = value['PickType']
+        dict['Original_Owner'] = value['Original_Owner']
+        dict['Previous_Owner'] = value['Previous_Owner']
+        dict['AFL_Points_Value'] = value['AFL_Points_Value']
+        dict['Club_Pick_Number'] = value['Club_Pick_Number']
+        data_full_masterlist.append(dict.copy())
     ##### TRADE ANALYSER WEBPAGE #####
 
     # Trade Suggestion table (still in development)
@@ -3529,9 +3674,19 @@ def Visualisations(request, pk):
     if trades.empty:
         pass
     else:
-
-        data_trade_offers['data_trade_offers'] = trades[['Trade_Partner', 'Trading_Out',
-                                                         'Points_Out', 'Trading_In', 'Points_In', 'Points_Diff', 'Notes']]
+        data_trade_offers = list()
+        data_trade_offers_data = trades[['Trade_Partner', 'Trading_Out',
+                                         'Points_Out', 'Trading_In', 'Points_In', 'Points_Diff', 'Notes']]
+        for key, value in data_trade_offers_data.iterrows():
+            dict = {}
+            dict['Trade_Partner'] = value['Trade_Partner']
+            dict['Trading_Out'] = value['Trading_Out']
+            dict['Points_Out'] = value['Points_Out']
+            dict['Trading_In'] = value['Trading_In']
+            dict['Points_In'] = value['Points_In']
+            dict['Points_Diff'] = value['Points_Diff']
+            dict['Notes'] = value['Notes']
+            data_trade_offers.append(dict.copy())
 
     # List of completed trades
     if transactions.empty:
@@ -3542,29 +3697,90 @@ def Visualisations(request, pk):
             transactions.Transaction_Type == 'Trade')]['Transaction_Description']
 
     ##### DRAFT BOARD WEBPAGE #####
+    data_player_list = list()
+    data_draft_tier_1 = list()
+    data_draft_tier_2 = list()
+    data_draft_tier_3 = list()
+    data_draft_tier_4 = list()
+    data_draft_tier_5 = list()
+    comparison_1_club_picks = list()
+
     if players.empty:
         pass
     else:
         # Draft Player List - Would like some fields to be updateable here:
 
-        draft_player_dict['data_player_list'] = players[['FirstName', 'LastName', 'Height', 'Weight',
-                                                         'club', 'State', 'Position_1', 'Position_2', 'Rank', 'Tier', 'Notes']]
+        data_player_list_data = players[['FirstName', 'LastName', 'Height', 'Weight',
+                                         'club', 'State', 'Position_1', 'Position_2', 'Rank', 'Tier', 'Notes']]
+        for key, value in data_player_list_data.iterrows():
+            dict = {}
+            dict['FirstName'] = value['FirstName']
+            dict['LastName'] = value['LastName']
+            dict['Height'] = value['Height']
+            dict['Weight'] = value['Weight']
+            dict['club'] = value['club']
+            dict['State'] = value['State']
+            dict['Position_1'] = value['Position_1']
+            dict['Position_2'] = value['Position_2']
+            dict['Rank'] = value['Rank']
+            dict['Tier'] = value['Tier']
+            dict['Notes'] = value['Notes']
+            data_player_list.append(dict.copy())
         # Draft Tiers
-        draft_player_dict['data_draft_tier_1'] = players[(players.Tier.astype(int) == 1)][[
-            'FirstName', 'LastName', 'club', 'Position_1']]
-        draft_player_dict['data_draft_tier_2'] = players[(players.Tier.astype(int) == 2)][[
-            'FirstName', 'LastName', 'club', 'Position_1']]
-        draft_player_dict['data_draft_tier_3'] = players[(players.Tier.astype(int) == 3)][[
-            'FirstName', 'LastName', 'club', 'Position_1']]
-        draft_player_dict['data_draft_tier_4'] = players[(players.Tier.astype(int) == 4)][[
-            'FirstName', 'LastName', 'club', 'Position_1']]
-        draft_player_dict['data_draft_tier_5'] = players[(players.Tier.astype(int) == 5)][[
+        data_draft_tier_1_data = players[(players.Tier.astype(int) == 1)][[
             'FirstName', 'LastName', 'club', 'Position_1']]
 
-        # Ranking View
+        for key, value in data_draft_tier_1_data.iterrows():
+            dict = {}
+            dict['FirstName'] = value['FirstName']
+            dict['LastName'] = value['LastName']
+            dict['club'] = value['club']
+            dict['Position_1'] = value['Position_1']
+            data_draft_tier_1.append(dict.copy())
 
-        data_dashboard_draftboard['data_dashboard_draftboard'] = players[[
-            'FirstName', 'LastName', 'Position_1', 'Rank']].sort_values(by='Rank', ascending=True)
+        data_draft_tier_2_data = players[(players.Tier.astype(int) == 2)][[
+            'FirstName', 'LastName', 'club', 'Position_1']]
+        for key, value in data_draft_tier_2_data.iterrows():
+            dict = {}
+            dict['FirstName'] = value['FirstName']
+            dict['LastName'] = value['LastName']
+            dict['club'] = value['club']
+            dict['Position_1'] = value['Position_1']
+            data_draft_tier_2.append(dict.copy())
+
+        data_draft_tier_3_data = players[(players.Tier.astype(int) == 3)][[
+            'FirstName', 'LastName', 'club', 'Position_1']]
+
+        for key, value in data_draft_tier_3_data.iterrows():
+            dict = {}
+            dict['FirstName'] = value['FirstName']
+            dict['LastName'] = value['LastName']
+            dict['club'] = value['club']
+            dict['Position_1'] = value['Position_1']
+            data_draft_tier_3.append(dict.copy())
+
+        data_draft_tier_4_data = players[(players.Tier.astype(int) == 4)][[
+            'FirstName', 'LastName', 'club', 'Position_1']]
+
+        for key, value in data_draft_tier_4_data.iterrows():
+            dict = {}
+            dict['FirstName'] = value['FirstName']
+            dict['LastName'] = value['LastName']
+            dict['club'] = value['club']
+            dict['Position_1'] = value['Position_1']
+            data_draft_tier_4.append(dict.copy())
+
+        data_draft_tier_5_data = players[(players.Tier.astype(int) == 5)][[
+            'FirstName', 'LastName', 'club', 'Position_1']]
+
+        for key, value in data_draft_tier_5_data.iterrows():
+            dict = {}
+            dict['FirstName'] = value['FirstName']
+            dict['LastName'] = value['LastName']
+            dict['club'] = value['club']
+            dict['Position_1'] = value['Position_1']
+            data_draft_tier_5.append(dict.copy())
+
     # For Each project:
     # Comparison 1 picks
     comparison_1_club_picks_dict = {}
@@ -3576,16 +3792,24 @@ def Visualisations(request, pk):
         masterlist.Current_Owner.astype(int) == v_team_name)].Display_Name_Mini.to_list()
 
     # Dashboard Page masterlist:
-    comparison_1_club_picks_dict['comparison_1_masterlist'] = masterlist[[
+    comparison_1_club_picks = list()
+    comparison_1_club_picks_dict_data = masterlist[[
         'Year', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+    for key, value in comparison_1_club_picks_dict_data.iterrows():
+        dict = {}
+        dict['Year'] = value['Year']
+        dict['Overall_Pick'] = value['Overall_Pick']
+        dict['Display_Name_Short'] = value['Display_Name_Short']
+        dict['AFL_Points_Value'] = value['AFL_Points_Value']
+        comparison_1_club_picks.append(dict.copy())
 
     # Menu Bar - List for each club and their picks
     data_menu_bar_picks = {}
-    data_menu_bar_picks['data_menu_bar_picks'] = masterlist.groupby('Current_Owner_Short_Name')[
+    data_menu_bar_picks = masterlist.groupby('Current_Owner_Short_Name')[
         'Display_Name_Detailed'].agg(list).to_dict()
-    visualisations_data = [data_current_year_club_picks, data_next_year_club_picks, data_dashboard_draftboard, data_dashboard_trade_offers, data_transaction_list, current_year_round_dict, next_year_round_dict,
-                           data_order_of_entry, data_full_masterlist, data_trade_offers, data_completed_trades, draft_player_dict, comparison_1_club_picks_dict, data_menu_bar_picks]
 
+    visualisations_data = {'data_current_year_club_picks': data_current_year_club_picks, 'data_next_year_club_picks': data_next_year_club_picks, 'data_dashboard_draftboard': data_dashboard_draftboard, 'data_trade_offers': data_trade_offers, 'data_dashboard_trade_offers': data_dashboard_trade_offers, 'data_transaction_list': data_transaction_list, 'data_current_year_rd1': data_current_year_rd1, 'data_current_year_rd2': data_current_year_rd2, 'data_current_year_rd3': data_current_year_rd3, 'data_current_year_rd4': data_current_year_rd4,
+                           'data_current_year_rd5': data_current_year_rd5, 'data_current_year_rd6': data_current_year_rd6, 'data_next_year_rd1': data_next_year_rd1, 'data_next_year_rd2': data_next_year_rd2, 'data_next_year_rd3': data_next_year_rd3, 'data_next_year_rd4': data_next_year_rd4, 'data_next_year_rd5': data_next_year_rd5, 'data_next_year_rd6': data_next_year_rd6, 'data_order_of_entry': data_order_of_entry, 'data_trade_offers': data_trade_offers, 'data_completed_trades': data_completed_trades}
     return Response({'response': visualisations_data}, status.HTTP_201_CREATED)
 
 
@@ -3788,11 +4012,11 @@ def add_trade_v3(request, pk):
         'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
 
     # Creating a dict of what each team traded out
-    trade_dict_full = {}
+ 
     trade_dict = {team1: team1_out, team2: team2_out}
-    trade_dict_full[team1] = [team1_trades_players,
+    trade_dict[team1] = [team1_trades_players,
                               team1_trades_picks, team1_trades_pick_names]
-    trade_dict_full[team2] = [team2_trades_players,
+    trade_dict[team2] = [team2_trades_players,
                               team2_trades_picks, team2_trades_pick_names]
 
     # Creating a written description
@@ -3805,13 +4029,13 @@ def add_trade_v3(request, pk):
     project_id = Proj_obj.id
     transaction_details = pd.DataFrame(
         {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'Trade',
-         'Transaction_Details': trade_dict_full,
+         'Transaction_Details': trade_dict,
          'Transaction_Description': trade_description})
     Transactions.objects.create(
         Transaction_Number='',
         Transaction_DateTime=current_time,
         Transaction_Type='Trade',
-        Transaction_Details=trade_dict_full,
+        Transaction_Details=trade_dict,
         Transaction_Description=trade_description,
         projectId=project_id
     )
@@ -6460,7 +6684,7 @@ def Get_Rounds_Pick(request, pk):
     data_order_of_entry = pd.crosstab(
         data_order_of_entry.TeamName, data_order_of_entry.Club_Pick_Number, values=data_order_of_entry.Overall_Pick, aggfunc=sum)
     data_order_of_entry_list = []
-    data_order_of_entry1 = data_order_of_entry[:1]
+    data_order_of_entry1 = data_order_of_entry[:10]
 
     array = np.array(data_order_of_entry1)
 
