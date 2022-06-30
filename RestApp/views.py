@@ -3866,11 +3866,9 @@ def add_trade_v3_inputs(request, pk):
         for i in range(int(picks_trading_out_team1) or 0):
 
             # get unique pick name
-            pick_trading_out_team1_str = masterlist.loc[masterlist.Current_Owner.astype(
-                int) == int(picks_trading_out_team1), 'Display_Name_Detailed']
+            pick_trading_out_team1_str = masterlist.loc[masterlist.id.astype(int) == int(picks_trading_out_team1), 'Display_Name_Detailed']
             team1_trades_picks.append(pick_trading_out_team1_str)
-            unique_name = masterlist.loc[masterlist.Display_Name_Detailed.astype(
-                str) == str(pick_trading_out_team1_str), 'Unique_Pick_ID']
+            unique_name = masterlist.loc[masterlist.Display_Name_Detailed.astype(str) == str(pick_trading_out_team1_str), 'Unique_Pick_ID']
             team1_trades_pick_names.append(unique_name)
     else:
         pass
@@ -3913,13 +3911,11 @@ def add_trade_v3_inputs(request, pk):
 
         for i in range(int(picks_trading_out_team2)):
 
-            team2_trades_picks.append(picks_trading_out_team2)
             pick_trading_out_team2_str = masterlist.loc[masterlist.Current_Owner.astype(
                 int) == int(picks_trading_out_team2), 'Display_Name_Detailed']
             team2_trades_picks.append(pick_trading_out_team2_str)
             # get unique pick name
-            unique_name = masterlist.loc[masterlist.Display_Name_Detailed.astype(
-                str) == str(pick_trading_out_team2_str), 'Unique_Pick_ID']
+            unique_name = masterlist.loc[masterlist.Display_Name_Detailed.astype(str) == str(pick_trading_out_team2_str), 'Unique_Pick_ID']
             team2_trades_pick_names.append(unique_name)
     else:
         pass
@@ -4018,8 +4014,8 @@ def add_trade_v3(request, pk):
         
     ################### RECORDING TRANSACTION ############################
     #Summarising what each team traded out:
-    team1_out = str(team1_trades_players) +  str(team1_trades_pick_names)
-    team2_out = str(team2_trades_players) +  str(team2_trades_pick_names)
+    team1_out = team1_trades_players +  team1_trades_picks
+    team2_out = team2_trades_players +  team2_trades_picks
 
     
     current_time = datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
