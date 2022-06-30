@@ -3863,11 +3863,11 @@ def add_trade_v3_inputs(request, pk):
 
     if int(picks_trading_out_team1) > 0:
         # Priniting the available picks for team 1 to trade out
+        pick_trading_out_team1_str = masterlist.loc[masterlist.id.astype(int) == int(picks_trading_out_team1), 'Display_Name_Detailed']
+        team1_trades_picks.append(pick_trading_out_team1_str)
         for i in range(int(picks_trading_out_team1) or 0):
 
             # get unique pick name
-            pick_trading_out_team1_str = masterlist.loc[masterlist.id.astype(int) == int(picks_trading_out_team1), 'Display_Name_Detailed']
-            team1_trades_picks.append(pick_trading_out_team1_str)
             unique_name = masterlist.loc[masterlist.Display_Name_Detailed.astype(str) == str(pick_trading_out_team1_str), 'Unique_Pick_ID']
             team1_trades_pick_names.append(unique_name)
     else:
@@ -3909,11 +3909,11 @@ def add_trade_v3_inputs(request, pk):
         team2picks = masterlist[masterlist['Current_Owner'].astype(
             int) == int(team2)]['Display_Name_Detailed'].tolist()
 
+        pick_trading_out_team2_str = masterlist.loc[masterlist.Current_Owner.astype(
+            int) == int(picks_trading_out_team2), 'Display_Name_Detailed']
+        team2_trades_picks.append(pick_trading_out_team2_str)
         for i in range(int(picks_trading_out_team2)):
 
-            pick_trading_out_team2_str = masterlist.loc[masterlist.Current_Owner.astype(
-                int) == int(picks_trading_out_team2), 'Display_Name_Detailed']
-            team2_trades_picks.append(pick_trading_out_team2_str)
             # get unique pick name
             unique_name = masterlist.loc[masterlist.Display_Name_Detailed.astype(str) == str(pick_trading_out_team2_str), 'Unique_Pick_ID']
             team2_trades_pick_names.append(unique_name)
@@ -3952,7 +3952,7 @@ def add_trade_v3(request, pk):
     current_date = date.today()
     v_current_year = current_date.year
     for team2pickout in team2_trades_picks:
-        print(team2pickout[0])
+        print(team2pickout)
 
         # Changing the previous owner name
 
