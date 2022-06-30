@@ -3955,7 +3955,7 @@ def add_trade_v3(request, pk):
 
     current_date = date.today()
     v_current_year = current_date.year
-    for team2pickout in team1_trades_pick_names:
+    for team2pickout in team2_trades_picks:
         # Changing the previous owner name
 
         masterlist['Previous_Owner'].mask(
@@ -3967,15 +3967,13 @@ def add_trade_v3(request, pk):
         ##### Team 2 receiving from Team 1 #####
         # Loop for each pick that team 1 is trading out to team 2:
 
-    for team1pickout in team2_trades_pick_names:
+    for team1pickout in team1_trades_picks:
         # Changing the previous owner name
 
-        masterlist['Previous_Owner'].mask(
-            masterlist['Display_Name_Detailed'].astype(str) == str(team1pickout), masterlist['Current_Owner'], inplace=True)
+        masterlist['Previous_Owner'].mask(masterlist['Display_Name_Detailed'] == team1pickout, masterlist['Current_Owner'], inplace=True)
         #print( masterlist['Previous_Owner'])
         # Executing change of ownership
-        masterlist['Current_Owner'].mask(
-            masterlist['Display_Name_Detailed'].astype(str) == str(team1pickout), team2, inplace=True)
+        masterlist['Current_Owner'].mask(masterlist['Display_Name_Detailed'] == team1pickout, team2, inplace=True)    
     # ###########  Call Update masterlist ############
     udpatedf = update_masterlist(masterlist)
     incremented_id = 1
@@ -4028,10 +4026,10 @@ def add_trade_v3(request, pk):
 
     #Creating a dict of what each team traded out
     trade_dict = {}
-    trade_dict[Team1_name] = team1_trades_pick_names 
-    trade_dict[Team2_name] = team2_trades_pick_names
+    trade_dict[Team1_name] = team1_trades_picks 
+    trade_dict[Team2_name] = team2_trades_picks
 
-    trade_dict_full = {Team1_name: [team1_trades_players,team1_trades_pick_names] , Team2_name: [team2_trades_players,team2_trades_pick_names]}
+    trade_dict_full = {Team1_name: [team1_trades_players,team1_trades_picks,team1_trades_pick_names] , Team2_name: [team2_trades_players,team2_trades_picks,team2_trades_pick_names]}
      #Creating a written description
     trade_description = str(Team1_name) + ' traded ' +  str(team1_out) + ' & ' + str(Team2_name) + ' traded ' + str(team2_out)
 
