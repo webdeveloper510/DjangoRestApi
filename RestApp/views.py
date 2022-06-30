@@ -4028,12 +4028,10 @@ def add_trade_v3(request, pk):
 
     #Creating a dict of what each team traded out
     trade_dict = {}
-    trade_dict[Team1_name] = team1_trades_picks 
-    trade_dict[Team2_name] = team2_trades_picks
-    # trade_dict_full = {}
-    # trade_dict_full[Team1_name] =  [team1_trades_players,team1_trades_pick_names,team1_trades_pick_names]
-    # trade_dict_full[Team2_name] = [team2_trades_players,team2_trades_picks,team2_trades_pick_names]
-    trade_dict_full = {Team1_name: [team1_trades_players,team1_trades_picks,team1_trades_pick_names] , Team2_name: [team2_trades_players,team2_trades_picks,team2_trades_pick_names]}
+    trade_dict[Team1_name] = team1_trades_pick_names 
+    trade_dict[Team2_name] = team2_trades_pick_names
+
+    trade_dict_full = {Team1_name: [team1_trades_players,team1_trades_pick_names] , Team2_name: [team2_trades_players,team2_trades_pick_names]}
      #Creating a written description
     trade_description = str(Team1_name) + ' traded ' +  str(team1_out) + ' & ' + str(Team2_name) + ' traded ' + str(team2_out)
 
