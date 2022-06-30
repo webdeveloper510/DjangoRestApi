@@ -3866,6 +3866,8 @@ def add_trade_v3_inputs(request, pk):
         pick_trading_out_team1_str = masterlist.loc[masterlist.Current_Owner.astype(
             int) == int(picks_trading_out_team1), 'Display_Name_Detailed']
         team1_trades_picks.append(pick_trading_out_team1_str)
+        print(team1_trades_picks)
+        exit()
         for i in range(int(picks_trading_out_team1) or 0):
 
             # get unique pick name
