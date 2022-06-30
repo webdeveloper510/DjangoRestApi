@@ -3955,27 +3955,27 @@ def add_trade_v3(request, pk):
 
     current_date = date.today()
     v_current_year = current_date.year
-    for team2pickout in team1_trades_picks:
+    for team2pickout in team1_trades_pick_names:
         # Changing the previous owner name
 
         masterlist['Previous_Owner'].mask(
-            masterlist['Unique_Pick_ID'].astype(str) == str(team2pickout), masterlist['Current_Owner'], inplace=True)
+            masterlist['Display_Name_Detailed'].astype(str) == str(team2pickout), masterlist['Current_Owner'], inplace=True)
         # Executing change of ownership
         masterlist['Current_Owner'].mask(
-            masterlist['Unique_Pick_ID'].astype(str) == str(team2pickout), team1, inplace=True)
+            masterlist['Display_Name_Detailed'].astype(str) == str(team2pickout), team1, inplace=True)
 
         ##### Team 2 receiving from Team 1 #####
         # Loop for each pick that team 1 is trading out to team 2:
 
-    for team1pickout in team2_trades_picks:
+    for team1pickout in team2_trades_pick_names:
         # Changing the previous owner name
 
         masterlist['Previous_Owner'].mask(
-            masterlist['Unique_Pick_ID'].astype(str) == str(team1pickout), masterlist['Current_Owner'], inplace=True)
+            masterlist['Display_Name_Detailed'].astype(str) == str(team1pickout), masterlist['Current_Owner'], inplace=True)
         #print( masterlist['Previous_Owner'])
         # Executing change of ownership
         masterlist['Current_Owner'].mask(
-            masterlist['Unique_Pick_ID'].astype(str) == str(team1pickout), team2, inplace=True)
+            masterlist['Display_Name_Detailed'].astype(str) == str(team1pickout), team2, inplace=True)
     # ###########  Call Update masterlist ############
     udpatedf = update_masterlist(masterlist)
     incremented_id = 1
