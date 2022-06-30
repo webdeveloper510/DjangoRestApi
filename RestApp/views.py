@@ -3846,8 +3846,8 @@ def add_trade_v3_inputs(request, pk):
     df = dataframerequest(request, pk)
     masterlist = df
     picks_trading_out_team1_obj = data.get('pickid1')
-    picks_trading_out_team1 = data.get('pickid1')
-    # picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
+    # picks_trading_out_team1 = data.get('pickid1')
+    picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
     players_trading_out_team1 = ''
     if players_trading_out_team1 is not None:
 
@@ -3890,8 +3890,8 @@ def add_trade_v3_inputs(request, pk):
         pass
 
     picks_trading_out_team2_obj = data.get('pickid2')
-    picks_trading_out_team2 = data.get('pickid2')
-    # picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
+    # picks_trading_out_team2 = data.get('pickid2')
+    picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
     players_trading_out_team2 = ''
     if players_trading_out_team2 is not None:
 
