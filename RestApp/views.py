@@ -3865,9 +3865,7 @@ def add_trade_v3_inputs(request, pk):
         # Priniting the available picks for team 1 to trade out
         pick_trading_out_team1_str = masterlist.loc[masterlist.id.astype( int) == int(picks_trading_out_team1), 'Display_Name_Detailed']
         team1_trades_picks.append(pick_trading_out_team1_str)
-        print(picks_trading_out_team1)
-        print(team1_trades_picks)
-        exit()
+
         for i in range(int(picks_trading_out_team1) or 0):
 
             # get unique pick name
