@@ -3952,7 +3952,7 @@ def add_trade_v3(request, pk):
     current_date = date.today()
     v_current_year = current_date.year
     for team2pickout in team2_trades_picks:
-        print(team2pickout)
+        print(team2pickout[0])
 
         # Changing the previous owner name
 
