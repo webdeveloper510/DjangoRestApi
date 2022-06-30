@@ -4014,10 +4014,11 @@ def add_trade_v3(request, pk):
     # Creating a dict of what each team traded out
  
     trade_dict = {team1: team1_out, team2: team2_out}
-    trade_dict[team1] = [team1_trades_players,
-                              team1_trades_picks, team1_trades_pick_names]
-    trade_dict[team2] = [team2_trades_players,
-                              team2_trades_picks, team2_trades_pick_names]
+    # trade_dict[team1] = [team1_trades_players,
+    #                           team1_trades_picks, team1_trades_pick_names]
+    # trade_dict[team2] = [team2_trades_players,
+    #                           team2_trades_picks, team2_trades_pick_names]
+    trade_dict_full = {team1: [team1_trades_players,team1_trades_picks,team1_trades_pick_names] , team2: [team2_trades_players,team2_trades_picks,team2_trades_pick_names]}
 
     # Creating a written description
     trade_description = team1 + ' traded ' + \
@@ -4029,13 +4030,13 @@ def add_trade_v3(request, pk):
     project_id = Proj_obj.id
     transaction_details = pd.DataFrame(
         {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'Trade',
-         'Transaction_Details': trade_dict,
+         'Transaction_Details': trade_dict_full,
          'Transaction_Description': trade_description})
     Transactions.objects.create(
         Transaction_Number='',
         Transaction_DateTime=current_time,
         Transaction_Type='Trade',
-        Transaction_Details=trade_dict,
+        Transaction_Details=trade_dict_full,
         Transaction_Description=trade_description,
         projectId=project_id
     )
