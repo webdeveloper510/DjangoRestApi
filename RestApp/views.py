@@ -3915,11 +3915,11 @@ def add_trade_v3_inputs(request, pk):
 
             team2_trades_picks.append(picks_trading_out_team2)
             pick_trading_out_team2_str = masterlist.loc[masterlist.Current_Owner.astype(
-                int) == int(picks_trading_out_team2), 'Display_Name_Detailed'][1]
+                int) == int(picks_trading_out_team2), 'Display_Name_Detailed']
             team2_trades_picks.append(pick_trading_out_team2_str)
             # get unique pick name
             unique_name = masterlist.loc[masterlist.Display_Name_Detailed.astype(
-                str) == str(pick_trading_out_team2_str), 'Unique_Pick_ID'].iloc[0]
+                str) == str(pick_trading_out_team2_str), 'Unique_Pick_ID']
             team2_trades_pick_names.append(unique_name)
     else:
         pass
