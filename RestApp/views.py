@@ -3850,6 +3850,8 @@ def add_trade_v3_inputs(request, pk):
     picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
     # picks_trading_out_team1 = data.get('pickid1')
     players_trading_out_team1 = data.get('player1')
+    print(players_trading_out_team1)
+    exit()
     # Getting the pick(s) name for the pick(s) traded out:
     if len(str(picks_trading_out_team1)) > 0:
         # Priniting the available picks for team 1 to trade out
