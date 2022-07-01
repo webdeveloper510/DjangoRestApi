@@ -307,7 +307,7 @@ def CreateMasterListRequest(request, pk):
 
                 row1['Previous_Owner_id'] = None
                 team = Teams.objects.get(id=updaterow.TeamName)
-                row1['TeamName'] = team
+                row1['TeamName'] = team 
                 row1['Original_Owner'] = Original_Owner
                 row1['Current_Owner'] = Current_Ownerr
                 row1['projectid'] = Project1

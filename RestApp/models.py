@@ -56,7 +56,7 @@ class MasterList(models.Model):
     Current_Owner = models.ForeignKey(
         Teams, related_name='Current_Owner', on_delete=models.CASCADE, default='', blank=False)
     Previous_Owner = models.ForeignKey(
-        Teams, related_name='Previous_Owner', on_delete=models.CASCADE, default=None, blank=True, null=True)
+        Teams, related_name='Previous_Owner', on_delete=models.CASCADE, default=0, blank=True, null=True)
     Draft_Round = models.CharField(max_length=100, default='')
     Draft_Round_Int = models.TextField()
     Pick_Group = models.CharField(max_length=100, default='')
