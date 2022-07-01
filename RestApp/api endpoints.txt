@@ -209,10 +209,10 @@ add trade v3
 {  
    "teamid1":"2",
    "player1":"",
-   "pickid1":"2",
-   "teamid2":"2",
+   "pickid1":"{'value':3}",
+   "teamid2":"3",
    "player2":"",
-   "pickid2":"2"
+   "pickid2":"{'value':4}"
 }
 
 Priority pick v2
