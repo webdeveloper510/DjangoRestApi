@@ -3851,7 +3851,7 @@ def add_trade_v3_inputs(request, pk):
     # picks_trading_out_team1 = data.get('pickid1')
     players_trading_out_team1 = data.get('player1')
     # Getting the pick(s) name for the pick(s) traded out:
-    if int(len(picks_trading_out_team1)) > 0:
+    if len(str(picks_trading_out_team1)) > 0:
         # Priniting the available picks for team 1 to trade out
 
         team1picks = masterlist[masterlist['Current_Owner'].astype(
@@ -3869,7 +3869,7 @@ def add_trade_v3_inputs(request, pk):
         else:
             pass
         # Getting the player name(s) of the player(s) traded out:
-        if int(len(players_trading_out_team1)) > 0:
+        if len(str(players_trading_out_team1)) > 0:
             # Priniting the available picks for team 1 to trade out
             for i in range(int(players_trading_out_team1)):
                 team1_player = players[players['id'].astype(
@@ -3882,7 +3882,7 @@ def add_trade_v3_inputs(request, pk):
         picks_trading_out_team2_obj =  data.get('pickid2')
         picks_trading_out_team2 =  picks_trading_out_team2_obj[0]['value']
         players_trading_out_team2 = data.get('player2')
-        if int(len(picks_trading_out_team2)) > 0:
+        if len(str(picks_trading_out_team2)) > 0:
             # Priniting the available picks for team 2 to trade out
             team2picks = masterlist[masterlist['Current_Owner'].astype(
                 int) == int(team2)]['Display_Name_Detailed'].tolist()
@@ -3901,7 +3901,7 @@ def add_trade_v3_inputs(request, pk):
         else:
             pass
          # Getting the player name(s) of the player(s) traded out:
-        if int(len(players_trading_out_team2)) > 0:
+        if len(str(players_trading_out_team2)) > 0:
             # Priniting the available picks for team 2 to trade out
             for i in range(players_trading_out_team2):
                 player_trading_out_team2 = players[players['id'].astype(
