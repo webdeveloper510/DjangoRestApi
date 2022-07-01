@@ -3967,7 +3967,7 @@ def add_trade_v3(request, pk):
         # Loop for each pick that team 1 is trading out to team 2:
 
     for team1pickout in team1_trades_picks:
-        print(team1pickout)
+        print('see here',team1pickout)
         # Changing the previous owner name
 
         masterlist['Previous_Owner'].mask(masterlist['Display_Name_Detailed'] == team1pickout, masterlist['Current_Owner'], inplace=True)
