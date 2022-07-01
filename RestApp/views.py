@@ -3970,10 +3970,10 @@ def add_trade_v3(request, pk):
         print('see here',team1pickout)
         # Changing the previous owner name
 
-        masterlist['Previous_Owner'].mask(masterlist['Display_Name_Detailed'] == team1pickout, masterlist['Current_Owner'], inplace=True)
+        masterlist['Previous_Owner'].mask(masterlist['Display_Name_Detailed'].astype(str) == str(team1pickout), masterlist['Current_Owner'], inplace=True)
         #print( masterlist['Previous_Owner'])
         # Executing change of ownership
-        masterlist['Current_Owner'].mask(masterlist['Display_Name_Detailed'] == team1pickout, team2, inplace=True)    
+        masterlist['Current_Owner'].mask(masterlist['Display_Name_Detailed'].astype(str) == (team1pickout), team2, inplace=True)    
     # ###########  Call Update masterlist ############
     udpatedf = update_masterlist(masterlist)
     incremented_id = 1
