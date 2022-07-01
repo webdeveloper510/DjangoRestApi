@@ -4018,8 +4018,8 @@ def add_trade_v3(request, pk):
         
     ################### RECORDING TRANSACTION ############################
     #Summarising what each team traded out:
-    team1_out = team1_trades_players +  team1_trades_picks
-    team2_out = team2_trades_players +  team2_trades_picks
+    team1_out = str(team1_trades_players) +  str(team1_trades_picks)
+    team2_out = str(team2_trades_players) +  str(team2_trades_picks)
 
     
     current_time = datetime.datetime.now(pytz.timezone('Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
