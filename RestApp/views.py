@@ -3915,7 +3915,7 @@ def add_trade_v3_inputs(request, pk):
         for i in range(int(picks_trading_out_team2)):
 
             # get unique pick name
-            unique_name = masterlist.loc[masterlist.Display_Name_Detailed.astype(str) == str(pick_trading_out_team2_str), 'Unique_Pick_ID']
+            unique_name = masterlist.loc[masterlist.Display_Name_Detailed.astype(str) == str(pick_trading_out_team2_str), 'Unique_Pick_ID'][0]
             team2_trades_pick_names.append(unique_name)
     else:
         pass
