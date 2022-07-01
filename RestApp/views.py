@@ -3903,15 +3903,14 @@ def add_trade_v3_inputs(request, pk):
                 FirstName=players_trading_out_team2)
             player_id = player_obj.id
 
-    if picks_trading_out_team2 or picks_trading_out_team2 == '':
+    if picks_trading_out_team2 >0:
 
         # Priniting the available picks for team 1 to trade out
 
         team2picks = masterlist[masterlist['Current_Owner'].astype(
             int) == int(team2)]['Display_Name_Detailed'].tolist()
 
-        pick_trading_out_team2_str = masterlist.loc[masterlist.id.astype(
-            int) == int(picks_trading_out_team2), 'Display_Name_Detailed']
+        pick_trading_out_team2_str = masterlist.loc[masterlist.id.astype(int) == int(picks_trading_out_team2), 'Display_Name_Detailed']
         team2_trades_picks.append(pick_trading_out_team2_str)
         for i in range(int(picks_trading_out_team2)):
 
