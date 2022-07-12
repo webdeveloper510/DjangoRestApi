@@ -75,11 +75,11 @@ add trade v3
 
 
 {
-   "teamid1":"1",
+   "teamid1":"",
    "teamid2":"2",
-   "pickid1":"3",
+   "pickid1":"{'value':2}",
    "player1":"",
-   "pickid2":"2",
+   "pickid2":"{'value':3}",
    "player2":""
 }
 
