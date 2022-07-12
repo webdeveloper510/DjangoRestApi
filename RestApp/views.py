@@ -1038,24 +1038,24 @@ def PriorityPickrRequest(request):
         academy_dict['Current_Owner'] = Current_Ownerr
         academy_dict['projectid'] = Project1
 
-        academy_dict['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-            None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
-
+        # academy_dict['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+        #     None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
+        academy_dict['Display_Name'] = Current_Ownerr.TeamNames
         academy_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(academy_dict['Display_Name'])
 
-        academy_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
-            ' ' + str(Overall_pickk)
-
-        academy_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-            previous_owner + team.ShortName + \
-            ')' if Original_Owner != Current_Ownerr else team.ShortName
-
+        # academy_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+        #     None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
+        #     ' ' + str(Overall_pickk)
+        academy_dict['Display_Name_Mini'] = Overall_pickk
+        # academy_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+        #     previous_owner + team.ShortName + \
+        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
+        academy_dict['Display_Name_Short'] = team.ShortName
         academy_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
             previous_owner + team.ShortName + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
-
+        academy_dict['Current_Owner_Short_Name']= team.ShortName 
         MasterList.objects.filter(id=iincreament_id).update(**academy_dict)
 
         iincreament_id += 1
