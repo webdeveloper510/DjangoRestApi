@@ -3844,7 +3844,8 @@ def add_trade_v3_inputs(request, pk):
     Team1_name = obj1.TeamNames
     Team2_name = obj2.TeamNames
     masterlist = dataframerequest(request, pk)
-
+    print(masterlist)
+    exit()
     players = playerdataframe(request, pk)
     picks_trading_out_team1_obj = data.get('pickid1')
     # picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
