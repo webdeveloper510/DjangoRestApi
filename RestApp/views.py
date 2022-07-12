@@ -3854,7 +3854,8 @@ def add_trade_v3_inputs(request, pk):
     # Getting the pick(s) name for the pick(s) traded out:
     if len(str(picks_trading_out_team1)) > 0:
         # Priniting the available picks for team 1 to trade out
-
+        print(masterlist)
+        exit()
         team1picks = masterlist[masterlist['Current_Owner'].astype(
             int) == int(team1)]['Display_Name_Detailed'].tolist()
 
