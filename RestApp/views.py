@@ -3859,8 +3859,10 @@ def add_trade_v3_inputs(request, pk):
             int) == int(team1)]['Display_Name_Detailed'].tolist()
 
         for i in range(int(len(picks_trading_out_team1))):
-            team1_picks = masterlist[masterlist['id'].astype(int) == int(
-                picks_trading_out_team1)]['Display_Name_Detailed']
+            print(len(picks_trading_out_team1))
+            print(picks_trading_out_team1)
+            exit()
+            team1_picks = masterlist[masterlist['id'].astype(int) == int(picks_trading_out_team1)]['Display_Name_Detailed']
 
             team1_trades_picks.append(team1_picks)
             # get unique pick name
