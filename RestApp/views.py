@@ -3847,8 +3847,8 @@ def add_trade_v3_inputs(request, pk):
  
     players = playerdataframe(request, pk)
     picks_trading_out_team1_obj = data.get('pickid1')
-    # picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
-    picks_trading_out_team1 = data.get('pickid1')
+    picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
+    # picks_trading_out_team1 = data.get('pickid1')
     players_trading_out_team1 = data.get('player1')
 
     # Getting the pick(s) name for the pick(s) traded out:
@@ -3859,9 +3859,7 @@ def add_trade_v3_inputs(request, pk):
             int) == int(team1)]['Display_Name_Detailed'].tolist()
 
         for i in range(int(len(picks_trading_out_team1))):
-            print(len(picks_trading_out_team1))
-            print(picks_trading_out_team1)
-            exit()
+    
             team1_picks = masterlist[masterlist['id'].astype(int) == int(picks_trading_out_team1)]['Display_Name_Detailed']
 
             team1_trades_picks.append(team1_picks)
@@ -3883,9 +3881,9 @@ def add_trade_v3_inputs(request, pk):
     else:
         pass
 
-    picks_trading_out_team2 = data.get('pickid2')
-    # picks_trading_out_team2_obj =  data.get('pickid2')
-    # picks_trading_out_team2 =  picks_trading_out_team2_obj[0]['value']
+    # picks_trading_out_team2 = data.get('pickid2')
+    picks_trading_out_team2_obj =  data.get('pickid2')
+    picks_trading_out_team2 =  picks_trading_out_team2_obj[0]['value']
     players_trading_out_team2 = data.get('player2')
     if len(str(picks_trading_out_team2)) > 0:
         # Priniting the available picks for team 2 to trade out
