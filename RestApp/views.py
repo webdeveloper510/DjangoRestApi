@@ -3858,7 +3858,7 @@ def add_trade_v3_inputs(request, pk):
         team1picks = masterlist[masterlist['Current_Owner'].astype(
             int) == int(team1)]['Display_Name_Detailed'].tolist()
 
-        for i in range(int(picks_trading_out_team1)):
+        for i in range(int(len(picks_trading_out_team1))):
             team1_picks = masterlist[masterlist['id'].astype(int) == int(
                 picks_trading_out_team1)]['Display_Name_Detailed']
 
