@@ -3940,9 +3940,9 @@ def add_trade_v3(request, pk):
     # Loop for each pick that team 2 is trading out to team 1:
     for team2pickout in team2_trades_picks:
         # Changing the previous owner name
-        # print(team2pickout)
-        masterlist['Previous_Owner'].mask(masterlist['Display_Name_Detailed'] == tuple(
-            team2pickout), masterlist['Current_Owner'], inplace=True)
+
+        masterlist['Previous_Owner'].mask(masterlist['Display_Name_Detailed'].astype(
+            str) == str(team2pickout), masterlist['Current_Owner'], inplace=True)
         masterlist['Current_Owner'].mask(masterlist['Display_Name_Detailed'].astype(
             str) == tuple(team1_trades_pick_names), team1, inplace=True)
 
@@ -3951,14 +3951,20 @@ def add_trade_v3(request, pk):
 
      ##### Team 2 receiving from Team 1 #####
     # Loop for each pick that team 1 is trading out to team 2:
+
     for team1pickout in team1_trades_picks:
         # Changing the previous owner name
-        masterlist['Previous_Owner'].mask(masterlist['Display_Name_Detailed'] == tuple(
-            team1pickout), masterlist['Current_Owner'], inplace=True)
 
-        # Executing change of ownership
-        masterlist['Current_Owner'].mask(
-            masterlist['Display_Name_Detailed'] == tuple(team1pickout), team2, inplace=True)
+        for k in team1pickout:
+
+            masterlist['Previous_Owner'].mask(masterlist['Display_Name_Detailed'].astype(str) == k, masterlist['Current_Owner'],axis=0,inplace=True)
+            # Executing change of ownership
+        
+            masterlist['Current_Owner'].mask(masterlist['Display_Name_Detailed'] == k, int(team2), inplace=True)
+        # replace values greater than 10 with -25
+    
+    # print(type(team1pickout))
+
 
     # ###########  Call Update masterlist ############
 
@@ -3977,31 +3983,32 @@ def add_trade_v3(request, pk):
         Overall_pickk = trade_dict['Overall_Pick']
 
         Project1 = Project.objects.get(id=pk)
-        trade_dict['Previous_Owner'] = previous_owner
+        # trade_dict['Previous_Owner'] = None
         team = Teams.objects.get(id=updaterow.TeamName)
         trade_dict['TeamName'] = team
         trade_dict['Original_Owner'] = Original_Owner
         trade_dict['Current_Owner'] = Current_Ownerr
         trade_dict['projectid'] = Project1
 
-        trade_dict['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-            None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
-
+        # trade_dict['Display_Name'] = str(Current_Ownerr.TeamNames)+' (Origin: '+team.TeamNames+', Via: ' + \
+        #             None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
+        trade_dict['Display_Name'] =  Current_Ownerr.TeamNames
         trade_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
             updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(trade_dict['Display_Name'])
 
-        trade_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
-            ' ' + str(Overall_pickk)
+        # trade_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+        #     None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
+        #     ' ' + str(Overall_pickk)
 
-        trade_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-            previous_owner + team.ShortName + \
-            ')' if Original_Owner != Current_Ownerr else team.ShortName
-
-        trade_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-            previous_owner + team.ShortName + \
-            ')' if Original_Owner != Current_Ownerr else team.ShortName
-        print(masterlist['Previous_Owner'][:10])
+        trade_dict['Display_Name_Mini']  = team.ShortName + ' ' + str(Overall_pickk)
+        # trade_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+        #     previous_owner + team.ShortName + \
+        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
+        trade_dict['Display_Name_Short'] = team.ShortName
+        # trade_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+        #     previous_owner + team.ShortName + \
+        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
+        trade_dict['Current_Owner_Short_Name'] = team.ShortName
         MasterList.objects.filter(id=incremented_id).update(**trade_dict)
         incremented_id += 1
 
