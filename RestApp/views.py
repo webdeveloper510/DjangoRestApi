@@ -1052,9 +1052,9 @@ def PriorityPickrRequest(request):
         #     previous_owner + team.ShortName + \
         #     ')' if Original_Owner != Current_Ownerr else team.ShortName
         academy_dict['Display_Name_Short'] = team.ShortName
-        academy_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-            previous_owner + team.ShortName + \
-            ')' if Original_Owner != Current_Ownerr else team.ShortName
+        # academy_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
+        #     previous_owner + team.ShortName + \
+        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
         academy_dict['Current_Owner_Short_Name']= team.ShortName 
         MasterList.objects.filter(id=iincreament_id).update(**academy_dict)
 
