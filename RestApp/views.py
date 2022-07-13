@@ -3846,10 +3846,10 @@ def add_trade_v3_inputs(request, pk):
     masterlist = dataframerequest(request, pk)
 
     players = playerdataframe(request, pk)
-    picks_trading_out_team1_obj = data.get('pickid1')
+    # picks_trading_out_team1_obj = data.get('pickid1')
 
-    picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
-    # picks_trading_out_team1 = data.get('pickid1')
+    # picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
+    picks_trading_out_team1 = data.get('pickid1')
     players_trading_out_team1 = data.get('player1')
 
     # Getting the pick(s) name for the pick(s) traded out:
@@ -3861,8 +3861,7 @@ def add_trade_v3_inputs(request, pk):
 
         for i in range(int(picks_trading_out_team1)):
 
-            team1_picks = masterlist[masterlist['id'].astype(int) == int(
-                picks_trading_out_team1)]['Display_Name_Detailed']
+            team1_picks = masterlist[masterlist['id'].astype(int) == int( picks_trading_out_team1)]['Display_Name_Detailed'].iloc[0]
 
             team1_trades_picks.append(team1_picks)
             # get unique pick name
@@ -3883,9 +3882,9 @@ def add_trade_v3_inputs(request, pk):
     else:
         pass
 
-    # picks_trading_out_team2 = data.get('pickid2')
-    picks_trading_out_team2_obj =  data.get('pickid2')
-    picks_trading_out_team2 =  picks_trading_out_team2_obj[0]['value']
+    picks_trading_out_team2 = data.get('pickid2')
+    # picks_trading_out_team2_obj =  data.get('pickid2')
+    # picks_trading_out_team2 =  picks_trading_out_team2_obj[0]['value']
     players_trading_out_team2 = data.get('player2')
     if len(str(picks_trading_out_team2)) > 0:
         # Priniting the available picks for team 2 to trade out
@@ -3893,25 +3892,22 @@ def add_trade_v3_inputs(request, pk):
             int) == int(team2)]['Display_Name_Detailed'].tolist()
 
         for i in range(int(picks_trading_out_team2)):
-            pick_trading_out_team2 = masterlist[masterlist['Current_Owner'].astype(
-                int) == int(picks_trading_out_team2)]['Display_Name_Detailed']
+            pick_trading_out_team2 = masterlist[masterlist['Current_Owner'].astype(int) == int(picks_trading_out_team2)]['Display_Name_Detailed'].iloc[0]
 
             team2_trades_picks.append(pick_trading_out_team2)
             # get unique pick name
-            unique_name = masterlist.loc[masterlist.id.astype(str) == str(
-                picks_trading_out_team2), 'Unique_Pick_ID'].iloc[0]
+            unique_name = masterlist.loc[masterlist.id.astype(str) == str(picks_trading_out_team2), 'Unique_Pick_ID'].iloc[0]
             team2_trades_pick_names.append(unique_name)
 
     else:
         pass
+        
         # Getting the player name(s) of the player(s) traded out:
     if len(str(players_trading_out_team2)) > 0 or players_trading_out_team2 != 0:
         # Priniting the available picks for team 2 to trade out
-        player2_id = players[players['FirstName'].astype(
-            str) == str(players_trading_out_team2)]['id']
+        player2_id = players[players['FirstName'].astype(str) == str(players_trading_out_team2)]['id']
         for i in range(len(player2_id)):
-            player_trading_out_team2 = players[players['FirstName'].astype(
-                str) == str(players_trading_out_team2)]['Full_Name']
+            player_trading_out_team2 = players[players['FirstName'].astype(str) == str(players_trading_out_team2)]['Full_Name']
             team2_trades_players.append(player_trading_out_team2)
     else:
         pass
@@ -3942,11 +3938,10 @@ def add_trade_v3(request, pk):
     # Loop for each pick that team 2 is trading out to team 1:
     for team2pickout in team2_trades_picks:
         # Changing the previous owner name
-
-        masterlist['Previous_Owner'].mask(masterlist['Display_Name_Detailed'].astype(
-            str) == str(team2pickout), masterlist['Current_Owner'], inplace=True)
-        masterlist['Current_Owner'].mask(masterlist['Display_Name_Detailed'].astype(
-            str) == tuple(team1_trades_pick_names), team1, inplace=True)
+        for j in team2pickout:
+            masterlist['Previous_Owner'].mask(masterlist['Display_Name_Detailed'].astype( str) == str(team2pickout), masterlist['Current_Owner'], inplace=True)
+            masterlist['Current_Owner'].mask(masterlist['Display_Name_Detailed'].astype( str) == tuple(team1_trades_pick_names), team1, inplace=True)
+            masterlist['Previous_Owner'] = np.where(masterlist['Previous_Owner'].notnull(),masterlist['Previous_Owner'],None)
 
         ##### Team 2 receiving from Team 1 #####
         # Loop for each pick that team 1 is trading out to team 2:
@@ -4049,8 +4044,6 @@ def add_trade_v3(request, pk):
         Transaction_Number=last_Transations_id)
     call_add_trade(transaction_details)
     return Response({'success': 'Add-Trade-v3 Created Successfuly'}, status=status.HTTP_201_CREATED)
-
-
 # @api_view(['POST'])
 # @permission_classes([AllowAny, ])
 def update_ladder(request, pk):
