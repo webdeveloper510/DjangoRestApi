@@ -9,6 +9,7 @@ from http.client import CONTINUE
 from logging import raiseExceptions
 from optparse import Values
 from re import M, T
+import string
 # from socket import MSG_EOR
 from tabnanny import verbose
 from telnetlib import TELNET_PORT
@@ -195,44 +196,37 @@ def LocalLadderRequest(request):
     }
     fk = serializer.data['projectId']
     ProjectId = Project.objects.filter(id=fk).values('id', 'project_name')
-    print(ProjectId)
     return Response({'success': 'LocalLadder Created Successfuly', 'data': serializer.data, "NamesDict": NamesDict, 'Projectid': ProjectId}, status=status.HTTP_201_CREATED)
 
 
 def update_masterlist(df):
+    masterlist = df
     library_AFL_Draft_Pointss = []
     library_AFL_Team_Names = []
 
-    Team = Teams.objects.filter().values('id', 'TeamNames', 'ShortName')
-    for teamdata in Team:
-        library_AFL_Team_Names.append(teamdata['id'])
+    _queryset =Teams.objects.filter().values()
+    for k in list(_queryset):
+         library_AFL_Team_Names.append(k['ShortName'])
 
     PointsQueryset = library_AFL_Draft_Points.objects.filter().values('points')
 
     for pointss in list(PointsQueryset):
 
         library_AFL_Draft_Pointss.append(pointss['points'])
+    
 
-    # df.rename(columns={'Current_Owner_id': 'Current_Owner'}, inplace=True)
-    # df.rename(columns={'Original_Owner_id': 'Original_Owner'}, inplace=True)
-    # df.rename(columns={'TeamName_id': 'TeamName'}, inplace=True)
-    # df.rename(columns={'Previous_Owner_id': 'Previous_Owner'}, inplace=True)
+    masterlist['Overall_Pick'] = masterlist.groupby('Year').cumcount()
 
-    df['Overall_Pick'] = df.groupby('Year').cumcount()
 
     ss = enumerate(library_AFL_Draft_Pointss)
     library_AFL_Draf = dict(ss)
-    df['AFL_Points_Value'] = df['Overall_Pick'].map(library_AFL_Draf).fillna(0)
-    df['Overall_Pick'] = df.groupby('Year').cumcount()+1
+    masterlist['AFL_Points_Value'] = masterlist['Overall_Pick'].map(library_AFL_Draf).fillna(0)
+    masterlist['Overall_Pick'] = masterlist.groupby('Year').cumcount()+1
 
-    df['Unique_Pick_ID'] = df['Year'].astype(str) + '-' + df['Draft_Round'].astype(str) \
-        + '-' + df['PickType'].astype(str) + '-' + \
-        df['Original_Owner'].astype(str)
-
-    df['Club_Pick_Number'] = df.groupby(
-        ['Year', 'Current_Owner']).cumcount() + 1
-    df['Display_Name'] = df['Current_Owner']
-    df['Display_Name_Detailed'] = df['Current_Owner']
+    masterlist['Unique_Pick_ID'] = masterlist['Year'].astype(str) + '-' + masterlist['Draft_Round'].astype(str) \
+        + '-' + masterlist['PickType'].astype(str) + '-'  + \
+        masterlist['Original_Owner'].astype(str)
+    masterlist['Club_Pick_Number'] = masterlist.groupby( ['Year', 'Current_Owner']).cumcount() + 1
 
     return df
 
@@ -266,6 +260,7 @@ def CreateMasterListRequest(request, pk):
     df = pd.concat([masterlistthisyear, masterlistnextyear],
                    ignore_index=True, axis=0)
     pkkkk = MasterList.objects.filter(projectid=pk).first()
+    year = df['Year']
     if pkkkk is None:
 
         try:
@@ -311,28 +306,24 @@ def CreateMasterListRequest(request, pk):
                 row1['Original_Owner'] = Original_Owner
                 row1['Current_Owner'] = Current_Ownerr
                 row1['projectid'] = Project1
-                # row1['Overall_Pick'] = *Overall_pickk
-
+        
                 row1['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
                     None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
-
-                row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
-                    updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(team.TeamNames)
-
+                row1['Display_Name_Short'] =  str(Current_Ownerr.ShortName) + ' (Origin: ' + str(Original_Owner.ShortName) + ', Via: ' +\
+                    ')' if Original_Owner == Current_Ownerr else team.ShortName
+    
+                row1['Display_Name_Detailed'] = str(updaterow.Year) + '-' + str(updaterow.Draft_Round) + '-Pick' \
+                                            + str(updaterow.Overall_Pick) + '-' + row1['Display_Name_Short']
+ 
                 row1['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                    None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
-                    ' ' + str(int(Overall_pickk))
-
-                row1['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-                    previous_owner + team.ShortName + \
-                    ')' if Original_Owner != Current_Ownerr else team.ShortName
-
-                row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-                    previous_owner + team.ShortName + \
+                    None + ')' if Original_Owner != Current_Ownerr else str(int(Overall_pickk)) +  ' ' + team.ShortName
+     
+                row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + str(Current_Ownerr.TeamNames) + ' (Origin: ' + str(Original_Owner.TeamNames) + ', Via: ' + \
+                    str(previous_owner) + str(team.ShortName) + \
                     ')' if Original_Owner != Current_Ownerr else team.ShortName
 
                 MasterList(**row1).save()
-
+    
             return Response({'success': 'MasterList Created Successfuly', 'data': df}, status=status.HTTP_201_CREATED)
 
         except Exception as e:
@@ -3846,50 +3837,48 @@ def add_trade_v3_inputs(request, pk):
     masterlist = dataframerequest(request, pk)
 
     players = playerdataframe(request, pk)
-    picks_trading_out_team1_obj = data.get('pickid1')
+    # picks_trading_out_team1_obj = data.get('pickid1')
 
-    picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
-    # picks_trading_out_team1 = data.get('pickid1')
+    # picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
+    picks_trading_out_team1 = data.get('pickid1')
     players_trading_out_team1 = data.get('player1')
 
     # Getting the pick(s) name for the pick(s) traded out:
     if len(str(picks_trading_out_team1)) > 0:
         # Priniting the available picks for team 1 to trade out
 
-        team1picks = masterlist[masterlist['Current_Owner'].astype(
-            int) == int(team1)]['Display_Name_Detailed'].tolist()
+        team1picks = masterlist[masterlist['Current_Owner'].astype(int) == int(team1)]['Display_Name_Detailed'].tolist()
 
         for i in range(int(picks_trading_out_team1)):
 
-            team1_picks = masterlist[masterlist['id'].astype(int) == int( picks_trading_out_team1)]['Display_Name_Detailed'].iloc[0]
+            team1_picks = masterlist[masterlist['id'].astype(int) == int(picks_trading_out_team1)]['Display_Name_Detailed'].iloc[0]
 
             team1_trades_picks.append(team1_picks)
             # get unique pick name
-            unique_name = masterlist.loc[masterlist.id.astype(int) == int(
-                picks_trading_out_team1), 'Unique_Pick_ID'].iloc[0]
+            unique_name = masterlist.loc[masterlist.id.astype(int) == int(picks_trading_out_team1), 'Unique_Pick_ID'].iloc[0]
             team1_trades_pick_names.append(unique_name)
         else:
             pass
+
     # Getting the player name(s) of the player(s) traded out:
-    if len(str(players_trading_out_team1)) > 0 or players_trading_out_team1 != 0:
+    if len(str(players_trading_out_team1)) > 0 or players_trading_out_team1 == '':
         # Priniting the available picks for team 1 to trade out
-        player1_id = players[players['FirstName'].astype(
-            str) == str(players_trading_out_team1)]['id']
+        player1_id = players[players['FirstName'].astype(str) == str(players_trading_out_team1)]['id']
+
         for i in range(len(player1_id)):
-            team1_player = players[players['FirstName'].astype(
-                str) == str(players_trading_out_team1)]['Full_Name']
+
+            team1_player = players[players['FirstName'].astype(str) == str(players_trading_out_team1)]['Full_Name']
             team1_trades_players.append(team1_player)
     else:
         pass
 
-    # picks_trading_out_team2 = data.get('pickid2')
-    picks_trading_out_team2_obj =  data.get('pickid2')
-    picks_trading_out_team2 =  picks_trading_out_team2_obj[0]['value']
+    picks_trading_out_team2 = data.get('pickid2')
+    # picks_trading_out_team2_obj = data.get('pickid2')
+    # picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
     players_trading_out_team2 = data.get('player2')
     if len(str(picks_trading_out_team2)) > 0:
         # Priniting the available picks for team 2 to trade out
-        team2picks = masterlist[masterlist['Current_Owner'].astype(
-            int) == int(team2)]['Display_Name_Detailed'].tolist()
+        team2picks = masterlist[masterlist['Current_Owner'].astype(int) == int(team2)]['Display_Name_Detailed'].tolist()
 
         for i in range(int(picks_trading_out_team2)):
             pick_trading_out_team2 = masterlist[masterlist['Current_Owner'].astype(int) == int(picks_trading_out_team2)]['Display_Name_Detailed'].iloc[0]
@@ -3901,11 +3890,13 @@ def add_trade_v3_inputs(request, pk):
 
     else:
         pass
-        
+
         # Getting the player name(s) of the player(s) traded out:
     if len(str(players_trading_out_team2)) > 0 or players_trading_out_team2 != 0:
+
         # Priniting the available picks for team 2 to trade out
         player2_id = players[players['FirstName'].astype(str) == str(players_trading_out_team2)]['id']
+
         for i in range(len(player2_id)):
             player_trading_out_team2 = players[players['FirstName'].astype(str) == str(players_trading_out_team2)]['Full_Name']
             team2_trades_players.append(player_trading_out_team2)
@@ -3937,29 +3928,21 @@ def add_trade_v3(request, pk):
     ##### Team 1 receiving from Team 2 #####
     # Loop for each pick that team 2 is trading out to team 1:
     for team2pickout in team2_trades_picks:
-        # Changing the previous owner name
-        for j in team2pickout:
-            masterlist['Previous_Owner'].mask(masterlist['Display_Name_Detailed'].astype( str) == str(team2pickout), masterlist['Current_Owner'], inplace=True)
-            masterlist['Current_Owner'].mask(masterlist['Display_Name_Detailed'].astype( str) == tuple(team1_trades_pick_names), team1, inplace=True)
-            masterlist['Previous_Owner'] = np.where(masterlist['Previous_Owner'].notnull(),masterlist['Previous_Owner'],None)
 
+        # Changing the previous owner name
+        masterlist['Previous_Owner'].mask(masterlist['Display_Name_Detailed'].astype(str) == str(team2pickout), masterlist['Current_Owner'], inplace=True)
+               #Executing change of ownership
+        masterlist['Current_Owner'].mask(masterlist['Display_Name_Detailed'].astype(str) == str(team2pickout), team2, inplace=True)    
+    
         ##### Team 2 receiving from Team 1 #####
         # Loop for each pick that team 1 is trading out to team 2:
-
-     ##### Team 2 receiving from Team 1 #####
-    # Loop for each pick that team 1 is trading out to team 2:
-
     for team1pickout in team1_trades_picks:
-        # Changing the previous owner name
 
-        for k in team1pickout:
+        #Changing the previous owner name
+        masterlist['Previous_Owner'].mask(masterlist['Display_Name_Detailed'].astype(str) == str(team1pickout), masterlist['Current_Owner'], inplace=True)
 
-            masterlist['Previous_Owner'].mask(masterlist['Display_Name_Detailed'].astype(
-                str) == k, masterlist['Current_Owner'], axis=0, inplace=True)
-            # Executing change of ownership
-
-            masterlist['Current_Owner'].mask(
-                masterlist['Display_Name_Detailed'] == k, int(team2), inplace=True)
+        #Executing change of ownership
+        masterlist['Current_Owner'].mask(masterlist['Display_Name_Detailed'].astype(str) == str(team1pickout), team2, inplace=True)   
 
     # ###########  Call Update masterlist ############
 
@@ -4046,6 +4029,8 @@ def add_trade_v3(request, pk):
     return Response({'success': 'Add-Trade-v3 Created Successfuly'}, status=status.HTTP_201_CREATED)
 # @api_view(['POST'])
 # @permission_classes([AllowAny, ])
+
+
 def update_ladder(request, pk):
     ################ CREATING MASTERLIST FROM SCRATCH #######################
     # First stage bringing in the ordered ladder list which will be generated from the Settings page:

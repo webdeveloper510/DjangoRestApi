@@ -73,25 +73,14 @@ Priority pick
 
 add trade v3
 
-
 {
-   "teamid1":"1",
-   "teamid2":"2",
-   "pickid1":"[{'value': 19, 'label': '2022-RD2-Pick19-Adelaide Crows'}]",
+   "teamid1":"13",
+   "teamid2":"18",
+   "pickid1":"13",
    "player1":"",
-   "pickid2":"[{'value': 20, 'label': '2022-RD2-Pick20-Adelaide Crows'}]",
+   "pickid2":"18",
    "player2":""
 }
-
-{
-   "teamid1":"1",
-   "teamid2":"2",
-   "pickid1":"2",
-   "player1":"",
-   "pickid2":"3",
-   "player2":""
-}
-# masterlist['Previous_Owner'] = np.where(masterlist['Previous_Owner'].notnull(),masterlist['Previous_Owner'],None)
 
 
 AcademyBid inputs
