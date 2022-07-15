@@ -1637,10 +1637,8 @@ def AcademyBidRequest(request, pk):
         # getting the new overall pick number and what round it belongs to:
         deficit_new_shuffled_pick_no = df[df.Display_Name_Detailed ==
                                           deficit_attached_pick].Overall_Pick.iloc[0]
-        deficit_new_shuffled_pick_RD_no = df[df.Display_Name_Detailed ==
-                                             deficit_attached_pick].Draft_Round.iloc[0]
+        deficit_new_shuffled_pick_RD_no = df[df.Display_Name_Detailed ==deficit_attached_pick].Draft_Round.iloc[0]
 
-        # 2021-RD3-Pick43-Richmond
         pick_deficit_details = pd.DataFrame(
             {'Pick': deficit_attached_pick, 'Moves_To': deficit_new_shuffled_pick_no, 'New_Points_Value': deficit_pick_points}, index=[0])
 
@@ -1664,8 +1662,7 @@ def AcademyBidRequest(request, pk):
 
     # Execute Insert
     # i.e stacks 3 dataframes on top of each other
-    df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
-                   ).reset_index(drop=True)
+    df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]).reset_index(drop=True)
 
     # MasterList.objects.filter(projectid_id=pk).delete()
 
@@ -1686,29 +1683,11 @@ def AcademyBidRequest(request, pk):
         Overall_pickk = row1['Overall_Pick']
 
         Project1 = Project.objects.get(id=pk)
-        row1['Previous_Owner'] = team
+        row1['Previous_Owner'] = None
         row1['TeamName'] = team
         row1['Original_Owner'] = Original_Owner
         row1['Current_Owner'] = Current_Ownerr
         row1['projectid_id'] = Project1.id
-
-        row1['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-            None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
-
-        row1['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
-            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(row1['Display_Name'])
-
-        row1['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
-            ' ' + str(Overall_pickk)
-
-        row1['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-            previous_owner + team.ShortName + \
-            ')' if Original_Owner != Current_Ownerr else team.ShortName
-
-        row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-            previous_owner + team.ShortName + \
-            ')' if Original_Owner != Current_Ownerr else team.ShortName
 
         MasterList.objects.filter(id=iincreament_id).update(**row1)
 
@@ -1725,38 +1704,28 @@ def AcademyBidRequest(request, pk):
     for x in academy_summaries_list:
         if len(x) > 0:
             academy_summary_df = academy_summary_df.append(x)
-
-    academysummery_list = []
     academy_summary_dict = academy_summary_df.to_dict(orient="list")
-
-    for key, value in academy_summary_dict.items():
-        for i in value:
-
-            result = ' ' + key + ' - ' + str(i)
-            academysummery_list.append(result)
-    academy_summary_str = ''.join(str(e) for e in academy_summaries_list)
-
     ######### Exporting Transaction Details: ###############
 
     current_time = datetime.datetime.now(pytz.timezone(
         'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
-    academy_dict = {academy_team: [
-        academy_pick_type, academy_bid, academy_bid_pick_no, academy_player]}
 
-    project_obj = Project.objects.get(id=pk)
+    academy_dict = {academy_team: [academy_pick_type, academy_bid, academy_bid_pick_no, academy_player]}
 
-    Transactions.objects.create(
-        Transaction_Number='',
-        Transaction_DateTime=current_time,
-        Transaction_Type='Academy_Bid_Match',
-        Transaction_Details=academy_dict,
-        Transaction_Description=academy_summaries_list,
-        projectId=project_obj.id
+    obj =Project.objects.get(id=pk)
+    df2 = transactionsdataframe(request, pk)
+    academy_description = 'Academy Bid Match: Pick '+ str(academy_bid_pick_no) + ' ' + str(academy_team) + ' (' + str(academy_player) + ')'
 
-    )
-    obj = Transactions.objects.latest('id')
-    count = Transactions.objects.filter().count()
-    Transactions.objects.filter(id=obj.id).update(Transaction_Number=count)
+    transaction_details = pd.DataFrame(
+        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'Academy_Bid_Match', 'Transaction_Details': [academy_dict], 'Transaction_Description': academy_description, 'projectId': obj.id})
+    df2 = df2.append(transaction_details)
+    if df2.isnull().values.any():
+        df2['id'] = df2['id'].fillna(len(df2))
+    else:
+        pass
+    for index, df2_row in df2.iterrows():
+        transactions_dict = dict(df2_row)
+        Transactions(**transactions_dict).save()
     return Response({'success': 'Academy Bid has Created'}, status=status.HTTP_201_CREATED)
 
 
@@ -2637,8 +2606,6 @@ def add_FA_compansation(request, pk):
 
 def add_FA_compensation_inputs_request(request, pk):
 
-    projectid = pk
-
     masterlist = dataframerequest(request, pk)
 
     data = request.data
@@ -2853,7 +2820,7 @@ def add_FA_compensation_v2(request, pk):
         # create the line to insert:
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team, 'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
-                             'Previous_Owner': fa_team, 'Draft_Round': 'RD2', 'Draft_Round_Int': 2,
+                             'Previous_Owner': '', 'Draft_Round': 'RD2', 'Draft_Round_Int': 2,
                              'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + fa_pick_type, 'Reason': reason},
                             index=[rowno])
         # Execute Insert
@@ -2893,7 +2860,7 @@ def add_FA_compensation_v2(request, pk):
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team, 'PickType': 'FA_Compensation',
-                             'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': fa_team,
+                             'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': '',
                              'Draft_Round': 'RD2', 'Draft_Round_Int': 2,
                              'Pick_Group': str(v_current_year) + '-' + 'RD2-Priority-' + fa_pick_type, 'Reason': reason}, index=[rowno])
         # Execute Insert below the rowno
@@ -2924,7 +2891,7 @@ def add_FA_compensation_v2(request, pk):
         # create the line to insert:
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team, 'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
-                             'Previous_Owner': fa_team, 'Draft_Round': 'RD3', 'Draft_Round_Int': 3,
+                             'Previous_Owner': '', 'Draft_Round': 'RD3', 'Draft_Round_Int': 3,
                              'Pick_Group': str(v_current_year) + '-' + 'RD3-Priority-' + fa_pick_type, 'Reason': reason},
                             index=[rowno])
 
@@ -2966,7 +2933,7 @@ def add_FA_compensation_v2(request, pk):
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': fa_team, 'PickType': 'FA_Compensation', 'Original_Owner': fa_team, 'Current_Owner': fa_team,
-                             'Previous_Owner': fa_team, 'Draft_Round': fa_round,
+                             'Previous_Owner': '', 'Draft_Round': fa_round,
                              'Pick_Group': str(v_current_year) + '-' + fa_round + '-Priority-' + fa_pick_type, 'Reason': reason},
                             index=[rowno])
         # Execute Insert
