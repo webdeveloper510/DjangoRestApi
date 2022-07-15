@@ -2719,7 +2719,7 @@ def add_FA_compensation_v2(request, pk):
 
         df = df.iloc[rowno]
 
-        # df['id'] = rowno
+        df['id'] = ''
 
         df['projectid_id'] = pk
         print('project id',pk)
@@ -2733,10 +2733,7 @@ def add_FA_compensation_v2(request, pk):
                               fa_aligned_pick, fa_unique_pick, fa_insert_instructions]
         fa_description = str(fa_team) + ' received a ' + str(fa_pick_type) + \
             ' FA Compensation Pick' + '(' + str(reason) + ')'
-        if df['id'].isnull().values.any():
-            df['id']  = ''
-        else:
-            pass
+
         MasterList.objects.filter(id=int(rowno)+1).update(**df)
 
     if fa_pick_type == 'First Round':
