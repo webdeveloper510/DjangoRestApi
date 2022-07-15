@@ -2709,7 +2709,7 @@ def add_FA_compensation_v2(request, pk):
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'], 'Year': v_current_year,
                              'TeamName': int(fa_team), 'PickType': 'FA_Compensation',
-                             'Original_Owner': int(fa_team), 'Current_Owner': int(fa_team), 'Previous_Owner': None,
+                             'Original_Owner': int(fa_team), 'Current_Owner': int(fa_team), 'Previous_Owner': '',
                              'Draft_Round': 'RD1', 'Draft_Round_Int': 1,
                              'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + fa_pick_type, 'Reason': reason}, index=[rowno])
  
