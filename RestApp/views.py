@@ -2719,7 +2719,7 @@ def add_FA_compensation_v2(request, pk):
 
         df = df.iloc[rowno]
 
-        df['id'] = ''
+        df['id'] = int(rowno)+1
 
         df['projectid_id'] = pk
         print('project id',pk)
