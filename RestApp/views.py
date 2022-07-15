@@ -835,10 +835,10 @@ def PriorityPickrRequest(request):
                            df.iloc[rowno + 1:]]).reset_index(drop=True)
             df = df.iloc[rowno]
 
-            df['id'] = rowno+1
+            df['id'] = int(rowno)+1
             df['projectid_id'] = project_Id
 
-            MasterList.objects.filter(id=rowno+1).update(**df)
+            MasterList.objects.filter(id=int(rowno)+1).update(**df)
             # Update transactions
         pp_unique_pick = df1.loc[df1.Display_Name_Detailed.astype(
             str) == str(pp_aligned_pick), 'Unique_Pick_ID'].iloc[0]
@@ -862,18 +862,18 @@ def PriorityPickrRequest(request):
             df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
                            ).reset_index(drop=True)
             df = df.iloc[rowno]
-            df['id'] = rowno+1
+            df['id'] = int(rowno)+1
             df['projectid_id'] = project_Id
 
-            MasterList.objects.filter(id=rowno+1).update(**df)
+            MasterList.objects.filter(id=int(rowno)+1).update(**df)
         else:
             df = pd.concat([df.iloc[:rowno + 1], line,
                            df.iloc[rowno + 1:]]).reset_index(drop=True)
             df = df.iloc[rowno+1]
-            df['id'] = rowno+1
+            df['id'] = int(rowno)+1
             df['projectid_id'] = project_Id
 
-            MasterList.objects.filter(id=rowno+1).update(**df)
+            MasterList.objects.filter(id=int(rowno)+1).update(**df)
             # Update Transactions List
         # Update transactions
         pp_unique_pick = df1.loc[df1.Display_Name_Detailed.astype(
@@ -912,7 +912,7 @@ def PriorityPickrRequest(request):
     obj = Project.objects.get(id=project_Id)
     df2 = transactionsdataframe(request, project_Id)
     transaction_details = pd.DataFrame(
-        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'Priority_Pick', 'Transaction_Details': pp_dict, 'Transaction_Description': pp_description,'projectId':obj.id})
+        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'Priority_Pick', 'Transaction_Details': pp_dict, 'Transaction_Description': pp_description, 'projectId': obj.id})
     df2 = df2.append(transaction_details)
     if df2.isnull().values.any():
         df2['id'] = df2['id'].fillna(len(df2))
@@ -2706,7 +2706,8 @@ def add_FA_compensation_v2(request, pk):
             str(v_current_year) + '-RD1-Standard')][0]
 
         # create the line to insert:
-
+        print(fa_team)
+        exit()
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
                              'TeamName': int(fa_team), 'PickType': 'FA_Compensation',
                              'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': fa_team,
@@ -3716,11 +3717,13 @@ def add_trade_v3_inputs(request, pk):
     # Getting the player name(s) of the player(s) traded out:
     if len(str(players_trading_out_team1)) > 0 or players_trading_out_team1 == '':
         # Priniting the available picks for team 1 to trade out
-        player1_id = players[players['FirstName'].astype(str) == str(players_trading_out_team1)]['id']
+        player1_id = players[players['FirstName'].astype(
+            str) == str(players_trading_out_team1)]['id']
 
         for i in range(len(player1_id)):
 
-            team1_player = players[players['FirstName'].astype(str) == str(players_trading_out_team1)]['Full_Name']
+            team1_player = players[players['FirstName'].astype(
+                str) == str(players_trading_out_team1)]['Full_Name']
             player_name = "".join(team1_player)
             team1_trades_players.append(player_name)
     else:
@@ -3737,7 +3740,8 @@ def add_trade_v3_inputs(request, pk):
             int) == int(team2)]['Display_Name_Detailed'].tolist()
 
         for i in range(int(picks_trading_out_team2)):
-            pick_trading_out_team2 = masterlist[masterlist['Current_Owner'].astype(str) == str(picks_trading_out_team2)]['Display_Name_Detailed'].iloc[0]
+            pick_trading_out_team2 = masterlist[masterlist['Current_Owner'].astype(
+                str) == str(picks_trading_out_team2)]['Display_Name_Detailed'].iloc[0]
             team2_trades_picks.append(pick_trading_out_team2)
             # get unique pick name
             unique_name = masterlist.loc[masterlist.id.astype(str) == str(
@@ -3840,8 +3844,8 @@ def add_trade_v3(request, pk):
 
     ################### RECORDING TRANSACTION ############################
     # Summarising what each team traded out:
-    team1_out = team1_trades_players +  team1_trades_picks
-    team2_out = team2_trades_players +  team2_trades_picks
+    team1_out = team1_trades_players + team1_trades_picks
+    team2_out = team2_trades_players + team2_trades_picks
 
     current_time = datetime.datetime.now(pytz.timezone(
         'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
@@ -3850,11 +3854,12 @@ def add_trade_v3(request, pk):
     trade_dict = {}
     trade_dict[Team1_name] = team1_trades_picks
     trade_dict[Team2_name] = team2_trades_picks
-    trade_dict_full_list= []
+    trade_dict_full_list = []
 
     trade_dict_full = {
-        Team1_name :[team1_trades_players,team1_trades_picks,team1_trades_pick_names],
-        Team2_name: [team2_trades_players,team2_trades_picks,team2_trades_pick_names]
+        Team1_name: [team1_trades_players, team1_trades_picks, team1_trades_pick_names],
+        Team2_name: [team2_trades_players,
+                     team2_trades_picks, team2_trades_pick_names]
 
     }
     trade_dict_full_list.append(trade_dict_full.copy())
@@ -3868,7 +3873,7 @@ def add_trade_v3(request, pk):
     df2 = transactionsdataframe(request, pk)
 
     transaction_details = pd.DataFrame(
-        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'Trade', 'Transaction_Details': [trade_dict_full_list], 'Transaction_Description': trade_description,'projectId':obj.id})
+        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'Trade', 'Transaction_Details': [trade_dict_full_list], 'Transaction_Description': trade_description, 'projectId': obj.id})
     df2 = df2.append(transaction_details)
     if df2.isnull().values.any():
         df2['id'] = df2['id'].fillna(len(df2))
