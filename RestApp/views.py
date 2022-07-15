@@ -887,6 +887,9 @@ def PriorityPickrRequest(request):
     udpatedf = update_masterlist(df)
     iincreament_id = 1
     for index, updaterow in udpatedf.iterrows():
+# #############################################################################################################################################
+# Doing this because the team,current owner ,previous owner,original owner are the foreign key conttraints to the teams tables so i need to insert instacnces
+
         academy_dict = dict(updaterow)
 
         team = Teams.objects.get(id=updaterow.TeamName)
@@ -905,7 +908,7 @@ def PriorityPickrRequest(request):
         MasterList.objects.filter(id=iincreament_id).update(**academy_dict)
 
         iincreament_id += 1
-
+# ###################################################################################################################################
     current_time = datetime.datetime.now(pytz.timezone(
         'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
 
@@ -1673,6 +1676,9 @@ def AcademyBidRequest(request, pk):
     iincreament_id = 1
 
     for index, updaterow in udpatedf.iterrows():
+###############################################################################################################################################
+# Doing this because the team,current owner ,previous owner,original owner are the foreign key conttraints to the teams tables so i need to insert instacnces
+
         row1 = dict(updaterow)
 
         team = Teams.objects.get(id=updaterow.TeamName)
@@ -1692,6 +1698,7 @@ def AcademyBidRequest(request, pk):
         MasterList.objects.filter(id=iincreament_id).update(**row1)
 
         iincreament_id += 1
+#####################################################################################################################################
 
      ######## Combine into a summary dataframe: #############
 
@@ -2970,7 +2977,8 @@ def add_FA_compensation_v2(request, pk):
 
     iincreament_id = 1
     for index, updaterow in udpatedf.iterrows():
-
+# #################################################################################################################################
+# Doing this because the team,current owner ,previous owner,original owner are the foreign key conttraints to the teams tables so i need to insert instacnces
         FA_data = dict(updaterow)
         team = Teams.objects.get(id=updaterow.TeamName)
         Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
@@ -2986,7 +2994,7 @@ def add_FA_compensation_v2(request, pk):
 
         MasterList.objects.filter(id=iincreament_id).update(**FA_data)
         iincreament_id += 1
-
+# ##################################################################################################################################
      # variables for transactions dict
     current_time = datetime.datetime.now(pytz.timezone(
         'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
@@ -3771,7 +3779,8 @@ def add_trade_v3(request, pk):
 
     incremented_id = 1
     for index, updaterow in udpatedf.iterrows():
-
+# #############################################################################################################
+# Doing this because the team,current owner ,previous owner,original owner are the foreign key conttraints to the teams tables so i need to insert instacnces
         trade_dict = dict(updaterow)
 
         team = Teams.objects.get(id=updaterow.TeamName)
@@ -3790,6 +3799,9 @@ def add_trade_v3(request, pk):
         trade_dict['projectid'] = Project1
         MasterList.objects.filter(id=incremented_id).update(**trade_dict)
         incremented_id += 1
+
+# #########################################################################################################################
+
 
     ################### RECORDING TRANSACTION ############################
     # Summarising what each team traded out:
