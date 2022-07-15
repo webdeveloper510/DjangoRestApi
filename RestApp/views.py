@@ -2707,12 +2707,12 @@ def add_FA_compensation_v2(request, pk):
 
         # create the line to insert:
 
-        line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'].iloc[0], 'Year': v_current_year,
+        line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'], 'Year': v_current_year,
                              'TeamName': int(fa_team), 'PickType': 'FA_Compensation',
                              'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': fa_team,
                              'Draft_Round': 'RD1', 'Draft_Round_Int': 1,
                              'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + fa_pick_type, 'Reason': reason}, index=[rowno])
-
+ 
         # Execute Insert above the rowno
         df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
                        )

@@ -130,7 +130,7 @@ Add FA compansation type v2
 {
    "teamid":"4",
    "reason":"testing",
-   "picktype":"Custom Fixed Position",
+   "picktype":"Start of Draft",
    "round":"RD1",
    "pickid":"4",
    "instructions":"After"
