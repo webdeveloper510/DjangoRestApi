@@ -2734,7 +2734,7 @@ def add_FA_compensation_v2(request, pk):
                               fa_aligned_pick, fa_unique_pick, fa_insert_instructions]
         fa_description = str(fa_team) + ' received a ' + str(fa_pick_type) + \
             ' FA Compensation Pick' + '(' + str(reason) + ')'
-        MasterList.objects.filter(id=rowno+1).update(**df)
+        MasterList.objects.filter(id=int(rowno)+1).update(**df)
 
     if fa_pick_type == 'First Round':
 
@@ -2770,7 +2770,7 @@ def add_FA_compensation_v2(request, pk):
             df['id'] = rowno+1
             df['projectid_id'] = pk
 
-            MasterList.objects.filter(id=rowno+1).update(**df)
+            MasterList.objects.filter(id=int(rowno)+1).update(**df)
 
         # Update transactions
         fa_round = 'RD1'
@@ -2801,7 +2801,7 @@ def add_FA_compensation_v2(request, pk):
         df['id'] = rowno+1
         df['projectid_id'] = pk
 
-        MasterList.objects.filter(id=rowno+1).update(**df)
+        MasterList.objects.filter(id=int(rowno)+1).update(**df)
 
         # Update transactions
         fa_round = 'RD1'
@@ -2945,7 +2945,7 @@ def add_FA_compensation_v2(request, pk):
             df['id'] = rowno+1
             df['projectid_id'] = pk
 
-            MasterList.objects.filter(id=rowno+1).update(**df)
+            MasterList.objects.filter(id=int(rowno)+1).update(**df)
 
         # Update Transactions List
         fa_round = 'RD3'
@@ -3003,36 +3003,21 @@ def add_FA_compensation_v2(request, pk):
 
     iincreament_id = 1
     for index, updaterow in udpatedf.iterrows():
-        FA_v2_data = dict(updaterow)
+
+        FA_data = dict(updaterow)
         team = Teams.objects.get(id=updaterow.TeamName)
         Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
         Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
         previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
-        Overall_pickk = FA_v2_data['Overall_Pick']
+        Overall_pickk = FA_data['Overall_Pick']
         Project1 = Project.objects.get(id=pk)
-        FA_v2_data['Previous_Owner'] = team
-        FA_v2_data['TeamName'] = team
-        FA_v2_data['Original_Owner'] = Original_Owner
-        FA_v2_data['Current_Owner'] = Current_Ownerr
-        FA_v2_data['projectid'] = Project1
-        FA_v2_data['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-            None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
+        FA_data['Previous_Owner'] = team
+        FA_data['TeamName'] = team
+        FA_data['Original_Owner'] = Original_Owner
+        FA_data['Current_Owner'] = Current_Ownerr
+        FA_data['projectid'] = Project1
 
-        FA_v2_data['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
-            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(FA_v2_data['Display_Name'])
-
-        FA_v2_data['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
-            ' ' + str(Overall_pickk)
-
-        FA_v2_data['Display_Name_Short'] = str(Overall_pickk) + '  ' + str(Current_Ownerr) + ' (Origin: ' + str(Original_Owner) + ', Via: ' + \
-            previous_owner + team.ShortName + \
-            ')' if Original_Owner != Current_Ownerr else team.ShortName
-
-        FA_v2_data['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-            previous_owner + team.ShortName + \
-            ')' if Original_Owner != Current_Ownerr else team.ShortName
-        MasterList.objects.filter(id=iincreament_id).update(**FA_v2_data)
+        MasterList.objects.filter(id=iincreament_id).update(**FA_data)
         iincreament_id += 1
 
      # variables for transactions dict
@@ -3044,22 +3029,19 @@ def add_FA_compensation_v2(request, pk):
     fa_description = fa_team + ' received a ' + fa_pick_type + \
         ' FA Compensation Pick' + '(' + reason + ')'
     # Exporting trade to the transactions df
-    FA_v2_transaction_details = (
-        {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'FA_Compensation', 'Transaction_Details': fa_dict, 'Transaction_Description': fa_description, 'projectId': pk})
-
-    obj = Project.objects.latest('id')
-    Transactions.objects.create(
-        Transaction_Number='',
-        Transaction_DateTime=current_time,
-        Transaction_Type='FA_Compensation',
-        Transaction_Details=fa_dict,
-        Transaction_Description=fa_description,
-        projectId=obj.id
-
-    )
-    count = Transactions.objects.filter().count()
-    Transactions.objects.filter(id=obj.id).update(Transaction_Number=count)
-    call_FA_Compensation(FA_v2_transaction_details)
+    obj = Project.objects.get(id=pk)
+    df2 = transactionsdataframe(request, pk)
+    transaction_details = pd.DataFrame(
+        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'FA_Compensation', 'Transaction_Details': fa_dict, 'Transaction_Description': fa_description, 'projectId': obj.id})
+    df2 = df2.append(transaction_details)
+    if df2.isnull().values.any():
+        df2['id'] = df2['id'].fillna(len(df2))
+    else:
+        pass
+    for index, df2_row in df2.iterrows():
+        transactions_dict = dict(df2_row)
+        Transactions(**transactions_dict).save()
+    call_FA_Compensation(transaction_details)
     return Response({'success': 'add_FA_compensation_v2 has been Created'}, status=status.HTTP_201_CREATED)
 
 
