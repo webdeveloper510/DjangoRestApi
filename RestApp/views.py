@@ -2733,7 +2733,7 @@ def add_FA_compensation_v2(request, pk):
                               fa_aligned_pick, fa_unique_pick, fa_insert_instructions]
         fa_description = str(fa_team) + ' received a ' + str(fa_pick_type) + \
             ' FA Compensation Pick' + '(' + str(reason) + ')'
-        MasterList.objects.filter(id=int(rowno)+1).update(**df)
+        MasterList.objects.filter(id=int(rowno)+1).get_or_create(**df)
 
     if fa_pick_type == 'First Round':
 
