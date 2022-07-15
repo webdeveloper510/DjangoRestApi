@@ -914,6 +914,10 @@ def PriorityPickrRequest(request):
     transaction_details = pd.DataFrame(
         {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'Priority_Pick', 'Transaction_Details': pp_dict, 'Transaction_Description': pp_description,'projectId':obj.id})
     df2 = df2.append(transaction_details)
+    if df2.isnull().values.any():
+        df2['id'] = df2['id'].fillna(len(df2))
+    else:
+        pass
     for index, df2_row in df2.iterrows():
         transactions_dict = dict(df2_row)
         Transactions(**transactions_dict).save()
