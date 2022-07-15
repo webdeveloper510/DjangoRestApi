@@ -627,7 +627,7 @@ def PriorityPickrRequest(request):
         df = pd.concat([df.iloc[:rowno], line, df.iloc[rowno:]]
                        ).reset_index(drop=True)
         df = df.iloc[0]
-        df['id'] = rowno+1
+        df['id'] = int(rowno)+1
         df['projectid_id'] = project_Id
         print(rowno)
         exit()
