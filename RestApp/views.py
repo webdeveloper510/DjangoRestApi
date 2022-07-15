@@ -2709,7 +2709,7 @@ def add_FA_compensation_v2(request, pk):
 
         line = pd.DataFrame({'Position': df.loc[df.TeamName.astype(int) == int(fa_team), 'Position'], 'Year': v_current_year,
                              'TeamName': int(fa_team), 'PickType': 'FA_Compensation',
-                             'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': fa_team,
+                             'Original_Owner': fa_team, 'Current_Owner': fa_team, 'Previous_Owner': None,
                              'Draft_Round': 'RD1', 'Draft_Round_Int': 1,
                              'Pick_Group': str(v_current_year) + '-' + 'RD1-Priority-' + fa_pick_type, 'Reason': reason}, index=[rowno])
  
@@ -2733,7 +2733,10 @@ def add_FA_compensation_v2(request, pk):
                               fa_aligned_pick, fa_unique_pick, fa_insert_instructions]
         fa_description = str(fa_team) + ' received a ' + str(fa_pick_type) + \
             ' FA Compensation Pick' + '(' + str(reason) + ')'
-        print(df)
+        if df['id'].isnull().values.any():
+            df['id']  = ''
+        else:
+            pass
         MasterList.objects.filter(id=int(rowno)+1).update(**df)
 
     if fa_pick_type == 'First Round':
