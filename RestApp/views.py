@@ -2722,7 +2722,7 @@ def add_FA_compensation_v2(request, pk):
         # df['id'] = rowno
 
         df['projectid_id'] = pk
-
+        print('project id',pk)
         # Update transactions
         fa_round = 'RD1'
         fa_aligned_pick = ''
