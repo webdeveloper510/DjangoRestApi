@@ -2719,9 +2719,9 @@ def add_FA_compensation_v2(request, pk):
 
         df = df.iloc[rowno]
 
-        df['id'] = rowno
+        # df['id'] = rowno
 
-        # df['projectid_id'] = pk
+        df['projectid_id'] = pk
 
         # Update transactions
         fa_round = 'RD1'
