@@ -629,9 +629,8 @@ def PriorityPickrRequest(request):
         df = df.iloc[0]
         df['id'] = int(rowno)+1
         df['projectid_id'] = project_Id
-        print(rowno+1)
-        exit()
-        MasterList.objects.filter(id=rowno+1).update(**df)
+
+        MasterList.objects.filter(id=int(rowno)+1).update(**df)
         # Update transactions
         pp_round = 'RD1'
         pp_aligned_pick = ''
