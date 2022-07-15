@@ -75,11 +75,11 @@ add trade v3
 
 {
    "teamid1":"1",
-   "teamid2":"1",
+   "teamid2":"2",
    "pickid1":"1",
-   "player1":"",
+   "player1":"Mark",
    "pickid2":"2",
-   "player2":""
+   "player2":"Mark"
 }
 
 create project

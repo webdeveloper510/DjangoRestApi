@@ -134,8 +134,9 @@ def transactionsdataframe(request, pk):
     _transactions_val = Transactions.objects.filter(projectId=pk).values()
     for k in _transactions_val:
         append_list.append(k)
-    transactions = pd.DataFrame(append_list)
-    return transactions
+
+    df2 = pd.DataFrame(append_list)
+    return df2
 
 
 def tradesdataframe(request, pk):
@@ -901,49 +902,21 @@ def PriorityPickrRequest(request):
         academy_dict['Original_Owner'] = Original_Owner
         academy_dict['Current_Owner'] = Current_Ownerr
         academy_dict['projectid'] = Project1
-
-        # academy_dict['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-        #     None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
-        academy_dict['Display_Name'] = Current_Ownerr.TeamNames
-        academy_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
-            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(academy_dict['Display_Name'])
-
-        # academy_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-        #     None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
-        #     ' ' + str(Overall_pickk)
-        academy_dict['Display_Name_Mini'] = Overall_pickk
-        # academy_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-        #     previous_owner + team.ShortName + \
-        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
-        academy_dict['Display_Name_Short'] = team.ShortName
-        # academy_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-        #     previous_owner + team.ShortName + \
-        #     ')' if Original_Owner != Current_Ownerr else team.ShortName
-        academy_dict['Current_Owner_Short_Name'] = team.ShortName
         MasterList.objects.filter(id=iincreament_id).update(**academy_dict)
 
         iincreament_id += 1
 
     current_time = datetime.datetime.now(pytz.timezone(
         'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
-    # pp_dict = {}
-    # pp_dict[pp_team] = [pp_round, pp_aligned_pick, pp_insert_instructions]
-    obj = Project.objects.get(id=project_Id)
-    # PriorityTransactions = (
-    #     {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'Priority_Pick', 'Transaction_Details': pp_dict, 'Transaction_Description': pp_description, 'Type': 'Priority-Pick', 'projectId': obj.id})
-    Transactions.objects.create(
-        Transaction_Number='',
-        Transaction_DateTime=current_time,
-        Transaction_Type='Priority_Pick',
-        Transaction_Details=pp_dict,
-        Transaction_Description=pp_description,
-        projectId=obj.id
-    )
-    last_inserted_obj = Transactions.objects.latest('id')
-    last_inserted_id = last_inserted_obj.id
-    Transactions.objects.filter(id=last_inserted_id).update(
-        Transaction_Number=last_inserted_id)
 
+    obj = Project.objects.get(id=project_Id)
+    df2 = transactionsdataframe(request, project_Id)
+    transaction_details = pd.DataFrame(
+        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'Priority_Pick', 'Transaction_Details': pp_dict, 'Transaction_Description': pp_description,'projectId':obj.id})
+    df2 = df2.append(transaction_details)
+    for index, df2_row in df2.iterrows():
+        transactions_dict = dict(df2_row)
+        Transactions(**transactions_dict).save()
     return Response({'success': 'Priority Pick Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
@@ -3704,16 +3677,16 @@ def add_trade_v3_inputs(request, pk):
     team1 = data.get('teamid1')
     team2 = data.get('teamid2')
     obj1 = Teams.objects.get(id=team1)
-    obj2 = Teams.objects.get(id=team1)
+    obj2 = Teams.objects.get(id=team2)
     Team1_name = obj1.TeamNames
     Team2_name = obj2.TeamNames
     masterlist = dataframerequest(request, pk)
 
     players = playerdataframe(request, pk)
-    picks_trading_out_team1_obj = data.get('pickid1')
+    # picks_trading_out_team1_obj = data.get('pickid1')
 
-    picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
-    # picks_trading_out_team1 = data.get('pickid1')
+    # picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
+    picks_trading_out_team1 = data.get('pickid1')
     players_trading_out_team1 = data.get('player1')
 
     # Getting the pick(s) name for the pick(s) traded out:
@@ -3739,30 +3712,28 @@ def add_trade_v3_inputs(request, pk):
     # Getting the player name(s) of the player(s) traded out:
     if len(str(players_trading_out_team1)) > 0 or players_trading_out_team1 == '':
         # Priniting the available picks for team 1 to trade out
-        player1_id = players[players['FirstName'].astype(
-            str) == str(players_trading_out_team1)]['id']
+        player1_id = players[players['FirstName'].astype(str) == str(players_trading_out_team1)]['id']
 
         for i in range(len(player1_id)):
 
-            team1_player = players[players['FirstName'].astype(
-                str) == str(players_trading_out_team1)]['Full_Name']
-            team1_trades_players.append(team1_player)
+            team1_player = players[players['FirstName'].astype(str) == str(players_trading_out_team1)]['Full_Name']
+            player_name = "".join(team1_player)
+            team1_trades_players.append(player_name)
     else:
         pass
 
-    # picks_trading_out_team2 = data.get('pickid2')
-    picks_trading_out_team2_obj = data.get('pickid2')
-    picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
+    picks_trading_out_team2 = data.get('pickid2')
+    # picks_trading_out_team2_obj = data.get('pickid2')
+    # picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
     players_trading_out_team2 = data.get('player2')
+
     if len(str(picks_trading_out_team2)) > 0:
         # Priniting the available picks for team 2 to trade out
         team2picks = masterlist[masterlist['Current_Owner'].astype(
             int) == int(team2)]['Display_Name_Detailed'].tolist()
 
         for i in range(int(picks_trading_out_team2)):
-            pick_trading_out_team2 = masterlist[masterlist['Current_Owner'].astype(
-                int) == int(picks_trading_out_team2)]['Display_Name_Detailed'].iloc[0]
-
+            pick_trading_out_team2 = masterlist[masterlist['Current_Owner'].astype(str) == str(picks_trading_out_team2)]['Display_Name_Detailed'].iloc[0]
             team2_trades_picks.append(pick_trading_out_team2)
             # get unique pick name
             unique_name = masterlist.loc[masterlist.id.astype(str) == str(
@@ -3782,7 +3753,8 @@ def add_trade_v3_inputs(request, pk):
         for i in range(len(player2_id)):
             player_trading_out_team2 = players[players['FirstName'].astype(
                 str) == str(players_trading_out_team2)]['Full_Name']
-            team2_trades_players.append(player_trading_out_team2)
+            player_name = "".join(player_trading_out_team2)
+            team2_trades_players.append(player_name)
     else:
         pass
 
@@ -3839,7 +3811,7 @@ def add_trade_v3(request, pk):
         udpatedf['Previous_Owner'] = udpatedf['Previous_Owner'].fillna('')
     else:
         pass
-    print(udpatedf['Previous_Owner'][:20])
+
     incremented_id = 1
     for index, updaterow in udpatedf.iterrows():
 
@@ -3853,7 +3825,6 @@ def add_trade_v3(request, pk):
         Overall_pickk = trade_dict['Overall_Pick']
 
         Project1 = Project.objects.get(id=pk)
-        print(updaterow.Previous_Owner)
         trade_dict['Previous_Owner'] = updaterow.Previous_Owner
         team = Teams.objects.get(id=updaterow.TeamName)
         trade_dict['TeamName'] = team
@@ -3865,8 +3836,8 @@ def add_trade_v3(request, pk):
 
     ################### RECORDING TRANSACTION ############################
     # Summarising what each team traded out:
-    team1_out = str(team1_trades_players) + str(team1_trades_picks)
-    team2_out = str(team2_trades_players) + str(team2_trades_picks)
+    team1_out = team1_trades_players +  team1_trades_picks
+    team2_out = team2_trades_players +  team2_trades_picks
 
     current_time = datetime.datetime.now(pytz.timezone(
         'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
@@ -3875,35 +3846,36 @@ def add_trade_v3(request, pk):
     trade_dict = {}
     trade_dict[Team1_name] = team1_trades_picks
     trade_dict[Team2_name] = team2_trades_picks
+    trade_dict_full_list= []
 
-    trade_dict_full = {Team1_name: [team1_trades_players, team1_trades_picks, team1_trades_pick_names], Team2_name: [
-        team2_trades_players, team2_trades_picks, team2_trades_pick_names]}
+    trade_dict_full = {
+        Team1_name :[team1_trades_players,team1_trades_picks,team1_trades_pick_names],
+        Team2_name: [team2_trades_players,team2_trades_picks,team2_trades_pick_names]
+
+    }
+    trade_dict_full_list.append(trade_dict_full.copy())
+
     # Creating a written description
     trade_description = str(Team1_name) + ' traded ' + str(team1_out) + \
         ' & ' + str(Team2_name) + ' traded ' + str(team2_out)
 
     # Exporting trade to the transactions df
-    Proj_obj = Project.objects.get(id=pk)
-    project_id = Proj_obj.id
-    transaction_details = pd.DataFrame(
-        {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'Trade',
-         'Transaction_Details': trade_dict_full,
-         'Transaction_Description': trade_description})
-    Transactions.objects.create(
-        Transaction_Number='',
-        Transaction_DateTime=current_time,
-        Transaction_Type='Trade',
-        Transaction_Details=trade_dict_full,
-        Transaction_Description=trade_description,
-        projectId=project_id
-    )
+    obj = Project.objects.get(id=pk)
+    df2 = transactionsdataframe(request, pk)
 
-    transactions_obj = Transactions.objects.latest('id')
-    last_Transations_id = transactions_obj.id
-    Transactions.objects.filter(id=last_Transations_id).update(
-        Transaction_Number=last_Transations_id)
-    call_add_trade(transaction_details)
+    transaction_details = pd.DataFrame(
+        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'Trade', 'Transaction_Details': [trade_dict_full_list], 'Transaction_Description': trade_description,'projectId':obj.id})
+    df2 = df2.append(transaction_details)
+    if df2.isnull().values.any():
+        df2['id'] = df2['id'].fillna(len(df2))
+    else:
+        pass
+    for index, df2_row in df2.iterrows():
+        transactions_dict = dict(df2_row)
+        Transactions(**transactions_dict).save()
+    call_add_trade(transactions_dict)
     return Response({'success': 'Add-Trade-v3 Created Successfuly'}, status=status.HTTP_201_CREATED)
+
 # @api_view(['POST'])
 # @permission_classes([AllowAny, ])
 
