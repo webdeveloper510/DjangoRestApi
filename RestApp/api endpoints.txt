@@ -74,12 +74,20 @@ Priority pick
 add trade v3
 
 {
-   "teamid1":"13",
-   "teamid2":"18",
-   "pickid1":"13",
+   "teamid1":"15",
+   "teamid2":"12",
+   "pickid1":"15",
    "player1":"",
-   "pickid2":"18",
+   "pickid2":"12",
    "player2":""
+}
+
+create project
+
+{
+"project_name":"test1",
+ "project_desc":"test1 desc",
+ "teamid":"1"
 }
 
 
@@ -137,13 +145,7 @@ add nga bid inputs
 }
 
 
-create project
 
-{
-"project_name":"test1",
- "project_desc":"test1 desc",
- "teamid":"1"
-}
 
 
 

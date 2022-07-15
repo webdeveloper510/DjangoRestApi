@@ -75,7 +75,8 @@ import sys
 import ast
 import jwt
 import pulp as plp
-import requests
+import json
+
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', 500)
@@ -3837,10 +3838,10 @@ def add_trade_v3_inputs(request, pk):
     masterlist = dataframerequest(request, pk)
 
     players = playerdataframe(request, pk)
-    picks_trading_out_team1_obj = data.get('pickid1')
+    # picks_trading_out_team1_obj = data.get('pickid1')
 
-    picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
-    # picks_trading_out_team1 = data.get('pickid1')
+    # picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
+    picks_trading_out_team1 = data.get('pickid1')
     players_trading_out_team1 = data.get('player1')
 
     # Getting the pick(s) name for the pick(s) traded out:
@@ -3872,9 +3873,9 @@ def add_trade_v3_inputs(request, pk):
     else:
         pass
 
-    # picks_trading_out_team2 = data.get('pickid2')
-    picks_trading_out_team2_obj = data.get('pickid2')
-    picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
+    picks_trading_out_team2 = data.get('pickid2')
+    # picks_trading_out_team2_obj = data.get('pickid2')
+    # picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
     players_trading_out_team2 = data.get('player2')
     if len(str(picks_trading_out_team2)) > 0:
         # Priniting the available picks for team 2 to trade out
@@ -3947,7 +3948,12 @@ def add_trade_v3(request, pk):
     # ###########  Call Update masterlist ############
 
     udpatedf = update_masterlist(masterlist)
+    if udpatedf['Previous_Owner'].isnull().values.any():
 
+        udpatedf['Previous_Owner'] = udpatedf['Previous_Owner'].fillna('')
+    else:
+        pass
+    print(udpatedf['Previous_Owner'][:20])
     incremented_id = 1
     for index, updaterow in udpatedf.iterrows():
 
@@ -3961,28 +3967,13 @@ def add_trade_v3(request, pk):
         Overall_pickk = trade_dict['Overall_Pick']
 
         Project1 = Project.objects.get(id=pk)
+        print(updaterow.Previous_Owner)
         trade_dict['Previous_Owner'] = updaterow.Previous_Owner
         team = Teams.objects.get(id=updaterow.TeamName)
         trade_dict['TeamName'] = team
         trade_dict['Original_Owner'] = Original_Owner
         trade_dict['Current_Owner'] = Current_Ownerr
         trade_dict['projectid'] = Project1
-
-        trade_dict['Display_Name'] = str(Current_Ownerr.TeamNames)+' (Origin: '+team.TeamNames + \
-            ', Via: ' + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
-
-        trade_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
-            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(trade_dict['Display_Name'])
-
-        trade_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
-            ' ' + str(Overall_pickk)
-
-        trade_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr.TeamNames + ' (Origin: ' + Original_Owner.TeamNames + ', Via: ' \
-            ')' if Original_Owner != Current_Ownerr else team.ShortName
-
-        trade_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr.TeamNames + ' (Origin: ' + Original_Owner.TeamNames + ', Via: ' + \
-            ')' if Original_Owner != Current_Ownerr else team.ShortName
-
         MasterList.objects.filter(id=incremented_id).update(**trade_dict)
         incremented_id += 1
 
