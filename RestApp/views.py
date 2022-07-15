@@ -629,7 +629,7 @@ def PriorityPickrRequest(request):
         df = df.iloc[0]
         df['id'] = int(rowno)+1
         df['projectid_id'] = project_Id
-        print(rowno)
+        print(rowno+1)
         exit()
         MasterList.objects.filter(id=rowno+1).update(**df)
         # Update transactions
