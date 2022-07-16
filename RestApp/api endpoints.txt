@@ -74,12 +74,12 @@ Priority pick
 add trade v3
 
 {
-   "teamid1":"15",
-   "teamid2":"12",
-   "pickid1":"15",
-   "player1":"",
-   "pickid2":"12",
-   "player2":""
+   "teamid1":"1",
+   "teamid2":"2",
+   "pickid1":"1",
+   "player1":"Mark",
+   "pickid2":"2",
+   "player2":"Mark"
 }
 
 create project
@@ -130,7 +130,7 @@ Add FA compansation type v2
 {
    "teamid":"4",
    "reason":"testing",
-   "picktype":"Custom Fixed Position",
+   "picktype":"Start of Draft",
    "round":"RD1",
    "pickid":"4",
    "instructions":"After"

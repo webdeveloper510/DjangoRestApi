@@ -87,7 +87,6 @@ urlpatterns = [
     re_path(
         r'^add-draft-night-selection/(?P<pk>[0-9]+)$', add_draft_night_selection),
     re_path(r'^add_trade_v3/(?P<pk>[0-9]+)$', add_trade_v3),
-    re_path(r'^add_priority_pick_v2/(?P<pk>[0-9]+)$', add_priority_pick_v2),
     re_path(r'^manual_pick_move/(?P<pk>[0-9]+)$', manual_pick_move),
     re_path(
         r'^quick_academy_calculator/(?P<pk>[0-9]+)$', quick_academy_calculator),
