@@ -3634,7 +3634,7 @@ def add_trade_v3_inputs(request, pk):
         # Priniting the available picks for team 2 to trade out
         # player2_id = players[players['FirstName'].astype(
         #     str) == str(players_trading_out_team2)]['id']
-
+ 
         for i in range(players_trading_out_team1):
             # player_trading_out_team2 = players[players['FirstName'].astype(str) == str(players_trading_out_team2)]['Full_Name']
             # player_name = "".join(player_trading_out_team2)
