@@ -238,20 +238,31 @@ def update_masterlist(df):
 
     #Updating what pick number it is for each club:
     masterlist['Club_Pick_Number'] = masterlist.groupby(['Year', 'Current_Owner']).cumcount() + 1
-    print(masterlist.Previous_Owner.unique())
+    #print(masterlist.Previous_Owner.unique())
 
     #Updating the Display name to show where the pick has come from:
-    # masterlist['Display_Name'] = np.where(masterlist['Original_Owner'] != masterlist['Current_Owner'], masterlist['Current_Owner'].astype(str)  \
-    #             + ' (Tied To: ' + masterlist['Original_Owner'].map(lambda x: library_AFL_Team_Names[x][0]).astype(str) \
-    #             + ', Via: ' + masterlist['Previous_Owner'].map(lambda x: library_AFL_Team_Names.get(x, [''])[0]).astype(str) + ')', masterlist['Current_Owner'])
-
     masterlist['Display_Name'] = np.where(masterlist['Original_Owner'] != masterlist['Current_Owner'], masterlist['Current_Owner'].map(lambda x: library_AFL_Team_Names[x][1]).astype(str)  \
-                + ' (Tied To: ' + masterlist['Original_Owner'].map(lambda x: library_AFL_Team_Names[x][1]).astype(str) \
-                + ', Via: ' + np.where(masterlist['Previous_Owner']!='',masterlist['Previous_Owner'].map(lambda x: library_AFL_Team_Names[1]).astype(str),masterlist['Previous_Owner']) + ')' \
-                , masterlist['Current_Owner'].map(lambda x: library_AFL_Team_Names[x][1]).astype(str))
+            + ' (Tied To: ' + masterlist['Original_Owner'].map(lambda x: library_AFL_Team_Names[x][1]).astype(str) \
+            + ', Via: ' + masterlist['Previous_Owner'].map(lambda x: library_AFL_Team_Names[1]).astype(str) + ')' \
+            , masterlist['Current_Owner'].map(lambda x: library_AFL_Team_Names[x][1]).astype(str))
 
-    print(masterlist)
+    #Updating a shorter display name
+    masterlist['Display_Name_Short'] = np.where(masterlist['Original_Owner'] != masterlist['Current_Owner'], masterlist['Current_Owner'].map(lambda x: library_AFL_Team_Names[x][1]).astype(str) 
+                                        + ' (Tied To: '+ masterlist['Original_Owner'].map(lambda x: library_AFL_Team_Names[x][1]).astype(str) + ', Via: ' 
+                                        + masterlist['Previous_Owner'].map(lambda x: library_AFL_Team_Names[1]).astype(str) + ')', masterlist['Current_Owner'].map(lambda x: library_AFL_Team_Names[x][1]).astype(str))
+    # UPdating a detailed display name:
+    masterlist['Display_Name_Detailed'] = masterlist['Year'].astype(str) + '-' + masterlist['Draft_Round'].astype(str) + '-Pick' \
+                                            + masterlist['Overall_Pick'].astype(str) + '-' + masterlist['Display_Name_Short']
 
+    #Update a mini display name:
+    masterlist['Display_Name_Mini'] = np.where(masterlist['Original_Owner'] != masterlist['Current_Owner'], masterlist['Overall_Pick'].astype(str)  + ' ' + masterlist['Current_Owner'].map(lambda x: library_AFL_Team_Names[x][1]).astype(str) 
+            + ' (T: ' + masterlist['Original_Owner'].map(lambda x: library_AFL_Team_Names[x][1]).astype(str)
+            + ', Via: ' + masterlist['Previous_Owner'].map(lambda x: library_AFL_Team_Names[1]).astype(str) + ')',
+            masterlist['Overall_Pick'].astype(str) + ' ' + masterlist['Current_Owner'].map(lambda x: library_AFL_Team_Names[x][1]).astype(str))
+    
+    #Currrent Owner short nickname:
+    masterlist['Current_Owner_Short_Name'] = masterlist['Current_Owner'].map(lambda x: library_AFL_Team_Names[x][1]).astype(str)
+    
     return masterlist
 
 
@@ -287,7 +298,7 @@ def CreateMasterListRequest(request, pk):
         df['PickType'] = 'Standard'
         df['Original_Owner'] = df['TeamName']
         df['Current_Owner'] = df['TeamName']
-        df['Previous_Owner'] = ''
+        df['Previous_Owner'] = None
         df['Draft_Round'] = 'RD' + \
             (df.groupby(['Year', 'Current_Owner']
                         ).cumcount() + 1).astype(str)
@@ -332,20 +343,20 @@ def CreateMasterListRequest(request, pk):
 
             # row1['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
             #     None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
-            row1['Display_Name_Short'] = str(Current_Ownerr.ShortName) + ' (Origin: ' + str(Original_Owner.ShortName) + ', Via: ' +\
-                ')' if Original_Owner == Current_Ownerr else team.ShortName
+            # row1['Display_Name_Short'] = str(Current_Ownerr.ShortName) + ' (Origin: ' + str(Original_Owner.ShortName) + ', Via: ' +\
+            #     ')' if Original_Owner == Current_Ownerr else team.ShortName
 
-            row1['Display_Name_Detailed'] = str(updaterow.Year) + '-' + str(updaterow.Draft_Round) + '-Pick' \
-                + str(updaterow.Overall_Pick) + \
-                '-' + row1['Display_Name_Short']
+            # row1['Display_Name_Detailed'] = str(updaterow.Year) + '-' + str(updaterow.Draft_Round) + '-Pick' \
+            #     + str(updaterow.Overall_Pick) + \
+            #     '-' + row1['Display_Name_Short']
 
-            row1['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                None + ')' if Original_Owner != Current_Ownerr else str(
-                    int(Overall_pickk)) + ' ' + team.ShortName
+            # row1['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+            #     None + ')' if Original_Owner != Current_Ownerr else str(
+            #         int(Overall_pickk)) + ' ' + team.ShortName
 
-            row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + str(Current_Ownerr.TeamNames) + ' (Origin: ' + str(Original_Owner.TeamNames) + ', Via: ' + \
-                str(previous_owner) + str(team.ShortName) + \
-                ')' if Original_Owner != Current_Ownerr else team.ShortName
+            # row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + str(Current_Ownerr.TeamNames) + ' (Origin: ' + str(Original_Owner.TeamNames) + ', Via: ' + \
+            #     str(previous_owner) + str(team.ShortName) + \
+            #     ')' if Original_Owner != Current_Ownerr else team.ShortName
 
             MasterList(**row1).save()
 
