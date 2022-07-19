@@ -3578,7 +3578,7 @@ def add_trade_v3_inputs(request, pk):
         team1picks = masterlist[masterlist['Current_Owner'].astype(
             int) == int(team1)]['Display_Name_Detailed'].tolist()
 
-        for i in range(int(picks_trading_out_team1)):
+        for i in range(len(picks_trading_out_team1)):
 
             team1_picks = masterlist[masterlist['id'].astype(int) == int(
                 picks_trading_out_team1)]['Display_Name_Detailed'].iloc[0]
@@ -3599,10 +3599,10 @@ def add_trade_v3_inputs(request, pk):
 
         for i in range(len(player1_id)): 
 
-            team1_player = players[players['FirstName'].astype(
-                str) == str(players_trading_out_team1)]['Full_Name']
-            player_name = "".join(team1_player)
-            team1_trades_players.append(player_name)
+            # team1_player = players[players['FirstName'].astype(
+            #     str) == str(players_trading_out_team1)]['Full_Name']
+            # player_name = "".join(team1_player)
+            team1_trades_players.append(players_trading_out_team1)
     else:
         pass
 
@@ -3619,7 +3619,7 @@ def add_trade_v3_inputs(request, pk):
         team2picks = masterlist[masterlist['Current_Owner'].astype(
             int) == int(team2)]['Display_Name_Detailed'].tolist()
 
-        for i in range(int(picks_trading_out_team2)):
+        for i in range(len(picks_trading_out_team2)):
             pick_trading_out_team2 = masterlist[masterlist['Current_Owner'].astype(
                 str) == str(picks_trading_out_team2)]['Display_Name_Detailed'].iloc[0]
             team2_trades_picks.append(pick_trading_out_team2)
@@ -3635,13 +3635,13 @@ def add_trade_v3_inputs(request, pk):
     if len(str(players_trading_out_team2)) > 0 or players_trading_out_team2 != '':
 
         # Priniting the available picks for team 2 to trade out
-        player2_id = players[players['FirstName'].astype(
-            str) == str(players_trading_out_team2)]['id']
+        # player2_id = players[players['FirstName'].astype(
+        #     str) == str(players_trading_out_team2)]['id']
 
-        for i in range(len(player2_id)):
-            player_trading_out_team2 = players[players['FirstName'].astype(str) == str(players_trading_out_team2)]['Full_Name']
-            player_name = "".join(player_trading_out_team2)
-            team2_trades_players.append(player_name)
+        for i in range(len(players_trading_out_team1)):
+            # player_trading_out_team2 = players[players['FirstName'].astype(str) == str(players_trading_out_team2)]['Full_Name']
+            # player_name = "".join(player_trading_out_team2)
+            team2_trades_players.append(players_trading_out_team1)
     else:
         pass
 
