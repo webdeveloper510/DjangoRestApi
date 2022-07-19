@@ -3565,7 +3565,7 @@ def add_trade_v3_inputs(request, pk):
     picks_trading_out_team1 = []
     picks_trading_out_team1_obj = data.get('pickid1')
     for k in  picks_trading_out_team1_obj:
-        picks_trading_out_team1 = k['value']
+        picks_trading_out_team1.append(k['value'])
     print(picks_trading_out_team1)
     exit()
     # picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
