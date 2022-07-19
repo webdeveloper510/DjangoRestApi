@@ -3580,7 +3580,7 @@ def add_trade_v3_inputs(request, pk):
 
         for i in range(len(picks_trading_out_team1)):
 
-            team1_picks = masterlist[masterlist['id'].tolist() == picks_trading_out_team1]['Display_Name_Detailed'].iloc[0]
+            team1_picks = masterlist[masterlist['id'].isin(picks_trading_out_team1)]['Display_Name_Detailed'].iloc[0]
 
             team1_trades_picks.append(team1_picks)
             # get unique pick name
@@ -3615,7 +3615,7 @@ def add_trade_v3_inputs(request, pk):
 
     if len(picks_trading_out_team2) > 0:
         # Priniting the available picks for team 2 to trade out
-        team2picks = masterlist[masterlist['Current_Owner'].tolist() == team2]['Display_Name_Detailed'].tolist()
+        team2picks = masterlist[masterlist['Current_Owner'].isin(team2)]['Display_Name_Detailed'].tolist()
 
         for i in range(len(picks_trading_out_team2)):
             pick_trading_out_team2 = masterlist[masterlist['Current_Owner'].tolist() == picks_trading_out_team2]['Display_Name_Detailed'].iloc[0]
