@@ -3580,16 +3580,16 @@ def add_trade_v3_inputs(request, pk):
 
         for i in range(len(picks_trading_out_team1)):
 
-            team1_picks = masterlist[masterlist['id'] == picks_trading_out_team1]['Display_Name_Detailed'].iloc[0]
+            team1_picks = masterlist[masterlist['id'].tolist() == picks_trading_out_team1]['Display_Name_Detailed'].iloc[0]
 
             team1_trades_picks.append(team1_picks)
             # get unique pick name
-            unique_name = masterlist.loc[masterlist.id.astype(int) == int(
+            unique_name = masterlist.loc[masterlist.id.astype(int) == int( 
                 picks_trading_out_team1), 'Unique_Pick_ID'].iloc[0]
             team1_trades_pick_names.append(unique_name)
         else:
             pass
-
+       
     # Getting the player name(s) of the player(s) traded out:
     if len(str(players_trading_out_team1)) > 0 or players_trading_out_team1 == '':
         # Priniting the available picks for team 1 to trade out
@@ -3615,11 +3615,10 @@ def add_trade_v3_inputs(request, pk):
 
     if len(picks_trading_out_team2) > 0:
         # Priniting the available picks for team 2 to trade out
-        team2picks = masterlist[masterlist['Current_Owner'] == team2]['Display_Name_Detailed'].tolist()
+        team2picks = masterlist[masterlist['Current_Owner'].tolist() == team2]['Display_Name_Detailed'].tolist()
 
         for i in range(len(picks_trading_out_team2)):
-            pick_trading_out_team2 = masterlist[masterlist['Current_Owner'].astype(
-                str) == str(picks_trading_out_team2)]['Display_Name_Detailed'].iloc[0]
+            pick_trading_out_team2 = masterlist[masterlist['Current_Owner'].tolist() == picks_trading_out_team2]['Display_Name_Detailed'].iloc[0]
             team2_trades_picks.append(pick_trading_out_team2)
             # get unique pick name
             unique_name = masterlist.loc[masterlist.id.astype(str) == str(
@@ -3630,13 +3629,13 @@ def add_trade_v3_inputs(request, pk):
         pass
 
         # Getting the player name(s) of the player(s) traded out:
-    if len(str(players_trading_out_team2)) > 0 or players_trading_out_team2 != '':
+    if players_trading_out_team2 != '':
 
         # Priniting the available picks for team 2 to trade out
         # player2_id = players[players['FirstName'].astype(
         #     str) == str(players_trading_out_team2)]['id']
 
-        for i in range(len(players_trading_out_team1)):
+        for i in range(players_trading_out_team1):
             # player_trading_out_team2 = players[players['FirstName'].astype(str) == str(players_trading_out_team2)]['Full_Name']
             # player_name = "".join(player_trading_out_team2)
             team2_trades_players.append(players_trading_out_team1)
