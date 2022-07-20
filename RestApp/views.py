@@ -3613,7 +3613,7 @@ def add_trade_v3_inputs(request, pk):
 
     if len(picks_trading_out_team2) > 0:
         # Priniting the available picks for team 2 to trade out
-        team2picks = masterlist[masterlist['Current_Owner'].isin(team2)]['Display_Name_Detailed'].tolist()
+        team2picks = masterlist[masterlist['Current_Owner'].astype(int) == int(team2)]['Display_Name_Detailed'].tolist()
 
         for i in range(len(picks_trading_out_team2)):
             pick_trading_out_team2 = masterlist[masterlist['Current_Owner'].isin(picks_trading_out_team2)]['Display_Name_Detailed']
