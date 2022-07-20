@@ -3565,10 +3565,12 @@ def add_trade_v3_inputs(request, pk):
     Player_1 = list()
     picks_trading_out_team1 = []
     picks_trading_out_team1_obj = data.get('pickid1')
-    for k in picks_trading_out_team1_obj:
-        picks_trading_out_team1.append(k['label'])
 
-    # picks_trading_out_team1 = data.get('pickid1')
+    if picks_trading_out_team1_obj != '':
+
+        for k in picks_trading_out_team1_obj:
+            picks_trading_out_team1.append(k['label'])
+
     players_trading_out_team1 = data.get('player1')
 
     for player_name in players_trading_out_team1:
@@ -3600,12 +3602,13 @@ def add_trade_v3_inputs(request, pk):
     else:
         pass
 
-    picks_trading_out_team2 = data.get('pickid2')
     picks_trading_out_team2 = []
+
     picks_trading_out_team2_obj = data.get('pickid2')
 
-    for i in picks_trading_out_team2_obj:
-        picks_trading_out_team2.append(i['label'])
+    if picks_trading_out_team2_obj != '':
+        for i in picks_trading_out_team2_obj:
+            picks_trading_out_team2.append(i['label'])
 
     players_trading_out_team2 = data.get('player2')
 
@@ -3649,20 +3652,20 @@ def add_trade_v3(request, pk):
     masterlist, team1, Team1_name, team2, Team2_name, team1_trades_picks, team1_trades_players, team2_trades_picks, team2_trades_players, team1_trades_pick_names, team2_trades_pick_names = add_trade_v3_inputs(
         request, pk)
 
-    current_date = date.today()
-    v_current_year = current_date.year
   # Trade facilitation - Swapping current owner names & Applying Most Recent Owner First:
 
     ##### Team 1 receiving from Team 2 #####
     # Loop for each pick that team 2 is trading out to team 1:
-    # exit()
+
     for team2pickout in team2_trades_picks:
 
         for pick in team2pickout:
             # Changing the previous owner name
-            masterlist['Previous_Owner'].mask(masterlist['Display_Name_Detailed'] == pick, masterlist['Current_Owner'], inplace=True)
+            masterlist['Previous_Owner'].mask(
+                masterlist['Display_Name_Detailed'] == pick, masterlist['Current_Owner'], inplace=True)
             # Executing change of ownership
-            masterlist['Current_Owner'].mask(masterlist['Display_Name_Detailed'] == pick, team2, inplace=True)
+            masterlist['Current_Owner'].mask(
+                masterlist['Display_Name_Detailed'] == pick, team2, inplace=True)
 
         ##### Team 2 receiving from Team 1 #####
         # Loop for each pick that team 1 is trading out to team 2:
@@ -3670,10 +3673,12 @@ def add_trade_v3(request, pk):
         for pick in team1pickout:
 
             # Changing the previous owner name
-            masterlist['Previous_Owner'].mask(masterlist['Display_Name_Detailed'] == pick, masterlist['Current_Owner'], inplace=True)
+            masterlist['Previous_Owner'].mask(
+                masterlist['Display_Name_Detailed'] == pick, masterlist['Current_Owner'], inplace=True)
 
             # Executing change of ownership
-            masterlist['Current_Owner'].mask(masterlist['Display_Name_Detailed'] == pick, team2, inplace=True)
+            masterlist['Current_Owner'].mask(
+                masterlist['Display_Name_Detailed'] == pick, team2, inplace=True)
 
     # ###########  Call Update masterlist ############
 
@@ -3687,15 +3692,13 @@ def add_trade_v3(request, pk):
     incremented_id = 1
     for index, updaterow in udpatedf.iterrows():
         # #############################################################################################################
-        # Doing this because the team,current owner ,previous owner,original owner are the foreign key conttraints to the teams tables so i need to insert instacnces
+        # team,current owner ,previous owner,original owner are the foreign key conttraints to the teams tables so i need to insert instacnces
         trade_dict = dict(updaterow)
 
         team = Teams.objects.get(id=updaterow.TeamName)
 
         Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
         Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
-        # previous_owner = Teams.objects.get(id=updaterow.updaterow)
-        Overall_pickk = trade_dict['Overall_Pick']
 
         Project1 = Project.objects.get(id=pk)
         trade_dict['Previous_Owner'] = updaterow.Previous_Owner
@@ -4037,24 +4040,6 @@ def update_ladder(request, pk):
             update_ladder_dict['Original_Owner'] = Original_Owner
             update_ladder_dict['Current_Owner'] = Current_Ownerr
             update_ladder_dict['projectid'] = Project1
-
-            update_ladder_dict['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
-
-            update_ladder_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
-                updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(update_ladder_dict['Display_Name'])
-
-            update_ladder_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
-                ' ' + str(Overall_pickk)
-
-            update_ladder_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-                previous_owner + team.ShortName + \
-                ')' if Original_Owner != Current_Ownerr else team.ShortName
-
-            update_ladder_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-                previous_owner + team.ShortName + \
-                ')' if Original_Owner != Current_Ownerr else team.ShortName
 
             MasterList.objects.filter(
                 id=iincreament_id).update(**update_ladder_dict)
