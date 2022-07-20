@@ -3561,16 +3561,19 @@ def add_trade_v3_inputs(request, pk):
     Team2_name = obj2.TeamNames
     masterlist = dataframerequest(request, pk)
 
-    players = playerdataframe(request, pk)
+    # players = playerdataframe(request, pk)
+    Player_1 = list()
     picks_trading_out_team1 = []
     picks_trading_out_team1_obj = data.get('pickid1')
+    print(picks_trading_out_team1_obj)
+    exit()
     for k in  picks_trading_out_team1_obj:
         picks_trading_out_team1.append(k['value'])
 
-    # picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
-    picks_trading_out_team1 = data.get('pickid1')
+    # picks_trading_out_team1 = data.get('pickid1')
     players_trading_out_team1 = data.get('player1')
-
+    for player_name in players_trading_out_team1:
+        Player_1.append(player_name)
     # Getting the pick(s) name for the pick(s) traded out:
     if len(picks_trading_out_team1) > 0:
         # Priniting the available picks for team 1 to trade out
@@ -3728,8 +3731,8 @@ def add_trade_v3(request, pk):
         Team1_name: [team1_trades_players, team1_trades_picks, team1_trades_pick_names],
         Team2_name: [team2_trades_players,
                      team2_trades_picks, team2_trades_pick_names]
-
     }
+
     trade_dict_full_list.append(trade_dict_full.copy())
 
     # Creating a written description
