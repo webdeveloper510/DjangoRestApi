@@ -3583,7 +3583,7 @@ def add_trade_v3_inputs(request, pk):
             team1_picks = masterlist[masterlist['id'].isin(picks_trading_out_team1)]['Display_Name_Detailed']
             team1_trades_picks.append(team1_picks)
             # get unique pick name
-            unique_name = masterlist.loc[masterlist['id'].isin(picks_trading_out_team1), 'Unique_Pick_ID'].iloc[0]
+            unique_name = masterlist.loc[masterlist['id'].isin(picks_trading_out_team1), 'Unique_Pick_ID']
             team1_trades_pick_names.append(unique_name)
         else:
             pass
@@ -3619,7 +3619,7 @@ def add_trade_v3_inputs(request, pk):
             pick_trading_out_team2 = masterlist[masterlist['Current_Owner'].isin(picks_trading_out_team2)]['Display_Name_Detailed']
             team2_trades_picks.append(pick_trading_out_team2)
             # get unique pick name
-            unique_name = masterlist.loc[masterlist['id'].isin(picks_trading_out_team2), 'Unique_Pick_ID'].iloc[0]
+            unique_name = masterlist.loc[masterlist['id'].isin(picks_trading_out_team2), 'Unique_Pick_ID']
             team2_trades_pick_names.append(unique_name)
 
     else:
