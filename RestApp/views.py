@@ -3565,13 +3565,13 @@ def add_trade_v3_inputs(request, pk):
     Player_1 = list()
     picks_trading_out_team1 = []
     picks_trading_out_team1_obj = data.get('pickid1')
-    print(picks_trading_out_team1_obj)
-    exit()
     for k in  picks_trading_out_team1_obj:
         picks_trading_out_team1.append(k['value'])
 
     # picks_trading_out_team1 = data.get('pickid1')
     players_trading_out_team1 = data.get('player1')
+    print(players_trading_out_team1)
+    exit()
     for player_name in players_trading_out_team1:
         Player_1.append(player_name)
     # Getting the pick(s) name for the pick(s) traded out:
