@@ -74,12 +74,11 @@ Priority pick
 add trade v3
 
 {
-   "teamid1":"1",
-   "teamid2":"2",
-   "pickid1":"1",
-   "player1":"Mark",
-   "pickid2":"2",
-   "player2":"Mark"
+"teamid1":"1",
+"pickid1":[{"value":1,"label":"2022-RD1-Pick1-AFC (Origin: AFC, Via: )"}],
+"player1":["test"],"teamid2":"2",
+"pickid2":[{"value":56,"label":"2022-RD4-Pick56-BFC (Origin: BFC, Via: )"}],
+"player2":["test2"]
 }
 
 create project
