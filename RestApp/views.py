@@ -3589,12 +3589,10 @@ def add_trade_v3_inputs(request, pk):
             pass
        
     # Getting the player name(s) of the player(s) traded out:
-    if len(str(players_trading_out_team1)) > 0 or players_trading_out_team1 == '':
+    if players_trading_out_team1 != '':
         # Priniting the available picks for team 1 to trade out
-        player1_id = players[players['FirstName'].astype(
-            str) == str(players_trading_out_team1)]['id']
 
-        for i in range(len(player1_id)): 
+        for i in range(len(players_trading_out_team1)): 
 
             # team1_player = players[players['FirstName'].astype(
             #     str) == str(players_trading_out_team1)]['Full_Name']
@@ -3628,13 +3626,7 @@ def add_trade_v3_inputs(request, pk):
         # Getting the player name(s) of the player(s) traded out:
     if players_trading_out_team2 != '':
 
-        # Priniting the available picks for team 2 to trade out
-        # player2_id = players[players['FirstName'].astype(
-        #     str) == str(players_trading_out_team2)]['id']
- 
-        for i in range(players_trading_out_team1):
-            # player_trading_out_team2 = players[players['FirstName'].astype(str) == str(players_trading_out_team2)]['Full_Name']
-            # player_name = "".join(player_trading_out_team2)
+        for i in range(len(players_trading_out_team2)):
             team2_trades_players.append(players_trading_out_team1)
     else:
         pass
