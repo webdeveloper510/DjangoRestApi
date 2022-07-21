@@ -7039,7 +7039,7 @@ def dashboard_request(request, pk):
                 if img['ShortName'] == value['Current_Owner_Short_Name']:
                     dict['Year'] = value['Year']
                     dict['Overall_Pick'] = value['Overall_Pick']
-                    dict['Display_Name_Short'] = value['Display_Name_Short']
+                    dict['Display_Name_Short'] = value['Current_Owner_Short_Name']
                     dict['AFL_Points_Value'] = value['AFL_Points_Value']
                     dict['Images'] = img['image_with_path']
                     data_dashboard_masterlist.append(dict.copy())
