@@ -6039,7 +6039,7 @@ def Get_Rounds_Pick(request, pk):
                 data_current_year_rd1_dict['Draft_Round'] = values['Draft_Round']
                 data_current_year_rd1_dict['Overall_Pick'] = int(
                     values['Overall_Pick'])
-                data_current_year_rd1_dict['Display_Name_Short'] = values['Display_Name_Short']
+                data_current_year_rd1_dict['Current_Owner_Short_Name'] = values['Current_Owner_Short_Name']
                 data_current_year_rd1_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                 data_current_rd1_list.append(data_current_year_rd1_dict.copy())
                 break
@@ -6068,7 +6068,7 @@ def Get_Rounds_Pick(request, pk):
                     data_current_year_rd2_dict['Images'] = image_with_path
                     data_current_year_rd2_dict['Draft_Round'] = values['Draft_Round']
                     data_current_year_rd2_dict['Overall_Pick'] = values['Overall_Pick']
-                    data_current_year_rd2_dict['Display_Name_Short'] = values['Display_Name_Short']
+                    data_current_year_rd2_dict['Current_Owner_Short_Name'] = values['Current_Owner_Short_Name']
                     data_current_year_rd2_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                     data_current_rd2_list.append(
                         data_current_year_rd2_dict.copy())
@@ -6100,7 +6100,7 @@ def Get_Rounds_Pick(request, pk):
                 data_current_year_rd3_dict['Images'] = image_with_path
                 data_current_year_rd3_dict['Draft_Round'] = values['Draft_Round']
                 data_current_year_rd3_dict['Overall_Pick'] = values['Overall_Pick']
-                data_current_year_rd3_dict['Display_Name_Short'] = values['Display_Name_Short']
+                data_current_year_rd3_dict['Current_Owner_Short_Name'] = values['Current_Owner_Short_Name']
                 data_current_year_rd3_dict['AFL_Points_Value'] = values['AFL_Points_Value']
 
                 data_current_rd3_list.append(
@@ -6132,7 +6132,7 @@ def Get_Rounds_Pick(request, pk):
                 data_current_year_rd4_dict['Images'] = data['image_with_path']
                 data_current_year_rd4_dict['Draft_Round'] = values['Draft_Round']
                 data_current_year_rd4_dict['Overall_Pick'] = values['Overall_Pick']
-                data_current_year_rd4_dict['Display_Name_Short'] = values['Display_Name_Short']
+                data_current_year_rd4_dict['Current_Owner_Short_Name'] = values['Current_Owner_Short_Name']
                 data_current_year_rd4_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                 data_current_rd4_list.append(
                     data_current_year_rd4_dict.copy())
@@ -6164,7 +6164,7 @@ def Get_Rounds_Pick(request, pk):
                     data_current_year_rd5_dict['Images'] = image_with_path
                     data_current_year_rd5_dict['Draft_Round'] = values['Draft_Round']
                     data_current_year_rd5_dict['Overall_Pick'] = values['Overall_Pick']
-                    data_current_year_rd5_dict['Display_Name_Short'] = values['Display_Name_Short']
+                    data_current_year_rd5_dict['Current_Owner_Short_Name'] = values['Current_Owner_Short_Name']
                     data_current_year_rd5_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                     data_current_rd5_list.append(
                         data_current_year_rd5_dict.copy())
@@ -6194,7 +6194,7 @@ def Get_Rounds_Pick(request, pk):
                     data_current_year_rd6_dict['Images'] = image_with_path
                     data_current_year_rd6_dict['Draft_Round'] = values['Draft_Round']
                     data_current_year_rd6_dict['Overall_Pick'] = values['Overall_Pick']
-                    data_current_year_rd6_dict['Display_Name_Short'] = values['Display_Name_Short']
+                    data_current_year_rd6_dict['Current_Owner_Short_Name'] = values['Current_Owner_Short_Name']
                     data_current_year_rd6_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                     data_current_rd6_list.append(
                         data_current_year_rd6_dict.copy())
@@ -6232,7 +6232,7 @@ def Get_Rounds_Pick(request, pk):
                 data_next_year_rd1_dict['Draft_Round'] = values['Draft_Round']
                 data_next_year_rd1_dict['Overall_Pick'] = int(
                     values['Overall_Pick'])
-                data_next_year_rd1_dict['Display_Name_Short'] = values['Display_Name_Short']
+                data_next_year_rd1_dict['Current_Owner_Short_Name'] = values['Current_Owner_Short_Name']
                 data_next_year_rd1_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                 data_next_rd1_list.append(
                     data_next_year_rd1_dict.copy())
@@ -6258,7 +6258,7 @@ def Get_Rounds_Pick(request, pk):
                 data_next_year_rd2_dict['Images'] = img['image_with_path']
                 data_next_year_rd2_dict['Draft_Round'] = values['Draft_Round']
                 data_next_year_rd2_dict['Overall_Pick'] = values['Overall_Pick']
-                data_next_year_rd2_dict['Display_Name_Short'] = values['Display_Name_Short']
+                data_next_year_rd2_dict['Current_Owner_Short_Name'] = values['Current_Owner_Short_Name']
                 data_next_year_rd2_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                 data_next_rd2_list.append(
                     data_next_year_rd2_dict.copy())
@@ -6286,7 +6286,7 @@ def Get_Rounds_Pick(request, pk):
                 data_next_year_rd3_dict['Draft_Round'] = values['Draft_Round']
                 data_next_year_rd3_dict['Overall_Pick'] = int(
                     values['Overall_Pick'])
-                data_next_year_rd3_dict['Display_Name_Short'] = values['Display_Name_Short']
+                data_next_year_rd3_dict['Current_Owner_Short_Name'] = values['Current_Owner_Short_Name']
                 data_next_year_rd3_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                 data_next_rd3_list.append(
                     data_next_year_rd3_dict.copy())
@@ -6313,7 +6313,7 @@ def Get_Rounds_Pick(request, pk):
                 data_next_year_rd4_dict['Images'] = img['image_with_path']
                 data_next_year_rd4_dict['Draft_Round'] = values['Draft_Round']
                 data_next_year_rd4_dict['Overall_Pick'] = values['Overall_Pick']
-                data_next_year_rd4_dict['Display_Name_Short'] = values['Display_Name_Short']
+                data_next_year_rd4_dict['Current_Owner_Short_Name'] = values['Current_Owner_Short_Name']
                 data_next_year_rd4_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                 data_next_rd4_list.append(
                     data_next_year_rd4_dict.copy())
@@ -6339,7 +6339,7 @@ def Get_Rounds_Pick(request, pk):
                 data_next_year_rd5_dict['Images'] = img['image_with_path']
                 data_next_year_rd5_dict['Draft_Round'] = values['Draft_Round']
                 data_next_year_rd5_dict['Overall_Pick'] = values['Overall_Pick']
-                data_next_year_rd5_dict['Display_Name_Short'] = values['Display_Name_Short']
+                data_next_year_rd5_dict['Current_Owner_Short_Name'] = values['Current_Owner_Short_Name']
                 data_next_year_rd5_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                 data_next_rd5_list.append(
                     data_next_year_rd5_dict.copy())
@@ -6367,7 +6367,7 @@ def Get_Rounds_Pick(request, pk):
                 data_next_year_rd6_dict['Images'] = img['image_with_path']
                 data_next_year_rd6_dict['Draft_Round'] = values['Draft_Round']
                 data_next_year_rd6_dict['Overall_Pick'] = values['Overall_Pick']
-                data_next_year_rd6_dict['Display_Name_Short'] = values['Display_Name_Short']
+                data_next_year_rd6_dict['Current_Owner_Short_Name'] = values['Current_Owner_Short_Name']
                 data_next_year_rd6_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                 data_next_rd6_list.append(
                     data_next_year_rd6_dict.copy())
