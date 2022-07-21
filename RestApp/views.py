@@ -6038,7 +6038,7 @@ def Get_Rounds_Pick(request, pk):
                 data_current_year_rd1_dict['Images'] = image_with_path
                 data_current_year_rd1_dict['Draft_Round'] = values['Draft_Round']
                 data_current_year_rd1_dict['Overall_Pick'] = int(
-                    values['Overall_Pick'])+1
+                    values['Overall_Pick'])
                 data_current_year_rd1_dict['Display_Name_Short'] = values['Display_Name_Short']
                 data_current_year_rd1_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                 data_current_rd1_list.append(data_current_year_rd1_dict.copy())
@@ -6231,7 +6231,7 @@ def Get_Rounds_Pick(request, pk):
                 data_next_year_rd1_dict['Images'] = img['image_with_path']
                 data_next_year_rd1_dict['Draft_Round'] = values['Draft_Round']
                 data_next_year_rd1_dict['Overall_Pick'] = int(
-                    values['Overall_Pick'])+1
+                    values['Overall_Pick'])
                 data_next_year_rd1_dict['Display_Name_Short'] = values['Display_Name_Short']
                 data_next_year_rd1_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                 data_next_rd1_list.append(
@@ -6285,7 +6285,7 @@ def Get_Rounds_Pick(request, pk):
                 data_next_year_rd3_dict['Images'] = img['image_with_path']
                 data_next_year_rd3_dict['Draft_Round'] = values['Draft_Round']
                 data_next_year_rd3_dict['Overall_Pick'] = int(
-                    values['Overall_Pick'])+1
+                    values['Overall_Pick'])
                 data_next_year_rd3_dict['Display_Name_Short'] = values['Display_Name_Short']
                 data_next_year_rd3_dict['AFL_Points_Value'] = values['AFL_Points_Value']
                 data_next_rd3_list.append(
@@ -7017,9 +7017,9 @@ def dashboard_request(request, pk):
         df_list.append(data)
     masterlist2 = pd.DataFrame(df_list)
     data_dashboard_masterlist_data = masterlist2[[
-        'Year', 'Overall_Pick', 'Display_Name_Short', 'AFL_Points_Value']]
+        'Year', 'Overall_Pick', 'Display_Name_Short', 'Current_Owner_Short_Name','AFL_Points_Value']]
 
-    Display_Name_Short = data_dashboard_masterlist_data['Display_Name_Short'].astype(
+    Display_Name_Short = data_dashboard_masterlist_data['Current_Owner_Short_Name'].astype(
         str).values.flatten().tolist()
     images_data = []
     for k in Display_Name_Short:
@@ -7036,7 +7036,7 @@ def dashboard_request(request, pk):
     if masterlist['Draft_Round_Int'].all() <= 5:
         for key, value in data_dashboard_masterlist_data.iterrows():
             for img in images_data:
-                if img['ShortName'] == value['Display_Name_Short']:
+                if img['ShortName'] == value['Current_Owner_Short_Name']:
                     dict['Year'] = value['Year']
                     dict['Overall_Pick'] = value['Overall_Pick']
                     dict['Display_Name_Short'] = value['Display_Name_Short']
