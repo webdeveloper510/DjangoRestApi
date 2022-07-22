@@ -892,20 +892,6 @@ def PriorityPickrRequest(request):
         # Doing this because the team,current owner ,previous owner,original owner are the foreign key conttraints to the teams tables so i need to insert instacnces
 
         academy_dict = dict(updaterow)
-
-        team = Teams.objects.get(id=updaterow.TeamName)
-        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
-        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
-        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
-        Overall_pickk = academy_dict['Overall_Pick']
-
-        Project1 = Project.objects.get(id=project_Id)
-        academy_dict['Previous_Owner'] = previous_owner
-        team = Teams.objects.get(id=updaterow.TeamName)
-        academy_dict['TeamName'] = team
-        academy_dict['Original_Owner'] = Original_Owner
-        academy_dict['Current_Owner'] = Current_Ownerr
-        academy_dict['projectid'] = Project1
         MasterList.objects.filter(id=iincreament_id).update(**academy_dict)
 
         iincreament_id += 1
@@ -1244,22 +1230,6 @@ def add_priority_pick_v2(request, pk):
 
     for index, updaterow in df.iterrows():
         pp_dict = dict(updaterow)
-
-        team = Teams.objects.get(id=updaterow.TeamName)
-
-        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
-        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
-        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
-        Overall_pickk = pp_dict['Overall_Pick']
-
-        Project1 = Project.objects.get(id=pk)
-        pp_dict['Previous_Owner'] = team
-        team = Teams.objects.get(id=updaterow.TeamName)
-        pp_dict['TeamName'] = team
-        pp_dict['Original_Owner'] = Original_Owner
-        pp_dict['Current_Owner'] = Current_Ownerr
-        pp_dict['projectid'] = Project1
-
         MasterList.objects.filter(id=iincreament_id).update(**pp_dict)
 
         iincreament_id += 1
@@ -1663,21 +1633,6 @@ def AcademyBidRequest(request, pk):
         # Doing this because the team,current owner ,previous owner,original owner are the foreign key conttraints to the teams tables so i need to insert instacnces
 
         row1 = dict(updaterow)
-
-        team = Teams.objects.get(id=updaterow.TeamName)
-
-        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
-        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
-        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
-        Overall_pickk = row1['Overall_Pick']
-
-        Project1 = Project.objects.get(id=pk)
-        row1['Previous_Owner'] = None
-        row1['TeamName'] = team
-        row1['Original_Owner'] = Original_Owner
-        row1['Current_Owner'] = Current_Ownerr
-        row1['projectid_id'] = Project1.id
-
         MasterList.objects.filter(id=iincreament_id).update(**row1)
 
         iincreament_id += 1
@@ -2101,22 +2056,7 @@ def academy_bid_v2(request, pk):
     iincreament_id = 1
     for index, updaterow in updatedf.iterrows():
         academy_dict = dict(updaterow)
-        team = Teams.objects.get(id=updaterow.TeamName)
-        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
-        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
-        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
-        Overall_pickk = academy_dict['Overall_Pick']
-
-        Project1 = Project.objects.get(id=pk)
-        academy_dict['Previous_Owner'] = previous_owner
-        team = Teams.objects.get(id=updaterow.TeamName)
-        academy_dict['TeamName'] = team
-        academy_dict['Original_Owner'] = Original_Owner
-        academy_dict['Current_Owner'] = Current_Ownerr
-        academy_dict['projectid'] = Project1
-
         MasterList.objects.filter(id=iincreament_id).update(**academy_dict)
-
         iincreament_id += 1
 
     ######## Combine into a summary dataframe: #############
@@ -2510,22 +2450,7 @@ def add_FA_compansation(request, pk):
 
     iincreament_id = 1
     for index, updaterow in udpatedf.iterrows():
-
         row1 = dict(updaterow)
-        team = Teams.objects.get(id=updaterow.TeamName)
-        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
-        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
-        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
-        Overall_pickk = row1['Overall_Pick']
-
-        Project1 = Project.objects.get(id=pk)
-
-        row1['Previous_Owner'] = team
-        row1['TeamName'] = team
-        row1['Original_Owner'] = Original_Owner
-        row1['Current_Owner'] = Current_Ownerr
-        row1['projectid'] = Project1
-
         MasterList.objects.filter(id=iincreament_id).update(**row1)
 
         iincreament_id += 1
@@ -2534,23 +2459,20 @@ def add_FA_compansation(request, pk):
         'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
 
     # Exporting trade to the transactions df
-    transaction_details = (
-        {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'FA_Compensation', 'Transaction_Details': fa_dict, 'Transaction_Description': fa_description, 'projectId': pk})
 
-    objj = Project.objects.get(id=pk)
-    Transactions.objects.create(
-        Transaction_Number='',
-        Transaction_DateTime=current_time,
-        Transaction_Type='FA_Compensation',
-        Transaction_Details=fa_dict,
-        Transaction_Description=fa_description,
-        projectId=objj.id
+    obj = Project.objects.get(id=pk)
+    df2 = transactionsdataframe(request, pk)
 
-    )
-    obj = Transactions.objects.latest('id')
-    count = Transactions.objects.filter().count()
-    Transactions.objects.filter(id=obj.id).update(Transaction_Number=count)
-
+    transaction_details = pd.DataFrame(
+        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'FA_Compensation', 'Transaction_Details': fa_dict, 'Transaction_Description': fa_description, 'projectId': obj.id})
+    df2 = transaction_details
+    if df2.isnull().values.any():
+        df2['id'] = df2['id'].fillna(len(df2))
+    else:
+        pass
+    for index, df2_row in df2.iterrows():
+        transactions_dict = dict(df2_row)
+        Transactions(**transactions_dict).save()
     return Response({'success': 'Add-FA-compansation Created Successfuly'}, status=status.HTTP_201_CREATED)
 
 
@@ -2923,18 +2845,6 @@ def add_FA_compensation_v2(request, pk):
         # #################################################################################################################################
         # Doing this because the team,current owner ,previous owner,original owner are the foreign key conttraints to the teams tables so i need to insert instacnces
         FA_data = dict(updaterow)
-        team = Teams.objects.get(id=updaterow.TeamName)
-        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
-        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
-        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
-        Overall_pickk = FA_data['Overall_Pick']
-        Project1 = Project.objects.get(id=pk)
-        FA_data['Previous_Owner'] = team
-        FA_data['TeamName'] = team
-        FA_data['Original_Owner'] = Original_Owner
-        FA_data['Current_Owner'] = Current_Ownerr
-        FA_data['projectid'] = Project1
-
         MasterList.objects.filter(id=iincreament_id).update(**FA_data)
         iincreament_id += 1
 # ##################################################################################################################################
@@ -3066,19 +2976,6 @@ def manual_pick_move(request, pk):
     iincreament_id = 1
     for index, updaterow in df.iterrows():
         manualpickmove_dict = dict(updaterow)
-        team = Teams.objects.get(id=updaterow.TeamName)
-        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
-        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
-        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
-        Overall_pickk = manualpickmove_dict['Overall_Pick']
-
-        Project1 = Project.objects.get(id=pk)
-        manualpickmove_dict['Previous_Owner'] = previous_owner
-        team = Teams.objects.get(id=updaterow.TeamName)
-        manualpickmove_dict['TeamName'] = team
-        manualpickmove_dict['Original_Owner'] = Original_Owner
-        manualpickmove_dict['Current_Owner'] = Current_Ownerr
-        manualpickmove_dict['projectid'] = Project1
         MasterList.objects.filter(
             id=iincreament_id).update(**manualpickmove_dict)
 
@@ -3098,22 +2995,19 @@ def manual_pick_move(request, pk):
         'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
 
     # Exporting trade to the transactions df
-    obj = Project.objects.get(id=pk)
-    transaction_details = (
-        {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'Manual_Pick_Move', 'Transaction_Details': manual_move_dict, 'Transaction_Description': manual_move_description, 'projectId': obj.id})
-    Transactions.objects.create(
-        Transaction_Number='',
-        Transaction_DateTime=current_time,
-        Transaction_Type='Manual_Pick_Move',
-        Transaction_Details=manual_move_dict,
-        Transaction_Description=manual_move_description,
-        projectId=obj.id
 
-    )
-    last_inserted_obj = Transactions.objects.latest('id')
-    last_inserted_id = last_inserted_obj.id
-    Transactions.objects.filter(id=last_inserted_id).update(
-        Transaction_Number=last_inserted_id)
+    obj = Project.objects.get(id=pk)
+    df2 = transactionsdataframe(request, pk)
+
+    transaction_details = pd.DataFrame(
+        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'Manual_Pick_Move', 'Transaction_Details': manual_move_dict, 'Transaction_Description': manual_move_description, 'projectId': obj.id})
+    if df2.isnull().values.any():
+        df2['id'] = df2['id'].fillna(len(df2))
+    else:
+        pass
+    for index, df2_row in df2.iterrows():
+        transactions_dict = dict(df2_row)
+        Transactions(**transactions_dict).save()
     call_manual_pick_move(transaction_details)
     return Response({'success': 'Manual Pick Move has been Created'}, status=status.HTTP_201_CREATED)
 
@@ -3696,19 +3590,6 @@ def add_trade_v3(request, pk):
         # #############################################################################################################
         # team,current owner ,previous owner,original owner are the foreign key conttraints to the teams tables so i need to insert instacnces
         trade_dict = dict(updaterow)
-
-        team = Teams.objects.get(id=updaterow.TeamName)
-
-        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
-        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
-
-        Project1 = Project.objects.get(id=pk)
-        trade_dict['Previous_Owner'] = updaterow.Previous_Owner
-        team = Teams.objects.get(id=updaterow.TeamName)
-        trade_dict['TeamName'] = team
-        trade_dict['Original_Owner'] = Original_Owner
-        trade_dict['Current_Owner'] = Current_Ownerr
-        trade_dict['projectid'] = Project1
         MasterList.objects.filter(id=incremented_id).update(**trade_dict)
         incremented_id += 1
 
@@ -3728,11 +3609,13 @@ def add_trade_v3(request, pk):
     trade_dict[Team2_name] = team2_trades_picks
     trade_dict_full_list = []
 
-    trade_dict_full = {
-        Team1_name: [team1_trades_players, team1_trades_picks, team1_trades_pick_names],
-        Team2_name: [team2_trades_players,
-                     team2_trades_picks, team2_trades_pick_names]
-    }
+    # trade_dict_full = {
+    #     Team1_name: [team1_trades_players, team1_trades_picks, team1_trades_pick_names],
+    #     Team2_name: [team2_trades_players,
+    #                  team2_trades_picks, team2_trades_pick_names]
+    # }
+    trade_dict_full = {Team1_name: [team1_trades_players, team1_trades_picks], Team2_name: [
+        team2_trades_players, team2_trades_picks]}
 
     trade_dict_full_list.append(trade_dict_full.copy())
 
@@ -3745,7 +3628,7 @@ def add_trade_v3(request, pk):
     df2 = transactionsdataframe(request, pk)
 
     transaction_details = pd.DataFrame(
-        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'Trade', 'Transaction_Details': [trade_dict_full_list], 'Transaction_Description': trade_description, 'projectId': obj.id})
+        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'Trade', 'Transaction_Details': trade_dict_full_list, 'Transaction_Description': trade_description, 'projectId': obj.id})
     df2 = df2.append(transaction_details)
     if df2.isnull().values.any():
         df2['id'] = df2['id'].fillna(len(df2))
@@ -3756,9 +3639,6 @@ def add_trade_v3(request, pk):
         Transactions(**transactions_dict).save()
     call_add_trade(transactions_dict)
     return Response({'success': 'Add-Trade-v3 Created Successfuly'}, status=status.HTTP_201_CREATED)
-
-# @api_view(['POST'])
-# @permission_classes([AllowAny, ])
 
 
 def update_ladder(request, pk):
@@ -3786,30 +3666,27 @@ def update_ladder(request, pk):
     masterlist = df
     library_round_map = masterlist['Draft_Round']
     # Using the create masterlist code with the updated ladders as inputs:
-    new_masterlist = update_masterlist(df)
 
-    transactions = []
-    Get_Transactions_obj = Transactions.objects.filter().values()
-    for transactions_data in Get_Transactions_obj:
-        transactions.append(transactions_data)
-    new_transactions = pd.DataFrame(transactions)
-
+    df2 = transactionsdataframe(request, pk)
+    transactions = df2
     if len(transactions) == 0:
+        details = ''
         pass
     else:
         # looping over each row to extract the keys and return their current position & value:
-        for row in transactions:
+        for _, row in transactions.iterrows():
 
             #### Trade Transaction ####
-            if row['Transaction_Type'] == 'Trade':
 
-                # print(row.Transaction_Details)
+            if row['Transaction_Type'] == 'Trade':
 
                 # Unpack transaction_details
                 details = row['Transaction_Details']
+
                 # Upack the cell string:
                 details_dict = ast.literal_eval(details)
                 # Save keys and values to be used as inputs into the trade function:
+                dict(details_dict)
                 team1, team2 = details_dict.keys()
 
                 team1_trades_players, team1_trades_picks = details_dict[team1]
@@ -3839,7 +3716,7 @@ def update_ladder(request, pk):
                 # Execute Function and add to the transaction list:
                 new_transactions = call_add_trade(transactions)
 
-                new_masterlist = update_masterlist(new_masterlist)
+                new_masterlist = update_masterlist(masterlist)
 
              #### Priority Pick Transaction ####
             if row['Transaction_Type'] == 'Priority_Pick':
@@ -3869,7 +3746,7 @@ def update_ladder(request, pk):
                 # Execute Function and add to the transaction list:
                 new_transactions = call_priority_pick_v2(transactions)
 
-                new_masterlist = update_masterlist(new_masterlist)
+                new_masterlist = update_masterlist(masterlist)
 
             if row['Transaction_Type'] == 'FA_Compensation':
                 # Unpack transaction_details
@@ -3895,7 +3772,7 @@ def update_ladder(request, pk):
                     # Execute Function and add to the transaction list:
                     new_transactions = call_FA_Compensation(
                         transactions)
-                    new_masterlist = update_masterlist(new_masterlist)
+                    new_masterlist = update_masterlist(masterlist)
 
             if row['Transaction_Type'] == 'Academy_Bid_Match':
                 # Unpack transaction_details
@@ -3918,7 +3795,7 @@ def update_ladder(request, pk):
                 # Execute Function and add to the transaction list:
                 new_transactions = call_academy_bid_v2(new_transactions)
 
-                new_masterlist = update_masterlist(new_masterlist)
+                new_masterlist = update_masterlist(masterlist)
 
             if row['Transaction_Type'] == 'FS_Bid_Match':
                 # Unpack transaction_details
@@ -3937,8 +3814,8 @@ def update_ladder(request, pk):
                 fs_bid = new_masterlist.loc[new_masterlist.Overall_Pick.astype(
                     int) == int(fs_bid_pick_no), 'Display_Name_Detailed'].iloc[0]
                 # Execute Function and add to the transaction list:
-                new_transactions = call_add_father_son(new_transactions)
-                new_masterlist = update_masterlist(new_masterlist)
+                new_transactions = call_nga_bid(new_transactions)
+                new_masterlist = update_masterlist(masterlist)
 
             if row['Transaction_Type'] == 'NGA_Bid_Match':
                 # Unpack transaction_details
@@ -3967,7 +3844,7 @@ def update_ladder(request, pk):
 
                 # Execute Function and add to the transaction list:
                 new_transactions = call_nga_bid(new_transactions)
-                new_masterlist = update_masterlist(new_masterlist)
+                new_masterlist = update_masterlist(masterlist)
 
             if row['Transaction_Type'] == 'Manual_Insert':
                 # Unpack transaction_details
@@ -3983,7 +3860,8 @@ def update_ladder(request, pk):
 
                 # Execute Function and add to the transaction list:
                 new_transactions = call_manual_insert(new_transactions)
-                new_masterlist = update_masterlist(new_masterlist)
+                new_masterlist = update_masterlist(masterlist)
+
             if row['Transaction_Type'] == 'Manual_Pick_Move':
                 # Unpack transaction_details
                 details = row['Transaction_Details']
@@ -4001,7 +3879,7 @@ def update_ladder(request, pk):
 
                 # Execute Function and add to the transaction list:
                 new_transactions = call_manual_pick_move(new_transactions)
-                new_masterlist = update_masterlist(new_masterlist)
+                new_masterlist = update_masterlist(masterlist)
 
             if row['Transaction_Type'] == 'Drafted_Player':
                 # Unpack transaction_details
@@ -4017,39 +3895,24 @@ def update_ladder(request, pk):
                 # Execute Function and add to the transaction list:
                 new_transactions = call_add_draft_night_selection(
                     new_transactions)
-                new_masterlist = update_masterlist(new_masterlist)
+                new_masterlist = update_masterlist(masterlist)
           # Drop duplicate rows and recount transaction number
-        new_transactions = pd.DataFrame(new_transactions)
+        new_transactions = transactions.copy()
         new_transactions.drop_duplicates(
             subset='Transaction_Description', keep="first", inplace=True)
         new_transactions['Transaction_Number'] = np.arange(
             len(new_transactions)) + 1
-
-        new_masterlist = update_masterlist(new_masterlist)
+        new_masterlist = update_masterlist(masterlist)
         iincreament_id = 1
         for index, updaterow in new_masterlist.iterrows():
             update_ladder_dict = dict(updaterow)
-            team = Teams.objects.get(id=updaterow.TeamName)
-            Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
-            Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
-            previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
-            Overall_pickk = update_ladder_dict['Overall_Pick']
-
-            Project1 = Project.objects.get(id=pk)
-            update_ladder_dict['Previous_Owner'] = previous_owner
-            team = Teams.objects.get(id=updaterow.TeamName)
-            update_ladder_dict['TeamName'] = team
-            update_ladder_dict['Original_Owner'] = Original_Owner
-            update_ladder_dict['Current_Owner'] = Current_Ownerr
-            update_ladder_dict['projectid'] = Project1
-
             MasterList.objects.filter(
                 id=iincreament_id).update(**update_ladder_dict)
-
             iincreament_id += 1
+
         return new_masterlist, new_transactions, details
         # update_ladder_info(new_transactions,new_masterlist)
-        # return Response({'success': 'success'}, status=status.HTTP_201_CREATED)
+        # return Response({'new_transactions': new_transactions,'new_masterlist':new_masterlist}, status=status.HTTP_201_CREATED)
 
 
 def update_ladder_teams(request):
@@ -4713,86 +4576,48 @@ def add_nga_bid(request, pk):
         iincreament_id = 1
         for index, updaterow in updatedf.iterrows():
             nga_dict = dict(updaterow)
-            team = Teams.objects.get(id=updaterow.TeamName)
-            Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
-            Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
-            previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
-            Overall_pickk = nga_dict['Overall_Pick']
-
-            Project1 = Project.objects.get(id=pk)
-            nga_dict['Previous_Owner'] = previous_owner
-            team = Teams.objects.get(id=updaterow.TeamName)
-            nga_dict['TeamName'] = team
-            nga_dict['Original_Owner'] = Original_Owner
-            nga_dict['Current_Owner'] = Current_Ownerr
-            nga_dict['projectid'] = Project1
-
-            nga_dict['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
-
-            nga_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
-                updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(nga_dict['Display_Name'])
-            nga_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
-                ' ' + str(Overall_pickk)
-
-            nga_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-                previous_owner + team.ShortName + \
-                ')' if Original_Owner != Current_Ownerr else team.ShortName
-
-            nga_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-                previous_owner + team.ShortName + \
-                ')' if Original_Owner != Current_Ownerr else team.ShortName
-
             MasterList.objects.filter(
                 id=iincreament_id).update(**nga_dict)
 
             iincreament_id += 1
 
-            ######## Combine into a summary dataframe: #############
-            nga_summaries_list = [pick_lost_details,
-                                  pick_shuffle_details, pick_deficit_details]
-            nga_summary_df = pd.DataFrame(
-                columns=['Pick', 'Moves_To', 'New_Points_Value'])
-            for x in nga_summaries_list:
-                if len(x) > 0:
-                    nga_summary_df = nga_summary_df.append(x)
+    ######## Combine into a summary dataframe: #############
+    nga_summaries_list = [pick_lost_details,
+                          pick_shuffle_details, pick_deficit_details]
+    nga_summary_df = pd.DataFrame(
+        columns=['Pick', 'Moves_To', 'New_Points_Value'])
+    for x in nga_summaries_list:
+        if len(x) > 0:
+            nga_summary_df = nga_summary_df.append(x)
 
-            nga_summary_dict = nga_summary_df.to_dict(orient="list")
+    nga_summary_dict = nga_summary_df.to_dict(orient="list")
 
-            ######### Exporting Transaction Details: ###############
-            current_time = datetime.datetime.now(pytz.timezone(
-                'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
-            nga_dict = {nga_team: [nga_pick_type,
-                                   nga_bid, nga_bid_pick_no, nga_player]}
-            # Create Simple description.
-            nga_description = 'NGA Bid Match: Pick ' + \
-                str(nga_bid_pick_no) + ' ' + str(nga_team) + \
-                ' (' + str(nga_player) + ')'
+    ######### Exporting Transaction Details: ###############
+    current_time = datetime.datetime.now(pytz.timezone(
+        'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
+    nga_dict = {nga_team: [nga_pick_type,
+                           nga_bid, nga_bid_pick_no, nga_player]}
+    # Create Simple description.
+    nga_description = 'NGA Bid Match: Pick ' + \
+        str(nga_bid_pick_no) + ' ' + str(nga_team) + \
+        ' (' + str(nga_player) + ')'
 
-            obj = Project.objects.get(id=pk)
+    obj = Project.objects.get(id=pk)
 
-            transaction_details = (
-                {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'NGA_Bid_Match',
-                 'Transaction_Details': nga_dict,
-                 'Transaction_Description': nga_description,
-                 'projectId': obj.id
-                 })
+    df2 = transactionsdataframe(request, pk)
 
-            Transactions.objects.create(
-                Transaction_Number='',
-                Transaction_DateTime=current_time,
-                Transaction_Type='NGA_Bid_Match',
-                Transaction_Details=nga_dict,
-                Transaction_Description=nga_description,
-                projectId=obj.id
-
-            )
-            last_obj = Transactions.objects.latest('id')
-            Transactions.objects.filter(id=last_obj.id).update(
-                Transaction_Number=last_obj.id)
-            call_nga_bid(transaction_details)
-            return Response({'success': 'NGA Bid created Successfully'}, status=status.HTTP_200_OK)
+    transaction_details = pd.DataFrame(
+        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'NGA_Bid_Match', 'Transaction_Details': nga_dict, 'Transaction_Description': nga_description, 'projectId': obj.id})
+    df2 = df2.append(transaction_details)
+    if df2.isnull().values.any():
+        df2['id'] = df2['id'].fillna(len(df2))
+    else:
+        pass
+    for index, df2_row in df2.iterrows():
+        transactions_dict = dict(df2_row)
+        Transactions(**transactions_dict).save()
+        call_nga_bid(transaction_details)
+        return Response({'success': 'NGA Bid created Successfully'}, status=status.HTTP_200_OK)
 
 
 def add_draft_night_selection_inputs(request):
@@ -4849,38 +4674,6 @@ def add_draft_night_selection(request, pk):
     for index, updaterow in updatedf.iterrows():
 
         draft_night_dict = dict(updaterow)
-        team = Teams.objects.get(id=updaterow.TeamName)
-        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
-        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
-        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
-        Overall_pickk = draft_night_dict['Overall_Pick']
-
-        Project1 = Project.objects.get(id=pk)
-        draft_night_dict['Previous_Owner'] = previous_owner
-        team = Teams.objects.get(id=updaterow.TeamName)
-        draft_night_dict['TeamName'] = team
-        draft_night_dict['Original_Owner'] = Original_Owner
-        draft_night_dict['Current_Owner'] = Current_Ownerr
-        draft_night_dict['projectid'] = Project1
-
-        draft_night_dict['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-            None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
-
-        draft_night_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
-            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(draft_night_dict['Display_Name'])
-
-        draft_night_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
-            ' ' + str(Overall_pickk)
-
-        draft_night_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-            previous_owner + team.ShortName + \
-            ')' if Original_Owner != Current_Ownerr else team.ShortName
-
-        draft_night_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-            previous_owner + team.ShortName + \
-            ')' if Original_Owner != Current_Ownerr else team.ShortName
-
         MasterList.objects.filter(id=iincreament_id).update(**draft_night_dict)
 
         iincreament_id += 1
@@ -4891,24 +4684,22 @@ def add_draft_night_selection(request, pk):
         ' have selected ' + str(player_taken)
     Projobj = Project.objects.get(id=pk)
     Proj_id = Projobj.id
+    obj = Project.objects.get(id=pk)
 
-    Transactions.objects.create(
-        Transaction_Number='',
-        Transaction_DateTime=current_time,
-        Transaction_Type='Drafted_Player',
-        Transaction_Details=drafted_player_dict,
-        Transaction_Description=drafted_description,
-        projectId=Proj_id
-    )
-    obj = Transactions.objects.latest('id')
-    drafted_player_transaction_details = (
-        {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'Drafted_Player',
-         'Transaction_Details': drafted_player_dict,
-         'Transaction_Description': drafted_description,
-         'projectId': Proj_id
-         })
-    Transactions.objects.filter(id=obj.id).update(Transaction_Number=obj.id)
-    call_add_draft_night_selection(drafted_player_transaction_details)
+    df2 = transactionsdataframe(request, pk)
+
+    transaction_details = pd.DataFrame(
+        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'Drafted_Player', 'Transaction_Details': drafted_player_dict, 'Transaction_Description': drafted_description, 'projectId': obj.id})
+    df2 = df2.append(transaction_details)
+    if df2.isnull().values.any():
+        df2['id'] = df2['id'].fillna(len(df2))
+    else:
+        pass
+    for index, df2_row in df2.iterrows():
+        transactions_dict = dict(df2_row)
+        Transactions(**transactions_dict).save()
+        call_nga_bid(transaction_details)
+    call_add_draft_night_selection(transaction_details)
     return Response({'success': "Add-draft-Night-Selection created successfully"}, status=status.HTTP_201_CREATED)
 
 
@@ -4982,40 +4773,7 @@ def AddManualRequest(request, pk):
     updatedf = update_masterlist(df1)
     iincreament_id = 1
     for index, updaterow in updatedf.iterrows():
-
         manual_dict = dict(updaterow)
-        team = Teams.objects.get(id=updaterow.TeamName)
-        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
-        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
-        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
-        Overall_pickk = manual_dict['Overall_Pick']
-
-        Project1 = Project.objects.get(id=pk)
-        manual_dict['Previous_Owner'] = previous_owner
-        team = Teams.objects.get(id=updaterow.TeamName)
-        manual_dict['TeamName'] = team
-        manual_dict['Original_Owner'] = Original_Owner
-        manual_dict['Current_Owner'] = Current_Ownerr
-        manual_dict['projectid'] = Project1
-
-        manual_dict['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-            None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
-
-        manual_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
-            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(manual_dict['Display_Name'])
-
-        manual_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
-            ' ' + str(Overall_pickk)
-
-        manual_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-            previous_owner + team.ShortName + \
-            ')' if Original_Owner != Current_Ownerr else team.ShortName
-
-        manual_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-            previous_owner + team.ShortName + \
-            ')' if Original_Owner != Current_Ownerr else team.ShortName
-
         MasterList.objects.filter(id=iincreament_id).update(**manual_dict)
 
         iincreament_id += 1
@@ -5027,21 +4785,19 @@ def AddManualRequest(request, pk):
     current_time = datetime.datetime.now(pytz.timezone(
         'Australia/Melbourne')).strftime('%Y-%m-%d %H:%M')
 
+    obj = Project.objects.get(id=pk)
+    df2 = transactionsdataframe(request, pk)
+
     transaction_details = pd.DataFrame(
-        {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'Manual_Insert', 'Transaction_Details': manual_dict, 'Transaction_Description': manual_description, 'projectId': pk})
-
-    Transactions.objects.create(
-        Transaction_Number='',
-        Transaction_DateTime=current_time,
-        Transaction_Type='Manual_Insert',
-        Transaction_Details=manual_dictt,
-        Transaction_Description=manual_description,
-        projectId=pk
-    )
-
-    obj = Transactions.objects.latest('id')
-    Transactions.objects.filter(id=obj.id).update(
-        Transaction_Number=obj.id)
+        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'Manual_Insert', 'Transaction_Details': manual_dict, 'Transaction_Description': manual_description, 'projectId': obj.id})
+    df2 = df2.append(transaction_details)
+    if df2.isnull().values.any():
+        df2['id'] = df2['id'].fillna(len(df2))
+    else:
+        pass
+    for index, df2_row in df2.iterrows():
+        transactions_dict = dict(df2_row)
+        Transactions(**transactions_dict).save()
     call_manual_insert(transaction_details)
     return Response({'success': 'Add Manual created Successfully'}, status=status.HTTP_201_CREATED)
 
@@ -5982,10 +5738,6 @@ def Get_Rounds_Pick(request, pk):
     v_current_year = current_date.year
     v_current_year_plus1 = v_current_year+1
 
-    Current_Year_Round = {}
-    Next_Year_Round = {}
-    img = tuple()
-    df["Images"] = ""
     # Current Year list
     data_current_rd1_list = []
     data_current_rd2_list = []
@@ -6863,39 +6615,6 @@ def add_father_son(request, pk):
     iincreament_id = 1
     for index, updaterow in updatedf.iterrows():
         fs_dict = dict(updaterow)
-        team = Teams.objects.get(id=updaterow.TeamName)
-        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
-        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
-        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
-        Overall_pickk = fs_dict['Overall_Pick']
-
-        Project1 = Project.objects.get(id=pk)
-        fs_dict['Previous_Owner'] = previous_owner
-        team = Teams.objects.get(id=updaterow.TeamName)
-        fs_dict['TeamName'] = team
-        fs_dict['Original_Owner'] = Original_Owner
-        fs_dict['Current_Owner'] = Current_Ownerr
-        fs_dict['projectid'] = Project1
-
-        fs_dict['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-            None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
-
-        fs_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
-            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(fs_dict['Display_Name'])
-        fs_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
-            ' ' + str(Overall_pickk)
-
-        fs_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-            previous_owner + team.ShortName + \
-            ')' if Original_Owner != Current_Ownerr else team.ShortName
-
-        fs_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-            previous_owner + team.ShortName + \
-            ')' if Original_Owner != Current_Ownerr else team.ShortName
-
-        # MasterList(**row1).save()
-
         MasterList.objects.filter(id=iincreament_id).update(**fs_dict)
 
         iincreament_id += 1
@@ -6922,27 +6641,19 @@ def add_father_son(request, pk):
         str(fs_bid_pick_no) + ' ' + str(fs_teamname) + \
         ' (' + str(fs_player) + ')'
 
-    proj_obj = Project.objects.get(id=pk)
+    obj = Project.objects.get(id=pk)
+    df2 = transactionsdataframe(request, pk)
 
-    transaction_details = (
-        {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'FS_Bid_Match',
-         'Transaction_Details': fs_dict,
-         'Transaction_Description': fs_description,
-         'projectId': proj_obj.id
-         })
-
-    Transactions.objects.create(
-        Transaction_Number='',
-        Transaction_DateTime=current_time,
-        Transaction_Type='FS_Bid_Match',
-        Transaction_Details=fs_dict,
-        Transaction_Description=fs_description,
-        projectId=proj_obj.id
-
-    )
-    lastinsertedId = Transactions.objects.latest('id')
-    Transactions.objects.filter(id=lastinsertedId.id).update(
-        Transaction_Number=lastinsertedId.id)
+    transaction_details = pd.DataFrame(
+        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'FS_Bid_Match', 'Transaction_Details': fs_dict, 'Transaction_Description': fs_description, 'projectId': obj.id})
+    df2 = df2.append(transaction_details)
+    if df2.isnull().values.any():
+        df2['id'] = df2['id'].fillna(len(df2))
+    else:
+        pass
+    for index, df2_row in df2.iterrows():
+        transactions_dict = dict(df2_row)
+        Transactions(**transactions_dict).save()
 
     ########## EXPORT TRANSACTION OF DRAFT SELECTION ###########
     # Create Drafted Player dict
@@ -6952,26 +6663,18 @@ def add_father_son(request, pk):
         str(fs_bid_pick_no) + ' ' + str(fs_teamname) + \
         ' have selected ' + str(fs_player)
 
-    drafted_player_transaction_details = pd.DataFrame(
-        {'Transaction_Number': '', 'Transaction_DateTime': current_time, 'Transaction_Type': 'Drafted_Player',
-         'Transaction_Details': drafted_player_dict,
-         'Transaction_Description': drafted_description})
+    # Exporting trade to the transactions df
 
-    Transactions.objects.create(
-        Transaction_Number='',
-        Transaction_DateTime=current_time,
-        Transaction_Type='Drafted_Player',
-        Transaction_Details=drafted_player_dict,
-        Transaction_Description=drafted_description,
-        projectId=proj_obj.id
-
-    )
-
-    lastinsertedId = Transactions.objects.latest('id')
-    Transactions.objects.filter(id=lastinsertedId.id).update(
-        Transaction_Number=lastinsertedId.id)
+    transaction_details = pd.DataFrame(
+        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'Drafted_Player', 'Transaction_Details': drafted_player_dict, 'Transaction_Description': drafted_description, 'projectId': obj.id})
+    if df2.isnull().values.any():
+        df2['id'] = df2['id'].fillna(len(df2))
+    else:
+        pass
+    for index, df2_row in df2.iterrows():
+        transactions_dict = dict(df2_row)
+        Transactions(**transactions_dict).save()
     call_add_father_son(transaction_details)
-    call_drafted_player(drafted_player_transaction_details)
     return Response("Success", status=status.HTTP_201_CREATED)
 
     #  //////////////////////////////////  GET Requests ///////////////////////////////////////////
@@ -7099,12 +6802,18 @@ def dashboard_request(request, pk):
 @ permission_classes([AllowAny])
 def delete_last_transaction_request(request, pk):
 
-    data = request.data
+    # delete last inserted transactions #####################################################
     masterlist = dataframerequest(request, pk)
+    if Transactions.objects.count() > 0:
+        Transactions_last_obj = Transactions.objects.latest('id')
+        last_inserted_id = Transactions_last_obj.id
+        Transactions.objects.filter(id=last_inserted_id).delete()
 
     current_day = date.today()
     v_current_year = current_day.year
     v_current_year_plus1 = v_current_year+1
+
+    #####################################################################################
 
     # Instructions: When using this function, must the run the update_ladder function straight afterwards.
     # get current ladder for both years
@@ -7114,71 +6823,24 @@ def delete_last_transaction_request(request, pk):
     updated_ladderlist_current_year_plus1 = masterlist[(masterlist['Draft_Round'].astype(str) == "RD10") & (masterlist['Year'].astype(
         int) == v_current_year_plus1) & (masterlist['PickType'].astype(str) == 'Standard')]['Original_Owner'].tolist()
     # Reverse the lists to get the team on top first:
+
     updated_ladderlist_current_year.reverse()
 
     updated_ladderlist_current_year_plus1.reverse()
 
+    ############################## call update ladder #######################
+
     new_masterlist, new_transactions, details = update_ladder(request, pk)
+
     iincreament_id = 1
 
     for index, updaterow in new_masterlist.iterrows():
         update_ladder_dict = dict(updaterow)
-        team = Teams.objects.get(id=updaterow.TeamName)
-        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
-        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
-        previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
-        Overall_pickk = update_ladder_dict['Overall_Pick']
-
-        Project1 = Project.objects.get(id=pk)
-        update_ladder_dict['Previous_Owner'] = previous_owner
-        team = Teams.objects.get(id=updaterow.TeamName)
-        update_ladder_dict['TeamName'] = team
-        update_ladder_dict['Original_Owner'] = Original_Owner
-        update_ladder_dict['Current_Owner'] = Current_Ownerr
-        update_ladder_dict['projectid'] = Project1
-
-        update_ladder_dict['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-            None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
-
-        update_ladder_dict['Display_Name_Detailed'] = str(v_current_year) + '-' + str(
-            updaterow.Draft_Round) + '-Pick' + str(updaterow.Overall_Pick) + '-' + str(update_ladder_dict['Display_Name'])
-
-        update_ladder_dict['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-            None + ')' if Original_Owner != Current_Ownerr else team.ShortName + \
-            ' ' + str(Overall_pickk)
-
-        update_ladder_dict['Display_Name_Short'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-            previous_owner + team.ShortName + \
-            ')' if Original_Owner != Current_Ownerr else team.ShortName
-
-        update_ladder_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + Current_Ownerr + ' (Origin: ' + Original_Owner + ', Via: ' + \
-            previous_owner + team.ShortName + \
-            ')' if Original_Owner != Current_Ownerr else team.ShortName
-
         MasterList.objects.filter(
             id=iincreament_id).update(**update_ladder_dict)
-
         iincreament_id += 1
-    # remove last row of transactions dataframe
-    transactions = transactionsdataframe(request, pk)
-    i_tranaction_id = 1
-    # remove last row of transactions dataframe
-    k = transactions.iloc[-1]
-    Transactions.objects.filter(id=k['id']).delete()
-    for index, transactions_data in transactions.iterrows():
 
-        transactions_dict = dict(transactions_data)
-        transactions_dict['id'] = transactions_dict['id']
-        transactions_dict['projectId'] = transactions_dict['projectId']
-        transactions_dict['Transaction_DateTime'] = transactions_dict['Transaction_DateTime']
-        transactions_dict['Transaction_Type'] = transactions_dict['Transaction_Type']
-        transactions_dict['Transaction_Details'] = transactions_dict['Transaction_Details']
-        transactions_dict['Transaction_Description'] = transactions_dict['Transaction_Description']
-
-        Transactions.objects.filter(
-            id=i_tranaction_id).update(**transactions_dict)
-        i_tranaction_id += 1
-        return Response({'success': 'Last Transaction deleted '}, status=status.HTTP_200_OK)
+    return Response({'success': 'Last Transaction deleted '}, status=status.HTTP_200_OK)
 
 
 @ api_view(['GET'])
