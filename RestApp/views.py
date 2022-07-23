@@ -8,12 +8,14 @@ from http.client import CONTINUE
 # from locale import D_T_FMT
 from logging import raiseExceptions
 from optparse import Values
+from pickle import NONE
 from queue import Empty
 from re import M, T
 import string
 # from socket import MSG_EOR
 from tabnanny import verbose
 from telnetlib import TELNET_PORT
+from tokenize import Ignore
 from urllib import response
 from MySQLdb import DateFromTicks
 from django.http import Http404, HttpResponse
@@ -226,12 +228,43 @@ def update_masterlist(df):
     masterlist['Overall_Pick'] = masterlist.groupby('Year').cumcount()+1
 
     masterlist['Unique_Pick_ID'] = masterlist['Year'].astype(str) + '-' + masterlist['Draft_Round'].astype(str) \
-        + '-' + masterlist['PickType'].astype(str) + '-' + \
+        + '-' + masterlist['PickType'].astype(str) +    '-' + \
         masterlist['Original_Owner'].astype(str)
     masterlist['Club_Pick_Number'] = masterlist.groupby(
         ['Year', 'Current_Owner']).cumcount() + 1
+    incrented_id = 1
+    for index, updaterow in masterlist.iterrows():
+        row1 = dict(updaterow)
+        team = Teams.objects.get(id=updaterow.TeamName)
+        Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
+        Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
+        Overall_pickk = row1['Overall_Pick']
+        previous_owner =  None
+        row1['Display_Name'] = str(Current_Ownerr.ShortName) + ' (Origin: ' + str(Original_Owner.ShortName) + ', Via: ' +\
+                                ')' if Original_Owner != Current_Ownerr else team.ShortName
+        row1['Display_Name_Short'] = str(Current_Ownerr.ShortName) + ' (Origin: ' + str(Original_Owner.ShortName) + ', Via: ' +\
+            ')' if Original_Owner != Current_Ownerr else team.ShortName
 
-    return masterlist
+        row1['Display_Name_Detailed'] = str(updaterow.Year) + '-' + str(updaterow.Draft_Round) + '-Pick' \
+            + str(updaterow.Overall_Pick) + \
+            '-' + row1['Display_Name_Short']
+
+        row1['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
+            None + ')' if Original_Owner != Current_Ownerr else str(
+                int(Overall_pickk)) + ' ' + team.ShortName
+
+        row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + str(Current_Ownerr.TeamNames) + ' (Origin: ' + str(Original_Owner.TeamNames) + ', Via: ' + \
+            str(previous_owner) + str(team.ShortName) + \
+            ')' if Original_Owner != Current_Ownerr else team.ShortName
+
+        row1['TeamName'] = team
+        row1['Original_Owner'] = Original_Owner
+        row1['Current_Owner'] = Current_Ownerr
+        Project1 = Project.objects.get(id=updaterow.projectid)
+        row1['projectid'] = Project1
+        MasterList(**row1).save()
+        incrented_id +=1
+
 
 
 def CreateMasterListRequest(request, pk):
@@ -283,48 +316,7 @@ def CreateMasterListRequest(request, pk):
         df['Selected_Player'] = ''
         df['projectid'] = pk
 
-        udpatedf = update_masterlist(df)
-
-        for index, updaterow in udpatedf.iterrows():
-            ShortNames = []
-            row1 = dict(updaterow)
-            team = Teams.objects.get(id=updaterow.TeamName)
-            teamsobj = Teams.objects.filter().values('ShortName')
-            for teams_short_list in teamsobj:
-                ShortNames.append(teams_short_list['ShortName'])
-
-            Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
-            Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
-            previous_owner = Teams.objects.get(id=updaterow.Current_Owner)
-            Overall_pickk = row1['Overall_Pick']
-
-            Project1 = Project.objects.get(id=updaterow.projectid)
-
-            row1['Previous_Owner_id'] = None
-            team = Teams.objects.get(id=updaterow.TeamName)
-            row1['TeamName'] = team
-            row1['Original_Owner'] = Original_Owner
-            row1['Current_Owner'] = Current_Ownerr
-            row1['projectid'] = Project1
-
-            row1['Display_Name'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                None + ')' if Original_Owner != Current_Ownerr else Current_Ownerr.TeamNames
-            row1['Display_Name_Short'] = str(Current_Ownerr.ShortName) + ' (Origin: ' + str(Original_Owner.ShortName) + ', Via: ' +\
-                ')' if Original_Owner == Current_Ownerr else team.ShortName
-
-            row1['Display_Name_Detailed'] = str(updaterow.Year) + '-' + str(updaterow.Draft_Round) + '-Pick' \
-                + str(updaterow.Overall_Pick) + \
-                '-' + row1['Display_Name_Short']
-
-            row1['Display_Name_Mini'] = str(Current_Ownerr)+' (Origin: '+team.TeamNames+', Via: ' + \
-                None + ')' if Original_Owner != Current_Ownerr else str(
-                    int(Overall_pickk)) + ' ' + team.ShortName
-
-            row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + str(Current_Ownerr.TeamNames) + ' (Origin: ' + str(Original_Owner.TeamNames) + ', Via: ' + \
-                str(previous_owner) + str(team.ShortName) + \
-                ')' if Original_Owner != Current_Ownerr else team.ShortName
-
-            MasterList(**row1).save()
+        update_masterlist(df)
 
     except Exception as e:
 
@@ -889,7 +881,7 @@ def PriorityPickrRequest(request):
     iincreament_id = 1
     for index, updaterow in udpatedf.iterrows():
         # #############################################################################################################################################
-        # Doing this because the team,current owner ,previous owner,original owner are the foreign key conttraints to the teams tables so i need to insert instacnces
+        # Doing this because the  team,current owner ,previous owner,original owner are the foreign key conttraints to the teams tables so i need to insert instacnces
 
         academy_dict = dict(updaterow)
         MasterList.objects.filter(id=iincreament_id).update(**academy_dict)
