@@ -233,12 +233,18 @@ def update_masterlist(df):
     masterlist['Club_Pick_Number'] = masterlist.groupby(
         ['Year', 'Current_Owner']).cumcount() + 1
     incrented_id = 1
+
     for index, updaterow in masterlist.iterrows():
         row1 = dict(updaterow)
         team = Teams.objects.get(id=updaterow.TeamName)
         Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
         Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
         Overall_pickk = row1['Overall_Pick']
+        row1['TeamName'] = team
+        row1['Original_Owner'] = Original_Owner
+        row1['Current_Owner'] = Current_Ownerr
+        # Project1 = Project.objects.get(id=pk)
+        # row1['projectid'] = Project1
         previous_owner =  None
         row1['Display_Name'] = str(Current_Ownerr.ShortName) + ' (Origin: ' + str(Original_Owner.ShortName) + ', Via: ' +\
                                 ')' if Original_Owner != Current_Ownerr else team.ShortName
@@ -256,14 +262,9 @@ def update_masterlist(df):
         row1['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + str(Current_Ownerr.TeamNames) + ' (Origin: ' + str(Original_Owner.TeamNames) + ', Via: ' + \
             str(previous_owner) + str(team.ShortName) + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
-
-        row1['TeamName'] = team
-        row1['Original_Owner'] = Original_Owner
-        row1['Current_Owner'] = Current_Ownerr
-        Project1 = Project.objects.get(id=updaterow.projectid)
-        row1['projectid'] = Project1
-        MasterList(**row1).save()
-        incrented_id +=1
+        new_df = df.append(row1, ignore_index=True)
+        
+        return new_df
 
 
 
@@ -315,8 +316,20 @@ def CreateMasterListRequest(request, pk):
         df['Pick_Status'] = ''
         df['Selected_Player'] = ''
         df['projectid'] = pk
-
-        update_masterlist(df)
+        incrented_id=1
+        update_masterlist = update_masterlist(df)
+        new_df = df.append(update_masterlist, ignore_index=True)
+        for index, updaterow in new_df.iterrows():
+            team = Teams.objects.get(id=updaterow.TeamName)
+            Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
+            Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
+            Overall_pickk = row1['Overall_Pick']
+            row1['TeamName'] = team
+            row1['Original_Owner'] = Original_Owner
+            row1['Current_Owner'] = Current_Ownerr
+            row1 = dict(updaterow)
+            MasterList(**row1).save()
+            incrented_id +=1
 
     except Exception as e:
 
@@ -3571,11 +3584,11 @@ def add_trade_v3(request, pk):
     # ###########  Call Update masterlist ############
 
     udpatedf = update_masterlist(masterlist)
-    if udpatedf['Previous_Owner'].isnull().values.any():
+    # if udpatedf['Previous_Owner'].isnull().values.any():
 
-        udpatedf['Previous_Owner'] = udpatedf['Previous_Owner'].fillna('')
-    else:
-        pass
+    #     udpatedf['Previous_Owner'] = udpatedf['Previous_Owner'].fillna('')
+    # else:
+    #     pass
 
     incremented_id = 1
     for index, updaterow in udpatedf.iterrows():
