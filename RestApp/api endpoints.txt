@@ -75,9 +75,9 @@ add trade v3
 
 {
 "teamid1":"1",
-"pickid1":[{"value":1,"label":"2022-RD1-Pick1-AFC (Origin: AFC, Via: )"}],
+"pickid1":[{"value":1,"label":"2022-RD1-Pick1-AFC"}],
 "player1":["test"],"teamid2":"2",
-"pickid2":[{"value":56,"label":"2022-RD4-Pick56-BFC (Origin: BFC, Via: )"}],
+"pickid2":[{"value":56,"label":"2022-RD4-Pick56-BFC"}],
 "player2":["test2"]
 }
 
