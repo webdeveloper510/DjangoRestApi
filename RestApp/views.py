@@ -261,7 +261,7 @@ def update_masterlist(df):
         udpated_df_dict['Current_Owner_Short_Name'] = str(Overall_pickk) + '  ' + str(Current_Ownerr.TeamNames) + ' (Origin: ' + str(Original_Owner.TeamNames) + ', Via: ' + \
             str(previous_owner) + str(team.ShortName) + \
             ')' if Original_Owner != Current_Ownerr else team.ShortName
-        # new_df = df.append(udpated_df_dict, ignore_index=True)
+
         dataframe_list.append(udpated_df_dict.copy())
 
     new_df = pd.DataFrame.from_dict(dataframe_list)
@@ -320,7 +320,7 @@ def CreateMasterListRequest(request, pk):
 
         for index, updaterow in updated_df.iterrows():
             masterlist_dict = dict(updaterow)
-            # Makng teams instance of Team_Name,Current_owner,Previus_owner,original_Owner to match the foreign key relation between team and masterlist table
+            # Makng teams instance of Team_Name,Current_owner,Previous_owner,original_Owner to match the foreign key relation between team and masterlist table
             team = Teams.objects.get(id=updaterow.TeamName)
             Original_Owner = Teams.objects.get(id=updaterow.Original_Owner)
             Current_Ownerr = Teams.objects.get(id=updaterow.Current_Owner)
@@ -406,15 +406,7 @@ def import_ladder_dragdrop_V2(ladder_list_current_yr, ladder_list_current_yr_plu
     return ladder_current_year, ladder_current_year_plus1
 
 
-@api_view(['POST'])
-@permission_classes([AllowAny, ])
-def add_trade_v2_request(request, pk):
-
-    # define lists of picks and players traded out:
-    # team1 trading out
-    df = dataframerequest(request, pk)
-    masterlist = df
-
+def add_trade_v2_inputs(request, pk):
     team1_trades_picks = []
     team1_trades_players = []
 
@@ -424,20 +416,28 @@ def add_trade_v2_request(request, pk):
 
     picks_trading_out_team1 = []
     picks_trading_out_team2 = []
-    # TEAMS  TRADING OUT ######################## = []
+    masterlist = dataframerequest(request, pk)
     data = request.data
     team1 = data.get('Team1')
     team2 = data.get('Team2')
-
+    picks_trading_out_team1 = []
     picks_trading_out_team1_obj = data.get('Team1_Pick1')
-    picks_trading_out_team1 = picks_trading_out_team1_obj[0]['value']
-    # picks_trading_out_team2_obj = data['Team2_Pick2']
-    players_trading_out_team1 = data.get('Team1_players') or ''
+    for picks_trade_team1 in picks_trading_out_team1_obj:
+        picks_trading_out_team1.append(picks_trade_team1['label'])
 
-    # picks_trading_out_team2 = data.get('Team2_Pick2')
+    players_trading_out_team1_obj = data.get('Team1_players')
+    players_trading_out_team1 = []
+    for players_trade_team1 in players_trading_out_team1_obj:
+        players_trading_out_team1.append(players_trade_team1['Team1_players'])
+
     picks_trading_out_team2_obj = data.get('Team2_Pick2')
-    picks_trading_out_team2 = picks_trading_out_team2_obj[0]['value']
-    players_trading_out_team2 = data.get('Team2_players') or ''
+    for picks_trade_v2 in picks_trading_out_team2_obj:
+        picks_trading_out_team2.append(picks_trade_v2['label'])
+
+    players_trading_out_team2 = []
+    players_trading_out_team2_obj = data.get('Team2_players')
+    for players_trade_team2 in players_trading_out_team2_obj:
+        players_trading_out_team2.append(players_trade_team2['Team2_players'])
 
     team1obj = Teams.objects.get(id=team1)
     team1name = team1obj.TeamNames
@@ -446,61 +446,63 @@ def add_trade_v2_request(request, pk):
     team2name = team2obj.TeamNames
 
     picks_trading_out_team2 = picks_trading_out_team2
-    team2picks = ''
+
     Masterlistobj = MasterList.objects.filter(
         id=picks_trading_out_team2).values()
     for data in Masterlistobj:
         team2_picks.append(data['Display_Name_Detailed'])
-    team2picks = "".join(team2_picks)
-    # players_trading_out_team2_no = data['Team2_Players_no']
-    picks_trading_out_team1_len = len(str(picks_trading_out_team1))
 
-    players_trading_out_team1_len = len(players_trading_out_team1) or ''
+    if picks_trading_out_team1 != '':
 
-    if picks_trading_out_team1_len:
-        team1picks = masterlist[masterlist['Current_Owner']
-                                == team1]['Display_Name_Detailed'].tolist()
-        for i in range(picks_trading_out_team1_len):
-            pick_trading_out_team1 = masterlist[masterlist['id'].astype(int) == int(
-                picks_trading_out_team1)]['Display_Name_Detailed'].tolist()
-            team1_trades_picks.append(pick_trading_out_team1)
-    else:
-        pass
-    if players_trading_out_team1_len or players_trading_out_team1_len == '':
-        for i in range(players_trading_out_team1_len or 0):
-            player_trading_out_team1 = Players.objects.filter(
-                id__in=[players_trading_out_team1]).values()
-            for player_name in player_trading_out_team1:
-                team1_trades_players.append(player_name['Full_Name'])
-    else:
-        pass
+        if len(picks_trading_out_team1):
+            team1picks = masterlist[masterlist['Current_Owner']
+                                    == team1]['Display_Name_Detailed'].tolist()
+            for i in range(len(picks_trading_out_team1)):
+                pick_trading_out_team1 = masterlist[masterlist['Display_Name_Detailed'].isin(
+                    picks_trading_out_team1)]['Display_Name_Detailed'].tolist()
+                team1_trades_picks.append(pick_trading_out_team1)
+        else:
+            pass
 
-    picks_trading_out_team2_len = len(str(picks_trading_out_team2))
-    players_trading_out_team2_len = len(players_trading_out_team2) or ''
+    if players_trading_out_team1 != '':
 
-    if picks_trading_out_team2_len:
+        if len(players_trading_out_team1):
+            for i in range(len(players_trading_out_team1)):
+                team1_trades_players.append(players_trading_out_team1)
+        else:
+            pass
+
+    if len(picks_trading_out_team2):
         team2picks = masterlist[masterlist['Current_Owner']
                                 == team2]['Display_Name_Detailed'].tolist()
 
-        for i in range(picks_trading_out_team2_len):
+        for i in range(len(picks_trading_out_team2)):
             pick_trading_out_team2 = masterlist[masterlist['id'].astype(int) == int(
                 picks_trading_out_team2)]['Display_Name_Detailed'].tolist()
             team2_trades_picks.append(pick_trading_out_team2)
     else:
         pass
 
-    if players_trading_out_team2_len or players_trading_out_team2_len == '':
+    if players_trading_out_team2:
 
-        for i in range(players_trading_out_team2_len or 0):
-
-            player_trading_out_team2 = Players.objects.filter(
-                id__in=[players_trading_out_team2]).values()
-
-            for player_name in player_trading_out_team2:
-
-                team1_trades_players.append(player_name['Full_Name'])
+        for i in range(players_trading_out_team2):
+            team1_trades_players.append(players_trading_out_team2)
     else:
         pass
+
+    return masterlist, team2_trades_picks, team1_trades_picks, team1name, team2name, team1_trades_players, team2_trades_players, team1, team2
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny, ])
+def add_trade_v2_request(request, pk):
+
+    # call add trade v2 inputs
+
+    masterlist, team2_trades_picks, team1_trades_picks, team1name, team2name, team1_trades_players, team2_trades_players, team1, team2 = add_trade_v2_inputs(
+        request, pk)
+
+    # TEAMS  TRADING OUT ######################## = []
 
 ################### TRADE EXECUTION ############################
 
@@ -526,6 +528,23 @@ def add_trade_v2_request(request, pk):
         # Executing change of ownership
         masterlist['Current_Owner'].mask(masterlist['Display_Name_Detailed'].astype(
             str) == str(team1pickout), team2, inplace=True)
+        # ###########  Call Update masterlist ############
+
+    udpatedf = update_masterlist(masterlist)
+    if udpatedf['Previous_Owner'].isnull().values.any():
+
+        udpatedf['Previous_Owner'] = udpatedf['Previous_Owner'].fillna('')
+    else:
+        pass
+
+    incremented_id = 1
+    for index, updaterow in udpatedf.iterrows():
+        # #############################################################################################################
+        # team,current owner ,previous owner,original owner are the foreign key conttraints to the teams tables so i need to insert instacnces
+        trade_v2_dict = dict(updaterow)
+
+        MasterList.objects.filter(id=incremented_id).update(**trade_v2_dict)
+        incremented_id += 1
 
     team1_out = team1_trades_players + team1_trades_picks
     team2_out = team2_trades_players + team2_trades_picks
@@ -541,28 +560,18 @@ def add_trade_v2_request(request, pk):
         ','.join(str(e) for e in team1_out) + ' & ' + team2name + \
         ' traded ' + ','.join(str(e) for e in team2_out)
 
-    projectIdd = MasterList.objects.filter(
-        id__in=[team1, team2]).values('projectid')
-    pId = projectIdd[0]['projectid']
-
-    Team_id1 = Teams.objects.get(id=team1)
-    Team_id2 = Teams.objects.get(id=team2)
-    masterpick1 = MasterList.objects.get(id=picks_trading_out_team1)
-    masterpick2 = MasterList.objects.get(
-        id=picks_trading_out_team2)
-
-    Transactions.objects.create(
-        Transaction_Number='',
-        Transaction_DateTime=current_time,
-        Transaction_Type='Trade',
-        Transaction_Details=trade_dict_full,
-        Transaction_Description=trade_description,
-        projectId=pId
-    )
-
-    pk = Transactions.objects.latest('id')
-    row_count = Transactions.objects.filter().count()
-    Transactions.objects.filter(id=pk.id).update(Transaction_Number=row_count)
+    obj = Project.objects.get(id=pk)
+    df2 = transactionsdataframe(request, pk)
+    transaction_details = pd.DataFrame(
+        {'Transaction_Number': len(df2) + 1, 'Transaction_DateTime': current_time, 'Transaction_Type': 'Trade', 'Transaction_Details': trade_dict_full, 'Transaction_Description': trade_description, 'projectId': obj.id})
+    df2 = df2.append(transaction_details)
+    if df2.isnull().values.any():
+        df2['id'] = df2['id'].fillna(len(df2))
+    else:
+        pass
+    for index, df2_row in df2.iterrows():
+        transactions_dict = dict(df2_row)
+        Transactions(**transactions_dict).save()
 
     return Response({'success': 'Trade and Trasactions Created'}, status=status.HTTP_201_CREATED)
 
@@ -3913,7 +3922,8 @@ def update_ladder(request, pk):
         new_masterlist = update_masterlist(masterlist)
         if new_masterlist['Previous_Owner'].isnull().values.any():
 
-            new_masterlist['Previous_Owner'] = new_masterlist['Previous_Owner'].fillna('')
+            new_masterlist['Previous_Owner'] = new_masterlist['Previous_Owner'].fillna(
+                '')
         else:
             pass
         iincreament_id = 1
@@ -6839,8 +6849,8 @@ def delete_last_transaction_View(request, pk):
     new_masterlist, new_transactions, details = update_ladder(request, pk)
 
     iincreament_id = 1
-   
-    for index, updaterow in new_masterlist.iterrows(): # update the masterlist 
+
+    for index, updaterow in new_masterlist.iterrows():  # update the masterlist
         update_ladder_dict = dict(updaterow)
         MasterList.objects.filter(
             id=iincreament_id).update(**update_ladder_dict)
