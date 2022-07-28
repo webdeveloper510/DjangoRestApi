@@ -67,7 +67,7 @@ Priority pick
     "reason":"testing",
     "pp_insert_instructions":"Before",
     "pick_type":"Second Round",  
-    "projectId":"1",
+    "projectId":"2",
     "ppid":"24"
  }
 
@@ -89,6 +89,13 @@ add trade v3
 "pickid2":[{"value":2,"label":"2022-RD1-Pick2-BFC"},{"value":20,"label":"2022-RD2-Pick20-BFC"}],
 "player2":["bl1"," bl2"]}
 
+
+{"teamid1":"3",
+"pickid1":[{"value":3,"label":"2022-RD1-Pick3-CARL"},{"value":21,"label":"2022-RD2-Pick21-CARL"}],
+"player1":["ade1"," ade2"],
+"teamid2":"4",
+"pickid2":[{"value":4,"label":"2022-RD1-Pick2-BFC"},{"value":22,"label":"2022-RD2-Pick22-COLL"}],
+"player2":["bl1"," bl2"]}
 
 
 create project
