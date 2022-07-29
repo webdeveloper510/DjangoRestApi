@@ -254,7 +254,7 @@ def update_masterlist(masterlist, library_AFL_Draft_Points, library_AFL_Team_Nam
     masterlist['Draft_Round_Int'] = masterlist['Draft_Round'].map(
         library_round_map)
 
-# Updating AFL points Value:
+    # Updating AFL points Value:
     _querset =  Teams.objects.filter().values()
     library_AFL_Team_Names = {item['id']:[item['TeamNames'],item['ShortName']] for item in _querset}
     masterlist['AFL_Points_Value'] = masterlist['Overall_Pick'].map(
