@@ -219,7 +219,6 @@ def call_update_masterlist(df, library_AFL_Draft_Points, library_AFL_Team_Names,
     return df, library_AFL_Draft_Points, library_AFL_Team_Names, library_round_map
 
 
-
 def import_ladder_dragdrop(library_team_dropdown_list, library_AFL_Team_Names_list, v_current_year, v_current_year_plus1):
 
     ladder_current_year = pd.DataFrame(
@@ -255,41 +254,46 @@ def update_masterlist(masterlist, library_AFL_Draft_Points, library_AFL_Team_Nam
         library_round_map)
 
     # Updating AFL points Value:
-    _querset =  Teams.objects.filter().values()
-    library_AFL_Team_Names = {item['id']:[item['TeamNames'],item['ShortName']] for item in _querset}
-    masterlist['AFL_Points_Value'] = masterlist['Overall_Pick'].map(
-        library_AFL_Draft_Points).fillna(0)
+    _querset = Teams.objects.filter().values()
+    library_AFL_Team_Names = {item['id']: [
+        item['TeamNames'], item['ShortName']] for item in _querset}
+
+    masterlist['AFL_Points_Value'] = masterlist['Overall_Pick'].map(library_AFL_Draft_Points).fillna(0)
 
     # Updating Unique Pick ID points Value:
-    masterlist['Unique_Pick_ID'] = masterlist['Year'].astype(str) + '-' + masterlist['Draft_Round'].apply(str) + '-' + masterlist['PickType'].apply(str) + '-' + masterlist['Current_Owner'].map(lambda x: library_AFL_Team_Names[int(x)][1])
+    masterlist['Unique_Pick_ID'] = masterlist['Year'].astype(str) + '-' + masterlist['Draft_Round'].apply(
+        str) + '-' + masterlist['PickType'].apply(str) + '-' + masterlist['Current_Owner'].map(lambda x: library_AFL_Team_Names[int(x)][1])
 
     # Updating what pick number it is for each club:
-    masterlist['Club_Pick_Number'] = masterlist.groupby(['Year', 'Current_Owner']).cumcount() + 1
+    masterlist['Club_Pick_Number'] = masterlist.groupby(
+        ['Year', 'Current_Owner']).cumcount() + 1
 
    # Updating the Display name to show where the pick has come from:
     masterlist['Display_Name'] = np.where(masterlist['Original_Owner'] != masterlist['Current_Owner'],  masterlist['Current_Owner'].map(lambda x: library_AFL_Team_Names[int(x)][1])
-                                  + ' (Origin: ' + masterlist['Original_Owner'].map(lambda x: library_AFL_Team_Names[x][1])
-                                  + ', Via: ' + masterlist['Previous_Owner'].astype(str).map(lambda x: library_AFL_Team_Names.get(x, [''][0])) + ')',masterlist['Current_Owner'].map(lambda x: library_AFL_Team_Names[int(x)][1]))
-  
+                                          + ' (Origin: ' + masterlist['Original_Owner'].map(
+                                              lambda x: library_AFL_Team_Names[x][1])
+                                          + ', Via: ' + masterlist['Original_Owner'].astype(int).map(lambda x: library_AFL_Team_Names[x][1]) + ')', masterlist['Current_Owner'].map(lambda x: library_AFL_Team_Names[int(x)][1]))
+
     # Updating a shorter display name
-  
-    masterlist['Display_Name_Short'] = np.where(masterlist['Original_Owner'] != masterlist['Current_Owner'], masterlist['Current_Owner'].apply(int).map(lambda x: library_AFL_Team_Names[int(x)][1]) 
-                                        + ' (Origin: '+ masterlist['Original_Owner'].map(lambda x: library_AFL_Team_Names[x][1]) + ', Via: ' 
-                                        + masterlist['Previous_Owner'].astype(str).map(lambda x: library_AFL_Team_Names.get(x, [''][0])) + ')', masterlist['Current_Owner'].apply(int).map(lambda x: library_AFL_Team_Names[int(x)][1]))
- 
+
+    masterlist['Display_Name_Short'] = np.where(masterlist['Original_Owner'] != masterlist['Current_Owner'], masterlist['Current_Owner'].apply(int).map(lambda x: library_AFL_Team_Names[int(x)][1])
+                                                + ' (Origin: ' + masterlist['Original_Owner'].map(
+                                                    lambda x: library_AFL_Team_Names[x][1]) + ', Via: '
+                                                + masterlist['Original_Owner'].astype(int).map(lambda x: library_AFL_Team_Names[x][1]) + ')', masterlist['Current_Owner'].apply(int).map(lambda x: library_AFL_Team_Names[int(x)][1]))
 
     # UPdating a detailed display name:
-    masterlist['Display_Name_Detailed'] = masterlist['Year'].apply(str) + '-' + masterlist['Draft_Round'].apply(str) + '-Pick'  + masterlist['Overall_Pick'].apply(str) + '-' + masterlist['Display_Name_Short'].apply(str)
+    masterlist['Display_Name_Detailed'] = masterlist['Year'].apply(str) + '-' + masterlist['Draft_Round'].apply(
+        str) + '-Pick' + masterlist['Overall_Pick'].apply(str) + '-' + masterlist['Display_Name_Short'].apply(str)
 
     # Update a mini display name:
- 
-    masterlist['Display_Name_Mini'] = np.where(masterlist['Original_Owner'] != masterlist['Current_Owner'], masterlist['Overall_Pick'].astype(str)  + ' ' + masterlist['Current_Owner'].apply(int).map(lambda x: library_AFL_Team_Names[x][1]) 
-            + ' (Origin: ' + masterlist['Original_Owner'].map(lambda x: library_AFL_Team_Names[x][1])+ ', Via: ' + masterlist['Previous_Owner'].astype(str).map(lambda x: library_AFL_Team_Names.get(x, [''][0])) + ')',masterlist['Overall_Pick'].apply(str) + ' ' + masterlist['Current_Owner'].apply(int).map(lambda x:library_AFL_Team_Names[x][1]))
 
+    masterlist['Display_Name_Mini'] = np.where(masterlist['Original_Owner'] != masterlist['Current_Owner'], masterlist['Overall_Pick'].astype(str) + ' ' + masterlist['Current_Owner'].apply(int).map(lambda x: library_AFL_Team_Names[x][1])
+                                               + ' (Origin: ' + masterlist['Original_Owner'].map(lambda x: library_AFL_Team_Names[x][1]) + ', Via: ' + masterlist['Original_Owner'].astype(int).map(lambda x: library_AFL_Team_Names[x][1]) + ')', masterlist['Overall_Pick'].apply(str) + ' ' + masterlist['Current_Owner'].apply(int).map(lambda x: library_AFL_Team_Names[x][1]))
     # Currrent Owner short nickname:
-    masterlist['Current_Owner_Short_Name'] = masterlist['Current_Owner']
- 
-    return masterlist 
+    masterlist['Current_Owner_Short_Name'] = masterlist['Current_Owner'].apply(
+        int).map(lambda x: library_AFL_Team_Names[x][1])
+
+    return masterlist
 
 
 def CreateMasterListRequest(request, pk):
@@ -381,7 +385,6 @@ def CreateMasterListRequest(request, pk):
 
         updated_df = update_masterlist(
             df, library_AFL_Draft_Points, library_AFL_Team_Names, library_round_map)
-        
 
         for index, updaterow in updated_df.iterrows():
             masterlist_dict = dict(updaterow)
@@ -403,7 +406,8 @@ def CreateMasterListRequest(request, pk):
     except Exception as e:
 
         raise e
-    call_update_masterlist(df, library_AFL_Draft_Points, library_AFL_Team_Names, library_round_map)
+    call_update_masterlist(df, library_AFL_Draft_Points,
+                           library_AFL_Team_Names, library_round_map)
 
 
 @api_view(['POST'])
@@ -3523,7 +3527,7 @@ def add_trade_v3_inputs(request, pk):
     Team1_name = obj1.TeamNames
     Team2_name = obj2.TeamNames
     masterlist = dataframerequest(request, pk)
-    
+
     # players = playerdataframe(request, pk)
     Player_1 = list()
     picks_trading_out_team1 = []
@@ -3583,7 +3587,8 @@ def add_trade_v3_inputs(request, pk):
             int) == int(team2)]['Display_Name_Detailed'].tolist()
 
         for i in range(len(picks_trading_out_team2)):
-            pick_trading_out_team2 = masterlist[masterlist['Display_Name_Detailed'].isin(picks_trading_out_team2)]['Display_Name_Detailed'].tolist()
+            pick_trading_out_team2 = masterlist[masterlist['Display_Name_Detailed'].isin(
+                picks_trading_out_team2)]['Display_Name_Detailed'].tolist()
 
             team2_trades_picks.append(pick_trading_out_team2)
             # get unique pick name
@@ -3613,7 +3618,8 @@ def add_trade_v3(request, pk):
 
     ##### Team 1 receiving from Team 2 #####
     # Loop for each pick that team 2 is trading out to team 1:
-    masterlist, team1, Team1_name, team2, Team2_name, team1_trades_picks, team1_trades_players, team2_trades_picks, team2_trades_players, team1_trades_pick_names, team2_trades_pick_names = add_trade_v3_inputs(request, pk)
+    masterlist, team1, Team1_name, team2, Team2_name, team1_trades_picks, team1_trades_players, team2_trades_picks, team2_trades_players, team1_trades_pick_names, team2_trades_pick_names = add_trade_v3_inputs(
+        request, pk)
     library_round_map = {}
     Get_all_Rounds = DraftRound.objects.filter().values()
 
@@ -3622,40 +3628,47 @@ def add_trade_v3(request, pk):
     library_AFL_Team_Names = masterlist['Display_Name']
     library_round_map = library_round_map
     library_AFL_Draft_Points = masterlist['AFL_Points_Value']
-    df, library_AFL_Draft_Points, library_AFL_Team_Names, library_round_map = call_update_masterlist(masterlist, library_AFL_Draft_Points, library_AFL_Team_Names, library_round_map)
+    df, library_AFL_Draft_Points, library_AFL_Team_Names, library_round_map = call_update_masterlist(
+        masterlist, library_AFL_Draft_Points, library_AFL_Team_Names, library_round_map)
   # Trade facilitation - Swapping current owner names & Applying Most Recent Owner First:
 
     ##### Team 1 receiving from Team 2 #####
     # Loop for each pick that team 2 is trading out to team 1:
-
+    if df['Previous_Owner'].isnull().values.any():
+        df['Previous_Owner'] = df['Previous_Owner'].fillna(team1)
+    else:
+        pass
     for team2pickout in team2_trades_picks:
 
         # Changing the previous owner name
-    
+
         masterlist['Previous_Owner'].mask(
             masterlist['Display_Name_Detailed'].isin(team2pickout), masterlist['Current_Owner'], inplace=True)
 
         # Executing change of ownership
         masterlist['Current_Owner'].mask(
             masterlist['Display_Name_Detailed'].isin(team2pickout), team1, inplace=True)
-    if df['Previous_Owner'].isnull().values.any():
-        df['Previous_Owner']=df['Previous_Owner'].fillna('')
-    else:
-        pass
 
         ##### Team 2 receiving from Team 1 #####
         # Loop for each pick that team 1 is trading out to team 2:
+    if df['Previous_Owner'].isnull().values.any():
+
+        df['Previous_Owner'] = df['Previous_Owner'].fillna('')
+    else:
+        pass
     for team1pickout in team1_trades_picks:
         # Changing the previous owner name
         for picks in team1pickout:
 
             masterlist['Previous_Owner'].mask(
-                masterlist['Display_Name_Detailed']==picks, masterlist['Current_Owner'], inplace=True)
+                masterlist['Display_Name_Detailed'] == picks, masterlist['Current_Owner'], inplace=True)
             # Executing change of ownership
             masterlist['Current_Owner'].mask(
-                masterlist['Display_Name_Detailed']==picks, team2, inplace=True)
+                masterlist['Display_Name_Detailed'] == picks, team2, inplace=True)
+
     # ###########  Call Update masterlist ############
-    udpatedf = update_masterlist(masterlist, library_AFL_Draft_Points, library_AFL_Team_Names, library_round_map)
+    udpatedf = update_masterlist(
+        masterlist, library_AFL_Draft_Points, library_AFL_Team_Names, library_round_map)
 
     if udpatedf['Previous_Owner'].isnull().values.any():
 

@@ -68,7 +68,7 @@ Priority pick
     "pp_insert_instructions":"Before",
     "pick_type":"Second Round",  
     "projectId":"2",
-    "ppid":"24"
+    "ppid":"3"
  }
 
 add trade v3
