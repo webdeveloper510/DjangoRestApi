@@ -249,7 +249,7 @@ def update_masterlist(masterlist, library_AFL_Draft_Points, library_AFL_Team_Nam
     masterlist['Overall_Pick'] = masterlist.groupby('Year').cumcount() + 1
 
     # Updating Round Integer:
-
+    
     masterlist['Draft_Round_Int'] = masterlist['Draft_Round'].map(
         library_round_map)
 
@@ -257,8 +257,10 @@ def update_masterlist(masterlist, library_AFL_Draft_Points, library_AFL_Team_Nam
     _querset = Teams.objects.filter().values()
     library_AFL_Team_Names = {item['id']: [
         item['TeamNames'], item['ShortName']] for item in _querset}
-
-    masterlist['AFL_Points_Value'] = masterlist['Overall_Pick'].map(library_AFL_Draft_Points).fillna(0)
+    if masterlist.empty:
+        masterlist['AFL_Points_Value'] = library_AFL_Draft_Points
+    else:
+        masterlist['AFL_Points_Value'] = masterlist['Overall_Pick'].map(library_AFL_Draft_Points).fillna(0)
 
     # Updating Unique Pick ID points Value:
     masterlist['Unique_Pick_ID'] = masterlist['Year'].astype(str) + '-' + masterlist['Draft_Round'].apply(
@@ -687,6 +689,17 @@ def PriorityPickrRequest(request):
         pickType=p_type).values('id', 'pickType')
     pp_pick_type = pp_pick_type_re[0]['pickType']
 
+    library_round_map = {}
+    Get_all_Rounds = DraftRound.objects.filter().values()
+
+    for all_rounds in Get_all_Rounds:
+        library_round_map[all_rounds['round']] = all_rounds['id']
+    library_AFL_Team_Names = df['Display_Name']
+    library_round_map = library_round_map
+    library_AFL_Draft_Points = df['AFL_Points_Value']
+    df, library_AFL_Draft_Points, library_AFL_Team_Names, library_round_map = call_update_masterlist(
+        df, library_AFL_Draft_Points, library_AFL_Team_Names, library_round_map)
+
     if pp_pick_type == 'Start of Draft':
 
         rowno = df.index[df.Unique_Pick_ID.str.contains(
@@ -868,7 +881,6 @@ def PriorityPickrRequest(request):
 
         df['id'] = rowno+1
         df['projectid_id'] = project_Id
-        # df['Previous_Owner_id'] = None
         MasterList.objects.filter(id=rowno).update(**df)
 
         # Update transactions
@@ -957,7 +969,8 @@ def PriorityPickrRequest(request):
             str(pp_pick_type) + ' Priority Pick'
 
     df = dataframerequest(request, project_Id)
-    udpatedf = update_masterlist(df)
+    udpatedf = update_masterlist(
+        df, library_AFL_Draft_Points, library_AFL_Team_Names, library_round_map)
     iincreament_id = 1
     for index, updaterow in udpatedf.iterrows():
         # #############################################################################################################################################
@@ -2077,8 +2090,7 @@ def academy_bid_v2(request, pk):
                                           deficit_attached_pick].Overall_Pick.iloc[0]
         deficit_new_shuffled_pick_RD_no = df[df.Display_Name_Detailed ==
                                              deficit_attached_pick].Draft_Round.iloc[0]
-
-        # 2021-RD3-Pick43-Richmond
+                                             
         pick_deficit_details = pd.DataFrame(
             {'Pick': deficit_attached_pick, 'Moves_To': deficit_new_shuffled_pick_no, 'New_Points_Value': deficit_pick_points}, index=[0])
 
@@ -3635,7 +3647,7 @@ def add_trade_v3(request, pk):
     ##### Team 1 receiving from Team 2 #####
     # Loop for each pick that team 2 is trading out to team 1:
     if df['Previous_Owner'].isnull().values.any():
-        df['Previous_Owner'] = df['Previous_Owner'].fillna(team1)
+        df['Previous_Owner'] = df['Previous_Owner'].fillna('')
     else:
         pass
     for team2pickout in team2_trades_picks:
